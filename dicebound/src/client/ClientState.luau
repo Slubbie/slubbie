@@ -87,4 +87,48 @@ function ClientState.DiscoveredIn(regionId: string): (number, number)
 	return found, total
 end
 
+local Players = game:GetService("Players")
+
+local function rootPosition(): Vector3?
+	local character = Players.LocalPlayer.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	return if root and root:IsA("BasePart") then root.Position else nil
+end
+
+local function worldPos(region, rel: { number }): Vector3
+	local o = region.Origin
+	return Vector3.new(o[1] + rel[1], o[2] + rel[2], o[3] + rel[3])
+end
+ClientState.WorldPosition = worldPos
+
+-- The live region the character stands in (display only; the server decides for real).
+function ClientState.CurrentRegion()
+	local pos = rootPosition()
+	if not pos then
+		return nil
+	end
+	for _, region in Config.Regions.List do
+		if Config.IsLive(region) and Config.Regions.Contains(region, pos.X, pos.Y, pos.Z) then
+			return region
+		end
+	end
+	return nil
+end
+
+-- The region whose merchant is close enough to sell (slightly stricter than the server check).
+function ClientState.NearMerchant()
+	local pos = rootPosition()
+	if not pos then
+		return nil
+	end
+	for _, region in Config.Regions.List do
+		if Config.IsLive(region) and region.Merchant then
+			if (pos - worldPos(region, region.Merchant.Position)).Magnitude <= Config.Game.MerchantRange - 2 then
+				return region
+			end
+		end
+	end
+	return nil
+end
+
 return ClientState

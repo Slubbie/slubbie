@@ -183,7 +183,15 @@ function Builder.Label(part: BasePart, face: Enum.NormalId, text: string, textCo
 end
 
 -- Signboard on two posts, facing `facing` (a direction on the ground plane).
-function Builder.Sign(parent: Instance, base: Vector3, facing: Vector3, text: string, boardColor, textColor, width: number?)
+function Builder.Sign(
+	parent: Instance,
+	base: Vector3,
+	facing: Vector3,
+	text: string,
+	boardColor,
+	textColor,
+	width: number?
+)
 	local model = Builder.Model(parent, "Sign")
 	local w = width or 10
 	local cf = CFrame.lookAt(base, base + Vector3.new(facing.X, 0, facing.Z))
@@ -276,7 +284,10 @@ function Builder.Npc(parent: Instance, base: Vector3, facing: Vector3, shirt, ha
 	local model = Builder.Model(parent, name)
 	local cf = CFrame.lookAt(base, base + Vector3.new(facing.X, 0, facing.Z))
 	local skin = { 255, 205, 160 }
-	Builder.Part(model, { Name = "Legs", Size = Vector3.new(2, 2.4, 1), CFrame = cf * CFrame.new(0, 1.2, 0), Color = { 70, 60, 90 } })
+	Builder.Part(
+		model,
+		{ Name = "Legs", Size = Vector3.new(2, 2.4, 1), CFrame = cf * CFrame.new(0, 1.2, 0), Color = { 70, 60, 90 } }
+	)
 	local torso = Builder.Part(model, {
 		Name = "Torso",
 		Size = Vector3.new(2.4, 2.4, 1.2),

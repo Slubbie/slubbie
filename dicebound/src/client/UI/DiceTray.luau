@@ -264,7 +264,9 @@ function DiceTray:Throw(faces: { number }, onLand: (() -> ())?)
 		local side = sideFor(d.Id, value)
 		local x = (i - (n + 1) / 2) * SPACING + (math.random() - 0.5) * 0.5
 		local yaw = math.rad(math.random(-25, 25))
-		local final = CFrame.new(x, DIE_SIZE / 2, (math.random() - 0.5) * 0.8) * CFrame.Angles(0, yaw, 0) * SIDE_UP[side]
+		local final = CFrame.new(x, DIE_SIZE / 2, (math.random() - 0.5) * 0.8)
+			* CFrame.Angles(0, yaw, 0)
+			* SIDE_UP[side]
 		local axis = Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5)
 		if axis.Magnitude < 0.1 then
 			axis = Vector3.xAxis

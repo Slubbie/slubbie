@@ -42,10 +42,8 @@ function Reveal.new(root: Instance, anchor: GuiObject)
 		local rootPos = (root :: GuiObject).AbsolutePosition
 		local scale = root:FindFirstChildOfClass("UIScale")
 		local s = if scale then scale.Scale else 1
-		self.Stack.Position = UDim2.fromOffset(
-			(pos.X - rootPos.X + anchor.AbsoluteSize.X / 2) / s,
-			(pos.Y - rootPos.Y) / s - 44
-		)
+		self.Stack.Position =
+			UDim2.fromOffset((pos.X - rootPos.X + anchor.AbsoluteSize.X / 2) / s, (pos.Y - rootPos.Y) / s - 44)
 	end
 	anchor:GetPropertyChangedSignal("AbsolutePosition"):Connect(follow)
 	anchor:GetPropertyChangedSignal("AbsoluteSize"):Connect(follow)
@@ -109,7 +107,7 @@ function Reveal:Card(reward)
 		return a.LayoutOrder < b.LayoutOrder
 	end)
 	while #cards >= MAX_CARDS do
-		table.remove(cards, 1):Destroy()
+		(table.remove(cards, 1) :: Instance):Destroy()
 	end
 
 	local holder = Kit.new("Frame", {
@@ -165,7 +163,9 @@ function Reveal:Card(reward)
 		Parent = card,
 		Position = UDim2.fromOffset(84, 58),
 		Size = UDim2.new(1, -90, 0, 20),
-		Text = "🪙 " .. Format.Coins(reward.Value) .. (if reward.Source ~= "Main" then "   · " .. reward.Source .. " bonus" else ""),
+		Text = "🪙 " .. Format.Coins(reward.Value) .. (if reward.Source ~= "Main"
+			then "   · " .. reward.Source .. " bonus"
+			else ""),
 		TextSize = 14,
 		Font = Theme.Fonts.Bold,
 		TextColor3 = C.InkSoft,

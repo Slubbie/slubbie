@@ -55,7 +55,11 @@ local function simulate(seed: number)
 			for _, upgrade in Config.Economy.Upgrades.List do
 				local level = data.Upgrades[upgrade.Id]
 				local nextLevel = upgrade.Levels[level + 2]
-				if Config.IsLive(upgrade) and nextLevel and (nextLevel.Cost <= CHEAP or marks["Crystal Caverns affordable"]) then
+				if
+					Config.IsLive(upgrade)
+					and nextLevel
+					and (nextLevel.Cost <= CHEAP or marks["Crystal Caverns affordable"])
+				then
 					if not bestCost or nextLevel.Cost < bestCost then
 						best, bestCost = upgrade, nextLevel.Cost
 					end
@@ -93,7 +97,11 @@ local function simulate(seed: number)
 		rolls += 1
 		local auto = data.Upgrades.AutoRoll > 0
 		t += Config.UpgradeValue("Speed", data.Upgrades.Speed) + (if auto then AUTO_REACTION else REACTION)
-		if not marks["Crystal Caverns affordable"] and data.Coins >= GATE.Coins and discoveries() >= GATE.Discoveries then
+		if
+			not marks["Crystal Caverns affordable"]
+			and data.Coins >= GATE.Coins
+			and discoveries() >= GATE.Discoveries
+		then
 			mark("Crystal Caverns affordable")
 			data.Coins -= GATE.Coins
 		end
@@ -149,14 +157,16 @@ for _, name in milestones do
 	end
 	local median = percentile(table.clone(times), 0.5)
 	results[name] = median
-	print(string.format(
-		"  %-30s %s %s %s  %d%%",
-		name,
-		mmss(if percentile(table.clone(times), 0.1) == math.huge then nil else percentile(table.clone(times), 0.1)),
-		mmss(if median == math.huge then nil else median),
-		mmss(if percentile(table.clone(times), 0.9) == math.huge then nil else percentile(table.clone(times), 0.9)),
-		math.floor(reached / #runs * 100)
-	))
+	print(
+		string.format(
+			"  %-30s %s %s %s  %d%%",
+			name,
+			mmss(if percentile(table.clone(times), 0.1) == math.huge then nil else percentile(table.clone(times), 0.1)),
+			mmss(if median == math.huge then nil else median),
+			mmss(if percentile(table.clone(times), 0.9) == math.huge then nil else percentile(table.clone(times), 0.9)),
+			math.floor(reached / #runs * 100)
+		)
+	)
 end
 local upgrades, discoveries, coins50 = {}, {}, {}
 for _, run in runs do

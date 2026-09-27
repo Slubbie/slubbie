@@ -19,14 +19,16 @@ Kit.OnClick = nil :: (() -> ())?
 function Kit.new(className: string, props: { [string]: any }?, children: { Instance }?): any
 	local inst = Instance.new(className)
 	local parent = nil
-	for key, value in props or {} do
+	local properties: { [string]: any } = props or {}
+	for key, value in properties do
 		if key == "Parent" then
 			parent = value
 		else
 			(inst :: any)[key] = value
 		end
 	end
-	for _, child in children or {} do
+	local kids: { Instance } = children or {}
+	for _, child in kids do
 		child.Parent = inst
 	end
 	if parent then
@@ -60,7 +62,12 @@ function Kit.Padding(parent: Instance, all: number, horizontal: number?): UIPadd
 	})
 end
 
-function Kit.List(parent: Instance, direction: Enum.FillDirection?, padding: number?, align: Enum.HorizontalAlignment?): UIListLayout
+function Kit.List(
+	parent: Instance,
+	direction: Enum.FillDirection?,
+	padding: number?,
+	align: Enum.HorizontalAlignment?
+): UIListLayout
 	return Kit.new("UIListLayout", {
 		FillDirection = direction or Enum.FillDirection.Vertical,
 		Padding = UDim.new(0, padding or 6),
@@ -106,7 +113,13 @@ function Kit.Label(props: { [string]: any }): TextLabel
 	return label
 end
 
-function Kit.Tween(inst: Instance, seconds: number, goal: { [string]: any }, style: Enum.EasingStyle?, direction: Enum.EasingDirection?): Tween
+function Kit.Tween(
+	inst: Instance,
+	seconds: number,
+	goal: { [string]: any },
+	style: Enum.EasingStyle?,
+	direction: Enum.EasingDirection?
+): Tween
 	local info = TweenInfo.new(
 		if Kit.ReducedMotion then math.min(seconds, 0.08) else seconds,
 		style or Enum.EasingStyle.Quad,
@@ -343,7 +356,10 @@ function Kit.Slider(parent: Instance, text: string, initial: number, onChange: (
 
 	local dragging = false
 	track.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
 			dragging = true
 			set(input.Position.X)
 		end
@@ -351,13 +367,19 @@ function Kit.Slider(parent: Instance, text: string, initial: number, onChange: (
 	UserInputService.InputChanged:Connect(function(input)
 		if
 			dragging
-			and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch)
+			and (
+				input.UserInputType == Enum.UserInputType.MouseMovement
+				or input.UserInputType == Enum.UserInputType.Touch
+			)
 		then
 			set(input.Position.X)
 		end
 	end)
 	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
 			dragging = false
 		end
 	end)

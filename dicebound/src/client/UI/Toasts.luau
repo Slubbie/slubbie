@@ -47,7 +47,7 @@ function Toasts.Show(text: string, kind: string?, seconds: number?)
 		return a.LayoutOrder < b.LayoutOrder
 	end)
 	while #existing >= MAX do
-		table.remove(existing, 1):Destroy()
+		(table.remove(existing, 1) :: Instance):Destroy()
 	end
 	order += 1
 	local toast = Kit.Label({

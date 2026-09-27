@@ -157,7 +157,11 @@ local function save(profile: Profile, release: boolean): boolean
 		local ok, lost = writeOnce(profile.Player, snapshot, release)
 		if lost then
 			profile.SaveEnabled = false
-			warn("[Dicebound] Session for", profile.Player.Name, "was taken over by another server; stopped saving here.")
+			warn(
+				"[Dicebound] Session for",
+				profile.Player.Name,
+				"was taken over by another server; stopped saving here."
+			)
 			if profile.Player.Parent then
 				profile.Player:Kick("Your save was opened on another server. Please rejoin.")
 			end
@@ -199,10 +203,13 @@ local function load(player: Player)
 		local data, reason = Schema.Load(raw)
 		if not data then
 			-- Can't happen for "ok" (newer versions are caught in tryAcquire) but never risk it.
-			player:Kick("We couldn't read your save (" .. tostring(reason) .. "). Your progress is safe; please rejoin.")
+			player:Kick(
+				"We couldn't read your save (" .. tostring(reason) .. "). Your progress is safe; please rejoin."
+			)
 			return
 		end
-		profile = { Player = player, Data = data, SaveEnabled = true, SaveMode = "live", Saving = false, Released = false }
+		profile =
+			{ Player = player, Data = data, SaveEnabled = true, SaveMode = "live", Saving = false, Released = false }
 	elseif status == "newer" then
 		player:Kick("This server is running an older version of the game. Please rejoin to get a newer server.")
 		return
@@ -223,7 +230,9 @@ local function load(player: Player)
 			Released = false,
 		}
 	else
-		player:Kick("We couldn't load your save right now (Roblox data service issue). Your progress is safe; please rejoin.")
+		player:Kick(
+			"We couldn't load your save right now (Roblox data service issue). Your progress is safe; please rejoin."
+		)
 		return
 	end
 

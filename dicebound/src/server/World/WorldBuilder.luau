@@ -79,7 +79,14 @@ local function buildMeadow(root: Instance)
 
 	-- Floating island: grass top, earth and rock layers underneath.
 	Builder.Disc(ground, origin, 200, 8, origin.Y, { Name = "Grass", Color = palette.Ground, Material = "Grass" })
-	Builder.Disc(ground, origin, 188, 16, origin.Y - 8, { Name = "Earth", Color = { 120, 85, 55 }, Material = "Ground" })
+	Builder.Disc(
+		ground,
+		origin,
+		188,
+		16,
+		origin.Y - 8,
+		{ Name = "Earth", Color = { 120, 85, 55 }, Material = "Ground" }
+	)
 	Builder.Disc(ground, origin, 150, 22, origin.Y - 24, { Name = "Rock", Color = { 105, 100, 95 }, Material = "Rock" })
 	Builder.Disc(ground, origin, 90, 26, origin.Y - 46, { Name = "RockLow", Color = { 90, 85, 85 }, Material = "Rock" })
 	Builder.Disc(ground, origin, 36, 20, origin.Y - 68, { Name = "RockTip", Color = { 80, 75, 75 }, Material = "Rock" })
@@ -127,7 +134,14 @@ local function buildMeadow(root: Instance)
 		})
 	end
 	-- Centerpiece: a big die on a pedestal, tipped on its corner.
-	Builder.Disc(plaza, origin, 7, 2.4, origin.Y + 2.4, { Name = "Pedestal", Color = { 200, 185, 150 }, Material = "Marble" })
+	Builder.Disc(
+		plaza,
+		origin,
+		7,
+		2.4,
+		origin.Y + 2.4,
+		{ Name = "Pedestal", Color = { 200, 185, 150 }, Material = "Marble" }
+	)
 	Builder.BigDie(
 		plaza,
 		CFrame.new(origin + Vector3.new(0, 6.6, 0)) * CFrame.Angles(math.rad(35), math.rad(20), math.rad(45)),
@@ -173,7 +187,14 @@ local function buildMeadow(root: Instance)
 	-- Merchant stall (east) and tinkerer stall (west), both facing the plaza.
 	local merchantPos = worldPos(region, region.Merchant.Position)
 	local merchantBase = merchantPos + Vector3.new(3, 0, 0)
-	local stall = Builder.Stall(model, merchantBase, Vector3.new(-1, 0, 0), { 250, 245, 235 }, { 230, 90, 80 }, "Merchant")
+	local stall = Builder.Stall(
+		model,
+		merchantBase,
+		Vector3.new(-1, 0, 0),
+		{ 250, 245, 235 },
+		{ 230, 90, 80 },
+		"Merchant"
+	)
 	stall.Name = "MerchantStall"
 	local _, merchantHead = Builder.Npc(
 		stall,
@@ -202,7 +223,14 @@ local function buildMeadow(root: Instance)
 
 	local tinkerPos = worldPos(region, region.Tinkerer.Position)
 	local tinkerBase = tinkerPos + Vector3.new(-3, 0, 0)
-	local workshop = Builder.Stall(model, tinkerBase, Vector3.new(1, 0, 0), { 250, 245, 235 }, { 80, 130, 220 }, "Upgrades")
+	local workshop = Builder.Stall(
+		model,
+		tinkerBase,
+		Vector3.new(1, 0, 0),
+		{ 250, 245, 235 },
+		{ 80, 130, 220 },
+		"Upgrades"
+	)
 	workshop.Name = "TinkererStall"
 	local _, tinkerHead = Builder.Npc(
 		workshop,
@@ -353,9 +381,12 @@ local function buildMeadow(root: Instance)
 end
 
 function WorldBuilder.Build()
-	local baseplate = Workspace:FindFirstChild("Baseplate")
-	if baseplate then
-		baseplate:Destroy()
+	-- Remove the Baseplate template's floor and spawn if the project was synced into one.
+	for _, name in { "Baseplate", "SpawnLocation" } do
+		local leftover = Workspace:FindFirstChild(name)
+		if leftover then
+			leftover:Destroy()
+		end
 	end
 	local existing = Workspace:FindFirstChild("Dicebound")
 	if existing then

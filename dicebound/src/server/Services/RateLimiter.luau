@@ -5,7 +5,10 @@ local Players = game:GetService("Players")
 local RateLimiter = {}
 RateLimiter.__index = RateLimiter
 
-export type Limiter = typeof(setmetatable({} :: { burst: number, rate: number, buckets: { [Player]: { tokens: number, at: number } } }, RateLimiter))
+export type Limiter = typeof(setmetatable(
+	{} :: { burst: number, rate: number, buckets: { [Player]: { tokens: number, at: number } } },
+	RateLimiter
+))
 
 local all: { Limiter } = {}
 

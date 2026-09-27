@@ -221,7 +221,17 @@ end)
 T.test("sale input validation", function()
 	local data = Schema.Defaults()
 	Bag.Add(data, "meadow_acorn", nil, 2)
-	for _, bad in { { meadow_acorn = 3 }, { meadow_acorn = 0 }, { meadow_acorn = 1.5 }, { meadow_acorn = -1 }, { nope = 1 }, {}, "x" } do
+	for _, bad in
+		{
+			{ meadow_acorn = 3 },
+			{ meadow_acorn = 0 },
+			{ meadow_acorn = 1.5 },
+			{ meadow_acorn = -1 },
+			{ nope = 1 },
+			{},
+			"x",
+		}
+	do
 		T.eq(select(1, Shop.PlanSale(data, bad, true)), nil)
 	end
 end)

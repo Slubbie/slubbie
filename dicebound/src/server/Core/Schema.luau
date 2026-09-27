@@ -94,7 +94,12 @@ function Schema.Sanitize(raw: any): Data
 
 	if type(raw.Bag) == "table" then
 		for key, stack in raw.Bag do
-			if type(key) == "string" and type(stack) == "table" and type(stack.Id) == "string" and isInt(stack.Qty, 1) then
+			if
+				type(key) == "string"
+				and type(stack) == "table"
+				and type(stack.Id) == "string"
+				and isInt(stack.Qty, 1)
+			then
 				local mut = if type(stack.Mut) == "string" then stack.Mut else nil
 				local known = Config.Items.ById[stack.Id] ~= nil
 					and (mut == nil or Config.Economy.Mutations.ById[mut] ~= nil)
@@ -138,7 +143,12 @@ function Schema.Sanitize(raw: any): Data
 		if type(raw.Dice.Equipped) == "table" then
 			local equipped, seen = {}, {}
 			for _, id in raw.Dice.Equipped do
-				if type(id) == "string" and data.Dice.Owned[id] and not seen[id] and #equipped < Config.Economy.MaxDice then
+				if
+					type(id) == "string"
+					and data.Dice.Owned[id]
+					and not seen[id]
+					and #equipped < Config.Economy.MaxDice
+				then
 					seen[id] = true
 					table.insert(equipped, id)
 				end

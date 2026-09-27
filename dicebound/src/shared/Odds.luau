@@ -96,7 +96,8 @@ function Odds.Compute(regionId: string, diceIds: { string }, discovered: { [stri
 		end
 		specialValue *= mutationFactor
 	end
-	local jackpotValue = expectedValue(itemsForRow(regionId, combos.Jackpot.JackpotTiers, perks, discovered), mutationFactor)
+	local jackpotValue =
+		expectedValue(itemsForRow(regionId, combos.Jackpot.JackpotTiers, perks, discovered), mutationFactor)
 	local tripleValue = faceValue[combos.Triple.BonusFace]
 
 	local result: Result = {
