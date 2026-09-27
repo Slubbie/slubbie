@@ -1,151 +1,167 @@
--- Minimal HUD: crosshair that locks on to grapple targets, speedometer,
--- dash charges and a controls hint that fades out.
+-- In-game HUD: crosshair that locks on to grapple targets, speedometer, dash
+-- charges, shard counter and a controls hint that fades out.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 local Grapple = require(script.Parent.Grapple)
+local UI = require(script.Parent.UI)
 
 local Damp = MathUtil.Damp
-local ROPE = Config.Grapple.RopeColor
 local IDLE = Color3.fromRGB(210, 215, 225)
-local HOT = Color3.fromRGB(255, 160, 70)
 
 local HUD = {}
 
-local function new(className: string, props: { [string]: any }, parent: Instance?): any
-	local instance = Instance.new(className)
-	for key, value in props do
-		instance[key] = value
-	end
-	instance.Parent = parent
-	return instance
-end
+local gui: ScreenGui? = nil
 
-local function round(parent: Instance)
-	new("UICorner", { CornerRadius = UDim.new(1, 0) }, parent)
+function HUD.SetVisible(visible: boolean)
+	if gui then
+		gui.Enabled = visible
+	end
 end
 
 function HUD.Start(Movement)
-	local gui = new("ScreenGui", {
-		Name = "SkyboundHUD",
-		IgnoreGuiInset = true,
-		ResetOnSpawn = false,
-	}, Players.LocalPlayer:WaitForChild("PlayerGui"))
+	local localPlayer = Players.LocalPlayer
+	gui = UI.gui("SkyboundHUD", 2)
+	local screen = gui :: ScreenGui
+
+	local function ropeColor(): Color3
+		local color = localPlayer:GetAttribute("RopeColor")
+		return if typeof(color) == "Color3" then color else Config.Grapple.RopeColor
+	end
 
 	-- Crosshair ---------------------------------------------------------------
-	local dot = new("Frame", {
+	local dot = UI.new("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(4, 4),
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderSizePixel = 0,
-	}, gui)
-	round(dot)
-
-	local ring = new("Frame", {
+	}, screen)
+	UI.corner(dot)
+	local ring = UI.new("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(22, 22),
 		BackgroundTransparency = 1,
-	}, gui)
-	round(ring)
-	local ringStroke = new("UIStroke", { Thickness = 2, Color = IDLE, Transparency = 0.5 }, ring)
-
-	local distanceLabel = new("TextLabel", {
+	}, screen)
+	UI.corner(ring)
+	local ringStroke = UI.stroke(ring, IDLE, 2, 0.5)
+	local distanceLabel = UI.label(screen, {
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0.5, 24, 0.5, 0),
 		Size = UDim2.fromOffset(80, 20),
-		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBold,
 		TextSize = 14,
-		TextColor3 = ROPE,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextStrokeTransparency = 0.6,
 		Text = "",
-	}, gui)
+	})
 
 	-- Speedometer ---------------------------------------------------------------
-	local speedLabel = new("TextLabel", {
+	local speedLabel = UI.label(screen, {
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -58),
 		Size = UDim2.fromOffset(220, 48),
-		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBlack,
+		Font = UI.Fonts.Title,
 		TextSize = 44,
-		TextColor3 = Color3.new(1, 1, 1),
 		TextStrokeTransparency = 0.55,
 		Text = "0",
-	}, gui)
-	new("TextLabel", {
+	})
+	UI.label(screen, {
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -42),
 		Size = UDim2.fromOffset(220, 16),
-		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBold,
 		TextSize = 12,
-		TextColor3 = Color3.new(1, 1, 1),
 		TextTransparency = 0.35,
 		Text = "STUDS / SEC",
-	}, gui)
+	})
 
 	-- Dash charges ----------------------------------------------------------------
-	local pipRow = new("Frame", {
+	local pipRow = UI.new("Frame", {
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -28),
 		Size = UDim2.fromOffset(120, 6),
 		BackgroundTransparency = 1,
-	}, gui)
-	new("UIListLayout", {
+	}, screen)
+	UI.new("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		Padding = UDim.new(0, 6),
 	}, pipRow)
 	local pips = {}
 	for i = 1, Config.Dash.Charges do
-		local pip =
-			new("Frame", { Size = UDim2.fromOffset(28, 6), BorderSizePixel = 0, BackgroundColor3 = ROPE }, pipRow)
-		round(pip)
+		local pip = UI.new("Frame", { Size = UDim2.fromOffset(28, 6), BorderSizePixel = 0 }, pipRow)
+		UI.corner(pip)
 		pips[i] = pip
 	end
+
+	-- Shards ------------------------------------------------------------------------
+	local shardLabel = UI.label(screen, {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -16, 0, 104),
+		Size = UDim2.fromOffset(160, 34),
+		Font = UI.Fonts.Title,
+		TextSize = 28,
+		TextColor3 = UI.Colors.Gold,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		TextStrokeTransparency = 0.5,
+		Text = "◆ 0",
+	})
+	local lastShards = nil
+	local function updateShards()
+		local shards = localPlayer:GetAttribute("Shards") or 0
+		shardLabel.Text = "◆ " .. tostring(shards)
+		if lastShards and shards > lastShards then
+			UI.pop(shardLabel, 0.3)
+		end
+		lastShards = shards
+	end
+	localPlayer:GetAttributeChangedSignal("Shards"):Connect(updateShards)
+	updateShards()
 
 	-- Controls hint ---------------------------------------------------------------
 	local hintText = if UserInputService.TouchEnabled
 		then "HOOK to grapple  ·  JUMP off walls  ·  SLIDE at speed  ·  DASH in the air"
-		else "LMB grapple (hold)  ·  SPACE wall-jump  ·  CTRL slide  ·  Q / SHIFT air dash"
-	local hint = new("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 56),
-		Size = UDim2.fromOffset(640, 24),
-		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBold,
+		else "HOLD LMB grapple  ·  SPACE wall-jump  ·  CTRL slide  ·  Q / SHIFT dash  ·  M menu"
+	local hint = UI.label(screen, {
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -118),
+		Size = UDim2.fromOffset(700, 24),
 		TextSize = 16,
-		TextColor3 = Color3.new(1, 1, 1),
 		TextStrokeTransparency = 0.5,
 		Text = hintText,
-	}, gui)
-	task.delay(20, function()
-		local fade = TweenInfo.new(1.5)
-		TweenService:Create(hint, fade, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	})
+	local hintShownAt: number? = nil
+	screen:GetPropertyChangedSignal("Enabled"):Connect(function()
+		if screen.Enabled and not hintShownAt then
+			hintShownAt = os.clock()
+			task.delay(18, function()
+				UI.tween(hint, 1.5, { TextTransparency = 1, TextStrokeTransparency = 1 })
+			end)
+		end
 	end)
 
 	local ringSize = 22
 	local shownSpeed = 0
 
 	RunService.RenderStepped:Connect(function(dt)
+		if not screen.Enabled then
+			return
+		end
 		local info = Movement.Info
+		local accent = ropeColor()
 
 		local target = Grapple.GetAimTarget()
 		local locked = target ~= nil
 		ringSize = Damp(ringSize, if locked then 30 else 22, 18, dt)
 		ring.Size = UDim2.fromOffset(ringSize, ringSize)
-		ringStroke.Color = if locked then ROPE else IDLE
+		ringStroke.Color = if locked then accent else IDLE
 		ringStroke.Transparency = if locked then 0 else 0.5
+		distanceLabel.TextColor3 = accent
 		if target and info.Root then
 			distanceLabel.Text = string.format("%d", math.floor((target.Position - info.Root.Position).Magnitude))
 		else
@@ -156,10 +172,11 @@ function HUD.Start(Movement)
 		speedLabel.Text = string.format("%d", math.floor(shownSpeed + 0.5))
 		local heat = math.clamp((shownSpeed - 30) / 90, 0, 1)
 		speedLabel.TextColor3 = if heat < 0.5
-			then Color3.new(1, 1, 1):Lerp(ROPE, heat * 2)
-			else ROPE:Lerp(HOT, (heat - 0.5) * 2)
+			then Color3.new(1, 1, 1):Lerp(accent, heat * 2)
+			else accent:Lerp(UI.Colors.Hot, (heat - 0.5) * 2)
 
 		for i, pip in pips do
+			pip.BackgroundColor3 = accent
 			pip.BackgroundTransparency = if i <= info.DashCharges then 0 else 0.75
 		end
 	end)

@@ -1,18 +1,25 @@
 -- SKYBOUND server entry point.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local remotes = Instance.new("Folder")
-remotes.Name = "Remotes"
-local ropeRemote = Instance.new("RemoteEvent")
-ropeRemote.Name = "Rope"
-ropeRemote.Parent = remotes
-remotes.Parent = ReplicatedStorage
+-- Before anything yields, so the engine never loads a default (non-R6) character.
+Players.CharacterAutoLoads = false
 
-local WorldBuilder = require(script.WorldBuilder)
+require(ReplicatedStorage.Shared.Net) -- creates the remotes
+
+local CharacterSpawner = require(script.CharacterSpawner)
+local Economy = require(script.Economy)
+local PlayerData = require(script.PlayerData)
 local Shards = require(script.Shards)
-local RopeRelay = require(script.RopeRelay)
+local StateRelay = require(script.StateRelay)
+local TimeTrials = require(script.TimeTrials)
+local WorldBuilder = require(script.WorldBuilder)
 
-WorldBuilder.Build()
+local islands = WorldBuilder.Build()
+PlayerData.Start()
 Shards.Start()
-RopeRelay.Start(ropeRemote)
+StateRelay.Start()
+Economy.Start()
+TimeTrials.Start(islands)
+CharacterSpawner.Start()

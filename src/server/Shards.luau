@@ -1,22 +1,13 @@
 -- Collectible shards: touch one to bank it, it respawns after a while.
--- Tracked in leaderstats so they show on the player list.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local PlayerData = require(script.Parent.PlayerData)
 
 local Shards = {}
-
-local function onPlayerAdded(player: Player)
-	local leaderstats = Instance.new("Folder")
-	leaderstats.Name = "leaderstats"
-	local count = Instance.new("IntValue")
-	count.Name = "Shards"
-	count.Parent = leaderstats
-	leaderstats.Parent = player
-end
 
 local function setup(shard: Instance)
 	if not shard:IsA("BasePart") then
@@ -34,16 +25,13 @@ local function setup(shard: Instance)
 		end
 
 		shard:SetAttribute("Collected", true)
+		shard:SetAttribute("CollectedBy", player.UserId)
 		shard.Transparency = 1
 		local light = shard:FindFirstChildOfClass("PointLight")
 		if light then
 			light.Enabled = false
 		end
-		local stats = player:FindFirstChild("leaderstats")
-		local count = stats and stats:FindFirstChild("Shards")
-		if count and count:IsA("IntValue") then
-			count.Value += 1
-		end
+		PlayerData.AddShards(player, 1)
 
 		task.delay(Config.World.ShardRespawnTime, function()
 			shard.Transparency = 0
@@ -56,10 +44,6 @@ local function setup(shard: Instance)
 end
 
 function Shards.Start()
-	Players.PlayerAdded:Connect(onPlayerAdded)
-	for _, player in Players:GetPlayers() do
-		onPlayerAdded(player)
-	end
 	for _, shard in CollectionService:GetTagged("Shard") do
 		setup(shard)
 	end

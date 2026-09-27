@@ -114,7 +114,106 @@ Config.World = {
 	IslandCount = 42,
 	WorldRadius = 1000,
 	ShardRespawnTime = 25,
+	-- Fall below this and you respawn. Set as Workspace.FallenPartsDestroyHeight
+	-- in default.project.json (scripts can't change it at runtime).
 	KillHeight = -150,
 }
+
+Config.Animation = {
+	-- How quickly joints blend toward their target pose. Higher = snappier.
+	Smoothing = 16,
+	-- Above this ground speed the arms sweep back into a ninja run.
+	NinjaRunSpeed = 45,
+	-- Above this air speed you dive forward superman-style.
+	SupermanSpeed = 70,
+	FlipTime = 0.45,
+	RollTime = 0.5,
+	-- Landing faster than this (vertical) while moving turns into a forward roll.
+	RollImpactSpeed = 95,
+}
+
+Config.Combo = {
+	-- Seconds you can stand on the ground before your combo is banked.
+	GroundGrace = 0.4,
+	MinScoreToBank = 4,
+	MaxScore = 200,
+	-- Jumping within this long after landing counts as a bunny hop.
+	BunnyHopWindow = 0.2,
+	BunnyHopMinSpeed = 35,
+	-- Letting go of the grapple faster than this is a slingshot.
+	SlingshotSpeed = 95,
+	Points = {
+		Grapple = 1,
+		WallRun = 1,
+		WallJump = 2,
+		Dash = 1,
+		Launch = 1,
+		Slingshot = 3,
+		BunnyHop = 2,
+		SlideJump = 2,
+	},
+	Names = {
+		Grapple = "HOOK",
+		WallRun = "WALL RUN",
+		WallJump = "WALL JUMP",
+		Dash = "DASH",
+		Launch = "LAUNCH",
+		Slingshot = "SLINGSHOT!",
+		BunnyHop = "BUNNY HOP",
+		SlideJump = "SLIDE JUMP",
+	},
+}
+
+-- Shards earned for banking a combo worth `score` points.
+function Config.ComboReward(score: number): number
+	return math.floor(score ^ 1.3 / 2)
+end
+
+Config.Trials = {
+	RingRadius = 11,
+	-- Give up on a run after this many seconds.
+	Timeout = 300,
+	Courses = {
+		{ Id = "warmup", Name = "Warm-Up", Hops = 4, Color = Color3.fromRGB(120, 255, 170) },
+		{ Id = "skyloop", Name = "Sky Loop", Hops = 7, Color = Color3.fromRGB(255, 170, 60) },
+		{ Id = "summit", Name = "Summit Rush", Hops = 10, Color = Color3.fromRGB(255, 80, 120) },
+	},
+}
+
+Config.Shop = {
+	-- Rope and trail colours. Cosmetic only: nothing in the shop changes how you move.
+	Items = {
+		{ Id = "sky", Name = "Sky", Price = 0, Color = Color3.fromRGB(120, 230, 255) },
+		{ Id = "bubblegum", Name = "Bubblegum", Price = 25, Color = Color3.fromRGB(255, 120, 210) },
+		{ Id = "solar", Name = "Solar", Price = 60, Color = Color3.fromRGB(255, 205, 70) },
+		{ Id = "toxic", Name = "Toxic", Price = 100, Color = Color3.fromRGB(150, 255, 80) },
+		{ Id = "crimson", Name = "Crimson", Price = 150, Color = Color3.fromRGB(255, 60, 70) },
+		{ Id = "void", Name = "Void", Price = 250, Color = Color3.fromRGB(140, 70, 255) },
+		{ Id = "prism", Name = "Prism", Price = 500, Color = Color3.fromRGB(255, 255, 255), Rainbow = true },
+	},
+	Default = "sky",
+}
+
+function Config.GetShopItem(id: string?)
+	for _, item in Config.Shop.Items do
+		if item.Id == id then
+			return item
+		end
+	end
+	return nil
+end
+
+-- Built-in engine sounds so everything works out of the box.
+-- Swap any of these for your own uploads ("rbxassetid://123...").
+Config.Sounds = {
+	Wind = "rbxasset://sounds/action_falling.mp3",
+	Footsteps = "rbxasset://sounds/action_footsteps_plastic.mp3",
+	Whoosh = "rbxasset://sounds/swoosh.wav",
+	Jump = "rbxasset://sounds/action_jump.mp3",
+	Land = "rbxasset://sounds/action_jump_land.mp3",
+	Ping = "rbxasset://sounds/electronicpingshort.wav",
+}
+
+Config.RespawnTime = 2
 
 return Config

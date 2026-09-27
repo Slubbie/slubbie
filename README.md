@@ -1,6 +1,8 @@
 # SKYBOUND
 
-A momentum movement game for Roblox: grapple-swing between floating sky islands, wall-run, slide and air-dash without touching the ground.
+A momentum movement game for Roblox (R6 only): grapple-swing between floating sky islands, wall-run, slide and air-dash without touching the ground.
+
+**Features:** custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen.
 
 See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 
@@ -12,6 +14,8 @@ See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 | Jump / wall-jump | Space | A | Jump |
 | Slide (hold, at speed) | Ctrl or C | B | Slide button |
 | Air dash | Q or Shift | X | Dash button |
+| Menu (shop, trials) | M | Select | MENU button |
+| Cancel time trial | R | | |
 
 ## Running it
 
@@ -23,27 +27,44 @@ This project uses [Rojo](https://rojo.space) to sync code from this repo into Ro
 4. Run `rojo serve` here, then click **Connect** in the Studio Rojo plugin.
 5. Press **Play**. The server generates the sky map on start (and removes the template baseplate).
 
+To test saving in Studio, enable **Game Settings → Security → Enable Studio Access to API Services**. Without it everything works, but progress resets each session.
+
 To build a place file without Studio sync, run `rojo build -o skybound.rbxl`.
 
 ## Layout
 
 ```
 src/
-  shared/          → ReplicatedStorage.Shared
-    Config.luau      every tuning number (start here)
+  shared/            → ReplicatedStorage.Shared
+    Config.luau        every tuning number, shop items, courses, sounds (start here)
+    Net.luau           all remotes
     MathUtil.luau
-  client/          → StarterPlayerScripts.Client
-    Movement.luau    momentum + state machine (ground/air/grapple/wallrun/slide)
-    Grapple.luau     aim, hook, rope physics, rope visuals
-    CameraFX.luau    shoulder cam, FOV, roll, shake, speed lines
-    CharacterFX.luau procedural lean / rope hang / arm aim / slide / landing squash
-    HUD.luau         crosshair lock-on, speedometer, dash pips
-    WorldFX.luau     spinning shards, other players' ropes
-  server/          → ServerScriptService.Server
-    WorldBuilder.luau generated test archipelago + lighting
-    Shards.luau      collectibles + leaderstats
-    RopeRelay.luau   replicates ropes to other players
+  client/            → StarterPlayerScripts.Client
+    Movement.luau      momentum + state machine (ground/air/grapple/wallrun/slide)
+    Grapple.luau       aim, hook, rope physics, rope visuals
+    R6Animator.luau    procedural R6 animation for every character
+    VFX.luau           trails, afterimages, dust, sparks, shockwaves
+    Sounds.luau        wind, footsteps, move sounds
+    CameraFX.luau      shoulder cam, FOV, roll, shake, speed lines
+    HUD.luau           crosshair lock-on, speedometer, dash pips, shards
+    Combo.luau         style combo meter + banking
+    Trials.luau        ring detection, timer, results
+    Menu.luau          title screen, shop, trials browser
+    UI.luau            shared UI style + toasts
+    WorldFX.luau       spinning shards, other players' ropes
+  server/            → ServerScriptService.Server
+    CharacterSpawner.luau  forces R6 spawns, respawning
+    PlayerData.luau    DataStore saving
+    WorldBuilder.luau  generated archipelago + lighting
+    TimeTrials.luau    courses, validated timing, leaderboards
+    Economy.luau       shop purchases + combo rewards
+    StateRelay.luau    shares movement state/actions with other players
+    Shards.luau        collectibles
 ```
+
+## Checking the code
+
+- `stylua src/` formats, `selene src/` lints (run `selene generate-roblox-std` once first).
 
 ## Tuning tips
 

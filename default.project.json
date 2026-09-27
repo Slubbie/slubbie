@@ -23,6 +23,17 @@
           "$path": "src/client"
         }
       }
+    },
+    "Workspace": {
+      "$properties": {
+        "FallenPartsDestroyHeight": -150,
+        "StreamingEnabled": false
+      }
+    },
+    "Players": {
+      "$properties": {
+        "CharacterAutoLoads": false
+      }
     }
   }
 }

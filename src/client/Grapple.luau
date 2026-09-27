@@ -13,11 +13,12 @@ local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 
 local G = Config.Grapple
 
-local ropeRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Rope")
+local localPlayer = Players.LocalPlayer
 
 local Grapple = {}
+Grapple.Fired = Instance.new("BindableEvent") -- (hit: boolean)
 Grapple.Attached = Instance.new("BindableEvent") -- (anchorPosition: Vector3)
-Grapple.Released = Instance.new("BindableEvent")
+Grapple.Released = Instance.new("BindableEvent") -- (releaseSpeed: number)
 
 type Phase = "Idle" | "Shooting" | "Attached" | "Retracting"
 
@@ -141,8 +142,8 @@ local function attach()
 	local anchor = anchorAttachment :: Attachment
 	phase = "Attached"
 	ropeLength = math.max(((root :: BasePart).Position - anchor.WorldPosition).Magnitude, G.MinLength)
+	hookPart.Position = anchor.WorldPosition
 	Grapple.Attached:Fire(anchor.WorldPosition)
-	ropeRemote:FireServer(anchor.Parent, anchor.Position)
 end
 
 function Grapple.Fire()
@@ -170,6 +171,7 @@ function Grapple.Fire()
 	shotStart = os.clock()
 	shotDuration = (destination - handAttachment.WorldPosition).Magnitude / G.HookSpeed
 	phase = "Shooting"
+	Grapple.Fired:Fire(hit ~= nil)
 	wobble = G.RopeWobble
 	hookPart.Position = handAttachment.WorldPosition
 	hookPart.Transparency = 0
@@ -188,8 +190,7 @@ function Grapple.Release(withBoost: boolean?)
 		end
 		lastRelease = os.clock()
 		retract()
-		Grapple.Released:Fire()
-		ropeRemote:FireServer(nil)
+		Grapple.Released:Fire(if root then root.AssemblyLinearVelocity.Magnitude else 0)
 	end
 end
 
@@ -251,7 +252,7 @@ function Grapple.SetCharacter(newCharacter: Model?)
 		return
 	end
 	root = newCharacter:WaitForChild("HumanoidRootPart") :: BasePart
-	local hand = newCharacter:WaitForChild("RightHand", 3) or newCharacter:WaitForChild("Right Arm", 3)
+	local hand = newCharacter:WaitForChild("Right Arm", 5)
 	if hand and hand:IsA("BasePart") then
 		local attachment = Instance.new("Attachment")
 		attachment.Name = "GrappleHand"
@@ -305,6 +306,22 @@ local function update(dt: number)
 	beam.CurveSize1 = math.sin(t + 2.1) * wobble
 end
 
-RunService.RenderStepped:Connect(update)
+-- Rope colour comes from the equipped shop item ("Prism" cycles the rainbow).
+local function updateColor()
+	local color = localPlayer:GetAttribute("RopeColor")
+	if typeof(color) ~= "Color3" then
+		color = G.RopeColor
+	end
+	if localPlayer:GetAttribute("Rainbow") then
+		color = Color3.fromHSV(os.clock() * 0.25 % 1, 0.7, 1)
+	end
+	hookPart.Color = color
+	beam.Color = ColorSequence.new(color)
+end
+
+RunService.RenderStepped:Connect(function(dt)
+	update(dt)
+	updateColor()
+end)
 
 return Grapple

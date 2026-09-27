@@ -4,6 +4,9 @@
 --
 -- Swap this out for a hand-built map once the feel is locked in: put your map in
 -- a Workspace folder named "Map" and generation is skipped.
+--
+-- Build() returns the list of islands ({ Position, Radius }) so time-trial
+-- courses can be laid out across them, or nil for a hand-built map.
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
@@ -250,10 +253,9 @@ end
 
 function WorldBuilder.Build()
 	setupLighting()
-	workspace.FallenPartsDestroyHeight = WORLD.KillHeight
 
 	if workspace:FindFirstChild("Map") then
-		return
+		return nil
 	end
 	-- The default template baseplate would ruin the sky; hand-built maps go in "Map".
 	local baseplate = workspace:FindFirstChild("Baseplate")
@@ -371,6 +373,8 @@ function WorldBuilder.Build()
 			CastShadow = false,
 		})
 	end
+
+	return islands
 end
 
 return WorldBuilder

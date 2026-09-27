@@ -6,7 +6,8 @@
 --   Ground ⇄ Slide → Air (slide jump)
 --
 -- The local character is simulated on this client (network ownership), so
--- velocities set here replicate to everyone automatically.
+-- velocities set here replicate to everyone automatically. State changes and
+-- one-shot moves are also sent to the server so other players can animate us.
 
 local ContextActionService = game:GetService("ContextActionService")
 local CollectionService = game:GetService("CollectionService")
@@ -17,23 +18,30 @@ local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
+local Net = require(ReplicatedStorage.Shared.Net)
 local Grapple = require(script.Parent.Grapple)
 
 local M = Config.Movement
 local W = Config.WallRun
 local S = Config.Slide
 local D = Config.Dash
+local COMBO = Config.Combo
 
 local Flat = MathUtil.Flat
 local RotateToward = MathUtil.RotateToward
 
 local player = Players.LocalPlayer
+local moveStateRemote = Net.Event("MoveState")
+local moveActionRemote = Net.Event("MoveAction")
 
 type State = "Ground" | "Air" | "Grapple" | "WallRun" | "Slide"
 
 local Movement = {}
 
--- Read-only snapshot for camera, animation and HUD effects.
+-- False while menus are open: no movement input, free mouse.
+Movement.Enabled = true
+
+-- Read-only snapshot for camera, animation, sound and HUD.
 Movement.Info = {
 	Character = nil :: Model?,
 	Humanoid = nil :: Humanoid?,
@@ -42,16 +50,30 @@ Movement.Info = {
 	Velocity = Vector3.zero,
 	Speed = 0, -- horizontal speed
 	WallNormal = nil :: Vector3?,
+	LastWallJumpNormal = nil :: Vector3?,
 	DashCharges = D.Charges,
 }
 
+-- Fired for every notable move: "Dash", "WallJump", "WallRun", "Launch",
+-- "Grapple", "Slingshot", "BunnyHop", "SlideJump", "Slide", "HardLand", "Roll".
+Movement.Action = Instance.new("BindableEvent") -- (name: string)
 Movement.Landed = Instance.new("BindableEvent") -- (impactSpeed: number)
-Movement.Dashed = Instance.new("BindableEvent")
-Movement.WallJumped = Instance.new("BindableEvent")
-Movement.Launched = Instance.new("BindableEvent")
+
+-- Moves other players need to see (flips, afterimages, dust).
+local BROADCAST = {
+	Dash = true,
+	WallJump = true,
+	Launch = true,
+	Slingshot = true,
+	HardLand = true,
+	Roll = true,
+	BunnyHop = true,
+	SlideJump = true,
+}
 
 local humanoid: Humanoid? = nil
 local root: BasePart? = nil
+local facing: AlignOrientation? = nil
 local state: State = "Ground"
 
 local airSpeed = 0
@@ -59,6 +81,8 @@ local groundSpeed = M.WalkSpeed
 local dashCharges = D.Charges
 local lastDash = -math.huge
 local lastLaunch = -math.huge
+local lastLandTime = -math.huge
+local lastLandSpeed = 0
 
 local jumpPressedAt = -math.huge
 local lastTouchJump = -math.huge
@@ -82,11 +106,28 @@ local coyoteUsed = true
 local rayParams = RaycastParams.new()
 rayParams.FilterType = Enum.RaycastFilterType.Exclude
 
+local function fireAction(name: string)
+	Movement.Action:Fire(name)
+	if BROADCAST[name] then
+		moveActionRemote:FireServer(name)
+	end
+end
+
+local function sendState()
+	local grapplePoint = if state == "Grapple" then Grapple.GetHookPosition() else nil
+	local normal = if state == "WallRun" then wallNormal else nil
+	moveStateRemote:FireServer(state, normal, grapplePoint)
+end
+
 local function setState(newState: State)
+	local changed = newState ~= state
 	state = newState
 	Movement.Info.State = newState
 	if newState ~= "WallRun" then
 		Movement.Info.WallNormal = nil
+	end
+	if changed then
+		sendState()
 	end
 end
 
@@ -96,8 +137,16 @@ end
 
 local function enterAir()
 	local h = humanoid :: Humanoid
-	airSpeed = Flat((root :: BasePart).AssemblyLinearVelocity).Magnitude
+	local speed = Flat((root :: BasePart).AssemblyLinearVelocity).Magnitude
+	airSpeed = speed
 	h.WalkSpeed = M.WalkSpeed
+	if
+		state == "Ground"
+		and os.clock() - lastLandTime < COMBO.BunnyHopWindow
+		and lastLandSpeed > COMBO.BunnyHopMinSpeed
+	then
+		fireAction("BunnyHop")
+	end
 	setState("Air")
 end
 
@@ -138,8 +187,9 @@ local function tryStartWallRun(v: Vector3): boolean
 				wallVy = math.max(math.min(v.Y, 25), W.EntryLift)
 				wallRunStart = os.clock()
 				refillDash()
-				setState("WallRun")
 				Movement.Info.WallNormal = normal
+				setState("WallRun")
+				fireAction("WallRun")
 				return true
 			end
 		end
@@ -187,7 +237,9 @@ local function wallJump(normal: Vector3, tangent: Vector3, speed: number)
 	lastWallRunEnd = os.clock()
 	coyoteUsed = true
 	setState("Air")
-	Movement.WallJumped:Fire()
+	-- Remember which way we kicked off so the animator can flip the right way.
+	Movement.Info.LastWallJumpNormal = normal
+	fireAction("WallJump")
 end
 
 -- Sliding --------------------------------------------------------------------
@@ -206,6 +258,7 @@ local function tryStartSlide(v: Vector3)
 	slideSpeed = math.min(slideSpeed, M.MaxSpeed)
 	slideAirTime = 0
 	setState("Slide")
+	fireAction("Slide")
 end
 
 local function endSlide()
@@ -257,10 +310,18 @@ end
 -- Ground and air -------------------------------------------------------------
 
 local function land(v: Vector3, impact: number)
-	groundSpeed = math.clamp(Flat(v).Magnitude, M.WalkSpeed, M.MaxSpeed)
+	local flatSpeed = Flat(v).Magnitude
+	groundSpeed = math.clamp(flatSpeed, M.WalkSpeed, M.MaxSpeed)
+	lastLandTime = os.clock()
+	lastLandSpeed = flatSpeed
 	refillDash()
 	setState("Ground")
 	Movement.Landed:Fire(impact)
+	if impact > Config.Animation.RollImpactSpeed and flatSpeed > 25 then
+		fireAction("Roll")
+	elseif impact > M.HardLandingSpeed then
+		fireAction("HardLand")
+	end
 end
 
 local function stepGround(dt: number, v: Vector3)
@@ -308,6 +369,34 @@ local function stepAir(dt: number, v: Vector3)
 	r.AssemblyLinearVelocity = dir * airSpeed + Vector3.new(0, v.Y, 0)
 end
 
+-- Face where we're going while flying, swinging, sliding or wall-running,
+-- so poses and flips read clearly.
+local function updateFacing()
+	local h, r, align = humanoid, root, facing
+	if not h or not r or not align then
+		return
+	end
+	local direction: Vector3? = nil
+	if state == "WallRun" then
+		direction = wallTangent
+	elseif state == "Slide" then
+		direction = slideDir
+	elseif state == "Air" or state == "Grapple" then
+		local flat = Flat(r.AssemblyLinearVelocity)
+		if flat.Magnitude > M.WalkSpeed then
+			direction = flat.Unit
+		end
+	end
+	if direction then
+		h.AutoRotate = false
+		align.Enabled = true
+		align.CFrame = CFrame.lookAt(Vector3.zero, direction)
+	else
+		h.AutoRotate = true
+		align.Enabled = false
+	end
+end
+
 -- Actions ----------------------------------------------------------------------
 
 local function processJump(v: Vector3)
@@ -332,6 +421,7 @@ local function processJump(v: Vector3)
 		h:ChangeState(Enum.HumanoidStateType.Jumping)
 		airSpeed = speed
 		setState("Air")
+		fireAction("SlideJump")
 	elseif state == "Air" and not coyoteUsed and lastWallNormal and os.clock() - lastWallRunEnd < W.CoyoteTime then
 		jumpPressedAt = -math.huge
 		wallJump(lastWallNormal, lastWallTangent, math.max(airSpeed, W.MinSpeed))
@@ -340,7 +430,7 @@ end
 
 local function dash()
 	local r, h = root, humanoid
-	if not r or not h or h.Health <= 0 then
+	if not r or not h or h.Health <= 0 or not Movement.Enabled then
 		return
 	end
 	if dashCharges <= 0 or os.clock() - lastDash < D.Cooldown then
@@ -363,7 +453,7 @@ local function dash()
 	dashCharges -= 1
 	lastDash = os.clock()
 	setState("Air")
-	Movement.Dashed:Fire()
+	fireAction("Dash")
 end
 
 local function onTouched(hit: BasePart)
@@ -387,7 +477,7 @@ local function onTouched(hit: BasePart)
 	airSpeed = Flat(launch).Magnitude
 	refillDash()
 	setState("Air")
-	Movement.Launched:Fire()
+	fireAction("Launch")
 end
 
 -- Main loop --------------------------------------------------------------------
@@ -430,6 +520,8 @@ local function onHeartbeat(dt: number)
 		stepAir(dt, v)
 	end
 
+	updateFacing()
+
 	local finalVelocity = r.AssemblyLinearVelocity
 	lastVy = finalVelocity.Y
 	Movement.Info.Velocity = finalVelocity
@@ -448,7 +540,18 @@ local function onGrappleAttached()
 		r.AssemblyLinearVelocity += Vector3.new(0, 20, 0)
 	end
 	refillDash()
-	setState("Grapple")
+	if state == "Grapple" then
+		sendState() -- new hook point
+	else
+		setState("Grapple")
+	end
+	fireAction("Grapple")
+end
+
+local function onGrappleReleased(releaseSpeed: number)
+	if releaseSpeed >= COMBO.SlingshotSpeed then
+		fireAction("Slingshot")
+	end
 end
 
 local function onCharacterAdded(character: Model)
@@ -464,8 +567,21 @@ local function onCharacterAdded(character: Model)
 	h:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
 	h:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
 
+	local attachment = Instance.new("Attachment")
+	attachment.Name = "FacingAttachment"
+	attachment.Parent = r
+	local align = Instance.new("AlignOrientation")
+	align.Mode = Enum.OrientationAlignmentMode.OneAttachment
+	align.Attachment0 = attachment
+	align.Responsiveness = 30
+	align.MaxTorque = math.huge
+	align.Enabled = false
+	align.Parent = r
+	facing = align
+
 	groundSpeed, airSpeed = M.WalkSpeed, 0
 	refillDash()
+	state = "Air" -- force a state send
 	setState("Ground")
 	Movement.Info.Character = character
 	Movement.Info.Humanoid = h
@@ -482,15 +598,17 @@ end
 
 local function handleGrapple(_, inputState: Enum.UserInputState)
 	if inputState == Enum.UserInputState.Begin then
-		Grapple.Fire()
+		if Movement.Enabled then
+			Grapple.Fire()
+		end
 	elseif inputState == Enum.UserInputState.End or inputState == Enum.UserInputState.Cancel then
 		Grapple.Release()
 	end
-	return Enum.ContextActionResult.Sink
+	return if Movement.Enabled then Enum.ContextActionResult.Sink else Enum.ContextActionResult.Pass
 end
 
 local function handleSlide(_, inputState: Enum.UserInputState)
-	slideHeld = inputState == Enum.UserInputState.Begin
+	slideHeld = inputState == Enum.UserInputState.Begin and Movement.Enabled
 	return Enum.ContextActionResult.Sink
 end
 
@@ -507,6 +625,23 @@ local function handleJump(_, inputState: Enum.UserInputState)
 	end
 	-- Let the default jump still happen.
 	return Enum.ContextActionResult.Pass
+end
+
+local controls = nil
+
+function Movement.SetEnabled(enabled: boolean)
+	Movement.Enabled = enabled
+	if not enabled then
+		Grapple.Release(false)
+		slideHeld = false
+	end
+	if controls then
+		if enabled then
+			controls:Enable()
+		else
+			controls:Disable()
+		end
+	end
 end
 
 function Movement.Start()
@@ -550,7 +685,14 @@ function Movement.Start()
 		end
 	end)
 
+	task.spawn(function()
+		local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
+		controls = (require :: any)(playerModule):GetControls()
+		Movement.SetEnabled(Movement.Enabled)
+	end)
+
 	Grapple.Attached.Event:Connect(onGrappleAttached)
+	Grapple.Released.Event:Connect(onGrappleReleased)
 	RunService.Heartbeat:Connect(onHeartbeat)
 
 	player.CharacterAdded:Connect(onCharacterAdded)

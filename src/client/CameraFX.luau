@@ -88,16 +88,21 @@ function CameraFX.Start(Movement)
 			CameraFX.Shake(math.clamp((impact - M.HardLandingSpeed) / 90, 0.2, 0.7))
 		end
 	end)
-	Movement.Dashed.Event:Connect(function()
-		CameraFX.Kick(10)
-		CameraFX.Shake(0.15)
-	end)
-	Movement.WallJumped.Event:Connect(function()
-		CameraFX.Kick(5)
-	end)
-	Movement.Launched.Event:Connect(function()
-		CameraFX.Kick(14)
-		CameraFX.Shake(0.3)
+	local actionKicks = {
+		Dash = { 10, 0.15 },
+		WallJump = { 5, 0 },
+		Launch = { 14, 0.3 },
+		Slingshot = { 12, 0.2 },
+		Roll = { 0, 0.35 },
+	}
+	Movement.Action.Event:Connect(function(action: string)
+		local kick = actionKicks[action]
+		if kick then
+			CameraFX.Kick(kick[1])
+			if kick[2] > 0 then
+				CameraFX.Shake(kick[2])
+			end
+		end
 	end)
 	Grapple.Attached.Event:Connect(function()
 		CameraFX.Kick(4)
@@ -107,6 +112,12 @@ function CameraFX.Start(Movement)
 	RunService:BindToRenderStep("SkyboundCamera", Enum.RenderPriority.Camera.Value + 1, function(dt)
 		local camera = workspace.CurrentCamera
 		local info = Movement.Info
+
+		-- Menus own the camera and mouse while open.
+		if not Movement.Enabled then
+			updateSpeedLines(dt, 0)
+			return
+		end
 
 		if shoulderCam then
 			UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
