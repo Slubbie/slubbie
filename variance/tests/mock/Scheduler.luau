@@ -266,6 +266,18 @@ SignalMt.__index = function(self, key)
 	error(tostring(key) .. " is not a valid member of RBXScriptSignal", 2)
 end
 
+-- Workspace.SignalBehavior: when true (Roblox's default, Deferred), handlers
+-- are queued and run at the next resumption point instead of inside the
+-- call that fired the event. Signals marked `Immediate` (RunService frame
+-- events, Destroying) always run straight away, as in the engine.
+Scheduler.deferEvents = false
+
+local function runDeferred(c, ...)
+	if rawget(c, "Connected") and not (c.Context and c.Context.Dead) then
+		c.Fn(...)
+	end
+end
+
 -- Fires to every connection (optionally only those whose context passes `filter`).
 function Scheduler.fire(s, filter, ...)
 	local list = s.Connections
@@ -282,6 +294,19 @@ function Scheduler.fire(s, filter, ...)
 	s.Connections = keep
 	local waiting = s.Waiting
 	s.Waiting = {}
+	if Scheduler.deferEvents and not rawget(s, "Immediate") then
+		for _, c in toRun do
+			Scheduler.schedule(0, Scheduler.newThread(runDeferred, c.Context), c, ...)
+		end
+		for _, w in waiting do
+			if filter == nil or filter(w.Context) then
+				Scheduler.schedule(0, w.Thread, ...)
+			else
+				table.insert(s.Waiting, w)
+			end
+		end
+		return
+	end
 	for _, c in toRun do
 		if rawget(c, "Connected") then
 			Scheduler.spawnIn(c.Context, c.Fn, ...)

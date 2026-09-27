@@ -240,6 +240,7 @@ local function signalOf(self, name: string)
 	local s = d.Signals[name]
 	if s == nil then
 		s = Scheduler.signal(d.ClassName .. "." .. name)
+		s.Immediate = name == "Destroying" or d.ClassName == "RunService"
 		d.Signals[name] = s
 	end
 	return s

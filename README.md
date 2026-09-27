@@ -115,5 +115,6 @@ Playlist = {
 tense, systems-driven game of risk at an evaluation table (surrogate AI
 opponents, PvP and ranked play, private trials and tournaments, fourteen
 instruments, six rooms, full progression). It has its own Rojo project:
-`rojo serve variance/default.project.json`. See
+`rojo serve variance/default.project.json`, or build a place file to open in
+Studio with `rojo build variance/default.project.json -o VARIANCE.rbxl`. See
 [variance/README.md](variance/README.md).

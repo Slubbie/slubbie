@@ -12,10 +12,17 @@
 -- against the API dump), unexpected warning, or remote payload the Roblox
 -- serializer would mangle.
 --
---   luaurun tests/integration.luau            run everything
---   luaurun tests/integration.luau verbose    also echo game prints
+--   luaurun tests/integration.luau             run everything
+--   luaurun tests/integration.luau verbose     also echo game prints
+--   luaurun tests/integration.luau immediate   Immediate signal behaviour
+--
+-- Events are Deferred by default, like a new Roblox place.
 
-local verbose = arg and arg[1] == "verbose"
+local options = {}
+for _, a in arg or {} do
+	options[a] = true
+end
+local verbose = options.verbose == true
 
 ---------------------------------------------------------------------------
 -- Load the mock (plain file modules with script.Parent requires)
@@ -48,6 +55,7 @@ end
 local World = mockModule("World")
 local Scheduler = World.Scheduler
 local Instances = World.Instances
+Scheduler.deferEvents = not options.immediate
 
 local failures = {}
 local passed = 0

@@ -58,6 +58,22 @@ Firing can be set to *hold* (default), *tap* or *press twice* in Settings.
 
 ## Running it
 
+### Open the place file
+
+1. Build it from the repository root (needs [Rojo](https://rojo.space) 7.4+):
+   `rojo build variance/default.project.json -o VARIANCE.rbxl`
+2. In Roblox Studio: **File → Open from File…** and pick `VARIANCE.rbxl`.
+3. Press **Play**. The workspace is empty in edit mode on purpose: the server
+   builds the Intake (lobby), the six evaluation rooms and every prop when it
+   starts.
+
+The place file already has every script in place (server in
+ServerScriptService, client in StarterPlayerScripts, shared modules in
+ReplicatedStorage) and the service settings below. **File → Publish to
+Roblox** turns it into a live experience.
+
+### Develop with Rojo sync
+
 The project syncs into Roblox Studio with [Rojo](https://rojo.space).
 
 1. Install [Rokit](https://github.com/rojo-rbx/rokit) and run `rokit install`
@@ -71,8 +87,6 @@ The project syncs into Roblox Studio with [Rojo](https://rojo.space).
    start; nothing needs to be placed by hand. New players are offered
    Orientation after a few seconds.
 
-To build a place file without Studio sync: `rojo build variance/default.project.json -o variance.rbxl`.
-
 ### Studio settings
 
 - **Game Settings → Security → Enable Studio Access to API Services**: needed
@@ -82,8 +96,11 @@ To build a place file without Studio sync: `rojo build variance/default.project.
 - **Test → Clients and Servers** with 2–4 players to try public matchmaking,
   private lobbies, spectating and reconnects locally.
 - The project file already sets StreamingEnabled, Future lighting, R6-friendly
-  StarterPlayer values and `CharacterAutoLoads = false` (the server spawns
-  R6 characters itself).
+  StarterPlayer values, `CharacterAutoLoads = false` (the server spawns
+  R6 characters itself) and TextChatService chat (the in-match chat filter
+  hooks its channels).
+- The game is tested under Roblox's default **Deferred** signal behaviour
+  (Workspace → SignalBehavior), and also works with Immediate.
 
 ### Before publishing
 

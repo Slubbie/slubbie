@@ -56,6 +56,13 @@
         "RespectFilteringEnabled": true,
         "AmbientReverb": "NoReverb"
       }
+    },
+    "TextChatService": {
+      "$properties": {
+        "ChatVersion": "TextChatService",
+        "CreateDefaultTextChannels": true,
+        "CreateDefaultCommands": true
+      }
     }
   }
 }

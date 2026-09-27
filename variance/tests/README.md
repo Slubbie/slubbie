@@ -41,8 +41,9 @@ source tree (emulating `require(script.Parent.X)`).
 ## Integration test (real server + real clients)
 
 ```
-luaurun tests/integration.luau           # ~3 minutes, 90 checks
-luaurun tests/integration.luau verbose   # also echo game prints
+luaurun tests/integration.luau             # ~3 minutes, 90 checks
+luaurun tests/integration.luau verbose     # also echo game prints
+luaurun tests/integration.luau immediate   # Immediate signal behaviour
 ```
 
 `tests/mock/` is a Roblox runtime mock that runs the actual server scripts and
@@ -59,6 +60,10 @@ the actual client scripts together:
   matches simulates in minutes.
 - **Contexts**: the server and each client have their own module cache,
   globals, camera and `LocalPlayer`; every thread belongs to one of them.
+- **Signal behaviour**: events are Deferred by default, like a new Roblox
+  place (handlers run at the next resumption point, not inside the call that
+  fired them); RunService frame events and `Destroying` stay immediate, as in
+  the engine. `immediate` switches to the old behaviour.
 - **Remotes** deliver asynchronously (one network hop) and check payloads
   against Roblox's serialization rules: functions, mixed tables and sparse
   arrays are reported, because the real engine would drop or mangle them.
