@@ -27,7 +27,8 @@ local KEYS = {
 	Enum.KeyCode.Nine,
 	Enum.KeyCode.Zero,
 }
-local WHEEL_RADIUS = 175
+local WHEEL_RADIUS = 225
+local SLOT_SIZE = 78
 
 local Emotes = {}
 
@@ -41,6 +42,7 @@ function Emotes.Start(Movement)
 	local function stop()
 		if Emotes.Current then
 			Emotes.Current = nil
+			Movement.SetFacing(nil)
 			remote:FireServer("Emote_Stop")
 		end
 	end
@@ -61,6 +63,11 @@ function Emotes.Start(Movement)
 		end
 		Emotes.Current = { Name = name, Start = os.clock() }
 		remote:FireServer("Emote_" .. name)
+		-- Turn to face the camera so you can see your emote.
+		local root = Movement.Info.Root
+		if root then
+			Movement.SetFacing(workspace.CurrentCamera.CFrame.Position - root.Position)
+		end
 	end
 
 	-- Wheel ------------------------------------------------------------------------
@@ -102,7 +109,7 @@ function Emotes.Start(Movement)
 			local slot = UI.button(gui, emote.Icon, {
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.new(0.5, math.cos(angle) * WHEEL_RADIUS, 0.5, math.sin(angle) * WHEEL_RADIUS),
-				Size = UDim2.fromOffset(84, 84),
+				Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE),
 				TextSize = 34,
 				BackgroundColor3 = UI.Colors.Panel,
 				BackgroundTransparency = 0.1,
@@ -114,7 +121,7 @@ function Emotes.Start(Movement)
 				Size = UDim2.fromOffset(100, 16),
 				TextSize = 13,
 				TextStrokeTransparency = 0.5,
-				Text = string.upper(name),
+				Text = string.upper(if name == "AirGuitar" then "Air Guitar" else name),
 			})
 			if index <= #KEYS then
 				UI.label(slot, {

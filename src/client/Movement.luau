@@ -113,6 +113,9 @@ local lastWallTangent = Vector3.zAxis
 local lastWallRunEnd = -math.huge
 local coyoteUsed = true
 
+-- Direction to face while standing (used by emotes to turn toward the camera).
+local facingOverride: Vector3? = nil
+
 local rayParams = RaycastParams.new()
 rayParams.FilterType = Enum.RaycastFilterType.Exclude
 
@@ -400,7 +403,9 @@ local function updateFacing()
 		return
 	end
 	local direction: Vector3? = nil
-	if state == "WallRun" then
+	if facingOverride and state == "Ground" then
+		direction = facingOverride
+	elseif state == "WallRun" then
 		direction = wallTangent
 	elseif state == "Slide" then
 		direction = slideDir
@@ -668,6 +673,16 @@ local function handleJump(_, inputState: Enum.UserInputState)
 end
 
 local controls = nil
+
+-- Face a direction while standing still, or nil to go back to normal.
+function Movement.SetFacing(direction: Vector3?)
+	if direction then
+		local flat = Flat(direction)
+		facingOverride = if flat.Magnitude > 0.01 then flat.Unit else nil
+	else
+		facingOverride = nil
+	end
+end
 
 function Movement.SetEnabled(enabled: boolean)
 	Movement.Enabled = enabled

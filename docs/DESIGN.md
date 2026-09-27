@@ -37,7 +37,10 @@ Every number is in `src/shared/Config.luau`.
 - **Title screen**: orbiting camera, PLAY / TIME TRIALS / SHOP / SETTINGS.
 - **Controls**: Ctrl dashes, C slides.
 - **Head movement**: heads look where you aim, at grapple targets, at nearby players (and at the camera if it's in front of you), and along your path while flying. It eases in ahead of the body and is shared with other players.
-- **Emotes**: 12 keyframed emotes (Wave, Groove, Floss, Cheer, Clap, Salute, Bow, Laugh, Flex, Spin, Sit, Push-ups) with sounds and particles (music notes, confetti, sparkles), picked from an emote wheel (G) or keys 1–9/0.
+- **Emotes**: 16 emotes (Wave, Groove, Floss, Cheer, Clap, Salute, Bow, Laugh, Flex, Spin, Air Guitar, Shrug, Stretch, Sit, Sleep, Push-ups) with sounds and particles (music notes, confetti, sparkles, sleepy puffs), picked from an emote wheel (G) or keys 1–9/0.
+  - Animated with time-aware cubic splines through the keyframes (continuous velocity, no stop-start), authored with anticipation, overshoot and offset timing.
+  - Blend in over 0.28s, cross-fade between emotes, and blend out into movement over 0.3s. Joints follow at different rates while emoting (follow-through), and a breathing/weight-shift layer keeps held poses alive.
+  - You turn to face the camera when you emote, and starting the same looping emote as someone nearby syncs you to their timing.
 - **Music v2**: song sections (intro/verse/chorus/break), pad chords, bass, arpeggios, a repeating melody motif, drums, a reverb/echo/chorus/EQ mixing chain, a mood per time of day, a swell with speed and combos, and muffling in menus.
 - **Achievements**: 14 with shard rewards, unlock cards, landmark discovery and a menu tab with progress.
 - **Photo mode** (P).

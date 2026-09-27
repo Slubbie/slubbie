@@ -309,8 +309,24 @@ Config.Quests = {
 
 -- Emotes, in emote-wheel order. Keys 1-9 and 0 play the first ten.
 -- Animations live in client/EmoteLibrary.
-Config.Emotes =
-	{ "Wave", "Groove", "Floss", "Cheer", "Clap", "Salute", "Bow", "Laugh", "Flex", "Spin", "Sit", "Pushups" }
+Config.Emotes = {
+	"Wave",
+	"Groove",
+	"Floss",
+	"Cheer",
+	"Clap",
+	"Salute",
+	"Bow",
+	"Laugh",
+	"Flex",
+	"Spin",
+	"AirGuitar",
+	"Shrug",
+	"Stretch",
+	"Sit",
+	"Sleep",
+	"Pushups",
+}
 
 -- Achievements. Stats are lifetime totals (or bests for Best = true).
 Config.Achievements = {

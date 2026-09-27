@@ -2,7 +2,7 @@
 
 A momentum movement game for Roblox (R6 only): grapple-swing between floating sky islands, wall-run, slide and air-dash without touching the ground.
 
-**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · levels, titles & nametags · daily quests · ghost replays of your best trial runs · 12 keyframed emotes with an emote wheel · head tracking · 14 achievements · photo mode · interactive tutorial · respawn where you last landed · music (generative soundtrack that reacts to your speed, or your own playlist) · a 4000-stud world with ~90 islands and three landmark islands · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
+**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · levels, titles & nametags · daily quests · ghost replays of your best trial runs · 16 smooth spline-animated emotes with blending, sync dancing and an emote wheel · head tracking · 14 achievements · photo mode · interactive tutorial · respawn where you last landed · music (generative soundtrack that reacts to your speed, or your own playlist) · a 4000-stud world with ~90 islands and three landmark islands · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
 
 See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 
@@ -16,7 +16,7 @@ See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 | Sprint (hold or toggle) | Shift | L3 | Sprint button |
 | Air dash | Ctrl (or Q) | X | Dash button |
 | Slide (hold, at speed) | C | B | Slide button |
-| Emote wheel (12 emotes) | G | D-pad up | Emote button |
+| Emote wheel (16 emotes) | G | D-pad up | Emote button |
 | Quick emotes | 1–9, 0 | | |
 | Photo mode | P (WASD/Q/E fly, RMB look, scroll zoom, H hide hint) | | |
 | Skip tutorial | Enter | | |

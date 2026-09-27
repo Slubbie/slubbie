@@ -37,6 +37,13 @@ local MAX_ROPE_TILT = math.rad(65)
 local MAX_HEAD_YAW = math.rad(75)
 local MIN_HEAD_PITCH, MAX_HEAD_PITCH = math.rad(-50), math.rad(55)
 local LOOK_SEND_INTERVAL = 0.15
+-- Emote blending: fade in, cross-fade between emotes, fade out into movement.
+local EMOTE_BLEND_IN = 0.28
+local EMOTE_BLEND_OUT = 0.3
+-- While emoting, joints follow at different speeds (arms and head trail the
+-- body a touch), which reads as natural follow-through.
+local EMOTE_SMOOTHING = { Root = 18, RLeg = 18, LLeg = 18, RArm = 12, LArm = 12, Neck = 10 }
+local SYNC_RANGE = 40
 local SPARKLE = "rbxasset://textures/particles/sparkles_main.dds"
 
 local JOINTS = {
@@ -78,6 +85,9 @@ type Rig = {
 	Emote: { Name: string, Start: number }?,
 	EmoteFx: { Name: string, Attachment: Attachment, Emitter: ParticleEmitter? }?,
 	EmoteClock: number,
+	EmoteLayer: { Name: string, Start: number, Weight: number }?,
+	EmoteOut: { Name: string, Start: number, Weight: number }?,
+	EmoteWeight: number,
 	LookYaw: number,
 	LookPitch: number,
 }
@@ -85,6 +95,7 @@ type Rig = {
 local R6Animator = {}
 
 local rigs: { [Model]: Rig } = {}
+local updateEmoteLayers, applyEmoteLayers
 local Movement = nil
 
 -- State ------------------------------------------------------------------------
@@ -287,6 +298,21 @@ local function makeEmitter(kind: string, attachment: Attachment): ParticleEmitte
 		emitter.Drag = 2
 		emitter.RotSpeed = NumberRange.new(-200, 200)
 		emitter.Size = NumberSequence.new(0.45)
+	elseif kind == "Sleep" then
+		emitter.Color = ColorSequence.new(Color3.fromRGB(200, 220, 255))
+		emitter.LightEmission = 0.5
+		emitter.Rate = 1.2
+		emitter.Lifetime = NumberRange.new(2.5, 3.5)
+		emitter.Speed = NumberRange.new(1, 1.6)
+		emitter.SpreadAngle = Vector2.new(20, 20)
+		emitter.Acceleration = Vector3.new(0.4, 0.3, 0)
+		emitter.Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.2),
+			NumberSequenceKeypoint.new(0.5, 0.9),
+			NumberSequenceKeypoint.new(1, 1.2),
+		})
+		emitter.Transparency =
+			NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1) })
 	else -- Sparkles
 		emitter.Color = ColorSequence.new(Color3.fromRGB(255, 240, 190))
 		emitter.LightEmission = 1
@@ -346,6 +372,85 @@ local function updateEmoteFx(rig: Rig, emote: EmoteLibrary.Emote?, t: number)
 			end
 		end
 	end
+end
+
+-- Emote layers ----------------------------------------------------------------------
+
+local function ease(alpha: number): number
+	return alpha * alpha * (3 - 2 * alpha)
+end
+
+-- Keep the active emote layer in step with what the character is doing:
+-- a new emote fades in and the previous one fades out underneath it.
+function updateEmoteLayers(rig: Rig, wanted: { Name: string, Start: number }?, dt: number)
+	local active = rig.EmoteLayer
+	if wanted then
+		if not active or active.Name ~= wanted.Name or active.Start ~= wanted.Start then
+			if active and active.Weight > 0.05 then
+				rig.EmoteOut = active
+			end
+			-- Joining someone nearby doing the same looping emote? Dance in sync.
+			local definition = EmoteLibrary.Get(wanted.Name)
+			if rig.IsLocal and definition and definition.Loop then
+				for character, other in rigs do
+					local layer = other.EmoteLayer
+					if
+						character ~= rig.Character
+						and layer
+						and layer.Name == wanted.Name
+						and (other.Root.Position - rig.Root.Position).Magnitude < SYNC_RANGE
+					then
+						wanted.Start = layer.Start
+						break
+					end
+				end
+			end
+			rig.EmoteLayer = { Name = wanted.Name, Start = wanted.Start, Weight = 0 }
+		end
+	elseif active then
+		if active.Weight > 0.05 then
+			rig.EmoteOut = active
+		end
+		rig.EmoteLayer = nil
+	end
+
+	local layer = rig.EmoteLayer
+	if layer then
+		layer.Weight = math.min(layer.Weight + dt / EMOTE_BLEND_IN, 1)
+	end
+	local out = rig.EmoteOut
+	if out then
+		out.Weight -= dt / EMOTE_BLEND_OUT
+		if out.Weight <= 0 then
+			rig.EmoteOut = nil
+		end
+	end
+end
+
+-- Blend the fading-out and active emotes over the base pose. Returns the
+-- overall emote weight (0 = not emoting, 1 = fully in an emote).
+function applyEmoteLayers(rig: Rig, P: Pose, now: number): number
+	local total = 0
+	for _, layer in { rig.EmoteOut or false, rig.EmoteLayer or false } do
+		if layer then
+			local definition = EmoteLibrary.Get(layer.Name)
+			if definition then
+				local weight = ease(math.clamp(layer.Weight, 0, 1))
+				local pose = EmoteLibrary.Sample(definition, now - layer.Start)
+				for joint, value in pose do
+					P[joint] = P[joint]:Lerp(value, weight)
+				end
+				total = math.max(total, weight)
+			end
+		end
+	end
+	if total > 0 then
+		-- Breathing and a slow weight shift keep held poses alive.
+		local breath = math.sin(now * 1.9)
+		P.Root = P.Root * Angles(breath * 0.012 * total, 0, math.sin(now * 0.7) * 0.012 * total)
+		P.Neck = P.Neck * Angles(math.sin(now * 1.9 + 0.8) * 0.02 * total, 0, 0)
+	end
+	return total
 end
 
 -- Head look -------------------------------------------------------------------------
@@ -465,14 +570,10 @@ local function animate(rig: Rig, dt: number, now: number)
 		rig.Emote, emote = nil, nil
 	end
 	local playingEmote = emote ~= nil and state == "Ground" and flatSpeed < 3
+	updateEmoteLayers(rig, if playingEmote then rig.Emote else nil, dt)
 	updateEmoteFx(rig, if playingEmote then emote else nil, emoteTime)
 
-	if playingEmote and emote then
-		local pose = EmoteLibrary.Sample(emote, emoteTime)
-		for joint, value in pose do
-			P[joint] = value
-		end
-	elseif state == "Ground" then
+	if state == "Ground" then
 		groundPose(rig, P, dt, now, flatSpeed, -localVel.Z)
 	elseif state == "Slide" then
 		slidePose(P, now)
@@ -485,9 +586,13 @@ local function animate(rig: Rig, dt: number, now: number)
 	end
 
 	-- Head look (not while flipping, or when an emote drives the head).
+	-- Emotes blend over whatever the body is doing, with a little breathing.
+	local emoteWeight = applyEmoteLayers(rig, P, now)
+	rig.EmoteWeight = emoteWeight
+
 	local headWeight = if rig.Flip
 		then 0
-		elseif playingEmote then (if emote and emote.FreeHead then 1 else 0)
+		elseif emoteWeight > 0 and not (emote and emote.FreeHead) then 1 - emoteWeight
 		elseif state == "Slide" then 0.5
 		else 1
 	applyHeadLook(rig, P, lookDirection(rig, state, velocity, hookPos), headWeight, dt)
@@ -522,8 +627,9 @@ local function animate(rig: Rig, dt: number, now: number)
 		end
 	end
 
-	local blend = 1 - math.exp(-A.Smoothing * dt)
 	for name, joint in rig.Joints do
+		local rate = A.Smoothing + ((EMOTE_SMOOTHING[name] or A.Smoothing) - A.Smoothing) * rig.EmoteWeight
+		local blend = 1 - math.exp(-rate * dt)
 		local current = rig.Current[name]:Lerp(P[name], blend)
 		rig.Current[name] = current
 		local final = if name == "Root" then flipRotation * current else current
@@ -575,6 +681,9 @@ local function addRig(character: Model, isLocal: boolean)
 		Emote = nil,
 		EmoteFx = nil,
 		EmoteClock = 0,
+		EmoteLayer = nil,
+		EmoteOut = nil,
+		EmoteWeight = 0,
 		LookYaw = 0,
 		LookPitch = 0,
 	}
