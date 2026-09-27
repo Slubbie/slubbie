@@ -325,26 +325,40 @@ end
 ---------------------------------------------------------------------------
 
 -- The shot. charged: discharge with recoil; hollow: a dry click and a puff.
-function WeaponController:discharge(charged: boolean, strength: number?)
+-- `style` carries the shooter's cosmetics: discharge colours (CellFX data:
+-- Arc, Spark, Glow, Rainbow) and sound pack (Pitch, Variant).
+function WeaponController:discharge(charged: boolean, strength: number?, style: { [string]: any }?)
 	if model == nil then
 		return
 	end
+	local st = style or {}
 	local muzzle = self:muzzleCF()
-	local glowColor = skinColors.Glow or Color3.fromRGB(255, 190, 110)
+	local glowColor = st.Glow or skinColors.Glow or Color3.fromRGB(255, 190, 110)
+	if st.Rainbow then
+		glowColor = Color3.fromHSV((os.clock() * 0.7) % 1, 0.55, 1)
+	end
+	local pitch = st.Pitch or 1
+	local variant = st.Variant or "Standard"
+	local volume = if variant == "Muted" then 0.55 else 1
 	if charged then
 		local s = strength or 1
 		kick = { Start = os.clock(), Strength = s }
 		flashUntil = os.clock() + 0.12
-		vfx():muzzle(muzzle, glowColor, s)
-		audio():play("Discharge", { At = muzzle.Position, Pitch = 1 / (0.9 + 0.1 * s) })
-		audio():play("Crack", { At = muzzle.Position, Delay = 0.02 })
+		vfx():muzzle(muzzle, glowColor, s, st.Spark)
+		audio():play("Discharge", { At = muzzle.Position, Pitch = pitch / (0.9 + 0.1 * s), Volume = volume })
+		if variant == "Retro" then
+			audio():play("Zap", { At = muzzle.Position, Pitch = 1.8, Volume = 0.6 })
+		elseif variant == "Heavy" then
+			audio():play("DistantThud", { At = muzzle.Position, Pitch = 0.6 })
+		end
+		audio():play("Crack", { At = muzzle.Position, Delay = 0.02, Pitch = pitch, Volume = volume })
 		if s > 1 then
 			audio():play("Surge", { At = muzzle.Position })
 		end
 	else
 		kick = { Start = os.clock(), Strength = 0.12 }
-		audio():play("HollowClick", { At = muzzle.Position })
-		audio():play("HollowHiss", { At = muzzle.Position, Delay = 0.1 })
+		audio():play("HollowClick", { At = muzzle.Position, Pitch = pitch, Volume = volume })
+		audio():play("HollowHiss", { At = muzzle.Position, Delay = 0.1, Volume = volume })
 		vfx():puff(muzzle, Color3.fromRGB(200, 214, 210))
 	end
 	glowTarget = 0

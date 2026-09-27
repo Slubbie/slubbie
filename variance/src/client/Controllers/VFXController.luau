@@ -355,7 +355,7 @@ end
 ---------------------------------------------------------------------------
 
 -- Muzzle discharge. `cf` is the muzzle attachment's world CFrame (-Z forward).
-function VFXController:muzzle(cf: CFrame, color: Color3, strength: number?)
+function VFXController:muzzle(cf: CFrame, color: Color3, strength: number?, sparkColor: Color3?)
 	local s = strength or 1
 	local pos = cf.Position
 	local forward = cf.LookVector
@@ -369,7 +369,7 @@ function VFXController:muzzle(cf: CFrame, color: Color3, strength: number?)
 	cone.Transparency = 0.2
 	TweenService:Create(cone, TweenInfo.new(0.12), { Size = Vector3.new(0.05, 0.05, 3.2 * s), Transparency = 1 }):Play()
 	task.delay(0.15, give, cone)
-	self:sparks(pos + forward * 0.3, forward, color, 22 * s)
+	self:sparks(pos + forward * 0.3, forward, sparkColor or color, 22 * s)
 	self:smoke(pos + forward * 0.5, 5 * s)
 	emit("Fire", CFrame.new(pos + forward * 0.3), 6 * s, color)
 end

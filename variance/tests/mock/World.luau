@@ -1037,10 +1037,32 @@ function World:log(player, remote: string, args, n)
 		list = {}
 		self.Traffic[player] = list
 	end
-	table.insert(list, { Remote = remote, Kind = args[1], Payload = args[2], Time = Scheduler.now })
+	local message = { Remote = remote, Kind = args[1], Payload = args[2], Time = Scheduler.now }
+	table.insert(list, message)
 	if #list > 4000 then
 		table.remove(list, 1)
 	end
+	-- Monotonic per-kind counters and the latest message of each kind (the
+	-- rolling list above drops old entries).
+	self.KindCounts = self.KindCounts or {}
+	self.LastOfKind = self.LastOfKind or {}
+	local counts = self.KindCounts[player] or {}
+	self.KindCounts[player] = counts
+	local last = self.LastOfKind[player] or {}
+	self.LastOfKind[player] = last
+	local kind = tostring(args[1])
+	counts[kind] = (counts[kind] or 0) + 1
+	last[kind] = message
+end
+
+function World:count(player, kind: string): number
+	local counts = self.KindCounts and self.KindCounts[player]
+	return counts and counts[kind] or 0
+end
+
+function World:last(player, kind: string)
+	local last = self.LastOfKind and self.LastOfKind[player]
+	return last and last[kind] or nil
 end
 
 function World:globals(ctx)

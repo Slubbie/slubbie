@@ -132,6 +132,31 @@ function MatchPresenter:tableView()
 	return view
 end
 
+-- A subject's equipped cosmetic data for a category (nil if none).
+local function lookOf(id: number?, category: string): { [string]: any }?
+	local info = C.MatchClient:info(id)
+	local entry = info and info.Look and info.Look[category]
+	return entry and entry.Data or nil
+end
+
+local function rgb(t: { number }?): Color3?
+	return if t then Color3.fromRGB(t[1], t[2], t[3]) else nil
+end
+
+-- Discharge style for a shooter: their CellFX colours and sound pack.
+local function styleOf(id: number?): { [string]: any }
+	local fx = lookOf(id, "CellFX") or {}
+	local pack = lookOf(id, "SoundPack") or {}
+	return {
+		Arc = rgb(fx.Arc),
+		Spark = rgb(fx.Spark),
+		Glow = rgb(fx.Glow),
+		Rainbow = fx.Rainbow == true,
+		Pitch = pack.Pitch,
+		Variant = pack.Variant,
+	}
+end
+
 local function rumble(strength: number, duration: number)
 	if C.SettingsController:get("Vibration") == false or C.InputController:lastInput() ~= "Gamepad" then
 		return
@@ -418,6 +443,9 @@ local function restoreScene()
 		C.WeaponController:setLoaded(true)
 	end
 	refreshCharges(owner)
+	if owner then
+		C.WeaponController:setSkin(lookOf(owner, "DeviceSkin"))
+	end
 	refreshGauge()
 	refreshMonitors()
 	refreshIntensity()
@@ -1007,6 +1035,8 @@ end
 
 handlers.TurnStart = function(data)
 	local owner = data.Owner
+	-- The Arbiter wears the finish of whoever holds the turn.
+	C.WeaponController:setSkin(lookOf(owner, "DeviceSkin"))
 	C.WeaponController:present(seatOf(owner) or 1, 0.5 * scale())
 	refreshCharges(owner)
 	lookAtTurn(owner)
@@ -1134,10 +1164,11 @@ handlers.FireResult = function(data)
 	C.AnimationController:setState(targetRig, "Tension", 0)
 	cam:setPullBack(0)
 	local chargedColor = Theme.Colors.Charged
+	local style = styleOf(actorId)
 	if data.Charged then
 		local strength = math.clamp((data.Damage or 1), 1, 4)
-		weapon:discharge(true, strength)
-		vfx:impact(chestPos(targetId), weapon:muzzleCF().Position, chargedColor, data.Damage or 1)
+		weapon:discharge(true, strength, style)
+		vfx:impact(chestPos(targetId), weapon:muzzleCF().Position, style.Arc or chargedColor, data.Damage or 1)
 		C.AnimationController:play(targetRig, "Hit")
 		C.AnimationController:play(actorRig, "Recoil")
 		C.EnvironmentController:dim(0.45 + 0.12 * strength)
@@ -1165,7 +1196,7 @@ handlers.FireResult = function(data)
 			1.0 * s
 		)
 	else
-		weapon:discharge(false)
+		weapon:discharge(false, nil, style)
 		cam:kick(0.02)
 		if reverse then
 			after(0.35, function()

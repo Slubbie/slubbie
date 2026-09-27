@@ -120,6 +120,16 @@ local function waitFor(predicate, timeout: number?): boolean
 	return Scheduler.runUntil(predicate, timeout or 30)
 end
 
+-- How many messages of a kind a player has received (never decreases).
+local function count(player, kind: string): number
+	return world:count(player, kind)
+end
+
+local function lastMessage(player, kind: string)
+	return world:last(player, kind)
+end
+
+-- Recent messages of a kind (the log keeps the latest few thousand).
 local function inbox(player, kind: string)
 	local out = {}
 	for _, m in (world.Traffic and world.Traffic[player]) or {} do
@@ -128,11 +138,6 @@ local function inbox(player, kind: string)
 		end
 	end
 	return out
-end
-
-local function lastMessage(player, kind: string)
-	local list = inbox(player, kind)
-	return list[#list]
 end
 
 -- Presses a visible button by its label text (as a click would).
@@ -279,9 +284,9 @@ local function postMatch(player)
 end
 
 local function playToEnd(ctx, player, timeout: number?)
-	local before = #inbox(player, "PostMatch")
+	local before = count(player, "PostMatch")
 	return waitFor(function()
-		return #inbox(player, "PostMatch") > before
+		return count(player, "PostMatch") > before
 	end, timeout or 900)
 end
 
@@ -314,7 +319,7 @@ check(
 	"character spawned in the lobby",
 	ada.Character ~= nil and ada.Character:FindFirstChild("HumanoidRootPart") ~= nil
 )
-check("orientation offered", #inbox(ada, "OfferTutorial") >= 1)
+check("orientation offered", count(ada, "OfferTutorial") >= 1)
 check("lobby HUD open", screen(adaCtx, "LobbyHUD").Visible == true)
 -- Dismiss the orientation offer through the modal.
 click(adaCtx, "LATER")
@@ -373,9 +378,9 @@ enablePilot(adaCtx, { UseRate = 0.6 })
 local ok, err = request(adaCtx, "Tutorial.Start", "Basic")
 check("orientation starts", ok == true, tostring(err))
 waitFor(function()
-	return #inbox(ada, "TutorialComplete") > 0
+	return count(ada, "TutorialComplete") > 0
 end, 900)
-check("orientation completes", #inbox(ada, "TutorialComplete") > 0)
+check("orientation completes", count(ada, "TutorialComplete") > 0)
 Scheduler.run(8)
 if inMatch(adaCtx) then
 	leave(adaCtx)
@@ -454,11 +459,11 @@ table.insert(Scheduler.frameHooks, function()
 		end)
 	end
 end)
-local adaBefore, bexBefore = #inbox(ada, "PostMatch"), #inbox(bex, "PostMatch")
+local adaBefore, bexBefore = count(ada, "PostMatch"), count(bex, "PostMatch")
 waitFor(function()
-	return #inbox(ada, "PostMatch") > adaBefore and #inbox(bex, "PostMatch") > bexBefore
+	return count(ada, "PostMatch") > adaBefore and count(bex, "PostMatch") > bexBefore
 end, 900)
-check("duel finishes for both", #inbox(ada, "PostMatch") > adaBefore and #inbox(bex, "PostMatch") > bexBefore)
+check("duel finishes for both", count(ada, "PostMatch") > adaBefore and count(bex, "PostMatch") > bexBefore)
 Scheduler.run(2)
 request(adaCtx, "Match.Rematch", true)
 request(bexCtx, "Match.Rematch", true)
@@ -474,7 +479,7 @@ Scheduler.run(15)
 world:removePlayer(bex)
 Scheduler.run(5)
 local presence = lastMessage(ada, "Match")
-check("opponent sees the disconnect", #inbox(ada, "Presence") >= 1)
+check("opponent sees the disconnect", count(ada, "Presence") >= 1)
 local bex2, bex2Ctx = world:addPlayer(1002, "Bex")
 waitFor(function()
 	return inMatch(bex2Ctx)
@@ -483,7 +488,7 @@ check(
 	"same-server rejoin returns to the seat automatically",
 	inMatch(bex2Ctx) and matchOf(bex2Ctx).MatchId == matchOf(adaCtx).MatchId
 )
-check("opponent told about the return", #inbox(ada, "Presence") >= 2)
+check("opponent told about the return", count(ada, "Presence") >= 2)
 enablePilot(bex2Ctx, { UseRate = 0.3 })
 run(bex2Ctx, function()
 	ctl(bex2Ctx, "SettingsController"):set("FireConfirm", "Tap")
@@ -579,6 +584,27 @@ check(
 	lastLobby and lastLobby.Payload and lastLobby.Payload.Tournament and lastLobby.Payload.Tournament.Champion ~= nil
 )
 Scheduler.run(5)
+for _, ctx in { adaCtx, bex2Ctx } do
+	if inMatch(ctx) then
+		leave(ctx)
+	end
+end
+print("== party queue")
+request(adaCtx, "Lobby.SetFormat", "Match")
+local okParty, whyParty = request(adaCtx, "Queue.Join", "Crossfire")
+check("host queues the lobby as a party", okParty == true, tostring(whyParty))
+check(
+	"both members are searching",
+	lastMessage(bex2, "Queue") and lastMessage(bex2, "Queue").Payload.Queue == "Crossfire"
+)
+waitFor(function()
+	return inMatch(adaCtx) and inMatch(bex2Ctx)
+end, 180)
+check(
+	"party seated together with a filler",
+	inMatch(adaCtx) and inMatch(bex2Ctx) and matchOf(adaCtx).MatchId == matchOf(bex2Ctx).MatchId
+)
+check("party crossfire finishes", playToEnd(adaCtx, ada, 900))
 for _, ctx in { adaCtx, bex2Ctx } do
 	if inMatch(ctx) then
 		leave(ctx)
@@ -717,7 +743,7 @@ do
 	request(adaCtx, "Debug.Command", "Ambient", { Kind = kind, Text = "TEST" })
 	Scheduler.run(1.5)
 end
-check("every ambient event plays", #inbox(ada, "Ambient") >= 10)
+check("every ambient event plays", count(ada, "Ambient") >= 10)
 run(adaCtx, function()
 	local panel = ctl(adaCtx, "UIController"):screen("DebugPanel")
 	panel:Open()
@@ -803,7 +829,7 @@ World.Instances.data[map].Hidden.Data.active_1003 =
 	{ JobId = "another-server", PlaceId = 1818, MatchId = "m_elsewhere" }
 local cy, cyCtx = world:addPlayer(1003, "Cy")
 Scheduler.run(8)
-check("offered a return to the other server", #inbox(cy, "Reconnect") >= 1)
+check("offered a return to the other server", count(cy, "Reconnect") >= 1)
 click(cyCtx, "RETURN")
 Scheduler.run(3)
 check(

@@ -1354,11 +1354,57 @@ function MatchHUD:versusCard()
 			stroke.Color = Color3.fromRGB(frameData.Stroke[1], frameData.Stroke[2], frameData.Stroke[3])
 			stroke.Thickness = 2
 		end
+		-- Banner: a two-tone backdrop in the subject's chosen pattern.
+		local banner = info.Look and info.Look.Banner and info.Look.Banner.Data
+		if banner and banner.A and banner.B then
+			local a = Color3.fromRGB(banner.A[1], banner.A[2], banner.A[3])
+			local b = Color3.fromRGB(banner.B[1], banner.B[2], banner.B[3])
+			local gradient = Instance.new("UIGradient")
+			if banner.Pattern == "Solid" then
+				gradient.Color = ColorSequence.new(b:Lerp(a, 0.35))
+			elseif banner.Pattern == "Stripes" or banner.Pattern == "Grid" or banner.Pattern == "Static" then
+				local keys = {}
+				for i = 0, 8 do
+					table.insert(keys, ColorSequenceKeypoint.new(i / 8, if i % 2 == 0 then a else b:Lerp(a, 0.5)))
+				end
+				gradient.Color = ColorSequence.new(keys)
+				gradient.Rotation = if banner.Pattern == "Stripes" then 45 else 90
+			else
+				gradient.Color = ColorSequence.new(a, b:Lerp(a, 0.4))
+				gradient.Rotation = 90
+			end
+			gradient.Parent = card
+			-- The gradient tints a white base.
+			Theme.bind(card, "BackgroundColor3", "Text")
+			card.BackgroundColor3 = Color3.new(1, 1, 1)
+		end
+		-- Badge: a glyph in a coloured disc.
+		local badgeData = info.Look and info.Look.Badge and info.Look.Badge.Data
+		if badgeData and badgeData.Glyph and badgeData.Glyph ~= "" then
+			local disc = Kit.create("Frame", {
+				BorderSizePixel = 0,
+				Size = UDim2.fromOffset(28, 28),
+				Position = UDim2.new(1, -28, 0, 0),
+				ZIndex = 44,
+				Parent = card,
+			}) :: Frame
+			disc.BackgroundColor3 = Color3.fromRGB(badgeData.Color[1], badgeData.Color[2], badgeData.Color[3])
+			Kit.corner(disc, 14)
+			Kit.label(disc, {
+				Text = badgeData.Glyph,
+				Font = "Bold",
+				TextSize = "Small",
+				XAlign = "Center",
+				Size = UDim2.fromScale(1, 1),
+				Color = "Bg",
+				ZIndex = 45,
+			})
+		end
 		Kit.label(card, {
 			Text = string.upper(info.Name or "?"),
 			Font = "Display",
 			TextSize = "Title",
-			Size = UDim2.new(1, 0, 0, 30),
+			Size = UDim2.new(1, -32, 0, 30),
 			ZIndex = 43,
 		})
 		local lines = {}

@@ -190,9 +190,9 @@ function Private:renderLobby(state)
 	Kit.tooltip(codeBox, "Select to copy. Friends can enter it at the Private Trials terminal.")
 	Kit.button(codePanel, {
 		Text = "INVITE FRIENDS",
-		Size = UDim2.fromOffset(140, 36),
-		Position = UDim2.new(1, 0, 0.5, 0),
-		AnchorPoint = Vector2.new(1, 0.5),
+		Size = UDim2.fromOffset(140, 28),
+		Position = UDim2.new(1, 0, 0, 0),
+		AnchorPoint = Vector2.new(1, 0),
 		Style = "Primary",
 		OnClick = function()
 			self:invite(state.Code)
@@ -318,6 +318,26 @@ function Private:renderLobby(state)
 				request(self, "Lobby.AddBot", self.BotPersona, self.BotDifficulty)
 			end,
 		})
+		-- Party queue: take the whole lobby into public Crossfire together.
+		local party = Kit.button(codePanel, {
+			Text = "QUEUE AS PARTY",
+			Size = UDim2.fromOffset(140, 28),
+			Position = UDim2.new(1, 0, 1, 0),
+			AnchorPoint = Vector2.new(1, 1),
+			Style = "Ghost",
+			TextSize = "Tiny",
+			Tooltip = "Search public Crossfire together; strangers or surrogates fill the other seats.",
+			OnClick = function()
+				if request(self, "Queue.Join", "Crossfire") then
+					self.UI:close("Private")
+				end
+			end,
+		})
+		Kit.setEnabled(
+			party,
+			#(state.Members or {}) >= 2 and not state.InMatch,
+			"Needs at least two subjects in the lobby."
+		)
 		local start = Kit.button(controls, {
 			Text = if state.Format == "Tournament" then "START TOURNAMENT" else "START TRIAL",
 			Style = "Primary",
