@@ -1,0 +1,61 @@
+{
+  "name": "variance",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Variance": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "VarianceServer": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "EnableMouseLockOption": false,
+        "CameraMinZoomDistance": 6,
+        "CameraMaxZoomDistance": 22,
+        "CharacterWalkSpeed": 14,
+        "CharacterJumpPower": 0,
+        "CharacterUseJumpPower": true
+      },
+      "StarterPlayerScripts": {
+        "VarianceClient": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Players": {
+      "$properties": {
+        "CharacterAutoLoads": false,
+        "RespawnTime": 1
+      }
+    },
+    "Workspace": {
+      "$properties": {
+        "StreamingEnabled": true,
+        "StreamingMinRadius": 96,
+        "StreamingTargetRadius": 360,
+        "FallenPartsDestroyHeight": -400,
+        "Gravity": 196.2
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Technology": "Future",
+        "GlobalShadows": true,
+        "Brightness": 1,
+        "EnvironmentDiffuseScale": 0.4,
+        "EnvironmentSpecularScale": 0.6
+      }
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true,
+        "AmbientReverb": "NoReverb"
+      }
+    }
+  }
+}

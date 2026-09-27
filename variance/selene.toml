@@ -1,0 +1,6 @@
+std = "variance-std"
+
+[lints]
+shadowing = "allow"
+unused_variable = "warn"
+mixed_table = "allow"
