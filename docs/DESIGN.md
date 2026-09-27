@@ -35,6 +35,13 @@ Every number is in `src/shared/Config.luau`.
 - **Shop**: 7 rope/trail colours, including an animated rainbow. Cosmetic only.
 - **Saving**: shards, owned colours, and best times.
 - **Title screen**: orbiting camera, PLAY / TIME TRIALS / SHOP / SETTINGS.
+- **Controls**: Ctrl dashes, C slides.
+- **Levels & XP**: earned from tricks, shards, combos, trials and quests. Level-ups grant shards and new titles (Drifter → Sky Legend), shown on nametags above every player.
+- **Daily quests**: three per day (easy/medium/hard, the same for everyone, reset at midnight UTC), tracked on the HUD and paying shards and XP.
+- **Ghost replays**: your best run on each course is recorded and saved; next time a ghost races you, and each ring shows a green/red split against it.
+- **Emotes**: wave, dance, flex and sit on keys 1–4, visible to everyone.
+- **Respawns**: fall off and you come back where you last landed. The menu has Return to Spawn.
+- **Tutorial**: 8 interactive steps for first-time players (Enter to skip), +25 shards.
 - **Sprint** on Shift (hold or toggle). Sprint speed is enough to slide straight from a run.
 - **Settings** (saved per player): graphics quality (Low → Ultra), time of day (Sunrise, Golden Hour, Sunset, Night), FOV, mouse sensitivity, camera shake, speed lines, sprint mode, effects and wind volume, speedometer.
 - **Graphics**: Future lighting, per-player time of day with smooth transitions, quality-scaled post-processing, a speed vignette, a star-filled night sky, flocks of birds, and a target highlight with a lock-on marker for grapple points.

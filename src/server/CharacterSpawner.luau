@@ -8,10 +8,20 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Net = require(ReplicatedStorage.Shared.Net)
 
 local CharacterSpawner = {}
 
 local descriptions: { [Player]: HumanoidDescription } = {}
+local safeSpots: { [Player]: Vector3 } = {}
+local lastReturn: { [Player]: number } = {}
+
+-- Called when a player lands on solid ground.
+function CharacterSpawner.SetSafeSpot(player: Player, position: Vector3)
+	if position.Y > Config.World.KillHeight + 60 then
+		safeSpots[player] = position
+	end
+end
 
 local function getDescription(player: Player): HumanoidDescription
 	local cached = descriptions[player]
@@ -32,7 +42,11 @@ local function getDescription(player: Player): HumanoidDescription
 	return description
 end
 
-local function findSpawn(): CFrame
+local function findSpawn(player: Player?): CFrame
+	local safe = player and Config.RespawnAtLastLanding and safeSpots[player]
+	if safe then
+		return CFrame.new(safe + Vector3.new(0, 3, 0))
+	end
 	local spawnLocation = workspace:FindFirstChildWhichIsA("SpawnLocation", true)
 	if spawnLocation then
 		return spawnLocation.CFrame + Vector3.new(0, spawnLocation.Size.Y / 2 + 3, 0)
@@ -60,7 +74,7 @@ local function spawnCharacter(player: Player)
 	humanoid.DisplayName = player.DisplayName
 
 	local offset = Vector3.new(math.random(-4, 4), 0, math.random(-4, 4))
-	character:PivotTo(findSpawn() + offset)
+	character:PivotTo(findSpawn(player) + offset)
 	player.Character = character
 	character.Parent = workspace
 
@@ -90,12 +104,28 @@ local function spawnCharacter(player: Player)
 end
 
 function CharacterSpawner.Start()
+	Net.Function("ReturnToSpawn").OnServerInvoke = function(player)
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if not character or not humanoid or humanoid.Health <= 0 then
+			return false
+		end
+		if os.clock() - (lastReturn[player] or 0) < 3 then
+			return false
+		end
+		lastReturn[player] = os.clock()
+		safeSpots[player] = nil
+		character:PivotTo(findSpawn(nil))
+		return true
+	end
 	Players.CharacterAutoLoads = false
 	Players.PlayerAdded:Connect(spawnCharacter)
 	for _, player in Players:GetPlayers() do
 		task.spawn(spawnCharacter, player)
 	end
 	Players.PlayerRemoving:Connect(function(player)
+		safeSpots[player] = nil
+		lastReturn[player] = nil
 		descriptions[player] = nil
 	end)
 end

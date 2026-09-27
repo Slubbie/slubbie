@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Ghost = require(script.Parent.Ghost)
 local Sounds = require(script.Parent.Sounds)
 local UI = require(script.Parent.UI)
 local VFX = require(script.Parent.VFX)
@@ -94,7 +95,7 @@ function Trials.Start(Movement)
 	local timerFrame = UI.new("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 14),
-		Size = UDim2.fromOffset(300, 74),
+		Size = UDim2.fromOffset(300, 96),
 		BackgroundColor3 = UI.Colors.Panel,
 		BackgroundTransparency = 0.25,
 		Visible = false,
@@ -118,6 +119,14 @@ function Trials.Start(Movement)
 		Size = UDim2.new(1, 0, 0, 16),
 		TextSize = 12,
 		TextColor3 = UI.Colors.Muted,
+		Text = "",
+	})
+	-- Ahead/behind your ghost at the last ring.
+	local deltaLabel = UI.label(timerFrame, {
+		Position = UDim2.fromOffset(0, 72),
+		Size = UDim2.new(1, 0, 0, 20),
+		Font = UI.Fonts.Title,
+		TextSize = 18,
 		Text = "",
 	})
 
@@ -175,6 +184,8 @@ function Trials.Start(Movement)
 	})
 
 	local function stopRun()
+		Ghost.Hide()
+		deltaLabel.Text = ""
 		running = nil
 		nextIndex = 1
 		timerFrame.Visible = false
@@ -194,6 +205,10 @@ function Trials.Start(Movement)
 			end
 			nextIndex = 2
 			startedAt = os.clock()
+			deltaLabel.Text = ""
+			Ghost.StartRecording()
+			local course = running
+			task.spawn(Ghost.Load, course.Id, course.Color)
 			timerFrame.Visible = true
 			courseLabel.Text = string.upper(running.Name)
 			courseLabel.TextColor3 = running.Color
@@ -207,6 +222,9 @@ function Trials.Start(Movement)
 			UI.pop(timeLabel, 0.15)
 		elseif kind == "Finished" then
 			local course = running
+			if data.Record and course then
+				Net.Event("SubmitGhost"):FireServer(course.Id, Ghost.Encode())
+			end
 			stopRun()
 			results.Visible = true
 			resultTitle.Text = if data.Record then "NEW RECORD!" else "FINISH!"
@@ -254,7 +272,10 @@ function Trials.Start(Movement)
 
 		local course = running
 		if course then
-			timeLabel.Text = UI.formatTime(os.clock() - startedAt)
+			local elapsed = os.clock() - startedAt
+			timeLabel.Text = UI.formatTime(elapsed)
+			Ghost.Record(rootPart, elapsed)
+			Ghost.Update(elapsed)
 			ringsLabel.Text = string.format("RING %d / %d   ·   R TO CANCEL", nextIndex - 1, #course.Rings)
 			local ring = course.Rings[nextIndex]
 			if ring then
@@ -269,6 +290,14 @@ function Trials.Start(Movement)
 				)
 				if (ring.Position - position).Magnitude < reach then
 					checkpointRemote:FireServer(course.Id, nextIndex)
+					Ghost.MarkSplit(nextIndex, elapsed)
+					local best = Ghost.GetSplit(nextIndex)
+					if best then
+						local delta = elapsed - best
+						deltaLabel.Text = string.format("%s%.2f", if delta < 0 then "-" else "+", math.abs(delta))
+						deltaLabel.TextColor3 = if delta < 0 then UI.Colors.Good else UI.Colors.Bad
+						UI.pop(deltaLabel, 0.25)
+					end
 					VFX.Flash(ring.Position, course.Color, T.RingRadius * 2.4)
 					Sounds.Play(Config.Sounds.Ping, 0.45, 1.1 + nextIndex * 0.03)
 					nextIndex += 1

@@ -94,7 +94,7 @@ function Menu.Start(Movement, HUD)
 
 	local buttons = UI.new("Frame", {
 		Position = UDim2.fromOffset(0, 150),
-		Size = UDim2.fromOffset(260, 300),
+		Size = UDim2.fromOffset(260, 340),
 		BackgroundTransparency = 1,
 	}, left)
 	UI.new("UIListLayout", { Padding = UDim.new(0, 12) }, buttons)
@@ -102,6 +102,7 @@ function Menu.Start(Movement, HUD)
 	local trialsButton = UI.button(buttons, "TIME TRIALS")
 	local shopButton = UI.button(buttons, "SHOP")
 	local settingsButton = UI.button(buttons, "SETTINGS")
+	local spawnButton = UI.button(buttons, "RETURN TO SPAWN", { TextSize = 18 })
 
 	-- Right column: content panel --------------------------------------------------
 	local panel = UI.new("Frame", {
@@ -416,6 +417,14 @@ function Menu.Start(Movement, HUD)
 	playButton.Activated:Connect(function()
 		click()
 		Menu.Close()
+	end)
+	spawnButton.Activated:Connect(function()
+		click()
+		Menu.Close()
+		local ok = Net.Function("ReturnToSpawn"):InvokeServer()
+		if not ok then
+			UI.toast("Can't return right now", UI.Colors.Bad)
+		end
 	end)
 	settingsButton.Activated:Connect(function()
 		click()

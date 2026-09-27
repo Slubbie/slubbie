@@ -220,6 +220,77 @@ Config.Sounds = {
 }
 
 Config.RespawnTime = 2
+-- Respawn where you last landed instead of back at the spawn plaza.
+Config.RespawnAtLastLanding = true
+
+Config.Progression = {
+	-- XP rewards.
+	XP = {
+		Move = 2, -- per trick (grapple, wall jump...)
+		Shard = 5,
+		ComboPerPoint = 2,
+		TrialFinish = 50,
+		TrialRecord = 50,
+	},
+	-- Level titles, shown on nametags.
+	Titles = {
+		{ Level = 1, Title = "Drifter" },
+		{ Level = 5, Title = "Glider" },
+		{ Level = 10, Title = "Skyrunner" },
+		{ Level = 20, Title = "Stormchaser" },
+		{ Level = 35, Title = "Cloudbreaker" },
+		{ Level = 50, Title = "Sky Legend" },
+	},
+	-- Shards granted per level on level up.
+	ShardsPerLevel = 5,
+}
+
+-- Total XP needed to reach `level`.
+function Config.XPForLevel(level: number): number
+	return math.floor(100 * (level - 1) ^ 1.6)
+end
+
+function Config.LevelForXP(xp: number): number
+	local level = 1
+	while Config.XPForLevel(level + 1) <= xp do
+		level += 1
+	end
+	return level
+end
+
+function Config.TitleForLevel(level: number): string
+	local title = Config.Progression.Titles[1].Title
+	for _, entry in Config.Progression.Titles do
+		if level >= entry.Level then
+			title = entry.Title
+		end
+	end
+	return title
+end
+
+-- Daily quests: three are picked each day (same for everyone, UTC).
+-- Stat names match move actions, plus Shard, ComboScore (best single combo)
+-- and TrialFinish.
+Config.Quests = {
+	PerDay = 3,
+	RewardShards = { 20, 30, 45 },
+	RewardXP = { 120, 180, 260 },
+	Pool = {
+		{ Id = "grapple", Stat = "Grapple", Goals = { 30, 60, 100 }, Text = "Hook %d grapple points" },
+		{ Id = "walljump", Stat = "WallJump", Goals = { 15, 30, 50 }, Text = "Wall jump %d times" },
+		{ Id = "dash", Stat = "Dash", Goals = { 20, 40, 70 }, Text = "Air dash %d times" },
+		{ Id = "slingshot", Stat = "Slingshot", Goals = { 5, 12, 20 }, Text = "Slingshot off the rope %d times" },
+		{ Id = "bunnyhop", Stat = "BunnyHop", Goals = { 10, 25, 40 }, Text = "Bunny hop %d times" },
+		{ Id = "slidejump", Stat = "SlideJump", Goals = { 8, 16, 30 }, Text = "Slide jump %d times" },
+		{ Id = "launch", Stat = "Launch", Goals = { 3, 6, 10 }, Text = "Use launch pads %d times" },
+		{ Id = "shards", Stat = "Shard", Goals = { 25, 50, 90 }, Text = "Collect %d shards" },
+		{ Id = "combo", Stat = "ComboScore", Goals = { 15, 30, 50 }, Text = "Bank a %d style combo", Best = true },
+		{ Id = "trial", Stat = "TrialFinish", Goals = { 1, 2, 3 }, Text = "Finish %d time trials" },
+	},
+}
+
+-- Emotes (keys 1-4). Names match R6Animator poses.
+Config.Emotes = { "Wave", "Dance", "Flex", "Sit" }
 
 -- Player settings and their defaults. Saved per player.
 Config.Settings = {

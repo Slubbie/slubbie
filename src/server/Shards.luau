@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local PlayerData = require(script.Parent.PlayerData)
+local Progression = require(script.Parent.Progression)
 
 local Shards = {}
 
@@ -32,6 +33,8 @@ local function setup(shard: Instance)
 			light.Enabled = false
 		end
 		PlayerData.AddShards(player, 1)
+		Progression.AddXP(player, Config.Progression.XP.Shard)
+		Progression.Record(player, "Shard")
 
 		task.delay(Config.World.ShardRespawnTime, function()
 			shard.Transparency = 0

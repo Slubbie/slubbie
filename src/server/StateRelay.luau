@@ -10,9 +10,19 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Net = require(ReplicatedStorage.Shared.Net)
+local CharacterSpawner = require(script.Parent.CharacterSpawner)
+local Progression = require(script.Parent.Progression)
 
 local VALID_STATES = { Ground = true, Air = true, Grapple = true, WallRun = true, Slide = true }
 local VALID_ACTIONS = {
+	Grapple = true,
+	WallRun = true,
+	Slide = true,
+	Emote_Wave = true,
+	Emote_Dance = true,
+	Emote_Flex = true,
+	Emote_Sit = true,
+	Emote_Stop = true,
 	Dash = true,
 	WallJump = true,
 	Launch = true,
@@ -53,6 +63,10 @@ function StateRelay.Start()
 			return
 		end
 		character:SetAttribute("MoveState", state)
+		-- Remember solid ground so a fall respawns you where you last landed.
+		if state == "Ground" then
+			CharacterSpawner.SetSafeSpot(player, (root :: BasePart).Position)
+		end
 		character:SetAttribute("WallNormal", if typeof(wallNormal) == "Vector3" then wallNormal.Unit else nil)
 		local point = nil
 		if
@@ -72,6 +86,9 @@ function StateRelay.Start()
 			if other ~= player then
 				moveAction:FireClient(other, player, action)
 			end
+		end
+		if string.sub(action, 1, 6) ~= "Emote_" then
+			Progression.Record(player, action)
 		end
 	end)
 

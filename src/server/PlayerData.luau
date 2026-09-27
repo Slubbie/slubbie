@@ -1,7 +1,8 @@
 -- Saves shards, owned cosmetics and best trial times with DataStores.
 --
 -- Values the client needs are mirrored onto Player attributes:
---   Shards (number), Equipped (string), Owned (comma list), Best_<courseId> (seconds)
+--   Shards, XP, Level (numbers), Title, Equipped (strings), Owned (comma list),
+--   Best_<courseId> (seconds), TutorialDone (bool)
 --
 -- In Studio, turn on Game Settings → Security → "Enable Studio Access to API
 -- Services" to test saving. Without it, data just lives for the session.
@@ -23,6 +24,12 @@ type Data = {
 	Equipped: string,
 	Best: { [string]: number },
 	Settings: { [string]: any },
+	XP: number,
+	-- Today's quests: { Day = "2026-9-27", List = { { Id, Goal, Progress, Done } } }
+	Quests: { [string]: any },
+	-- Best-run ghost recordings per course (compact strings).
+	Ghosts: { [string]: string },
+	TutorialDone: boolean,
 }
 
 local PlayerData = {}
@@ -51,6 +58,10 @@ local function defaults(): Data
 		Equipped = Config.Shop.Default,
 		Best = {},
 		Settings = {},
+		XP = 0,
+		Quests = {},
+		Ghosts = {},
+		TutorialDone = false,
 	}
 end
 
@@ -64,6 +75,11 @@ local function mirror(player: Player)
 		return
 	end
 	player:SetAttribute("Shards", data.Shards)
+	player:SetAttribute("XP", data.XP)
+	local level = Config.LevelForXP(data.XP)
+	player:SetAttribute("Level", level)
+	player:SetAttribute("Title", Config.TitleForLevel(level))
+	player:SetAttribute("TutorialDone", data.TutorialDone)
 	player:SetAttribute("Equipped", data.Equipped)
 	local owned = {}
 	for id in data.Owned do
@@ -125,6 +141,18 @@ local function load(player: Player)
 			if type(saved.Settings) == "table" then
 				data.Settings = saved.Settings
 			end
+			data.XP = tonumber(saved.XP) or 0
+			if type(saved.Quests) == "table" then
+				data.Quests = saved.Quests
+			end
+			if type(saved.Ghosts) == "table" then
+				for courseId, ghost in saved.Ghosts do
+					if type(ghost) == "string" then
+						data.Ghosts[courseId] = ghost
+					end
+				end
+			end
+			data.TutorialDone = saved.TutorialDone == true
 		end
 	end
 	if not player.Parent then

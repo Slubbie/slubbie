@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 local Net = require(ReplicatedStorage.Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
+local Progression = require(script.Parent.Progression)
 
 local Economy = {}
 
@@ -60,6 +61,8 @@ local function handleBank(player: Player, score: any)
 		PlayerData.AddShards(player, reward)
 		Net.Event("BankCombo"):FireClient(player, reward)
 	end
+	Progression.AddXP(player, score * Config.Progression.XP.ComboPerPoint)
+	Progression.Record(player, "ComboScore", score)
 end
 
 function Economy.Start()

@@ -2,7 +2,7 @@
 
 A momentum movement game for Roblox (R6 only): grapple-swing between floating sky islands, wall-run, slide and air-dash without touching the ground.
 
-**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
+**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · levels, titles & nametags · daily quests · ghost replays of your best trial runs · emotes · interactive tutorial · respawn where you last landed · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
 
 See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 
@@ -14,8 +14,10 @@ See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 | Jump / wall-jump | Space | A | Jump |
 | Fast reel-in (while grappling) | Hold Space | Hold A | |
 | Sprint (hold or toggle) | Shift | L3 | Sprint button |
-| Slide (hold, at speed) | Ctrl or C | B | Slide button |
-| Air dash | Q or E | X | Dash button |
+| Air dash | Ctrl (or Q) | X | Dash button |
+| Slide (hold, at speed) | C | B | Slide button |
+| Emotes: wave, dance, flex, sit | 1 2 3 4 | | |
+| Skip tutorial | Enter | | |
 | Menu (shop, trials, settings) | M | Select | MENU button |
 | Cancel time trial | R | | |
 
@@ -55,6 +57,10 @@ src/
     Trials.luau        ring detection, timer, results
     Menu.luau          title screen, shop, trials browser, settings
     Settings.luau      saved player settings
+    Progress.luau      level/XP bar, level-up banner, daily quest tracker
+    Tutorial.luau      first-time interactive tutorial
+    Ghost.luau         best-run ghost recording + playback for trials
+    Emotes.luau        emote keys (poses live in R6Animator)
     Graphics.luau      quality presets, time of day, vignette
     UI.luau            shared UI style + toasts
     WorldFX.luau       spinning shards, other players' ropes
@@ -66,6 +72,7 @@ src/
     Economy.luau       shop purchases + combo rewards
     StateRelay.luau    shares movement state/actions with other players
     Shards.luau        collectibles
+    Progression.luau   XP, levels, daily quests, nametags, tutorial reward
 ```
 
 ## Checking the code

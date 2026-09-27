@@ -19,6 +19,7 @@ local RunService = game:GetService("RunService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Emotes = require(script.Parent.Emotes)
 local Grapple = require(script.Parent.Grapple)
 
 local A = Config.Animation
@@ -65,6 +66,7 @@ type Rig = {
 	DashTime: number,
 	LastWallNormal: Vector3,
 	Flip: Flip?,
+	Emote: { Name: string, Start: number }?,
 }
 
 local R6Animator = {}
@@ -94,6 +96,13 @@ end
 
 local function onAction(rig: Rig, action: string)
 	local now = os.clock()
+	if action == "Emote_Stop" then
+		rig.Emote = nil
+		return
+	elseif string.sub(action, 1, 6) == "Emote_" then
+		rig.Emote = { Name = string.sub(action, 7), Start = now }
+		return
+	end
 	if action == "WallJump" then
 		-- Cartwheel away from the wall.
 		local n = rig.Root.CFrame:VectorToObjectSpace(rig.LastWallNormal)
@@ -233,6 +242,41 @@ local function airPose(rig: Rig, P: Pose, now: number, flatSpeed: number, vy: nu
 	end
 end
 
+-- Emotes (standing still only).
+local function emotePose(P: Pose, name: string, t: number)
+	if name == "Wave" then
+		P.RArm = Angles(0, 0, 2.7 + math.sin(t * 9) * 0.35)
+		P.LArm = Angles(0, 0, -0.1)
+		P.Root = Angles(0, 0, 0.05)
+		P.Neck = Angles(0.1, 0, math.sin(t * 2) * 0.05)
+	elseif name == "Dance" then
+		local beat = t * 6
+		local bob = math.abs(math.sin(beat))
+		P.Root = CFrame.new(0, bob * 0.3 - 0.1, 0) * Angles(0, math.sin(beat / 2) * 0.35, math.sin(beat) * 0.08)
+		P.RArm = Angles(math.sin(beat) * 1.2 + 1.2, 0, 0.4)
+		P.LArm = Angles(-math.sin(beat) * 1.2 + 1.2, 0, -0.4)
+		P.RLeg = Angles(0, 0, 0.15 + bob * 0.15)
+		P.LLeg = Angles(0, 0, -0.15 - bob * 0.15)
+		P.Neck = Angles(0, -math.sin(beat / 2) * 0.3, math.sin(beat) * 0.1)
+	elseif name == "Flex" then
+		local pulse = math.sin(t * 5) * 0.08
+		P.Root = Angles(0.08, 0, 0)
+		P.RArm = Angles(0.2, 0, 1.6 + pulse)
+		P.LArm = Angles(0.2, 0, -1.6 - pulse)
+		P.RLeg = Angles(0, 0, 0.18)
+		P.LLeg = Angles(0, 0, -0.18)
+		P.Neck = Angles(0.15, 0, 0)
+	elseif name == "Sit" then
+		local breathe = math.sin(t * 2) * 0.02
+		P.Root = CFrame.new(0, -2, 0) * Angles(0.1 + breathe, 0, 0)
+		P.RLeg = Angles(1.5, 0, 0.1)
+		P.LLeg = Angles(1.45, 0, -0.12)
+		P.RArm = Angles(-0.45, 0, 0.3)
+		P.LArm = Angles(-0.45, 0, -0.3)
+		P.Neck = Angles(0.05, 0, 0)
+	end
+end
+
 -- Frame update -----------------------------------------------------------------
 
 local function animate(rig: Rig, dt: number, now: number)
@@ -254,7 +298,15 @@ local function animate(rig: Rig, dt: number, now: number)
 	end
 
 	local P: Pose = { Root = I, Neck = I, RArm = I, LArm = I, RLeg = I, LLeg = I }
-	if state == "Ground" then
+	if rig.IsLocal then
+		rig.Emote = Emotes.Current
+	elseif rig.Emote and (state ~= "Ground" or flatSpeed > 3) then
+		rig.Emote = nil
+	end
+
+	if state == "Ground" and rig.Emote and flatSpeed < 3 then
+		emotePose(P, rig.Emote.Name, now - rig.Emote.Start)
+	elseif state == "Ground" then
 		groundPose(rig, P, dt, now, flatSpeed, -localVel.Z)
 		if rig.IsLocal then
 			-- Glance where the camera is looking.
@@ -353,6 +405,7 @@ local function addRig(character: Model, isLocal: boolean)
 		DashTime = -math.huge,
 		LastWallNormal = Vector3.xAxis,
 		Flip = nil,
+		Emote = nil,
 	}
 	character.Destroying:Connect(function()
 		rigs[character] = nil

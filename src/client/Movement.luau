@@ -61,8 +61,12 @@ Movement.Info = {
 Movement.Action = Instance.new("BindableEvent") -- (name: string)
 Movement.Landed = Instance.new("BindableEvent") -- (impactSpeed: number)
 
--- Moves other players need to see (flips, afterimages, dust).
+-- Moves sent to the server: other players see them (flips, afterimages, dust)
+-- and they count toward daily quests and XP.
 local BROADCAST = {
+	Grapple = true,
+	WallRun = true,
+	Slide = true,
 	Dash = true,
 	WallJump = true,
 	Launch = true,
@@ -688,20 +692,14 @@ function Movement.Start()
 		Enum.UserInputType.MouseButton1,
 		Enum.KeyCode.ButtonR2
 	)
-	ContextActionService:BindAction(
-		"SkyboundSlide",
-		handleSlide,
-		true,
-		Enum.KeyCode.LeftControl,
-		Enum.KeyCode.C,
-		Enum.KeyCode.ButtonB
-	)
+	ContextActionService:BindAction("SkyboundSlide", handleSlide, true, Enum.KeyCode.C, Enum.KeyCode.ButtonB)
 	ContextActionService:BindAction(
 		"SkyboundDash",
 		handleDash,
 		true,
+		Enum.KeyCode.LeftControl,
+		Enum.KeyCode.RightControl,
 		Enum.KeyCode.Q,
-		Enum.KeyCode.E,
 		Enum.KeyCode.ButtonX
 	)
 	ContextActionService:BindAction(

@@ -16,6 +16,12 @@ local EVENTS = {
 	"TrialEvent",
 	-- client → server: (settings table)
 	"SaveSettings",
+	-- server → client: (kind, data) — level ups, quest completions
+	"Notify",
+	-- client → server: (courseId, ghostData) right after a record run
+	"SubmitGhost",
+	-- client → server: () when the tutorial is finished or skipped
+	"CompleteTutorial",
 }
 
 local FUNCTIONS = {
@@ -27,6 +33,10 @@ local FUNCTIONS = {
 	"GoToTrial",
 	-- () → saved settings table (or nil)
 	"GetSettings",
+	-- (courseId) → your best-run ghost data (or nil)
+	"GetGhost",
+	-- () → teleports you back to the spawn plaza
+	"ReturnToSpawn",
 }
 
 local Net = {}

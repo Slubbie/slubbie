@@ -15,6 +15,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 local Net = require(ReplicatedStorage.Shared.Net)
 local PlayerData = require(script.Parent.PlayerData)
+local Progression = require(script.Parent.Progression)
 
 local T = Config.Trials
 local Flat = MathUtil.Flat
@@ -42,6 +43,9 @@ local boards: { [string]: { Entry } } = {}
 local sessionBests: { [string]: { [number]: Entry } } = {}
 local nameCache: { [number]: string } = {}
 local boardLabels: { [string]: TextLabel } = {}
+-- A record run the client may now upload its ghost recording for.
+local pendingGhost: { [Player]: { Course: string, At: number } } = {}
+local MAX_GHOST_LENGTH = 60000
 
 local trialEvent: RemoteEvent
 
@@ -337,6 +341,14 @@ local function finish(player: Player, course: Course, time: number)
 	-- Shards for finishing, more for the longer courses.
 	local reward = #course.Rings
 	PlayerData.AddShards(player, reward)
+	Progression.AddXP(
+		player,
+		Config.Progression.XP.TrialFinish + (if record then Config.Progression.XP.TrialRecord else 0)
+	)
+	Progression.Record(player, "TrialFinish")
+	if record then
+		pendingGhost[player] = { Course = course.Id, At = os.clock() }
+	end
 	trialEvent:FireClient(player, "Finished", {
 		Course = course.Id,
 		Time = time,
@@ -407,6 +419,24 @@ function TimeTrials.Start(islands)
 	buildWorldBoard(root)
 
 	Net.Event("TrialCheckpoint").OnServerEvent:Connect(onCheckpoint)
+	Net.Event("SubmitGhost").OnServerEvent:Connect(function(player, courseId, ghost)
+		local pending = pendingGhost[player]
+		pendingGhost[player] = nil
+		if not pending or pending.Course ~= courseId or os.clock() - pending.At > 20 then
+			return
+		end
+		if type(ghost) ~= "string" or #ghost > MAX_GHOST_LENGTH then
+			return
+		end
+		PlayerData.Update(player, function(d)
+			d.Ghosts[courseId] = ghost
+		end)
+		task.spawn(PlayerData.Save, player)
+	end)
+	Net.Function("GetGhost").OnServerInvoke = function(player, courseId)
+		local data = PlayerData.Get(player)
+		return if data and type(courseId) == "string" then data.Ghosts[courseId] else nil
+	end
 	Net.Function("GetLeaderboards").OnServerInvoke = function()
 		local result = {}
 		for _, course in courseOrder do
@@ -436,6 +466,7 @@ function TimeTrials.Start(islands)
 		end)
 	end
 	Players.PlayerRemoving:Connect(function(player)
+		pendingGhost[player] = nil
 		runs[player] = nil
 	end)
 
