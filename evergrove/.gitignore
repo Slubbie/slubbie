@@ -1,0 +1,5 @@
+*.rbxl
+*.rbxlx
+*.lock
+sourcemap.json
+tests/.bundle.luau

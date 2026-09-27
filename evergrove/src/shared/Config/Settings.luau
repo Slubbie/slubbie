@@ -1,0 +1,76 @@
+-- Player settings: defaults, allowed ranges and menu layout.
+--
+-- Settings are saved in the player's profile. The server validates every value
+-- against Spec (type, range, options) before saving, so a tampered client can't
+-- store junk.
+
+export type Spec = {
+	Key: string,
+	Name: string,
+	Kind: string, -- "Toggle" | "Slider" | "Choice"
+	Default: any,
+	Min: number?,
+	Max: number?,
+	Step: number?,
+	Options: { string }?,
+	Tab: string,
+	Hint: string?,
+}
+
+local Specs: { Spec } = {
+	-- Graphics
+	{ Key = "Quality", Name = "Graphics Quality", Kind = "Choice", Default = "Auto", Options = { "Auto", "Low", "Medium", "High", "Ultra" }, Tab = "Graphics", Hint = "Auto picks based on your device." },
+	{ Key = "CropDetail", Name = "Crop Detail Distance", Kind = "Slider", Default = 160, Min = 60, Max = 400, Step = 10, Tab = "Graphics" },
+	{ Key = "WeatherIntensity", Name = "Weather Effects", Kind = "Slider", Default = 1, Min = 0, Max = 1, Step = 0.05, Tab = "Graphics" },
+	{ Key = "PostFX", Name = "Post-processing", Kind = "Toggle", Default = true, Tab = "Graphics" },
+	{ Key = "Shadows", Name = "Shadows", Kind = "Toggle", Default = true, Tab = "Graphics" },
+	{ Key = "Particles", Name = "Particle Density", Kind = "Slider", Default = 1, Min = 0, Max = 1, Step = 0.05, Tab = "Graphics" },
+	{ Key = "FOV", Name = "Field of View", Kind = "Slider", Default = 70, Min = 55, Max = 100, Step = 1, Tab = "Graphics" },
+
+	-- Audio
+	{ Key = "Master", Name = "Master Volume", Kind = "Slider", Default = 0.8, Min = 0, Max = 1, Step = 0.05, Tab = "Audio" },
+	{ Key = "Music", Name = "Music", Kind = "Slider", Default = 0.6, Min = 0, Max = 1, Step = 0.05, Tab = "Audio" },
+	{ Key = "SFX", Name = "Sound Effects", Kind = "Slider", Default = 0.8, Min = 0, Max = 1, Step = 0.05, Tab = "Audio" },
+	{ Key = "Ambient", Name = "Ambience", Kind = "Slider", Default = 0.7, Min = 0, Max = 1, Step = 0.05, Tab = "Audio" },
+	{ Key = "WeatherVolume", Name = "Weather Sounds", Kind = "Slider", Default = 0.7, Min = 0, Max = 1, Step = 0.05, Tab = "Audio" },
+	{ Key = "UIVolume", Name = "Interface Sounds", Kind = "Slider", Default = 0.7, Min = 0, Max = 1, Step = 0.05, Tab = "Audio" },
+
+	-- Interface & HUD
+	{ Key = "UIScale", Name = "Interface Scale", Kind = "Slider", Default = 1, Min = 0.7, Max = 1.4, Step = 0.05, Tab = "Interface" },
+	{ Key = "FarmInfo", Name = "Farm Info Mode", Kind = "Choice", Default = "Compact", Options = { "Compact", "Detailed", "Off" }, Tab = "Interface", Hint = "How much tile information to show when you hover a crop." },
+	{ Key = "QuestTracker", Name = "Quest Tracker", Kind = "Choice", Default = "Expanded", Options = { "Expanded", "Minimized", "Hidden" }, Tab = "Interface" },
+	{ Key = "ShowClock", Name = "Clock & Weather Widget", Kind = "Toggle", Default = true, Tab = "Interface" },
+	{ Key = "ShowXPBar", Name = "XP Bar", Kind = "Toggle", Default = true, Tab = "Interface" },
+	{ Key = "ShowGrid", Name = "Farm Grid Overlay", Kind = "Toggle", Default = false, Tab = "Interface" },
+	{ Key = "Notifications", Name = "Notifications", Kind = "Choice", Default = "All", Options = { "All", "Important", "Minimal" }, Tab = "Interface" },
+	{ Key = "SellConfirm", Name = "Confirm Big Sales", Kind = "Toggle", Default = true, Tab = "Interface" },
+	{ Key = "Clock24", Name = "24-hour Clock", Kind = "Toggle", Default = false, Tab = "Interface" },
+	{ Key = "UITheme", Name = "Interface Theme", Kind = "Choice", Default = "Grove", Options = { "Grove", "Cottage", "Celestial", "Parchment", "Midnight", "Sakura" }, Tab = "Interface", Hint = "Extra themes come from cosmetics." },
+	{ Key = "HotbarLeft", Name = "Hotbar Offset", Kind = "Slider", Default = 0, Min = -400, Max = 400, Step = 10, Tab = "Interface", Hint = "Slide the hotbar left or right." },
+	{ Key = "TrackerSide", Name = "Quest Tracker Side", Kind = "Choice", Default = "Left", Options = { "Left", "Right" }, Tab = "Interface" },
+
+	-- Accessibility
+	{ Key = "TextScale", Name = "Text Size", Kind = "Slider", Default = 1, Min = 0.85, Max = 1.6, Step = 0.05, Tab = "Accessibility" },
+	{ Key = "HighContrast", Name = "High Contrast", Kind = "Toggle", Default = false, Tab = "Accessibility" },
+	{ Key = "Colorblind", Name = "Colour-blind Mode", Kind = "Choice", Default = "Off", Options = { "Off", "Deuteranopia", "Protanopia", "Tritanopia" }, Tab = "Accessibility", Hint = "Rarity and quality also always show shapes and stars." },
+	{ Key = "ReducedMotion", Name = "Reduce Motion", Kind = "Toggle", Default = false, Tab = "Accessibility" },
+	{ Key = "ReducedFlashing", Name = "Reduce Flashing", Kind = "Toggle", Default = false, Tab = "Accessibility", Hint = "Softens lightning and reveal flashes." },
+	{ Key = "CameraShake", Name = "Camera Shake", Kind = "Slider", Default = 1, Min = 0, Max = 1, Step = 0.05, Tab = "Accessibility" },
+	{ Key = "Subtitles", Name = "Subtitles & Captions", Kind = "Toggle", Default = true, Tab = "Accessibility" },
+	{ Key = "SimpleUI", Name = "Simplified Interface", Kind = "Toggle", Default = false, Tab = "Accessibility", Hint = "Hides advanced numbers (soil nutrients, genes) until you open details." },
+	{ Key = "HoldTime", Name = "Interaction Hold Time", Kind = "Slider", Default = 0.35, Min = 0, Max = 1.5, Step = 0.05, Tab = "Accessibility" },
+	{ Key = "AutoTarget", Name = "Auto-target Tiles", Kind = "Choice", Default = "Auto", Options = { "Auto", "Pointer", "Facing" }, Tab = "Accessibility", Hint = "Facing targets the tile in front of you (default on gamepad/touch)." },
+
+	-- Gameplay
+	{ Key = "AutoSort", Name = "Auto-sort New Items", Kind = "Toggle", Default = true, Tab = "Gameplay" },
+	{ Key = "ToolArea", Name = "Default Tool Area", Kind = "Choice", Default = "Max", Options = { "1x1", "Max" }, Tab = "Gameplay" },
+	{ Key = "CameraMode", Name = "Camera", Kind = "Choice", Default = "Classic", Options = { "Classic", "Farm (angled)", "Shoulder" }, Tab = "Gameplay" },
+	{ Key = "Sensitivity", Name = "Camera Sensitivity", Kind = "Slider", Default = 1, Min = 0.2, Max = 2.5, Step = 0.05, Tab = "Gameplay" },
+	{ Key = "InvertY", Name = "Invert Camera Y", Kind = "Toggle", Default = false, Tab = "Gameplay" },
+	{ Key = "SlowTimeInMenus", Name = "Slow Time In Menus (solo)", Kind = "Toggle", Default = true, Tab = "Gameplay", Hint = "Only in private servers where you're alone." },
+}
+
+return {
+	Specs = Specs,
+	Tabs = { "Graphics", "Audio", "Interface", "Accessibility", "Gameplay" },
+}

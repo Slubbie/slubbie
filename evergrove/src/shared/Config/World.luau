@@ -1,0 +1,142 @@
+-- World layout: the village, farm lots, NPC waypoints, roads and fast travel.
+--
+-- Coordinates are studs; X is east, Z is south, the ground is at Y = 0.
+-- Regions beyond the village are in Config/Regions.
+
+local V = Vector3.new
+
+export type Building = {
+	Id: string,
+	Name: string,
+	Position: Vector3,
+	Size: Vector3,
+	Facing: number, -- yaw degrees; the door faces this way
+	Style: string, -- builder style in World/VillageBuilder
+	Roof: Color3,
+	Wall: Color3,
+	Npc: string?,
+	Shop: string?,
+	Sign: string?,
+	Project: string?, -- only built once this town project is completed (per player)
+}
+
+local hex = Color3.fromHex
+
+local Buildings: { Building } = {
+	{ Id = "TownHall", Name = "Town Hall", Position = V(0, 0, -100), Size = V(44, 26, 30), Facing = 0, Style = "Hall", Roof = hex("#5d6d7e"), Wall = hex("#f2e8d5"), Npc = "mayor", Shop = "townhall", Sign = "Town Hall" },
+	{ Id = "SeedShop", Name = "Pip's Seeds & Supply", Position = V(-72, 0, -58), Size = V(30, 18, 24), Facing = 45, Style = "Shop", Roof = hex("#4caf50"), Wall = hex("#fff3e0"), Npc = "pip", Shop = "general", Sign = "🌱 Seeds & Supply" },
+	{ Id = "Forge", Name = "Ironhollow Forge", Position = V(72, 0, -58), Size = V(30, 18, 24), Facing = -45, Style = "Forge", Roof = hex("#5d4037"), Wall = hex("#9e9e9e"), Npc = "bram", Shop = "forge", Sign = "⚒️ Forge" },
+	{ Id = "Restaurant", Name = "Basile's Trattoria", Position = V(-100, 0, 12), Size = V(32, 18, 26), Facing = 90, Style = "Shop", Roof = hex("#c0392b"), Wall = hex("#fdebd0"), Npc = "marco", Shop = "restaurant", Sign = "🍝 Trattoria" },
+	{ Id = "MarketHall", Name = "Market Square", Position = V(100, 0, 12), Size = V(40, 12, 30), Facing = -90, Style = "Market", Roof = hex("#f39c12"), Wall = hex("#fbeee6"), Sign = "Market", Project = "market_stalls" },
+	{ Id = "Museum", Name = "Evergrove Museum", Position = V(-72, 0, 80), Size = V(38, 22, 28), Facing = 135, Style = "Hall", Roof = hex("#34495e"), Wall = hex("#ecf0f1"), Npc = "beatrix", Shop = "museum", Sign = "🏛️ Museum" },
+	{ Id = "Carpenter", Name = "Timberline Builders", Position = V(72, 0, 80), Size = V(32, 18, 26), Facing = -135, Style = "Workshop", Roof = hex("#8d6e63"), Wall = hex("#d7ccc8"), Npc = "gus", Shop = "carpenter", Sign = "🪚 Builders" },
+	{ Id = "Lab", Name = "Vale Research Lab", Position = V(0, 0, 138), Size = V(34, 20, 26), Facing = 180, Style = "Lab", Roof = hex("#78909c"), Wall = hex("#fafafa"), Npc = "juniper", Shop = "lab", Sign = "🧪 Research Lab", Project = "lab_restore" },
+	{ Id = "Greenhouse", Name = "Fern's Glasshouse", Position = V(-138, 0, -112), Size = V(34, 16, 26), Facing = 45, Style = "Glasshouse", Roof = hex("#b3e5fc"), Wall = hex("#a5d6a7"), Npc = "rosalind", Shop = "botanist", Sign = "🌿 Glasshouse" },
+	{ Id = "Florist", Name = "Greenleaf Florals", Position = V(-40, 0, 58), Size = V(20, 14, 18), Facing = 135, Style = "Shop", Roof = hex("#f48fb1"), Wall = hex("#fff8e1"), Npc = "ivy", Shop = "florist", Sign = "💐 Florals" },
+	{ Id = "Cafe", Name = "Dewdrop Café", Position = V(-40, 0, -40), Size = V(20, 14, 18), Facing = 45, Style = "Shop", Roof = hex("#a1887f"), Wall = hex("#fff3e0"), Sign = "☕ Café" },
+	{ Id = "Tavern", Name = "The Tipsy Turnip", Position = V(42, 0, 44), Size = V(24, 16, 20), Facing = -135, Style = "Tavern", Roof = hex("#6d4c41"), Wall = hex("#d7b899"), Sign = "🍺 Tipsy Turnip" },
+	{ Id = "Library", Name = "Library", Position = V(42, 0, -42), Size = V(22, 16, 18), Facing = -45, Style = "Hall", Roof = hex("#3949ab"), Wall = hex("#efebe9"), Sign = "📚 Library" },
+	{ Id = "Workshop", Name = "Sparks Engineering", Position = V(138, 0, -112), Size = V(30, 18, 24), Facing = -45, Style = "Workshop", Roof = hex("#ff7043"), Wall = hex("#cfd8dc"), Npc = "nell", Shop = "mechanic", Sign = "🔧 Engineering", Project = "workshop_power" },
+	{ Id = "Ranch", Name = "Mead Family Ranch", Position = V(-165, 0, 95), Size = V(34, 20, 28), Facing = 90, Style = "Barn", Roof = hex("#b71c1c"), Wall = hex("#d7ccc8"), Npc = "hattie", Shop = "ranch", Sign = "🐄 Ranch" },
+	{ Id = "FishShop", Name = "Marlow's Bait & Tackle", Position = V(172, 0, 118), Size = V(22, 14, 18), Facing = -90, Style = "Shack", Roof = hex("#1e88e5"), Wall = hex("#bcaaa4"), Npc = "finn", Shop = "fish", Sign = "🎣 Bait & Tackle" },
+	{ Id = "Outfitters", Name = "Wanderfoot Outfitters", Position = V(-30, 0, 172), Size = V(20, 14, 18), Facing = 180, Style = "Shack", Roof = hex("#827717"), Wall = hex("#d7ccc8"), Npc = "rook", Shop = "explorer", Sign = "🧭 Outfitters" },
+	{ Id = "GuildHall", Name = "Cooperative Hall", Position = V(118, 0, 150), Size = V(30, 18, 24), Facing = -135, Style = "Hall", Roof = hex("#00897b"), Wall = hex("#e0f2f1"), Sign = "🤝 Co-op Hall", Project = "guild_hall" },
+}
+
+-- Named spots NPCs walk to (and players can be sent to). Houses are generated
+-- along the ring road for each NPC (Home_<npcId>).
+local Waypoints: { [string]: Vector3 } = {
+	Plaza = V(0, 0, 18),
+	FestivalStage = V(0, 0, 44),
+	Park = V(-128, 0, -18),
+	Market = V(100, 0, 20),
+	Meadow = V(-240, 0, -140),
+	RanchField = V(-190, 0, 128),
+	RiverBank = V(222, 0, 40),
+	Dock = V(214, 0, 122),
+	Signpost = V(0, 0, 188),
+	MabelPorch = V(-150, 0, 150),
+	Forest = V(-520, 0, -20),
+	Mountains = V(0, 0, -520),
+	MineEntrance = V(150, 0, -640),
+	Observatory = V(-150, 30, -520),
+	Beach = V(820, 0, 820),
+	Harbor = V(720, 0, 900),
+	Lighthouse = V(1040, 0, 980),
+	Ruins = V(800, 0, -760),
+	Away = V(0, -2000, 0),
+}
+
+-- Road graph (waypoint ids or "Building:<Id>" door positions are resolved at runtime).
+local Roads = {
+	-- Main cross and ring roads (as polylines).
+	{ V(0, 0, -300), V(0, 0, -120), V(0, 0, 0), V(0, 0, 200), V(0, 0, 360) },
+	{ V(-300, 0, 0), V(-120, 0, 0), V(0, 0, 0), V(120, 0, 0), V(260, 0, 0) },
+	{ V(0, 0, -150), V(106, 0, -106), V(150, 0, 0), V(106, 0, 106), V(0, 0, 150), V(-106, 0, 106), V(-150, 0, 0), V(-106, 0, -106), V(0, 0, -150) },
+	-- Homestead Row
+	{ V(-480, 0, 360), V(480, 0, 360) },
+	{ V(-480, 0, 700), V(480, 0, 700) },
+	{ V(-480, 0, 360), V(-480, 0, 700) },
+	{ V(480, 0, 360), V(480, 0, 700) },
+	-- Out to regions
+	{ V(-300, 0, 0), V(-520, 0, -20) },
+	{ V(0, 0, -300), V(0, 0, -520) },
+	{ V(260, 0, 0), V(480, 0, 360) },
+	{ V(480, 0, 700), V(820, 0, 820) },
+}
+
+-- Farm lots. Each lot is a Parcels×Parcels grid of parcels, each ParcelTiles²
+-- tiles of TileSize studs, plus a yard strip in front (toward -Z) with the
+-- farmhouse, mailbox, shipping bin, well and workbench.
+local Farms = {
+	TileSize = 4,
+	ParcelTiles = 12,
+	Parcels = 5,
+	YardDepth = 44,
+	Lots = {
+		{ Id = 1, Origin = V(-420, 0, 410) },
+		{ Id = 2, Origin = V(-120, 0, 410) },
+		{ Id = 3, Origin = V(180, 0, 410) },
+		{ Id = 4, Origin = V(-420, 0, 750) },
+		{ Id = 5, Origin = V(-120, 0, 750) },
+		{ Id = 6, Origin = V(180, 0, 750) },
+	},
+}
+
+-- Fast travel signposts. Discovered by walking near them.
+local Travel = {
+	{ Id = "town", Name = "Evergrove Plaza", Position = V(0, 0, 30), Region = "Village" },
+	{ Id = "homestead", Name = "Homestead Row", Position = V(0, 0, 370), Region = "Homestead" },
+	{ Id = "river", Name = "Mossback Landing", Position = V(240, 0, 60), Region = "Mossback" },
+	{ Id = "wetlands", Name = "Reedmarsh Boardwalk", Position = V(600, 0, 180), Region = "Mossback" },
+	{ Id = "forest", Name = "Whispering Woods", Position = V(-520, 0, -20), Region = "Forest" },
+	{ Id = "grove", Name = "Mushroom Grove", Position = V(-960, 0, -240), Region = "MushroomGrove" },
+	{ Id = "glade", Name = "Moonlit Glade", Position = V(-880, 0, 300), Region = "MoonlitGlade" },
+	{ Id = "mountains", Name = "Emberstone Trailhead", Position = V(0, 0, -520), Region = "Mountains" },
+	{ Id = "mine", Name = "Emberstone Mine", Position = V(150, 0, -620), Region = "Mountains" },
+	{ Id = "observatory", Name = "Observatory Hill", Position = V(-150, 30, -500), Region = "Mountains" },
+	{ Id = "beach", Name = "Sunpetal Coast", Position = V(780, 0, 800), Region = "Beach" },
+	{ Id = "desert", Name = "Dunewind Oasis", Position = V(1300, 0, -200), Region = "Dunewind" },
+	{ Id = "frostveil", Name = "Frostveil Lodge", Position = V(-880, 0, -860), Region = "Frostveil" },
+	{ Id = "ruins", Name = "Ancient Ruins", Position = V(760, 0, -700), Region = "Ruins" },
+	{ Id = "hollow", Name = "Hollow Farm Gate", Position = V(-760, 0, 760), Region = "HollowFarm" },
+	{ Id = "skyreach", Name = "Skyreach Landing", Position = V(0, 640, -1100), Region = "Skyreach" },
+	{ Id = "valley", Name = "Hidden Valley", Position = V(-1420, 0, -300), Region = "HiddenValley" },
+	{ Id = "caverns", Name = "Crystal Caverns", Position = V(150, -500, -640), Region = "CrystalCaverns" },
+}
+
+return {
+	Buildings = Buildings,
+	Waypoints = Waypoints,
+	Roads = Roads,
+	Farms = Farms,
+	Travel = Travel,
+	VillageRadius = 200,
+	-- Spawn point for new players before a farm is assigned.
+	Spawn = V(0, 4, 24),
+	-- Radius around a signpost that counts as discovering it.
+	TravelDiscoverRadius = 30,
+	-- Coins charged per fast travel (0 with the Cartographer skill).
+	TravelCost = 25,
+	KillY = -800,
+}

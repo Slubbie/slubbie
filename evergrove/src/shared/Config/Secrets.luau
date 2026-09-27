@@ -1,0 +1,71 @@
+-- Secrets, puzzles and lore pages.
+--
+-- Secrets are triggered by walking into (or interacting with) a hidden spot in
+-- the world. Some need an item, a time, a weather or other secrets first. The
+-- server re-checks every condition when the client reports a trigger.
+
+export type Secret = {
+	Id: string,
+	Name: string,
+	Region: string,
+	Position: Vector3,
+	Radius: number,
+	Hint: string,
+	Needs: { [string]: any }?, -- Item, Items{{id,n}}, Secrets{}, Night, Weather, Season, Quest, Hearts
+	Consume: { { any } }?,
+	Reward: { [string]: any },
+	Visible: string?, -- how it looks: "Glint", "Rune", "Hole", "Shrine", "Waterfall", "None"
+}
+
+local V = Vector3.new
+
+local List: { Secret } = {
+	{ Id = "grove_path", Name = "The Fern Path", Region = "Forest", Position = V(-900, 0, -160), Radius = 12, Hint = "In the woods, the ferns lean toward something at dusk.", Needs = {}, Reward = { Coins = 1500, Lore = "lore_3", Unlock = "MushroomGrove" }, Visible = "Glint" },
+	{ Id = "ancient_oak_hollow", Name = "Hollow of the Ancient Oak", Region = "Forest", Position = V(-700, 0, 140), Radius = 8, Hint = "The oldest oak hides a hollow at its roots.", Needs = { Night = true }, Reward = { Items = { { "ancient_seed", 1 } }, Lore = "lore_4" }, Visible = "Hole" },
+	{ Id = "tablet_1", Name = "The Sun Tablet", Region = "Ruins", Position = V(760, 0, -700), Radius = 8, Hint = "Where the terraces face the sunrise.", Needs = { Quest = "story_3_2" }, Reward = { Items = { { "ruin_tablet", 1 } }, Lore = "lore_7" }, Visible = "Rune" },
+	{ Id = "tablet_2", Name = "The Rain Tablet", Region = "Ruins", Position = V(880, 0, -820), Radius = 8, Hint = "It only shows when water falls from the sky.", Needs = { Weather = { "Rain", "Thunderstorm", "RainbowMist" }, Quest = "story_3_3" }, Reward = { Items = { { "ruin_tablet", 1 } }, Lore = "lore_8" }, Visible = "Rune" },
+	{ Id = "tablet_3", Name = "The Moon Tablet", Region = "Ruins", Position = V(700, 0, -860), Radius = 8, Hint = "Moonlight reveals the third glyph.", Needs = { Night = true, Quest = "story_3_3" }, Reward = { Items = { { "ruin_tablet", 1 } }, Lore = "lore_9" }, Visible = "Rune" },
+	{ Id = "tablet_4", Name = "The Seed Tablet", Region = "Ruins", Position = V(820, 0, -640), Radius = 8, Hint = "Plant a seed as an offering at the old altar.", Needs = { Item = "#Seed", Quest = "story_3_3" }, Consume = { { "#Seed", 1 } }, Reward = { Items = { { "ruin_tablet", 1 } }, Lore = "lore_10" }, Visible = "Shrine" },
+	{ Id = "seed_vault", Name = "The Seed Vault", Region = "Ruins", Position = V(800, 0, -760), Radius = 10, Hint = "Four tablets, one door.", Needs = { Items = { { "ruin_tablet", 4 } } }, Consume = { { "ruin_tablet", 4 } }, Reward = { Coins = 5000, Lore = "lore_11" }, Visible = "Shrine" },
+	{ Id = "waterfall_cave", Name = "Behind the Waterfall", Region = "Mountains", Position = V(-260, 20, -860), Radius = 10, Hint = "The mountain lake's waterfall hides a secret.", Needs = {}, Reward = { Items = { { "treasure_chest", 1 }, { "star_chart", 1 } }, Lore = "lore_5" }, Visible = "Waterfall" },
+	{ Id = "sunken_bell", Name = "The Sunken Bell", Region = "Beach", Position = V(1000, 0, 1040), Radius = 10, Hint = "At low tide by the lighthouse, something rings.", Needs = { Hours = { 5, 8 } }, Reward = { Items = { { "pearl", 1 }, { "mermaid_comb", 1 } }, Lore = "lore_12" }, Visible = "Glint" },
+	{ Id = "dune_skeleton", Name = "The Great Skeleton", Region = "Dunewind", Position = V(1450, 0, -380), Radius = 14, Hint = "Sandstorms uncover the bones of a giant.", Needs = { Weather = { "Sandstorm" } }, Reward = { Items = { { "dino_egg", 1 } }, Lore = "lore_13" }, Visible = "None" },
+	{ Id = "frozen_shrine", Name = "The Frozen Shrine", Region = "Frostveil", Position = V(-1020, 0, -1000), Radius = 10, Hint = "Under an aurora, the ice shrine opens.", Needs = { Weather = { "Aurora" } }, Reward = { Items = { { "seed_frost_orchid", 2 }, { "frozen_tear", 1 } }, Lore = "lore_14" }, Visible = "Shrine" },
+	{ Id = "hollow_scarecrow", Name = "The Watching Scarecrow", Region = "HollowFarm", Position = V(-820, 0, 780), Radius = 8, Hint = "The scarecrow wants a gift of the field.", Needs = { Item = "#Crop", Night = true }, Consume = { { "#Crop", 1 } }, Reward = { Items = { { "seed_wraithpepper", 3 }, { "ghost_lantern", 1 } }, Lore = "lore_15" }, Visible = "Shrine" },
+	{ Id = "sky_nest", Name = "The Skywhale's Nest", Region = "Skyreach", Position = V(-160, 700, -1240), Radius = 14, Hint = "The highest island holds an empty nest.", Needs = {}, Reward = { Items = { { "cloud_wool", 3 }, { "prism_shard", 1 } }, Lore = "lore_16" }, Visible = "Glint" },
+	{ Id = "crystal_heart", Name = "The Crystal Heart", Region = "CrystalCaverns", Position = V(90, -500, -560), Radius = 10, Hint = "Deep in the caverns, a heartbeat.", Needs = { Buff = "Light" }, Reward = { Items = { { "crystal_skull", 1 }, { "seed_crystal_berry", 3 } }, Lore = "lore_17" }, Visible = "Glint" },
+	{ Id = "valley_entrance", Name = "The Hidden Pass", Region = "Forest", Position = V(-1120, 0, -300), Radius = 12, Hint = "The torn map shows a pass in the far west woods.", Needs = { Item = "valley_map" }, Reward = { Lore = "lore_18", Unlock = "HiddenValley" }, Visible = "None" },
+	{ Id = "worldtree_grove", Name = "Heart of the Valley", Region = "HiddenValley", Position = V(-1440, 0, -260), Radius = 12, Hint = "Where the ground hums.", Needs = { Item = "worldtree_acorn", Quest = "worldtree_6" }, Consume = { { "worldtree_acorn", 1 } }, Reward = { Lore = "lore_20", Achievement = "worldtree" }, Visible = "Shrine" },
+	{ Id = "glade_ring", Name = "The Fairy Ring", Region = "MoonlitGlade", Position = V(-900, 0, 300), Radius = 8, Hint = "Dance in the ring under a full moon.", Needs = { FullMoon = true }, Reward = { Items = { { "fairy_dust", 5 }, { "moon_mulch", 5 } }, Lore = "lore_19" }, Visible = "Glint" },
+	{ Id = "village_well", Name = "Wishing Well", Region = "Village", Position = V(-128, 0, -18), Radius = 6, Hint = "Toss in a coin... well, a golden one.", Needs = { Item = "old_coin" }, Consume = { { "old_coin", 1 } }, Reward = { Items = { { "luck_potion", 1 } }, Lore = "lore_1" }, Visible = "None" },
+	{ Id = "mayor_statue", Name = "The Founder's Statue", Region = "Village", Position = V(0, 0, -70), Radius = 6, Hint = "Visit the founder at midnight.", Needs = { Hours = { 0, 1 } }, Reward = { Coins = 1000, Lore = "lore_2" }, Visible = "None" },
+	{ Id = "wetland_log", Name = "The Singing Log", Region = "Mossback", Position = V(700, 0, 260), Radius = 8, Hint = "Frogs gather at a hollow log after rain.", Needs = { Weather = { "Rain", "Thunderstorm" } }, Reward = { Items = { { "tree_frog", 1 }, { "glow_bait", 20 } }, Lore = "lore_6" }, Visible = "None" },
+}
+
+local Lore = {
+	{ Id = "lore_1", Title = "A Wish", Text = "Every coin in the village well was once a wish for rain. Most of them came true." },
+	{ Id = "lore_2", Title = "The Founder", Text = "Alder Brightwater the First planted the valley's first orchard with seeds he carried across the mountains in his boots." },
+	{ Id = "lore_3", Title = "Mushroom Folk", Text = "The glowing grove was tended by the mushroom folk, who traded light for compost." },
+	{ Id = "lore_4", Title = "The Ancient Oaks", Text = "The ancient oaks are said to be the Worldtree's children, waiting for their mother to wake." },
+	{ Id = "lore_5", Title = "Waterfall Journal", Text = "'Day 40. The fish in the lake glow at night. Nobody in town believes me.' — R. Wanderfoot Sr." },
+	{ Id = "lore_6", Title = "Frog Chorus", Text = "Marsh folk believed the frog chorus summoned the rain. They may have been right." },
+	{ Id = "lore_7", Title = "Tablet of Sun", Text = "'Give the seed light and it will give you gold.'" },
+	{ Id = "lore_8", Title = "Tablet of Rain", Text = "'Give the seed water and it will give you life.'" },
+	{ Id = "lore_9", Title = "Tablet of Moon", Text = "'Give the seed night and it will give you dreams.'" },
+	{ Id = "lore_10", Title = "Tablet of Seed", Text = "'Give the seed a keeper and it will give you a world.'" },
+	{ Id = "lore_11", Title = "The Vault", Text = "The first farmers stored one seed of every crop they ever grew, sealed against the long winter." },
+	{ Id = "lore_12", Title = "The Drowned Bell", Text = "The old harbour bell fell in a storm two hundred years ago. It still rings for sailors lost at sea." },
+	{ Id = "lore_13", Title = "Bones of the Dunes", Text = "Before the desert, there was a sea. Before the sea, there were giants." },
+	{ Id = "lore_14", Title = "The Frozen Shrine", Text = "Frost orchids were a gift to the valley from the winter spirits, in exchange for a song." },
+	{ Id = "lore_15", Title = "Hollow Farm", Text = "Harriet Thornbury farmed the Hollow until the fog came. Her crops still grow, tended by no one." },
+	{ Id = "lore_16", Title = "Skywhales", Text = "Skywhales graze on clouds and sing to the stars. Their calves are rarely seen below the upper sky." },
+	{ Id = "lore_17", Title = "The Crystal Heart", Text = "The caverns grow around a crystal that beats once a minute. The miners called it the Mountain's Heart." },
+	{ Id = "lore_18", Title = "The Hidden Pass", Text = "The valley hid itself when the Worldtree fell asleep, so that no one would disturb its rest." },
+	{ Id = "lore_19", Title = "Fairy Rings", Text = "Mushroom rings are doorways for things that are very small and very old." },
+	{ Id = "lore_20", Title = "The Worldtree", Text = "When the Worldtree wakes, every seed remembers what it could become." },
+}
+
+return {
+	List = List,
+	Lore = Lore,
+}

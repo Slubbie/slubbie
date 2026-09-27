@@ -1,0 +1,711 @@
+-- Crop catalog.
+--
+-- Times are real seconds at normal speed (an in-game hour is DayLength/24 = 50s).
+-- Each crop automatically gets a seed item ("seed_<id>") and a produce item (<id>),
+-- plus artisan products for its Tags (see Config/Machines) and a collection entry.
+--
+-- Fields
+--   Rarity        Common → Mythic
+--   Family        crop rotation / disease family
+--   Tags          Fruit, Vegetable, Grain, Flower, Herb, Mushroom, Crystal, Mystic... (artisan recipes use these)
+--   Seasons       preferred seasons (full growth). "Any" = every season.
+--   Grow          seconds from seed to ripe
+--   Regrow        seconds to ripen again after harvest (nil = harvest removes the plant)
+--   Water         Low / Medium / High (moisture band, see Config/Soil)
+--   NPK           nutrient demand profile (relative)
+--   Seed / Sell   seed price (nil = not sold in shops) / base produce value
+--   Yield         { min, max } produce per harvest
+--   MaxQuality    highest quality tier this crop can reach (1-6)
+--   Premium       chance a harvest is "premium": +1 quality tier and +1 item
+--   Size          { base kg, variance } for records and contests
+--   Tolerance     0-1 resistance to Heat / Cold / Wet / Wind weather
+--   Night         only grows at night
+--   Needs         soil/region tags it needs ("Skyreach|CloudSoil" = either); unmet → slow growth, quality capped
+--   Level         Farming level needed to buy the seed
+--   Sources       where seeds come from besides shops
+--   Special       text shown in tooltips describing a unique purpose
+--   Visual        { Arch, Leaf, Fruit, Shape?, Count?, Height?, Glow?, Accent?, Material? }
+
+export type Crop = {
+	Id: string,
+	Name: string,
+	Icon: string,
+	Rarity: string,
+	Family: string,
+	Tags: { string },
+	Seasons: { string },
+	Grow: number,
+	Regrow: number?,
+	Water: string,
+	NPK: { N: number, P: number, K: number },
+	Seed: number?,
+	Sell: number,
+	Yield: { number },
+	MaxQuality: number,
+	Premium: number,
+	Size: { number },
+	Tolerance: { Heat: number, Cold: number, Wet: number, Wind: number },
+	Night: boolean?,
+	Needs: string?,
+	Level: number,
+	Sources: { string },
+	Special: string?,
+	XP: number,
+	Tree: boolean?,
+	Fixes: number?, -- nitrogen returned to the soil at harvest (legumes)
+	Visual: {
+		Arch: string,
+		Leaf: Color3,
+		Fruit: Color3,
+		Shape: string?,
+		Count: number?,
+		Height: number?,
+		Glow: boolean?,
+		Accent: Color3?,
+		Material: string?,
+	},
+}
+
+local hex = Color3.fromHex
+
+local function tol(heat: number, cold: number, wet: number, wind: number)
+	return { Heat = heat, Cold = cold, Wet = wet, Wind = wind }
+end
+
+local function crop(def: any): Crop
+	def.Tags = def.Tags or {}
+	def.Water = def.Water or "Medium"
+	def.NPK = def.NPK or { N = 1, P = 1, K = 1 }
+	def.Yield = def.Yield or { 1, 1 }
+	def.MaxQuality = def.MaxQuality or 6
+	def.Premium = def.Premium or 0.04
+	def.Size = def.Size or { 0.3, 0.15 }
+	def.Tolerance = def.Tolerance or tol(0.4, 0.3, 0.5, 0.5)
+	def.Level = def.Level or 1
+	def.Sources = def.Sources or {}
+	-- XP scales with how long the crop takes to grow.
+	def.XP = def.XP or math.max(3, math.floor(3 + def.Grow / 45))
+	local v = def.Visual
+	v.Leaf = if typeof(v.Leaf) == "string" then hex(v.Leaf) else v.Leaf
+	v.Fruit = if typeof(v.Fruit) == "string" then hex(v.Fruit) else v.Fruit
+	if typeof(v.Accent) == "string" then
+		v.Accent = hex(v.Accent)
+	end
+	return def
+end
+
+local List: { Crop } = {
+	-- Starter & common ------------------------------------------------------------------
+	crop({
+		Id = "lettuce", Name = "Lettuce", Icon = "🥬", Rarity = "Common", Family = "Leafy",
+		Tags = { "Vegetable", "Leafy" }, Seasons = { "Spring", "Autumn" },
+		Grow = 120, Seed = 6, Sell = 16, NPK = { N = 3, P = 1, K = 1 },
+		Size = { 0.4, 0.15 }, Tolerance = tol(0.2, 0.5, 0.5, 0.6),
+		Visual = { Arch = "Leafy", Leaf = "#8cc84b", Fruit = "#b4e06c" },
+	}),
+	crop({
+		Id = "carrot", Name = "Carrot", Icon = "🥕", Rarity = "Common", Family = "Root",
+		Tags = { "Vegetable", "Root" }, Seasons = { "Spring", "Autumn" },
+		Grow = 180, Seed = 10, Sell = 28, NPK = { N = 1, P = 3, K = 2 },
+		Size = { 0.15, 0.2 }, Tolerance = tol(0.3, 0.5, 0.5, 0.7),
+		Visual = { Arch = "Root", Leaf = "#5aa83c", Fruit = "#f28a1e", Shape = "Cone" },
+	}),
+	crop({
+		Id = "potato", Name = "Potato", Icon = "🥔", Rarity = "Common", Family = "Nightshade",
+		Tags = { "Vegetable", "Root" }, Seasons = { "Spring", "Autumn" },
+		Grow = 300, Seed = 18, Sell = 45, Yield = { 1, 2 }, NPK = { N = 1, P = 2, K = 3 },
+		Size = { 0.25, 0.25 }, Tolerance = tol(0.3, 0.5, 0.3, 0.7),
+		Visual = { Arch = "Root", Leaf = "#4f9a3a", Fruit = "#c9a266", Shape = "Ball", Count = 3 },
+	}),
+	crop({
+		Id = "onion", Name = "Onion", Icon = "🧅", Rarity = "Common", Family = "Allium",
+		Tags = { "Vegetable", "Root" }, Seasons = { "Spring", "Summer" },
+		Grow = 240, Seed = 14, Sell = 38, NPK = { N = 1, P = 2, K = 2 },
+		Size = { 0.2, 0.2 }, Tolerance = tol(0.5, 0.5, 0.4, 0.8),
+		Visual = { Arch = "Root", Leaf = "#6dba4a", Fruit = "#d9a0c8", Shape = "Ball" },
+	}),
+	crop({
+		Id = "garlic", Name = "Garlic", Icon = "🧄", Rarity = "Common", Family = "Allium",
+		Tags = { "Vegetable", "Root", "Herb" }, Seasons = { "Spring", "Autumn" },
+		Grow = 270, Seed = 16, Sell = 44, NPK = { N = 1, P = 2, K = 2 },
+		Size = { 0.06, 0.2 }, Tolerance = tol(0.4, 0.7, 0.4, 0.8),
+		Special = "Wards pests off cabbages.",
+		Visual = { Arch = "Root", Leaf = "#7cc05a", Fruit = "#f0ead8", Shape = "Ball" },
+	}),
+	crop({
+		Id = "strawberry", Name = "Strawberry", Icon = "🍓", Rarity = "Common", Family = "Berry",
+		Tags = { "Fruit", "Berry" }, Seasons = { "Spring" },
+		Grow = 420, Regrow = 240, Seed = 40, Sell = 32, Yield = { 1, 2 }, NPK = { N = 1, P = 3, K = 2 },
+		Size = { 0.03, 0.3 }, Tolerance = tol(0.3, 0.3, 0.4, 0.5),
+		Visual = { Arch = "Bush", Leaf = "#4c9e3a", Fruit = "#e8323c", Shape = "Cone", Count = 4, Height = 0.8 },
+	}),
+	crop({
+		Id = "green_bean", Name = "Green Bean", Icon = "🫘", Rarity = "Common", Family = "Legume",
+		Tags = { "Vegetable" }, Seasons = { "Spring", "Summer" },
+		Grow = 360, Regrow = 180, Seed = 24, Sell = 22, Yield = { 1, 2 }, NPK = { N = 0, P = 2, K = 2 },
+		Fixes = 12, Special = "Legume: returns nitrogen to the soil every harvest.",
+		Size = { 0.05, 0.2 },
+		Visual = { Arch = "Vine", Leaf = "#5aae44", Fruit = "#6ccc4c", Shape = "Cylinder", Count = 5, Height = 2.2 },
+	}),
+	crop({
+		Id = "broccoli", Name = "Broccoli", Icon = "🥦", Rarity = "Common", Family = "Brassica",
+		Tags = { "Vegetable" }, Seasons = { "Spring", "Autumn" },
+		Grow = 480, Seed = 30, Sell = 88, NPK = { N = 3, P = 1, K = 2 }, Level = 2,
+		Size = { 0.5, 0.2 }, Tolerance = tol(0.2, 0.7, 0.5, 0.6),
+		Visual = { Arch = "Leafy", Leaf = "#3e8a3c", Fruit = "#3f7c32", Shape = "Ball" },
+	}),
+	crop({
+		Id = "tulip", Name = "Tulip", Icon = "🌷", Rarity = "Common", Family = "Flower",
+		Tags = { "Flower" }, Seasons = { "Spring" },
+		Grow = 300, Seed = 20, Sell = 48, NPK = { N = 1, P = 3, K = 1 },
+		Size = { 0.02, 0.1 },
+		Visual = { Arch = "Flower", Leaf = "#5aa84a", Fruit = "#f0506e", Shape = "Cup" },
+	}),
+	crop({
+		Id = "rose", Name = "Rose", Icon = "🌹", Rarity = "Uncommon", Family = "Flower",
+		Tags = { "Flower" }, Seasons = { "Spring", "Summer" },
+		Grow = 600, Regrow = 360, Seed = 60, Sell = 70, NPK = { N = 1, P = 3, K = 2 }, Level = 4,
+		Size = { 0.03, 0.15 },
+		Visual = { Arch = "Bush", Leaf = "#35743a", Fruit = "#c8102e", Shape = "Cup", Count = 3, Height = 1.1 },
+	}),
+	crop({
+		Id = "rice", Name = "Rice", Icon = "🌾", Rarity = "Common", Family = "Grain",
+		Tags = { "Grain" }, Seasons = { "Spring", "Summer" }, Water = "High",
+		Grow = 360, Seed = 12, Sell = 26, Yield = { 2, 3 }, NPK = { N = 3, P = 1, K = 1 }, Level = 3,
+		Special = "Grows faster on Riverside land.",
+		Size = { 0.02, 0.1 }, Tolerance = tol(0.5, 0.3, 1, 0.5),
+		Visual = { Arch = "Stalk", Leaf = "#8cc05a", Fruit = "#e8d9a0", Height = 1.4 },
+	}),
+	crop({
+		Id = "tea", Name = "Tea Leaves", Icon = "🍵", Rarity = "Uncommon", Family = "Herb",
+		Tags = { "Herb", "Leafy" }, Seasons = { "Spring", "Summer" },
+		Grow = 720, Regrow = 300, Seed = 90, Sell = 42, Yield = { 1, 2 }, NPK = { N = 3, P = 1, K = 2 }, Level = 6,
+		Size = { 0.01, 0.1 },
+		Visual = { Arch = "Bush", Leaf = "#3f8c3a", Fruit = "#7ccf5a", Shape = "Leaf", Count = 6, Height = 1 },
+	}),
+	crop({
+		Id = "basil", Name = "Basil", Icon = "🌿", Rarity = "Common", Family = "Herb",
+		Tags = { "Herb" }, Seasons = { "Spring", "Summer" },
+		Grow = 240, Regrow = 150, Seed = 22, Sell = 18, NPK = { N = 3, P = 1, K = 1 }, Level = 2,
+		Special = "Sweetens neighbouring tomatoes.",
+		Size = { 0.02, 0.1 },
+		Visual = { Arch = "Herb", Leaf = "#4cae3c", Fruit = "#62c24a" },
+	}),
+
+	-- Summer ------------------------------------------------------------------------------
+	crop({
+		Id = "wheat", Name = "Wheat", Icon = "🌾", Rarity = "Common", Family = "Grain",
+		Tags = { "Grain" }, Seasons = { "Summer", "Autumn" },
+		Grow = 240, Seed = 8, Sell = 20, Yield = { 1, 2 }, NPK = { N = 3, P = 1, K = 1 },
+		Special = "Mill into flour, or turn into hay for animals.",
+		Size = { 0.02, 0.1 }, Tolerance = tol(0.6, 0.4, 0.4, 0.4),
+		Visual = { Arch = "Stalk", Leaf = "#b8b050", Fruit = "#e6c460", Height = 1.6 },
+	}),
+	crop({
+		Id = "corn", Name = "Corn", Icon = "🌽", Rarity = "Common", Family = "Grain",
+		Tags = { "Grain", "Vegetable" }, Seasons = { "Summer", "Autumn" },
+		Grow = 540, Regrow = 300, Seed = 45, Sell = 40, Yield = { 1, 2 }, NPK = { N = 3, P = 1, K = 1 }, Level = 2,
+		Size = { 0.3, 0.15 }, Tolerance = tol(0.6, 0.3, 0.4, 0.3),
+		Visual = { Arch = "Corn", Leaf = "#4c9a34", Fruit = "#f2d04a", Height = 3.4 },
+	}),
+	crop({
+		Id = "tomato", Name = "Tomato", Icon = "🍅", Rarity = "Common", Family = "Nightshade",
+		Tags = { "Fruit", "Vegetable" }, Seasons = { "Summer" },
+		Grow = 420, Regrow = 220, Seed = 36, Sell = 34, Yield = { 1, 2 }, NPK = { N = 1, P = 2, K = 3 },
+		Size = { 0.15, 0.3 }, Tolerance = tol(0.6, 0.2, 0.4, 0.4),
+		Visual = { Arch = "Vine", Leaf = "#3e8e34", Fruit = "#e0301e", Shape = "Ball", Count = 5, Height = 2 },
+	}),
+	crop({
+		Id = "hot_pepper", Name = "Hot Pepper", Icon = "🌶️", Rarity = "Common", Family = "Nightshade",
+		Tags = { "Fruit", "Vegetable", "Hot" }, Seasons = { "Summer" },
+		Grow = 330, Regrow = 180, Seed = 30, Sell = 24, Yield = { 1, 3 }, NPK = { N = 1, P = 2, K = 3 },
+		Size = { 0.02, 0.2 }, Tolerance = tol(0.9, 0.1, 0.3, 0.5),
+		Visual = { Arch = "Pepper", Leaf = "#3a8a30", Fruit = "#d6281c", Shape = "Cone", Count = 5 },
+	}),
+	crop({
+		Id = "bell_pepper", Name = "Bell Pepper", Icon = "🫑", Rarity = "Common", Family = "Nightshade",
+		Tags = { "Vegetable" }, Seasons = { "Summer" },
+		Grow = 420, Regrow = 240, Seed = 34, Sell = 32, Yield = { 1, 2 }, NPK = { N = 1, P = 2, K = 3 }, Level = 2,
+		Size = { 0.15, 0.2 },
+		Visual = { Arch = "Pepper", Leaf = "#3a8a30", Fruit = "#38a83c", Shape = "Ball", Count = 3 },
+	}),
+	crop({
+		Id = "cucumber", Name = "Cucumber", Icon = "🥒", Rarity = "Common", Family = "Gourd",
+		Tags = { "Vegetable" }, Seasons = { "Summer" }, Water = "High",
+		Grow = 360, Regrow = 200, Seed = 28, Sell = 26, Yield = { 1, 2 }, NPK = { N = 2, P = 2, K = 2 },
+		Size = { 0.3, 0.2 },
+		Visual = { Arch = "Vine", Leaf = "#4a9a3a", Fruit = "#2f7a2c", Shape = "Cylinder", Count = 4, Height = 1.8 },
+	}),
+	crop({
+		Id = "melon", Name = "Melon", Icon = "🍈", Rarity = "Uncommon", Family = "Gourd",
+		Tags = { "Fruit" }, Seasons = { "Summer" }, Water = "High",
+		Grow = 840, Seed = 80, Sell = 250, NPK = { N = 1, P = 2, K = 3 }, Level = 3,
+		Size = { 2.2, 0.3 }, Tolerance = tol(0.7, 0.2, 0.5, 0.6),
+		Visual = { Arch = "Gourd", Leaf = "#4c9c3a", Fruit = "#c8e08c", Shape = "Ball" },
+	}),
+	crop({
+		Id = "watermelon", Name = "Watermelon", Icon = "🍉", Rarity = "Uncommon", Family = "Gourd",
+		Tags = { "Fruit" }, Seasons = { "Summer" }, Water = "High",
+		Grow = 960, Seed = 100, Sell = 320, NPK = { N = 1, P = 2, K = 3 }, Level = 5,
+		Size = { 5, 0.35 }, Tolerance = tol(0.8, 0.2, 0.5, 0.6),
+		Visual = { Arch = "Gourd", Leaf = "#4c9c3a", Fruit = "#2e7d32", Shape = "Egg", Accent = "#e53935" },
+	}),
+	crop({
+		Id = "blueberry", Name = "Blueberry", Icon = "🫐", Rarity = "Common", Family = "Berry",
+		Tags = { "Fruit", "Berry" }, Seasons = { "Summer" },
+		Grow = 720, Regrow = 280, Seed = 70, Sell = 20, Yield = { 2, 4 }, NPK = { N = 1, P = 2, K = 2 }, Level = 3,
+		Size = { 0.005, 0.2 },
+		Visual = { Arch = "Bush", Leaf = "#2f7c3c", Fruit = "#3f51b5", Shape = "Ball", Count = 8, Height = 1.1 },
+	}),
+	crop({
+		Id = "sunflower", Name = "Sunflower", Icon = "🌻", Rarity = "Common", Family = "Flower",
+		Tags = { "Flower", "Oilseed" }, Seasons = { "Summer", "Autumn" },
+		Grow = 600, Seed = 40, Sell = 80, NPK = { N = 2, P = 2, K = 1 },
+		Special = "Press into oil. Attracts pollinators to neighbouring crops.",
+		Size = { 0.6, 0.3 }, Tolerance = tol(0.8, 0.2, 0.4, 0.3),
+		Visual = { Arch = "TallFlower", Leaf = "#4c9a34", Fruit = "#f6c21c", Accent = "#6d4c2f", Height = 3.6 },
+	}),
+	crop({
+		Id = "lavender", Name = "Lavender", Icon = "💐", Rarity = "Uncommon", Family = "Herb",
+		Tags = { "Flower", "Herb" }, Seasons = { "Summer" }, Water = "Low",
+		Grow = 540, Regrow = 300, Seed = 55, Sell = 52, NPK = { N = 1, P = 2, K = 2 }, Level = 4,
+		Special = "Repels pests. Bees make lavender honey from it.",
+		Size = { 0.02, 0.1 }, Tolerance = tol(0.9, 0.4, 0.2, 0.6),
+		Visual = { Arch = "Herb", Leaf = "#6f9c6a", Fruit = "#9575cd", Shape = "Spike" },
+	}),
+	crop({
+		Id = "hops", Name = "Hops", Icon = "🍃", Rarity = "Uncommon", Family = "Vine",
+		Tags = { "Herb" }, Seasons = { "Summer" },
+		Grow = 480, Regrow = 150, Seed = 50, Sell = 24, Yield = { 1, 2 }, NPK = { N = 3, P = 1, K = 1 }, Level = 5,
+		Special = "Brew into pale ale in a Fermenter.",
+		Size = { 0.01, 0.1 },
+		Visual = { Arch = "Vine", Leaf = "#5aa83c", Fruit = "#a5d66b", Shape = "Cone", Count = 6, Height = 2.6 },
+	}),
+	crop({
+		Id = "coffee", Name = "Coffee Bean", Icon = "☕", Rarity = "Uncommon", Family = "Bush",
+		Tags = { "Bean" }, Seasons = { "Spring", "Summer" },
+		Grow = 720, Regrow = 300, Seed = 120, Sell = 30, Yield = { 2, 4 }, NPK = { N = 2, P = 2, K = 2 }, Level = 7,
+		Special = "Roast into coffee for a speed buff.",
+		Size = { 0.002, 0.2 },
+		Visual = { Arch = "Bush", Leaf = "#2f6e32", Fruit = "#9c2b20", Shape = "Ball", Count = 8, Height = 1.2 },
+	}),
+	crop({
+		Id = "pineapple", Name = "Pineapple", Icon = "🍍", Rarity = "Uncommon", Family = "Bromeliad",
+		Tags = { "Fruit" }, Seasons = { "Summer" }, Water = "Low",
+		Grow = 900, Seed = 150, Sell = 340, NPK = { N = 2, P = 1, K = 3 }, Level = 8,
+		Size = { 1.2, 0.2 }, Tolerance = tol(1, 0.1, 0.3, 0.6),
+		Visual = { Arch = "Spiky", Leaf = "#4c8a3a", Fruit = "#e0b030", Shape = "Egg" },
+	}),
+	crop({
+		Id = "cotton", Name = "Cotton", Icon = "🤍", Rarity = "Uncommon", Family = "Fiber",
+		Tags = { "Fiber" }, Seasons = { "Summer", "Autumn" }, Water = "Low",
+		Grow = 600, Regrow = 300, Seed = 60, Sell = 36, Yield = { 1, 3 }, NPK = { N = 2, P = 2, K = 2 }, Level = 5,
+		Special = "Spin into cloth on a Loom.",
+		Size = { 0.01, 0.1 },
+		Visual = { Arch = "Bush", Leaf = "#5a8c42", Fruit = "#f6f6f2", Shape = "Puff", Count = 6, Height = 1.2 },
+	}),
+	crop({
+		Id = "sugarcane", Name = "Sugarcane", Icon = "🎋", Rarity = "Common", Family = "Grain",
+		Tags = { "Sugar" }, Seasons = { "Summer" }, Water = "High",
+		Grow = 480, Regrow = 240, Seed = 30, Sell = 24, Yield = { 1, 2 }, NPK = { N = 3, P = 1, K = 2 }, Level = 4,
+		Special = "Refine into sugar for baking.",
+		Size = { 1, 0.2 },
+		Visual = { Arch = "Stalk", Leaf = "#7cb342", Fruit = "#c5e1a5", Height = 3 },
+	}),
+	crop({
+		Id = "peanut", Name = "Peanut", Icon = "🥜", Rarity = "Common", Family = "Legume",
+		Tags = { "Nut" }, Seasons = { "Summer", "Autumn" },
+		Grow = 420, Seed = 20, Sell = 22, Yield = { 2, 4 }, NPK = { N = 0, P = 2, K = 2 }, Level = 3,
+		Fixes = 15,
+		Size = { 0.003, 0.2 },
+		Visual = { Arch = "Leafy", Leaf = "#5aa84a", Fruit = "#c8a06a", Shape = "Ball" },
+	}),
+
+	-- Autumn -------------------------------------------------------------------------------
+	crop({
+		Id = "pumpkin", Name = "Pumpkin", Icon = "🎃", Rarity = "Common", Family = "Gourd",
+		Tags = { "Vegetable" }, Seasons = { "Autumn" },
+		Grow = 900, Seed = 70, Sell = 260, NPK = { N = 1, P = 2, K = 3 }, Level = 2,
+		Size = { 4, 0.35 }, Tolerance = tol(0.4, 0.5, 0.5, 0.8),
+		Visual = { Arch = "Gourd", Leaf = "#4a8c34", Fruit = "#f07c1a", Shape = "Pumpkin" },
+	}),
+	crop({
+		Id = "sweet_potato", Name = "Sweet Potato", Icon = "🍠", Rarity = "Common", Family = "Root",
+		Tags = { "Vegetable", "Root" }, Seasons = { "Autumn" },
+		Grow = 360, Seed = 24, Sell = 66, Yield = { 1, 2 }, NPK = { N = 1, P = 2, K = 3 },
+		Size = { 0.3, 0.3 },
+		Visual = { Arch = "Root", Leaf = "#6a9a3a", Fruit = "#b0503a", Shape = "Egg" },
+	}),
+	crop({
+		Id = "eggplant", Name = "Eggplant", Icon = "🍆", Rarity = "Common", Family = "Nightshade",
+		Tags = { "Vegetable" }, Seasons = { "Summer", "Autumn" },
+		Grow = 480, Regrow = 240, Seed = 30, Sell = 36, NPK = { N = 1, P = 2, K = 3 }, Level = 3,
+		Size = { 0.3, 0.2 },
+		Visual = { Arch = "Pepper", Leaf = "#3f7a3a", Fruit = "#5b2c6f", Shape = "Egg", Count = 3 },
+	}),
+	crop({
+		Id = "cranberry", Name = "Cranberry", Icon = "🔴", Rarity = "Uncommon", Family = "Berry",
+		Tags = { "Fruit", "Berry" }, Seasons = { "Autumn" }, Water = "High",
+		Grow = 660, Regrow = 280, Seed = 80, Sell = 18, Yield = { 2, 4 }, NPK = { N = 1, P = 2, K = 2 }, Level = 4,
+		Size = { 0.002, 0.2 },
+		Visual = { Arch = "Bush", Leaf = "#5a7a3a", Fruit = "#b71c1c", Shape = "Ball", Count = 9, Height = 0.6 },
+	}),
+	crop({
+		Id = "grape", Name = "Grapes", Icon = "🍇", Rarity = "Uncommon", Family = "Vine",
+		Tags = { "Fruit", "Berry" }, Seasons = { "Autumn" },
+		Grow = 720, Regrow = 360, Seed = 90, Sell = 60, Yield = { 1, 2 }, NPK = { N = 1, P = 2, K = 3 }, Level = 4,
+		Special = "Makes the finest wine.",
+		Size = { 0.4, 0.2 },
+		Visual = { Arch = "Vine", Leaf = "#4a8a3a", Fruit = "#6a3c8c", Shape = "Cluster", Count = 4, Height = 2.4 },
+	}),
+	crop({
+		Id = "cabbage", Name = "Cabbage", Icon = "🥬", Rarity = "Common", Family = "Brassica",
+		Tags = { "Vegetable", "Leafy" }, Seasons = { "Autumn", "Winter" },
+		Grow = 540, Seed = 28, Sell = 84, NPK = { N = 3, P = 1, K = 2 }, Level = 2,
+		Size = { 1.2, 0.2 }, Tolerance = tol(0.2, 0.8, 0.5, 0.7),
+		Visual = { Arch = "Leafy", Leaf = "#88b870", Fruit = "#c4e0a8", Shape = "Ball" },
+	}),
+
+	-- Winter -------------------------------------------------------------------------------
+	crop({
+		Id = "frost_yam", Name = "Frost Yam", Icon = "🍠", Rarity = "Uncommon", Family = "Root",
+		Tags = { "Vegetable", "Root" }, Seasons = { "Winter" },
+		Grow = 480, Seed = 40, Sell = 96, Yield = { 1, 2 }, NPK = { N = 1, P = 2, K = 3 }, Level = 3,
+		Size = { 0.4, 0.3 }, Tolerance = tol(0.1, 1, 0.5, 0.8),
+		Visual = { Arch = "Root", Leaf = "#6a8e7a", Fruit = "#9fa8da", Shape = "Egg" },
+	}),
+	crop({
+		Id = "snow_pea", Name = "Snow Pea", Icon = "🌱", Rarity = "Common", Family = "Legume",
+		Tags = { "Vegetable" }, Seasons = { "Winter", "Spring" },
+		Grow = 360, Regrow = 180, Seed = 26, Sell = 22, Yield = { 1, 3 }, NPK = { N = 0, P = 2, K = 2 }, Level = 2,
+		Fixes = 10,
+		Size = { 0.01, 0.2 }, Tolerance = tol(0.1, 0.9, 0.5, 0.6),
+		Visual = { Arch = "Vine", Leaf = "#7cb88a", Fruit = "#a5d6a7", Shape = "Cylinder", Count = 5, Height = 1.8 },
+	}),
+	crop({
+		Id = "winterberry", Name = "Winterberry", Icon = "🍒", Rarity = "Uncommon", Family = "Berry",
+		Tags = { "Fruit", "Berry" }, Seasons = { "Winter" },
+		Grow = 600, Regrow = 300, Seed = 70, Sell = 30, Yield = { 2, 3 }, NPK = { N = 1, P = 2, K = 2 }, Level = 4,
+		Size = { 0.004, 0.2 }, Tolerance = tol(0.1, 1, 0.5, 0.7),
+		Visual = { Arch = "Bush", Leaf = "#2e5e3a", Fruit = "#d32f2f", Shape = "Ball", Count = 7, Height = 1 },
+	}),
+	crop({
+		Id = "mushroom", Name = "Button Mushroom", Icon = "🍄", Rarity = "Common", Family = "Fungus",
+		Tags = { "Mushroom", "Vegetable" }, Seasons = { "Any" }, Water = "High",
+		Grow = 300, Seed = 25, Sell = 32, Yield = { 1, 3 }, NPK = { N = 2, P = 1, K = 1 }, Level = 3,
+		Special = "Grows in any season. Twice as fast in shade or underground.",
+		Size = { 0.02, 0.2 }, Tolerance = tol(0.2, 0.6, 1, 0.9),
+		Visual = { Arch = "Mushroom", Leaf = "#e8dcc8", Fruit = "#d7c4a8", Count = 4 },
+	}),
+
+	-- Orchard trees (plant once, harvest every season they're in) ---------------------------
+	crop({
+		Id = "cherry", Name = "Cherry", Icon = "🍒", Rarity = "Uncommon", Family = "FruitTree", Tree = true,
+		Tags = { "Fruit" }, Seasons = { "Spring" },
+		Grow = 1800, Regrow = 600, Seed = 350, Sell = 60, Yield = { 2, 4 }, NPK = { N = 1, P = 2, K = 3 }, Level = 5,
+		Size = { 0.01, 0.2 }, Tolerance = tol(0.5, 0.6, 0.5, 0.4),
+		Visual = { Arch = "Tree", Leaf = "#f4b6c8", Fruit = "#c2185b", Shape = "Ball", Count = 8, Height = 6 },
+	}),
+	crop({
+		Id = "peach", Name = "Peach", Icon = "🍑", Rarity = "Uncommon", Family = "FruitTree", Tree = true,
+		Tags = { "Fruit" }, Seasons = { "Summer" },
+		Grow = 1800, Regrow = 600, Seed = 400, Sell = 110, Yield = { 2, 3 }, NPK = { N = 1, P = 2, K = 3 }, Level = 6,
+		Size = { 0.15, 0.2 },
+		Visual = { Arch = "Tree", Leaf = "#5a9a3a", Fruit = "#ffab76", Shape = "Ball", Count = 7, Height = 6 },
+	}),
+	crop({
+		Id = "orange", Name = "Orange", Icon = "🍊", Rarity = "Uncommon", Family = "FruitTree", Tree = true,
+		Tags = { "Fruit", "Citrus" }, Seasons = { "Summer" },
+		Grow = 1800, Regrow = 600, Seed = 380, Sell = 100, Yield = { 2, 3 }, NPK = { N = 1, P = 2, K = 3 }, Level = 6,
+		Size = { 0.2, 0.2 },
+		Visual = { Arch = "Tree", Leaf = "#2e7d32", Fruit = "#fb8c00", Shape = "Ball", Count = 8, Height = 6 },
+	}),
+	crop({
+		Id = "apple", Name = "Apple", Icon = "🍎", Rarity = "Uncommon", Family = "FruitTree", Tree = true,
+		Tags = { "Fruit" }, Seasons = { "Autumn" },
+		Grow = 1800, Regrow = 600, Seed = 360, Sell = 90, Yield = { 2, 4 }, NPK = { N = 1, P = 2, K = 3 }, Level = 5,
+		Size = { 0.2, 0.2 },
+		Visual = { Arch = "Tree", Leaf = "#4c8c34", Fruit = "#d32f2f", Shape = "Ball", Count = 9, Height = 6 },
+	}),
+	crop({
+		Id = "pear", Name = "Pear", Icon = "🍐", Rarity = "Uncommon", Family = "FruitTree", Tree = true,
+		Tags = { "Fruit" }, Seasons = { "Autumn" },
+		Grow = 1800, Regrow = 600, Seed = 360, Sell = 95, Yield = { 2, 3 }, NPK = { N = 1, P = 2, K = 3 }, Level = 6,
+		Size = { 0.2, 0.2 },
+		Visual = { Arch = "Tree", Leaf = "#558b2f", Fruit = "#c0ca33", Shape = "Egg", Count = 7, Height = 6 },
+	}),
+	crop({
+		Id = "olive", Name = "Olive", Icon = "🫒", Rarity = "Uncommon", Family = "FruitTree", Tree = true,
+		Tags = { "Fruit", "Oilseed" }, Seasons = { "Summer", "Autumn" }, Water = "Low",
+		Grow = 2100, Regrow = 700, Seed = 420, Sell = 26, Yield = { 4, 7 }, NPK = { N = 1, P = 1, K = 3 }, Level = 8,
+		Special = "Press into olive oil.",
+		Size = { 0.005, 0.2 }, Tolerance = tol(0.9, 0.3, 0.3, 0.6),
+		Visual = { Arch = "Tree", Leaf = "#8a9a6a", Fruit = "#556b2f", Shape = "Egg", Count = 12, Height = 5 },
+	}),
+	crop({
+		Id = "chestnut", Name = "Chestnut", Icon = "🌰", Rarity = "Uncommon", Family = "FruitTree", Tree = true,
+		Tags = { "Nut" }, Seasons = { "Autumn" },
+		Grow = 2100, Regrow = 700, Seed = 300, Sell = 30, Yield = { 3, 6 }, NPK = { N = 1, P = 2, K = 2 }, Level = 7,
+		Size = { 0.01, 0.2 },
+		Visual = { Arch = "Tree", Leaf = "#827717", Fruit = "#6d4c41", Shape = "Ball", Count = 10, Height = 6.5 },
+	}),
+
+	-- Regional & exotic --------------------------------------------------------------------
+	crop({
+		Id = "cactus_fruit", Name = "Cactus Fruit", Icon = "🌵", Rarity = "Uncommon", Family = "Cactus",
+		Tags = { "Fruit" }, Seasons = { "Summer", "Autumn" }, Water = "Low",
+		Grow = 600, Regrow = 360, Seed = 90, Sell = 70, NPK = { N = 1, P = 1, K = 2 }, Level = 6,
+		Sources = { "Region:Dunewind" },
+		Size = { 0.1, 0.2 }, Tolerance = tol(1, 0.3, 0.1, 0.9),
+		Visual = { Arch = "Cactus", Leaf = "#4e8a4e", Fruit = "#e91e63", Shape = "Egg", Count = 3, Height = 1.8 },
+	}),
+	crop({
+		Id = "desert_rose", Name = "Desert Rose", Icon = "🏵️", Rarity = "Rare", Family = "Flower",
+		Tags = { "Flower" }, Seasons = { "Summer" }, Water = "Low",
+		Grow = 1200, Seed = 500, Sell = 1100, NPK = { N = 1, P = 3, K = 2 }, Level = 10,
+		Sources = { "Traveler", "Region:Dunewind" },
+		Size = { 0.05, 0.2 }, Tolerance = tol(1, 0.2, 0.2, 0.7),
+		Visual = { Arch = "Flower", Leaf = "#6d8a5a", Fruit = "#ff8a80", Shape = "Cup", Accent = "#ffd180" },
+	}),
+	crop({
+		Id = "whisperleaf", Name = "Whisperleaf", Icon = "🍃", Rarity = "Rare", Family = "Herb",
+		Tags = { "Herb", "Mystic" }, Seasons = { "Spring", "Autumn" },
+		Grow = 900, Regrow = 450, Seed = nil, Sell = 180, NPK = { N = 3, P = 1, K = 1 }, Level = 8,
+		Sources = { "Region:Forest", "Npc:rosalind" },
+		Special = "An alchemy staple: most potions need it.",
+		Size = { 0.01, 0.2 },
+		Visual = { Arch = "Herb", Leaf = "#80cbc4", Fruit = "#b2dfdb", Glow = true },
+	}),
+	crop({
+		Id = "starfruit", Name = "Starfruit", Icon = "⭐", Rarity = "Rare", Family = "Exotic",
+		Tags = { "Fruit" }, Seasons = { "Summer" },
+		Grow = 1800, Seed = 450, Sell = 1150, NPK = { N = 1, P = 3, K = 3 }, Level = 10,
+		Sources = { "Traveler", "Region:Dunewind" },
+		Special = "The pride of any market stall. Brews into Starwine.",
+		Size = { 0.2, 0.2 }, Tolerance = tol(0.7, 0.2, 0.4, 0.5),
+		Visual = { Arch = "Bush", Leaf = "#43a047", Fruit = "#ffd600", Shape = "Star", Count = 3, Height = 1.2, Glow = true },
+	}),
+	crop({
+		Id = "crystal_berry", Name = "Crystal Berries", Icon = "💎", Rarity = "Rare", Family = "Crystal",
+		Tags = { "Fruit", "Crystal", "Berry" }, Seasons = { "Winter" },
+		Grow = 1500, Regrow = 600, Seed = 600, Sell = 260, Yield = { 2, 3 }, NPK = { N = 1, P = 2, K = 3 }, Level = 12,
+		Sources = { "Region:CrystalCaverns", "Npc:juniper" },
+		Special = "Crystal neighbours help crops crystallise. Refines into crystal shards.",
+		Size = { 0.01, 0.2 }, Tolerance = tol(0.1, 1, 0.4, 0.8),
+		Visual = { Arch = "Crystal", Leaf = "#90caf9", Fruit = "#b3e5fc", Shape = "Shard", Count = 6, Glow = true, Material = "Glass" },
+	}),
+	crop({
+		Id = "moonflower", Name = "Moonflower", Icon = "🌙", Rarity = "Rare", Family = "Flower",
+		Tags = { "Flower", "Mystic" }, Seasons = { "Any" }, Night = true,
+		Grow = 1500, Seed = 550, Sell = 900, NPK = { N = 1, P = 3, K = 2 }, Level = 11,
+		Sources = { "Npc:wisp", "Region:MoonlitGlade" },
+		Special = "Only grows at night. Neighbours become Moonkissed more often.",
+		Size = { 0.03, 0.15 },
+		Visual = { Arch = "Flower", Leaf = "#4a6a8a", Fruit = "#e3f2fd", Shape = "Star", Glow = true, Accent = "#90caf9" },
+	}),
+	crop({
+		Id = "ember_pepper", Name = "Ember Pepper", Icon = "🔥", Rarity = "Rare", Family = "Nightshade",
+		Tags = { "Fruit", "Hot", "Mystic" }, Seasons = { "Summer" }, Water = "Low",
+		Grow = 1200, Regrow = 420, Seed = 480, Sell = 320, Yield = { 1, 2 }, NPK = { N = 1, P = 2, K = 3 }, Level = 12,
+		Sources = { "Region:Mine", "Traveler" },
+		Special = "Glows like a coal. Grows 50% faster in a heatwave. Makes Fire Tonic.",
+		Size = { 0.03, 0.2 }, Tolerance = tol(1, 0, 0.2, 0.6),
+		Visual = { Arch = "Pepper", Leaf = "#5d4037", Fruit = "#ff5722", Shape = "Cone", Count = 4, Glow = true },
+	}),
+	crop({
+		Id = "luminous_mushroom", Name = "Luminous Mushroom", Icon = "🍄", Rarity = "Rare", Family = "Fungus",
+		Tags = { "Mushroom", "Mystic" }, Seasons = { "Any" }, Water = "High",
+		Grow = 1200, Regrow = 480, Seed = 400, Sell = 300, Yield = { 1, 2 }, NPK = { N = 2, P = 1, K = 1 }, Level = 10,
+		Needs = "Dark|Underground|MushroomGrove",
+		Sources = { "Region:MushroomGrove", "Region:CrystalCaverns" },
+		Special = "Needs shade, a cave or an underground farm. Makes neighbours glow.",
+		Size = { 0.04, 0.2 },
+		Visual = { Arch = "Mushroom", Leaf = "#4dd0e1", Fruit = "#84ffff", Count = 3, Glow = true },
+	}),
+	crop({
+		Id = "cloud_melon", Name = "Cloud Melon", Icon = "☁️", Rarity = "Epic", Family = "Gourd",
+		Tags = { "Fruit", "Mystic" }, Seasons = { "Spring", "Summer" },
+		Grow = 2400, Seed = 1500, Sell = 3600, NPK = { N = 1, P = 2, K = 3 }, Level = 16,
+		Needs = "Skyreach|CloudSoil",
+		Sources = { "Region:Skyreach", "Npc:luna" },
+		Special = "Floats above the soil. Needs Skyreach air or Cloud Soil.",
+		Size = { 1.5, 0.3 },
+		Visual = { Arch = "Cloud", Leaf = "#b3e5fc", Fruit = "#ffffff", Shape = "Puff", Glow = false },
+	}),
+	crop({
+		Id = "frost_orchid", Name = "Frost Orchid", Icon = "❄️", Rarity = "Epic", Family = "Flower",
+		Tags = { "Flower", "Mystic" }, Seasons = { "Winter" },
+		Grow = 2100, Seed = 1400, Sell = 3000, NPK = { N = 1, P = 3, K = 2 }, Level = 15,
+		Sources = { "Region:Frostveil", "Festival:WinterLantern" },
+		Special = "Blooms only in deep cold. Perfumers pay a fortune.",
+		Size = { 0.05, 0.15 }, Tolerance = tol(0, 1, 0.5, 0.7),
+		Visual = { Arch = "Orchid", Leaf = "#80deea", Fruit = "#e0f7fa", Shape = "Star", Glow = true, Material = "Glass" },
+	}),
+	crop({
+		Id = "golden_wheat", Name = "Golden Wheat", Icon = "🌾", Rarity = "Epic", Family = "Grain",
+		Tags = { "Grain", "Mystic" }, Seasons = { "Summer", "Autumn" },
+		Grow = 1500, Seed = nil, Sell = 700, Yield = { 2, 3 }, NPK = { N = 3, P = 1, K = 2 }, Level = 14,
+		Sources = { "Breeding", "Festival:HarvestFestival" },
+		Special = "Mill into golden flour for legendary baking.",
+		Size = { 0.03, 0.1 },
+		Visual = { Arch = "Stalk", Leaf = "#d4a017", Fruit = "#ffd54f", Height = 1.8, Glow = true, Material = "Foil" },
+	}),
+	crop({
+		Id = "giant_pumpkin", Name = "Giant Pumpkin", Icon = "🎃", Rarity = "Epic", Family = "Gourd",
+		Tags = { "Vegetable", "Contest" }, Seasons = { "Autumn" }, Water = "High",
+		Grow = 3000, Seed = nil, Sell = 2600, NPK = { N = 2, P = 2, K = 3 }, Level = 12,
+		Sources = { "Breeding", "Npc:mayor", "Festival:HarvestFestival" },
+		Special = "Contest royalty: always huge, and heavier the better you tend it.",
+		Size = { 120, 0.4 },
+		Visual = { Arch = "Gourd", Leaf = "#4a8c34", Fruit = "#ff8f00", Shape = "Pumpkin", Height = 2.2 },
+	}),
+	crop({
+		Id = "dragonfruit", Name = "Dragonfruit", Icon = "🐉", Rarity = "Epic", Family = "Cactus",
+		Tags = { "Fruit", "Mystic" }, Seasons = { "Summer" }, Water = "Low",
+		Grow = 2100, Regrow = 900, Seed = 1800, Sell = 1500, NPK = { N = 1, P = 2, K = 3 }, Level = 15,
+		Sources = { "Region:Dunewind", "Traveler" },
+		Size = { 0.4, 0.2 }, Tolerance = tol(1, 0.2, 0.2, 0.8),
+		Visual = { Arch = "Cactus", Leaf = "#66bb6a", Fruit = "#ec407a", Shape = "Egg", Count = 2, Height = 2 },
+	}),
+	crop({
+		Id = "stormcorn", Name = "Stormcorn", Icon = "⚡", Rarity = "Epic", Family = "Grain",
+		Tags = { "Grain", "Mystic" }, Seasons = { "Summer" },
+		Grow = 1800, Regrow = 900, Seed = nil, Sell = 1300, Yield = { 1, 2 }, NPK = { N = 3, P = 1, K = 2 }, Level = 14,
+		Sources = { "Breeding" },
+		Special = "Grows twice as fast in thunderstorms and is always Charged-prone.",
+		Size = { 0.4, 0.2 },
+		Visual = { Arch = "Corn", Leaf = "#5c6bc0", Fruit = "#ffee58", Height = 3.6, Glow = true },
+	}),
+	crop({
+		Id = "sunstone_squash", Name = "Sunstone Squash", Icon = "🌞", Rarity = "Epic", Family = "Gourd",
+		Tags = { "Vegetable", "Mystic" }, Seasons = { "Summer" },
+		Grow = 2400, Seed = nil, Sell = 2800, NPK = { N = 1, P = 2, K = 3 }, Level = 16,
+		Sources = { "Breeding" },
+		Special = "Stores sunlight; glows warmly at dusk.",
+		Size = { 6, 0.3 }, Tolerance = tol(1, 0.2, 0.4, 0.6),
+		Visual = { Arch = "Gourd", Leaf = "#7cb342", Fruit = "#ffb300", Shape = "Pumpkin", Glow = true },
+	}),
+	crop({
+		Id = "wraithpepper", Name = "Wraithpepper", Icon = "👻", Rarity = "Rare", Family = "Nightshade",
+		Tags = { "Fruit", "Hot", "Mystic" }, Seasons = { "Autumn" },
+		Grow = 1500, Regrow = 600, Seed = nil, Sell = 540, Yield = { 1, 2 }, NPK = { N = 1, P = 2, K = 3 }, Level = 12,
+		Sources = { "Region:HollowFarm", "Breeding" },
+		Size = { 0.02, 0.2 },
+		Visual = { Arch = "Pepper", Leaf = "#546e7a", Fruit = "#e0e0e0", Shape = "Cone", Count = 3, Glow = true },
+	}),
+	crop({
+		Id = "rainbow_fruit", Name = "Rainbow Fruit", Icon = "🌈", Rarity = "Legendary", Family = "Exotic",
+		Tags = { "Fruit", "Mystic" }, Seasons = { "Any" },
+		Grow = 3600, Regrow = 1800, Seed = nil, Sell = 7500, NPK = { N = 2, P = 2, K = 2 }, Level = 20,
+		Sources = { "Region:HiddenValley", "Breeding" },
+		Special = "Changes colour through the day. Rainbow mutations are 5× more likely.",
+		Size = { 0.5, 0.2 },
+		Visual = { Arch = "Tree", Leaf = "#81c784", Fruit = "#ff5252", Shape = "Ball", Count = 5, Height = 5, Glow = true },
+	}),
+	crop({
+		Id = "celestial_vine", Name = "Celestial Vine", Icon = "🌠", Rarity = "Legendary", Family = "Vine",
+		Tags = { "Fruit", "Mystic" }, Seasons = { "Any" }, Night = true,
+		Grow = 4200, Regrow = 2100, Seed = nil, Sell = 9000, NPK = { N = 1, P = 3, K = 3 }, Level = 22,
+		Needs = "Skyreach|CelestialBeacon",
+		Sources = { "Region:Skyreach", "Quest:starlight_4" },
+		Special = "Grows only under the stars, near a Celestial Beacon or in Skyreach.",
+		Size = { 0.2, 0.2 },
+		Visual = { Arch = "Vine", Leaf = "#5c6bc0", Fruit = "#e1bee7", Shape = "Star", Count = 4, Height = 3, Glow = true },
+	}),
+
+	-- Mythic: breeding, events and long quests -------------------------------------------------
+	crop({
+		Id = "phoenix_bloom", Name = "Phoenix Bloom", Icon = "🌺", Rarity = "Mythic", Family = "Flower",
+		Tags = { "Flower", "Mystic" }, Seasons = { "Summer" },
+		Grow = 5400, Seed = nil, Sell = 26000, NPK = { N = 1, P = 3, K = 3 }, Level = 25,
+		Sources = { "Breeding" },
+		Special = "Reborn from its own ashes: 25% chance to replant itself after harvest.",
+		Size = { 0.1, 0.2 }, Tolerance = tol(1, 0, 0.3, 0.6),
+		Visual = { Arch = "TallFlower", Leaf = "#8d3c1c", Fruit = "#ff6d00", Accent = "#ffd600", Height = 3, Glow = true },
+	}),
+	crop({
+		Id = "aurora_lily", Name = "Aurora Lily", Icon = "🌌", Rarity = "Mythic", Family = "Flower",
+		Tags = { "Flower", "Mystic" }, Seasons = { "Winter" }, Night = true,
+		Grow = 5400, Seed = nil, Sell = 28000, NPK = { N = 1, P = 3, K = 2 }, Level = 25,
+		Sources = { "Breeding" },
+		Special = "Petals shimmer through the colours of the aurora.",
+		Size = { 0.08, 0.15 },
+		Visual = { Arch = "Orchid", Leaf = "#26a69a", Fruit = "#b388ff", Shape = "Star", Glow = true },
+	}),
+	crop({
+		Id = "starlight_wheat", Name = "Starlight Wheat", Icon = "✨", Rarity = "Mythic", Family = "Grain",
+		Tags = { "Grain", "Mystic" }, Seasons = { "Any" },
+		Grow = 4800, Seed = nil, Sell = 14000, Yield = { 2, 3 }, NPK = { N = 3, P = 1, K = 2 }, Level = 24,
+		Sources = { "Breeding" },
+		Size = { 0.04, 0.1 },
+		Visual = { Arch = "Stalk", Leaf = "#9575cd", Fruit = "#e1f5fe", Height = 1.9, Glow = true },
+	}),
+	crop({
+		Id = "chrono_melon", Name = "Chrono Melon", Icon = "⏳", Rarity = "Mythic", Family = "Gourd",
+		Tags = { "Fruit", "Mystic" }, Seasons = { "Any" },
+		Grow = 6000, Seed = nil, Sell = 36000, NPK = { N = 1, P = 2, K = 3 }, Level = 26,
+		Sources = { "Breeding" },
+		Special = "Each harvest speeds up every crop within 2 tiles by an in-game hour.",
+		Size = { 3, 0.3 },
+		Visual = { Arch = "Gourd", Leaf = "#26c6da", Fruit = "#b2ebf2", Shape = "Ball", Glow = true, Material = "Glass" },
+	}),
+	crop({
+		Id = "void_truffle", Name = "Void Truffle", Icon = "🕳️", Rarity = "Mythic", Family = "Fungus",
+		Tags = { "Mushroom", "Mystic" }, Seasons = { "Any" }, Water = "High",
+		Grow = 5400, Seed = nil, Sell = 30000, NPK = { N = 2, P = 2, K = 2 }, Level = 26,
+		Needs = "Dark|Underground|CrystalCaverns",
+		Sources = { "Breeding" },
+		Size = { 0.2, 0.2 },
+		Visual = { Arch = "Mushroom", Leaf = "#311b92", Fruit = "#7c4dff", Count = 2, Glow = true },
+	}),
+	crop({
+		Id = "worldtree", Name = "Worldtree Seedling", Icon = "🌳", Rarity = "Mythic", Family = "FruitTree", Tree = true,
+		Tags = { "Mystic" }, Seasons = { "Any" },
+		Grow = 10800, Regrow = 3600, Seed = nil, Sell = 60000, NPK = { N = 2, P = 2, K = 2 }, Level = 30,
+		Sources = { "Quest:worldtree_6" },
+		Special = "The heart of the valley. Its acorns sprout any crop in the game.",
+		Size = { 1, 0.1 },
+		Visual = { Arch = "Tree", Leaf = "#66bb6a", Fruit = "#ffe082", Shape = "Ball", Count = 6, Height = 9, Glow = true },
+	}),
+}
+
+-- Cross-breeding in the Genetics Lab: two seeds → a new species (with conditions).
+-- Weather is the weather at the time of breeding; Chance is per attempt.
+local Hybrids = {
+	{ A = "wheat", B = "sunflower", Result = "golden_wheat", Chance = 0.15, Weather = "Sunny" },
+	{ A = "pumpkin", B = "melon", Result = "giant_pumpkin", Chance = 0.2, Season = "Autumn" },
+	{ A = "hot_pepper", B = "sunflower", Result = "ember_pepper", Chance = 0.2, Weather = "Heatwave" },
+	{ A = "corn", B = "hot_pepper", Result = "stormcorn", Chance = 0.2, Weather = "Thunderstorm" },
+	{ A = "melon", B = "cotton", Result = "cloud_melon", Chance = 0.1, Weather = "Windy" },
+	{ A = "rose", B = "moonflower", Result = "frost_orchid", Chance = 0.12, Weather = "ColdSnap" },
+	{ A = "pumpkin", B = "sunflower", Result = "sunstone_squash", Chance = 0.15, Weather = "Heatwave" },
+	{ A = "hot_pepper", B = "eggplant", Result = "wraithpepper", Chance = 0.15, Weather = "Fog" },
+	{ A = "starfruit", B = "dragonfruit", Result = "rainbow_fruit", Chance = 0.08, Weather = "RainbowMist" },
+	{ A = "ember_pepper", B = "sunflower", Result = "phoenix_bloom", Chance = 0.06, Weather = "Heatwave" },
+	{ A = "frost_orchid", B = "moonflower", Result = "aurora_lily", Chance = 0.06, Weather = "Aurora" },
+	{ A = "golden_wheat", B = "celestial_vine", Result = "starlight_wheat", Chance = 0.06, Weather = "MeteorShower" },
+	{ A = "cloud_melon", B = "starfruit", Result = "chrono_melon", Chance = 0.05, Weather = "ArcaneStorm" },
+	{ A = "luminous_mushroom", B = "crystal_berry", Result = "void_truffle", Chance = 0.05, Weather = "ArcaneStorm" },
+}
+
+return {
+	List = List,
+	Hybrids = Hybrids,
+	-- Growth outside preferred seasons (outdoors). Crops never die from season change;
+	-- they go dormant and resume when their season returns.
+	OffSeasonGrowth = 0.1,
+	-- Greenhouse growth for off-season crops (climate control upgrades raise this to 1).
+	GreenhouseGrowth = 0.9,
+	-- Growth during the day for Night crops.
+	NightCropDayGrowth = 0.05,
+	-- Growth and max quality when a crop's Needs aren't met.
+	UnmetNeedsGrowth = 0.25,
+	UnmetNeedsMaxQuality = 2,
+	-- Visual growth stages (fraction of growth where each starts).
+	Stages = { 0, 0.12, 0.35, 0.65, 1 },
+	StageNames = { "Seed", "Sprout", "Young", "Budding", "Ripe" },
+	-- Regrowing crops restart from this fraction.
+	RegrowFrom = 0.65,
+	-- Seed items stack separately per gene set; shop seeds roll genes in this range.
+	ShopGeneRange = { 0, 2 },
+}

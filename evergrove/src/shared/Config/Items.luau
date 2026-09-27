@@ -1,0 +1,336 @@
+-- Hand-written items. Crops, seeds, fertilizers, fish, minerals, forage, bugs,
+-- tools, placeables and artisan products are generated from their own modules
+-- by Lib/Registry, so this file holds everything else.
+--
+-- Fields: Id, Name, Icon, Category, Rarity, Value (base sell price), Tags,
+--   Description, Stack (max per slot, default 999), NoTrade / NoSell / NoTrash,
+--   Use = "Eat" | "Drink" | "Read" | "Open" | "Warp" | "Totem" | "Spray" | "Plant" | "Charm"
+--   Energy (restored by Eat/Drink), Buff { Id, Mult, Minutes }, Teaches { recipeIds },
+--   Loot (loot table id for Open), Warp (waypoint id)
+
+export type Item = {
+	Id: string,
+	Name: string,
+	Icon: string,
+	Category: string,
+	Rarity: string,
+	Value: number,
+	Tags: { string }?,
+	Description: string?,
+	Stack: number?,
+	NoTrade: boolean?,
+	NoSell: boolean?,
+	NoTrash: boolean?,
+	Use: string?,
+	Energy: number?,
+	Buff: { Id: string, Mult: number, Minutes: number }?,
+	Teaches: { string }?,
+	Loot: string?,
+	Warp: string?,
+	SubIcon: string?,
+	Tint: Color3?,
+}
+
+local List: { Item } = {}
+
+local function add(category: string, defaults: { [string]: any }, items: { any })
+	for _, item in items do
+		item.Category = item.Category or category
+		for key, value in defaults do
+			if item[key] == nil then
+				item[key] = value
+			end
+		end
+		item.Rarity = item.Rarity or "Common"
+		table.insert(List, item)
+	end
+end
+
+-- Materials ---------------------------------------------------------------------------------
+add("Material", {}, {
+	{ Id = "wood", Name = "Wood", Icon = "🪵", Value = 3, Description = "Chopped from trees. Used everywhere." },
+	{ Id = "hardwood", Name = "Hardwood", Icon = "🪵", Value = 14, Rarity = "Uncommon", Description = "Dense wood from old trees. Needs an Iron Axe.", Tint = Color3.fromRGB(120, 72, 40) },
+	{ Id = "ancient_wood", Name = "Ancient Wood", Icon = "🌳", Value = 120, Rarity = "Epic", Description = "From the ancient oaks deep in the woods." },
+	{ Id = "plank", Name = "Plank", Icon = "🟫", Value = 8, Description = "Sawn wood for building." },
+	{ Id = "stone", Name = "Stone", Icon = "🪨", Value = 2, Description = "Common rock." },
+	{ Id = "stone_brick", Name = "Stone Brick", Icon = "🧱", Value = 12, Description = "Cut stone for sturdy builds." },
+	{ Id = "clay", Name = "Clay", Icon = "🟤", Value = 4, Description = "Dug from riverbanks and dig spots." },
+	{ Id = "sand", Name = "Sand", Icon = "🏖️", Value = 2, Description = "Found on beaches and in the desert." },
+	{ Id = "glass", Name = "Glass", Icon = "🔲", Value = 16, Description = "Smelted from sand." },
+	{ Id = "fiber", Name = "Fiber", Icon = "🌾", Value = 2, Description = "Tough plant fiber from weeds and grass." },
+	{ Id = "rope", Name = "Rope", Icon = "🪢", Value = 10, Description = "Braided fiber." },
+	{ Id = "sap", Name = "Sap", Icon = "🍯", Value = 3, Description = "Sticky tree sap." },
+	{ Id = "maple_sap", Name = "Maple Sap", Icon = "🍁", Value = 12, Description = "Boil it down into maple syrup." },
+	{ Id = "coal", Name = "Coal", Icon = "⚫", Value = 12, Description = "Fuel for furnaces and smokers." },
+	{ Id = "copper_ore", Name = "Copper Ore", Icon = "🟠", Value = 6, Description = "Smelt 5 into a copper bar." },
+	{ Id = "iron_ore", Name = "Iron Ore", Icon = "⚪", Value = 10, Rarity = "Uncommon", Description = "Smelt 5 into an iron bar." },
+	{ Id = "gold_ore", Name = "Gold Ore", Icon = "🟡", Value = 20, Rarity = "Rare", Description = "Smelt 5 into a gold bar." },
+	{ Id = "starsteel_ore", Name = "Starsteel Ore", Icon = "🌠", Value = 60, Rarity = "Epic", Description = "Fell from the sky long ago. Found deep in the mines." },
+	{ Id = "crystal_shard", Name = "Crystal Shard", Icon = "🔹", Value = 40, Rarity = "Rare", Description = "Raw crystal from the caverns." },
+	{ Id = "copper_bar", Name = "Copper Bar", Icon = "🟧", Value = 45, Description = "Tool upgrades, sprinklers, machines." },
+	{ Id = "iron_bar", Name = "Iron Bar", Icon = "⬜", Value = 80, Rarity = "Uncommon", Description = "Tool upgrades and machinery." },
+	{ Id = "gold_bar", Name = "Gold Bar", Icon = "🟨", Value = 150, Rarity = "Rare", Description = "Precious and conductive." },
+	{ Id = "starsteel_bar", Name = "Starsteel Bar", Icon = "✴️", Value = 420, Rarity = "Epic", Description = "The strongest metal known." },
+	{ Id = "refined_crystal", Name = "Refined Crystal", Icon = "🔷", Value = 180, Rarity = "Epic", Description = "Focuses magic and light." },
+	{ Id = "gear", Name = "Gear", Icon = "⚙️", Value = 110, Rarity = "Uncommon", Description = "Machine component." },
+	{ Id = "circuit", Name = "Circuit Board", Icon = "🔌", Value = 380, Rarity = "Rare", Description = "Brains of automation." },
+	{ Id = "battery", Name = "Battery Pack", Icon = "🔋", Value = 240, Rarity = "Rare", Description = "Charged by lightning rods." },
+	{ Id = "motor", Name = "Motor", Icon = "🛞", Value = 520, Rarity = "Rare", Description = "Drives drones, conveyors and tractors." },
+	{ Id = "solar_cell", Name = "Solar Cell", Icon = "🔆", Value = 600, Rarity = "Epic", Description = "Clean power from sunlight." },
+	{ Id = "drone_core", Name = "Drone Core", Icon = "🛸", Value = 2400, Rarity = "Epic", Description = "The heart of a farm drone." },
+	{ Id = "cloth", Name = "Cloth", Icon = "🧵", Value = 140, Rarity = "Uncommon", Tags = { "Artisan" }, Description = "Woven on a loom." },
+	{ Id = "fine_cloth", Name = "Fine Cloth", Icon = "🧣", Value = 420, Rarity = "Rare", Tags = { "Artisan" }, Description = "Soft alpaca weave." },
+	{ Id = "silk_cloth", Name = "Moonsilk Cloth", Icon = "🎀", Value = 1600, Rarity = "Epic", Tags = { "Artisan" }, Description = "Shimmers like moonlight." },
+	{ Id = "hay", Name = "Hay", Icon = "🌾", Value = 4, Category = "Feed", Description = "Basic animal food." },
+	{ Id = "animal_feed", Name = "Premium Feed", Icon = "🥣", Value = 20, Category = "Feed", Rarity = "Uncommon", Description = "Happier animals, better products." },
+	{ Id = "treat", Name = "Animal Treat", Icon = "🍪", Value = 30, Category = "Feed", Rarity = "Uncommon", Description = "A big friendship boost for one animal." },
+	{ Id = "fish_food", Name = "Pond Food", Icon = "🦐", Value = 8, Category = "Feed", Description = "Feed for pond fish." },
+	{ Id = "sugar", Name = "Sugar", Icon = "🧂", Value = 30, Category = "Ingredient", Description = "Refined from sugarcane." },
+	{ Id = "salt", Name = "Sea Salt", Icon = "🧂", Value = 12, Category = "Ingredient", Description = "Collected at the beach." },
+	{ Id = "meteorite", Name = "Meteorite", Icon = "☄️", Value = 800, Rarity = "Epic", Tags = { "Star" }, Description = "Fell during a meteor shower. Crushes into stardust." },
+	{ Id = "cloud_essence", Name = "Cloud Essence", Icon = "☁️", Value = 160, Rarity = "Rare", Description = "Bottled sky from Skyreach." },
+	{ Id = "ember_core", Name = "Ember Core", Icon = "🔥", Value = 220, Rarity = "Rare", Description = "Still warm. From the deep mines." },
+	{ Id = "frost_crystal", Name = "Frost Crystal", Icon = "❄️", Value = 180, Rarity = "Rare", Description = "Never melts. From Frostveil." },
+	{ Id = "prism_shard", Name = "Prism Shard", Icon = "🌈", Value = 900, Rarity = "Epic", Description = "Splits light into colour." },
+	{ Id = "bug_bits", Name = "Bug Bits", Icon = "🦗", Value = 5, Description = "Great bait material." },
+	{ Id = "worm", Name = "Worm", Icon = "🪱", Value = 3, Description = "Dug from soil. Classic bait." },
+})
+
+-- Animal products (quality comes from the animal's happiness, friendship and genes) ----------
+add("AnimalProduct", {}, {
+	{ Id = "egg", Name = "Egg", Icon = "🥚", Value = 40, Tags = { "Egg" } },
+	{ Id = "brown_egg", Name = "Brown Egg", Icon = "🥚", Value = 45, Tags = { "Egg" }, Tint = Color3.fromRGB(190, 140, 90) },
+	{ Id = "golden_egg", Name = "Golden Egg", Icon = "🥚", Value = 600, Rarity = "Epic", Tags = { "Egg" }, Tint = Color3.fromRGB(255, 205, 60), Description = "Laid by a golden hen." },
+	{ Id = "duck_egg", Name = "Duck Egg", Icon = "🥚", Value = 70, Tags = { "Egg" }, Tint = Color3.fromRGB(190, 230, 220) },
+	{ Id = "ember_egg", Name = "Ember Egg", Icon = "🥚", Value = 1400, Rarity = "Epic", Tags = { "Egg" }, Tint = Color3.fromRGB(255, 120, 40) },
+	{ Id = "feather", Name = "Feather", Icon = "🪶", Value = 25 },
+	{ Id = "duck_feather", Name = "Duck Feather", Icon = "🪶", Value = 90, Rarity = "Uncommon" },
+	{ Id = "phoenix_feather", Name = "Phoenix Feather", Icon = "🪶", Value = 2600, Rarity = "Legendary", Tint = Color3.fromRGB(255, 110, 40) },
+	{ Id = "rabbit_fur", Name = "Rabbit Fur", Icon = "🐇", Value = 160, Rarity = "Uncommon" },
+	{ Id = "lucky_foot", Name = "Lucky Rabbit's Foot", Icon = "🍀", Value = 900, Rarity = "Rare", Description = "Gift it, or use it to craft Luck Charms." },
+	{ Id = "milk", Name = "Milk", Icon = "🥛", Value = 60, Tags = { "Milk" } },
+	{ Id = "goat_milk", Name = "Goat Milk", Icon = "🥛", Value = 110, Tags = { "Milk" }, Tint = Color3.fromRGB(245, 240, 220) },
+	{ Id = "moon_milk", Name = "Moon Milk", Icon = "🥛", Value = 900, Rarity = "Epic", Tags = { "Milk" }, Tint = Color3.fromRGB(210, 220, 255) },
+	{ Id = "truffle", Name = "Truffle", Icon = "🍄", Value = 420, Rarity = "Rare", Tags = { "Mushroom" }, Tint = Color3.fromRGB(90, 70, 60) },
+	{ Id = "wool", Name = "Wool", Icon = "🧶", Value = 170, Tags = { "Wool" } },
+	{ Id = "alpaca_fiber", Name = "Alpaca Fiber", Icon = "🧶", Value = 320, Rarity = "Uncommon", Tags = { "Wool" }, Tint = Color3.fromRGB(230, 200, 170) },
+	{ Id = "cloud_wool", Name = "Cloud Wool", Icon = "☁️", Value = 1200, Rarity = "Epic", Tags = { "Wool" } },
+	{ Id = "honey", Name = "Wildflower Honey", Icon = "🍯", Value = 90, Tags = { "Honey" } },
+	{ Id = "honeycomb", Name = "Honeycomb", Icon = "🐝", Value = 140, Rarity = "Uncommon" },
+	{ Id = "moonsilk", Name = "Moonsilk", Icon = "🕸️", Value = 700, Rarity = "Epic", Description = "Spun by moon moths at night." },
+	{ Id = "crystal_shell", Name = "Crystal Shell", Icon = "🐢", Value = 850, Rarity = "Epic" },
+	{ Id = "horsehair", Name = "Horsehair", Icon = "🐴", Value = 60 },
+})
+
+-- Fixed artisan goods (the rest are generated per crop/fish by Registry) -------------------------
+add("Artisan", { Tags = { "Artisan" } }, {
+	{ Id = "cheese", Name = "Cheese", Icon = "🧀", Value = 230, Tags = { "Artisan", "Dairy" } },
+	{ Id = "goat_cheese", Name = "Goat Cheese", Icon = "🧀", Value = 400, Tags = { "Artisan", "Dairy" }, Tint = Color3.fromRGB(250, 245, 225) },
+	{ Id = "moon_cheese", Name = "Moon Cheese", Icon = "🧀", Value = 2600, Rarity = "Epic", Tags = { "Artisan", "Dairy" }, Tint = Color3.fromRGB(210, 220, 255) },
+	{ Id = "butter", Name = "Butter", Icon = "🧈", Value = 150, Tags = { "Artisan", "Dairy" } },
+	{ Id = "mayonnaise", Name = "Mayonnaise", Icon = "🫙", Value = 110, Tags = { "Artisan" } },
+	{ Id = "golden_mayo", Name = "Golden Mayonnaise", Icon = "🫙", Value = 1500, Rarity = "Epic", Tags = { "Artisan" }, Tint = Color3.fromRGB(255, 210, 80) },
+	{ Id = "flour", Name = "Flour", Icon = "🌾", Value = 55, Category = "Ingredient", Tags = { "Artisan" } },
+	{ Id = "cornmeal", Name = "Cornmeal", Icon = "🌽", Value = 90, Category = "Ingredient", Tags = { "Artisan" } },
+	{ Id = "rice_flour", Name = "Rice Flour", Icon = "🍚", Value = 70, Category = "Ingredient", Tags = { "Artisan" } },
+	{ Id = "golden_flour", Name = "Golden Flour", Icon = "✨", Value = 1600, Rarity = "Epic", Category = "Ingredient", Tags = { "Artisan" } },
+	{ Id = "starlight_flour", Name = "Starlight Flour", Icon = "🌟", Value = 30000, Rarity = "Mythic", Category = "Ingredient", Tags = { "Artisan" } },
+	{ Id = "maple_syrup", Name = "Maple Syrup", Icon = "🍁", Value = 200, Tags = { "Artisan" } },
+	{ Id = "truffle_oil", Name = "Truffle Oil", Icon = "🫗", Value = 1100, Rarity = "Rare", Tags = { "Artisan" } },
+	{ Id = "roasted_coffee", Name = "Coffee", Icon = "☕", Value = 150, Category = "Food", Use = "Drink", Energy = 10, Buff = { Id = "Speed", Mult = 1.15, Minutes = 4 }, Tags = { "Artisan", "Hot" } },
+	{ Id = "green_tea", Name = "Green Tea", Icon = "🍵", Value = 130, Category = "Food", Use = "Drink", Energy = 20, Buff = { Id = "Focus", Mult = 1.1, Minutes = 5 }, Tags = { "Artisan", "Hot" } },
+	{ Id = "pale_ale", Name = "Pale Ale", Icon = "🍺", Value = 300, Tags = { "Artisan", "Brew" } },
+	{ Id = "mead", Name = "Mead", Icon = "🍯", Value = 400, Tags = { "Artisan", "Brew" } },
+	{ Id = "cloud_candy", Name = "Cloud Candy", Icon = "🍭", Value = 900, Rarity = "Rare", Category = "Food", Use = "Eat", Energy = 40, Tags = { "Artisan" } },
+	{ Id = "stardust_powder", Name = "Stardust", Icon = "✨", Value = 1200, Rarity = "Epic", Category = "Ingredient", Tags = { "Star" } },
+	{ Id = "hot_sauce", Name = "Ember Hot Sauce", Icon = "🌶️", Value = 1400, Rarity = "Rare", Tags = { "Artisan", "Hot" } },
+})
+
+-- Cooked food (Kitchen). Energy restores stamina; buffs last in-game minutes. ------------------
+local function food(id, name, icon, value, energy, buff, rarity, tags)
+	return {
+		Id = id,
+		Name = name,
+		Icon = icon,
+		Value = value,
+		Energy = energy,
+		Buff = buff,
+		Rarity = rarity or "Common",
+		Use = "Eat",
+		Tags = tags or { "Cooked" },
+	}
+end
+
+add("Food", {}, {
+	food("garden_salad", "Garden Salad", "🥗", 120, 40, nil),
+	food("carrot_soup", "Carrot Soup", "🍲", 160, 55, { Id = "Farming", Mult = 1.1, Minutes = 6 }, nil, { "Cooked", "Soup", "Hot" }),
+	food("baked_potato", "Baked Potato", "🥔", 150, 50, nil, nil, { "Cooked", "Hot" }),
+	food("veggie_stew", "Harvest Stew", "🍲", 420, 90, { Id = "Farming", Mult = 1.2, Minutes = 8 }, "Uncommon", { "Cooked", "Soup", "Hot" }),
+	food("bread", "Fresh Bread", "🍞", 140, 45, nil, nil, { "Cooked", "Baked" }),
+	food("pancakes", "Pancakes", "🥞", 260, 60, { Id = "Speed", Mult = 1.1, Minutes = 5 }, nil, { "Cooked", "Baked" }),
+	food("pumpkin_pie", "Pumpkin Pie", "🥧", 520, 80, { Id = "Luck", Mult = 1.15, Minutes = 8 }, "Uncommon", { "Cooked", "Baked" }),
+	food("apple_pie", "Apple Pie", "🥧", 480, 80, { Id = "Luck", Mult = 1.1, Minutes = 8 }, "Uncommon", { "Cooked", "Baked" }),
+	food("berry_tart", "Berry Tart", "🥧", 380, 60, { Id = "Luck", Mult = 1.1, Minutes = 5 }, nil, { "Cooked", "Baked" }),
+	food("omelette", "Omelette", "🍳", 180, 50, nil, nil, { "Cooked", "Hot" }),
+	food("fried_rice", "Fried Rice", "🍚", 260, 60, nil, nil, { "Cooked", "Hot" }),
+	food("pizza", "Farmhouse Pizza", "🍕", 620, 100, { Id = "Speed", Mult = 1.15, Minutes = 6 }, "Uncommon", { "Cooked", "Baked", "Hot" }),
+	food("fish_stew", "Fisherman's Stew", "🍲", 460, 90, { Id = "Fishing", Mult = 1.25, Minutes = 8 }, "Uncommon", { "Cooked", "Soup", "Hot" }),
+	food("grilled_fish", "Grilled Fish", "🐟", 220, 50, { Id = "Fishing", Mult = 1.1, Minutes = 5 }, nil, { "Cooked", "Hot" }),
+	food("sushi_roll", "Sushi Roll", "🍣", 540, 70, { Id = "Fishing", Mult = 1.2, Minutes = 6 }, "Uncommon"),
+	food("miners_pie", "Miner's Pie", "🥧", 500, 100, { Id = "Mining", Mult = 1.25, Minutes = 8 }, "Uncommon", { "Cooked", "Baked", "Hot" }),
+	food("trail_mix", "Trail Mix", "🥜", 180, 45, { Id = "Explore", Mult = 1.15, Minutes = 6 }),
+	food("mushroom_risotto", "Mushroom Risotto", "🍚", 700, 110, { Id = "Foraging", Mult = 1.25, Minutes = 8 }, "Rare", { "Cooked", "Hot" }),
+	food("cheese_platter", "Cheese Platter", "🧀", 800, 90, { Id = "Ranching", Mult = 1.2, Minutes = 8 }, "Rare"),
+	food("strawberry_shortcake", "Strawberry Shortcake", "🍰", 640, 80, { Id = "Luck", Mult = 1.2, Minutes = 6 }, "Rare", { "Cooked", "Baked" }),
+	food("hot_chocolate", "Hot Cocoa", "☕", 210, 50, { Id = "Warmth", Mult = 1, Minutes = 10 }, nil, { "Cooked", "Hot" }),
+	food("honey_toast", "Honey Toast", "🍯", 240, 55, nil, nil, { "Cooked", "Baked" }),
+	food("tomato_soup", "Tomato Soup", "🥣", 220, 55, nil, nil, { "Cooked", "Soup", "Hot" }),
+	food("sweet_potato_fries", "Sweet Potato Fries", "🍟", 240, 50, nil),
+	food("chilled_melon", "Chilled Melon Bowl", "🍉", 520, 70, { Id = "Cool", Mult = 1, Minutes = 10 }, "Uncommon"),
+	food("golden_loaf", "Golden Loaf", "🍞", 5200, 160, { Id = "Luck", Mult = 1.4, Minutes = 12 }, "Epic", { "Cooked", "Baked" }),
+	food("starfruit_sorbet", "Starfruit Sorbet", "🍧", 3600, 120, { Id = "Luck", Mult = 1.3, Minutes = 10 }, "Epic"),
+	food("celestial_feast", "Celestial Feast", "🌌", 40000, 300, { Id = "All", Mult = 1.3, Minutes = 20 }, "Legendary"),
+	food("forager_salad", "Forager's Salad", "🥗", 300, 60, { Id = "Foraging", Mult = 1.15, Minutes = 6 }),
+	food("campfire_stew", "Campfire Stew", "🍲", 340, 80, { Id = "Warmth", Mult = 1, Minutes = 12 }, nil, { "Cooked", "Soup", "Hot" }),
+})
+
+-- Potions (Alchemy Table) --------------------------------------------------------------------
+add("Potion", { Use = "Drink" }, {
+	{ Id = "energy_tonic", Name = "Energy Tonic", Icon = "🧃", Value = 200, Energy = 120, Tags = { "Potion" } },
+	{ Id = "growth_elixir", Name = "Growth Elixir", Icon = "🧪", Value = 900, Rarity = "Rare", Use = "Spray", Tags = { "Potion" }, Description = "Splash a 5×5 area: crops gain 2 in-game hours of growth instantly." },
+	{ Id = "luck_potion", Name = "Luck Potion", Icon = "🍀", Value = 1200, Rarity = "Rare", Buff = { Id = "Luck", Mult = 1.5, Minutes = 10 }, Tags = { "Potion" }, Description = "Mutations and rare drops are 1.5× more likely." },
+	{ Id = "anglers_draught", Name = "Angler's Draught", Icon = "🎣", Value = 700, Rarity = "Uncommon", Buff = { Id = "Fishing", Mult = 1.5, Minutes = 10 }, Tags = { "Potion" } },
+	{ Id = "miners_tonic", Name = "Miner's Tonic", Icon = "⛏️", Value = 700, Rarity = "Uncommon", Buff = { Id = "Mining", Mult = 1.5, Minutes = 10 }, Tags = { "Potion" } },
+	{ Id = "fire_tonic", Name = "Fire Tonic", Icon = "🔥", Value = 900, Rarity = "Rare", Buff = { Id = "Warmth", Mult = 1, Minutes = 20 }, Tags = { "Potion" }, Description = "Keeps you warm in Frostveil." },
+	{ Id = "frost_tonic", Name = "Frost Tonic", Icon = "🧊", Value = 900, Rarity = "Rare", Buff = { Id = "Cool", Mult = 1, Minutes = 20 }, Tags = { "Potion" }, Description = "Keeps you cool in the desert." },
+	{ Id = "glow_potion", Name = "Glow Potion", Icon = "💡", Value = 600, Rarity = "Uncommon", Buff = { Id = "Light", Mult = 1, Minutes = 15 }, Tags = { "Potion" }, Description = "You glow. Handy in dark caves." },
+	{ Id = "mutation_serum", Name = "Mutation Serum", Icon = "🧬", Value = 4000, Rarity = "Epic", Use = "Spray", Tags = { "Potion" }, Description = "Splash a 3×3 area: every growing crop rolls one extra mutation chance at 20×." },
+	{ Id = "speed_potion", Name = "Swiftness Potion", Icon = "💨", Value = 500, Rarity = "Uncommon", Buff = { Id = "Speed", Mult = 1.3, Minutes = 6 }, Tags = { "Potion" } },
+	{ Id = "friendship_perfume", Name = "Charming Perfume", Icon = "💗", Value = 1500, Rarity = "Rare", Buff = { Id = "Friendship", Mult = 1.5, Minutes = 15 }, Tags = { "Potion" } },
+	{ Id = "rain_totem", Name = "Rain Totem", Icon = "🗿", Value = 400, Rarity = "Uncommon", Use = "Totem", Tags = { "Totem" }, Description = "Waters every crop on your farm right now." },
+})
+
+-- Supplies ---------------------------------------------------------------------------------
+add("Supply", {}, {
+	{ Id = "pest_spray", Name = "Pest Spray", Icon = "🧴", Value = 30, Use = "Spray", Description = "Cures aphids in a 3×3 area." },
+	{ Id = "fungicide", Name = "Fungicide", Icon = "🧴", Value = 45, Use = "Spray", Tint = Color3.fromRGB(150, 110, 200), Description = "Cures blight in a 3×3 area." },
+	{ Id = "bait", Name = "Bait", Icon = "🪱", Value = 3, Category = "Bait", Description = "Fish bite faster." },
+	{ Id = "glow_bait", Name = "Glow Bait", Icon = "✨", Value = 25, Category = "Bait", Rarity = "Uncommon", Description = "Night fish and deep fish love it." },
+	{ Id = "magnet_bait", Name = "Magnet Bait", Icon = "🧲", Value = 30, Category = "Bait", Rarity = "Uncommon", Description = "Triples treasure chance." },
+	{ Id = "deluxe_bait", Name = "Deluxe Bait", Icon = "🦐", Value = 60, Category = "Bait", Rarity = "Rare", Description = "Rare fish bite more often." },
+	{ Id = "legend_lure", Name = "Legendary Lure", Icon = "🐉", Value = 900, Category = "Bait", Rarity = "Epic", Description = "Attracts legendary fish (if the conditions are right)." },
+	{ Id = "warp_home", Name = "Farm Warp Totem", Icon = "🏡", Value = 50, Use = "Warp", Warp = "home", Description = "Teleports you to your farm." },
+	{ Id = "warp_town", Name = "Town Warp Totem", Icon = "🏘️", Value = 50, Use = "Warp", Warp = "town", Description = "Teleports you to Evergrove plaza." },
+	{ Id = "cloud_soil", Name = "Cloud Soil", Icon = "☁️", Value = 120, Rarity = "Rare", Use = "Amend", Amend = "CloudSoil", Description = "Mix into a tilled tile (permanently) so sky crops can grow at home." },
+	{ Id = "mystery_seed", Name = "Mystery Seed", Icon = "❔", Value = 80, Rarity = "Uncommon", Use = "Plant", Description = "Plants a random crop suited to the season." },
+	{ Id = "ancient_seed", Name = "Ancient Seed", Icon = "🌰", Value = 600, Rarity = "Rare", Use = "Plant", Description = "Dug from the ruins. Always grows Ancient." },
+})
+
+-- Treasure & containers ------------------------------------------------------------------------
+add("Treasure", { Use = "Open" }, {
+	{ Id = "geode", Name = "Geode", Icon = "🪨", Value = 50, Loot = "geode", Description = "Crack it open at the blacksmith, or with a hammer (use)." },
+	{ Id = "frost_geode", Name = "Frost Geode", Icon = "🧊", Value = 110, Rarity = "Uncommon", Loot = "frost_geode" },
+	{ Id = "magma_geode", Name = "Magma Geode", Icon = "🌋", Value = 160, Rarity = "Uncommon", Loot = "magma_geode" },
+	{ Id = "omni_geode", Name = "Omni Geode", Icon = "🔮", Value = 300, Rarity = "Rare", Loot = "omni_geode" },
+	{ Id = "treasure_chest", Name = "Treasure Chest", Icon = "🧰", Value = 200, Rarity = "Rare", Loot = "treasure" },
+	{ Id = "festival_box", Name = "Festival Gift Box", Icon = "🎁", Value = 0, Rarity = "Rare", Loot = "festival", NoSell = true },
+	{ Id = "seed_crate", Name = "Seed Crate", Icon = "📦", Value = 0, Rarity = "Uncommon", Loot = "seed_crate", NoSell = true },
+})
+
+-- Recipe books (Use = Read teaches their recipes) ------------------------------------------------
+add("Book", { Use = "Read", Value = 0, NoSell = true, Stack = 1 }, {
+	{ Id = "book_preserves", Name = "The Joy of Preserves", Icon = "📗", Rarity = "Uncommon", Teaches = { "preserves_jar", "berry_tart" } },
+	{ Id = "book_alchemy", Name = "Primer of Green Alchemy", Icon = "📘", Rarity = "Rare", Teaches = { "alchemy_table", "energy_tonic", "glow_potion" } },
+	{ Id = "book_sky", Name = "Atlas of the Upper Sky", Icon = "📙", Rarity = "Epic", Teaches = { "cloud_soil", "celestial_beacon" } },
+	{ Id = "book_engineering", Name = "Field Engineering, Vol. II", Icon = "📕", Rarity = "Rare", Teaches = { "circuit", "motor", "harvest_drone_hub" } },
+	{ Id = "book_cooking", Name = "Grandma Mabel's Cookbook", Icon = "📒", Rarity = "Uncommon", Teaches = { "pumpkin_pie", "veggie_stew", "apple_pie" } },
+	{ Id = "book_genetics", Name = "Notes on Heredity", Icon = "📓", Rarity = "Rare", Teaches = { "genetics_lab", "mutagen" } },
+})
+
+-- Quest & key items ---------------------------------------------------------------------------
+add("Special", { NoSell = true, NoTrade = true, NoTrash = true, Value = 0, Stack = 99 }, {
+	{ Id = "bridge_plans", Name = "Bridge Plans", Icon = "📜", Rarity = "Uncommon", Description = "Gus needs these to repair the forest bridge." },
+	{ Id = "mine_key", Name = "Mine Lift Key", Icon = "🗝️", Rarity = "Uncommon" },
+	{ Id = "sky_key", Name = "Sky Lift Pass", Icon = "🎫", Rarity = "Rare" },
+	{ Id = "ruin_tablet", Name = "Ruin Tablet", Icon = "🪧", Rarity = "Rare", Description = "One of four carved tablets. Together they open something." },
+	{ Id = "valley_map", Name = "Torn Map", Icon = "🗺️", Rarity = "Epic", Description = "Pieces of a map to a valley no one remembers." },
+	{ Id = "worldtree_acorn", Name = "Worldtree Acorn", Icon = "🌰", Rarity = "Mythic", Description = "Warm to the touch." },
+	{ Id = "mabel_letter", Name = "Mabel's Letter", Icon = "✉️", Description = "A sealed letter for the Mayor." },
+	{ Id = "lost_locket", Name = "Lost Locket", Icon = "📿", Rarity = "Rare", Description = "Engraved: 'For H. — always.'" },
+	{ Id = "old_rod", Name = "Grandpa's Old Rod", Icon = "🎣", Rarity = "Rare", Description = "Finn would recognise this." },
+	{ Id = "star_chart", Name = "Star Chart Fragment", Icon = "🌌", Rarity = "Rare" },
+})
+
+return {
+	List = List,
+	-- Loot tables for containers and treasure (weights).
+	Loot = {
+		geode = {
+			{ Id = "stone", Weight = 20, Count = { 2, 5 } },
+			{ Id = "clay", Weight = 10, Count = { 1, 3 } },
+			{ Id = "copper_ore", Weight = 18, Count = { 2, 5 } },
+			{ Id = "iron_ore", Weight = 10, Count = { 1, 4 } },
+			{ Id = "quartz", Weight = 12 },
+			{ Id = "amethyst", Weight = 8 },
+			{ Id = "topaz", Weight = 6 },
+			{ Id = "jade", Weight = 3 },
+			{ Id = "fossil_shell", Weight = 3 },
+			{ Id = "geode_mineral_calcite", Weight = 8 },
+		},
+		frost_geode = {
+			{ Id = "iron_ore", Weight = 16, Count = { 2, 5 } },
+			{ Id = "frost_crystal", Weight = 6 },
+			{ Id = "aquamarine", Weight = 10 },
+			{ Id = "sapphire", Weight = 4 },
+			{ Id = "moonstone", Weight = 4 },
+			{ Id = "geode_mineral_frostite", Weight = 10 },
+			{ Id = "fossil_fish", Weight = 2 },
+		},
+		magma_geode = {
+			{ Id = "gold_ore", Weight = 16, Count = { 1, 4 } },
+			{ Id = "coal", Weight = 16, Count = { 2, 4 } },
+			{ Id = "ember_core", Weight = 5 },
+			{ Id = "ruby", Weight = 7 },
+			{ Id = "fire_opal", Weight = 4 },
+			{ Id = "geode_mineral_obsidian", Weight = 10 },
+		},
+		omni_geode = {
+			{ Id = "gold_ore", Weight = 10, Count = { 2, 5 } },
+			{ Id = "crystal_shard", Weight = 10, Count = { 1, 2 } },
+			{ Id = "emerald", Weight = 6 },
+			{ Id = "diamond", Weight = 2 },
+			{ Id = "prism_shard", Weight = 1 },
+			{ Id = "starsteel_ore", Weight = 4 },
+			{ Id = "geode_mineral_stardrop", Weight = 3 },
+			{ Id = "ancient_seed", Weight = 2 },
+		},
+		treasure = {
+			{ Id = "gold_bar", Weight = 8 },
+			{ Id = "iron_bar", Weight = 12, Count = { 1, 3 } },
+			{ Id = "geode", Weight = 14, Count = { 1, 3 } },
+			{ Id = "omni_geode", Weight = 5 },
+			{ Id = "deluxe_bait", Weight = 10, Count = { 5, 10 } },
+			{ Id = "mystery_seed", Weight = 10, Count = { 2, 4 } },
+			{ Id = "lucky_foot", Weight = 2 },
+			{ Id = "prism_shard", Weight = 1 },
+			{ Id = "old_coin", Weight = 6 },
+		},
+		festival = {
+			{ Id = "mystery_seed", Weight = 20, Count = { 3, 6 } },
+			{ Id = "quality_fertilizer", Weight = 15, Count = { 5, 10 } },
+			{ Id = "golden_dust", Weight = 3 },
+			{ Id = "luck_potion", Weight = 6 },
+			{ Id = "treat", Weight = 12, Count = { 2, 4 } },
+			{ Id = "omni_geode", Weight = 8 },
+		},
+		seed_crate = {
+			{ Id = "seed_carrot", Weight = 10, Count = { 5, 10 } },
+			{ Id = "seed_strawberry", Weight = 8, Count = { 3, 6 } },
+			{ Id = "seed_melon", Weight = 6, Count = { 2, 4 } },
+			{ Id = "seed_pumpkin", Weight = 6, Count = { 2, 4 } },
+			{ Id = "seed_blueberry", Weight = 6, Count = { 2, 4 } },
+			{ Id = "mystery_seed", Weight = 8, Count = { 2, 3 } },
+			{ Id = "seed_starfruit", Weight = 1 },
+		},
+	},
+}
