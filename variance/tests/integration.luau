@@ -443,6 +443,28 @@ leave(adaCtx)
 Scheduler.run(3)
 profile = ctl(adaCtx, "ProfileController"):get()
 check("stats recorded", profile.Stats.Matches >= 1 and profile.XP > 0)
+
+print("== play now")
+Scheduler.run(2)
+check("PLAY NOW button in the lobby", click(adaCtx, "PLAY NOW"))
+waitFor(function()
+	return inMatch(adaCtx)
+end, 20)
+check(
+	"PLAY NOW seats you against an adaptive surrogate",
+	inMatch(adaCtx) and matchOf(adaCtx).Subjects[2].IsAI and matchOf(adaCtx).Subjects[2].Difficulty == "Adaptive"
+)
+local firstQuick = matchOf(adaCtx) and matchOf(adaCtx).Subjects[2].Personality
+Scheduler.run(4)
+leave(adaCtx)
+Scheduler.run(3)
+click(adaCtx, "PLAY NOW")
+waitFor(function()
+	return inMatch(adaCtx)
+end, 20)
+check("the next PLAY NOW meets someone else", inMatch(adaCtx) and matchOf(adaCtx).Subjects[2].Personality ~= firstQuick)
+leave(adaCtx)
+Scheduler.run(3)
 check("back in the lobby", ctl(adaCtx, "CameraController"):mode() == "Lobby" and screen(adaCtx, "LobbyHUD").Visible)
 
 print("== sandbox")

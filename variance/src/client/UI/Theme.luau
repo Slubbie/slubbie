@@ -109,8 +109,12 @@ Theme.Size = {
 	Banner = 48,
 }
 
+-- Smallest text size on compact (phone) screens, where the whole interface is
+-- scaled down: labels never drop below what a phone can show legibly.
+Theme.MinText = 0
+
 function Theme.textSize(key: string): number
-	return math.floor((Theme.Size[key] or 16) * Theme.TextScale + 0.5)
+	return math.floor(math.max((Theme.Size[key] or 16) * Theme.TextScale, Theme.MinText) + 0.5)
 end
 
 -- Live binding of an instance property to a colour key.

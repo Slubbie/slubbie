@@ -955,12 +955,11 @@ special.ParticleEmitter = {
 
 -- GUI geometry: an approximate layout (scale of parent + offset), enough for
 -- code that positions tooltips or reads sizes.
-local VIEWPORT = V2.new(1280, 720)
-Instances.viewport = VIEWPORT
+Instances.viewport = V2.new(1280, 720) -- set before World.new for other screens
 
 local function guiAbsolute(self, d)
 	local parent = d.Parent
-	local parentSize, parentPos = VIEWPORT, V2.zero
+	local parentSize, parentPos = Instances.viewport, V2.zero
 	if parent and isA(D[parent].ClassName, "GuiObject") then
 		parentSize = parent.AbsoluteSize
 		parentPos = parent.AbsolutePosition
@@ -1013,7 +1012,7 @@ special.GuiObject = {
 special.LayerCollector = {
 	get = {
 		AbsoluteSize = function()
-			return VIEWPORT
+			return Instances.viewport
 		end,
 		AbsolutePosition = function()
 			return V2.zero
@@ -1065,7 +1064,7 @@ special.ScrollingFrame = {
 special.Camera = {
 	get = {
 		ViewportSize = function()
-			return VIEWPORT
+			return Instances.viewport
 		end,
 		FieldOfView = function(_, d)
 			return d.Props.FieldOfView or 70

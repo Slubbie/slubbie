@@ -83,6 +83,8 @@ await page.waitForFunction(() => window.sceneReady === true && window.guiReady =
 const shots = [];
 for (const file of files) {
   const frame = JSON.parse(fs.readFileSync(file, "utf8"));
+  const [vw, vh] = (frame.Gui && frame.Gui.Viewport) || [1280, 720];
+  await page.setViewportSize({ width: vw, height: vh });
   const issues = await page.evaluate(
     ([f, g, cam, b]) => {
       window.renderFrame(f, { camera: cam, bright: b });
@@ -92,7 +94,7 @@ for (const file of files) {
   );
   if (issues && issues.length && process.env.GUI_ISSUES) for (const i of issues) console.log("  gui:", i);
   if (sheet) {
-    shots.push({ label: frame.Label, data: (await page.screenshot()).toString("base64") });
+    shots.push({ label: frame.Label, w: vw, h: vh, data: (await page.screenshot()).toString("base64") });
     continue;
   }
   const dir = outDir || path.dirname(file);
@@ -102,7 +104,7 @@ for (const file of files) {
   console.log(png);
 }
 if (sheet) {
-  const tileH = Math.round((tileW * 720) / 1280);
+  const tileH = Math.round((tileW * (shots[0]?.h || 720)) / (shots[0]?.w || 1280));
   const rows = Math.ceil(shots.length / cols);
   const sheetPage = await browser.newPage({ viewport: { width: cols * tileW, height: rows * tileH } });
   const cells = shots

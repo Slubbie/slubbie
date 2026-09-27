@@ -992,6 +992,24 @@ function MatchService:startSolo(player: Player, personality: string, difficulty:
 	return true, match.Id
 end
 
+-- One-click play: a surrogate at Adaptive difficulty (it tracks the player's
+-- skill), rotating so consecutive quick matches meet different opponents.
+local lastQuick: { [Player]: string } = {}
+function MatchService:startQuick(player: Player)
+	local pool = {}
+	for _, persona in Personalities.List do
+		if not persona.Secret and persona.Id ~= "Proxy" and persona.Id ~= lastQuick[player] then
+			table.insert(pool, persona.Id)
+		end
+	end
+	if #pool == 0 then
+		return false, "No surrogate is available."
+	end
+	local pick = pool[math.random(1, #pool)]
+	lastQuick[player] = pick
+	return self:startSolo(player, pick, "Adaptive")
+end
+
 function MatchService:startEndurance(player: Player)
 	if self.Services.MatchmakingService:isQueued(player) then
 		self.Services.MatchmakingService:leave(player)
@@ -1181,6 +1199,9 @@ function MatchService:Start()
 	network:handle("Solo.Start", function(player, personality, difficulty)
 		return self:startSolo(player, personality, difficulty)
 	end)
+	network:handle("Solo.Quick", function(player)
+		return self:startQuick(player)
+	end)
 	network:handle("Endurance.Start", function(player)
 		return self:startEndurance(player)
 	end)
@@ -1188,6 +1209,7 @@ function MatchService:Start()
 		return self:startSandbox(player, custom)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
+		lastQuick[player] = nil
 		self:onLeave(player)
 	end)
 	self.Services.DataService.Releasing:Connect(function(player)

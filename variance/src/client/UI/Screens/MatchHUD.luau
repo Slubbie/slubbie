@@ -930,7 +930,8 @@ function MatchHUD:renderChamber()
 	end
 	local belief = state and state.Belief
 	if belief == nil or #belief.Track == 0 then
-		self.Chamber.Visible = state ~= nil and (state.Spent and #state.Spent > 0)
+		-- Between Loads (and on the Trial and match cards) there is nothing to read.
+		self.Chamber.Visible = false
 		self.Counts.Text = ""
 		self.Odds.Text = ""
 		return

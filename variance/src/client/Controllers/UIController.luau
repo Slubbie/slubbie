@@ -195,8 +195,10 @@ end
 function UIController:updateScale()
 	local camera = workspace.CurrentCamera
 	local viewport = camera and camera.ViewportSize or Vector2.new(1280, 720)
-	local auto = math.clamp(math.min(viewport.X / 1280, viewport.Y / 760), 0.62, 1.25)
+	local auto = math.clamp(math.min(viewport.X / 1280, viewport.Y / 760), 0.66, 1.25)
 	self.Compact = viewport.X < 900 or UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	-- Phones: small print stays at least ~10 px on screen.
+	Theme.MinText = if self.Compact then math.ceil(10 / auto) else 0
 	scale.Scale = auto * (self.Controllers.SettingsController:get("UIScale") or 1)
 end
 

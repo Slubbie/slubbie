@@ -4,8 +4,8 @@
 // straight onto matrices.
 import * as THREE from "three";
 
-const W = 1280;
-const H = 720;
+let W = 1280;
+let H = 720;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setSize(W, H);
@@ -126,6 +126,15 @@ const FACE = {
 
 window.renderFrame = function renderFrame(frame, options = {}) {
   const S = frame.Scene;
+  if (frame.Gui && frame.Gui.Viewport) {
+    [W, H] = frame.Gui.Viewport;
+  }
+  renderer.setSize(W, H);
+  for (const id of ["view", "gui", "tint"]) {
+    const el = document.getElementById(id);
+    el.style.width = `${W}px`;
+    el.style.height = `${H}px`;
+  }
   const scene = new THREE.Scene();
   const L = S.Lighting;
   scene.background = colorOf(L.FogColor).multiplyScalar(0.35);

@@ -5,6 +5,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local Format = require(ReplicatedStorage.Variance.Util.Format)
 local Config = require(ReplicatedStorage.Variance.Config)
@@ -17,7 +18,8 @@ local LobbyHUD = {}
 LobbyHUD.__index = LobbyHUD
 
 local MENU = {
-	{ Id = "Play", Label = "EVALUATION", Screen = "Play", Args = { Tab = "Queue" }, Icon = "Play" },
+	{ Id = "Quick", Label = "PLAY NOW", Quick = true, Icon = "Play" },
+	{ Id = "Play", Label = "EVALUATION", Screen = "Play", Args = { Tab = "Queue" } },
 	{ Id = "Private", Label = "PRIVATE TRIALS", Screen = "Private" },
 	{ Id = "Ranked", Label = "STANDING", Screen = "Ranked", Icon = "Target" },
 	{ Id = "Locker", Label = "LOCKER", Screen = "Locker" },
@@ -78,14 +80,14 @@ function LobbyHUD.new(ui, controllers)
 		Size = UDim2.new(0.4, 0, 0, 14),
 		Position = UDim2.new(0.6, 0, 0, 54),
 	})
-	self.Standing = Kit.label(card, {
+	self.Standing = Kit.fit(Kit.label(card, {
 		Text = "",
 		Font = "Mono",
 		TextSize = "Tiny",
 		Color = "Dim",
 		Size = UDim2.new(1, 0, 0, 14),
 		Position = UDim2.fromOffset(0, 72),
-	})
+	})) :: TextLabel
 	self.Guest = Kit.label(card, {
 		Text = "OFFLINE FILE :: PROGRESS WILL SYNC WHEN RECORDS RETURN",
 		Font = "Mono",
@@ -127,7 +129,11 @@ function LobbyHUD.new(ui, controllers)
 			Style = if i == 1 then "Primary" else "Default",
 			LayoutOrder = i,
 			OnClick = function()
-				ui:open(entry.Screen, entry.Args)
+				if entry.Quick then
+					self:quickPlay()
+				else
+					ui:open(entry.Screen, entry.Args)
+				end
 			end,
 		})
 		if entry.Icon then
@@ -163,8 +169,10 @@ function LobbyHUD.new(ui, controllers)
 			ZIndex = 6,
 		})
 		self.Badges[entry.Id] = badge
-		if i == 1 then
+		if entry.Id == "Play" then
 			self.PlayButton = button
+		elseif entry.Id == "Quick" then
+			self.QuickButton = button
 		end
 	end
 
@@ -221,8 +229,11 @@ function LobbyHUD.new(ui, controllers)
 	self.Chip = chip
 
 	-- Hint line for new players.
+	local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 	self.Hint = Kit.label(root, {
-		Text = "Walk to a terminal and press [E], or use the menu.",
+		Text = if touch
+			then "PLAY NOW starts a Trial at once. Tap a terminal, or use the menu, for everything else."
+			else "PLAY NOW starts a Trial at once. Walk to a terminal and press [E] for everything else.",
 		Font = "Mono",
 		TextSize = "Small",
 		Color = "Dim",
@@ -337,6 +348,23 @@ function LobbyHUD:refreshProfile(profile)
 		end
 	end
 	self.Hint.Visible = (profile.Stats and profile.Stats.Matches or 0) < 3
+end
+
+-- PLAY NOW: straight to a table with a surrogate at Adaptive difficulty.
+function LobbyHUD:quickPlay()
+	if self.Starting then
+		return
+	end
+	self.Starting = true
+	Kit.setText(self.QuickButton, "PREPARING...")
+	task.spawn(function()
+		local ok, err = self.C.NetworkClient:request("Solo.Quick")
+		self.Starting = false
+		Kit.setText(self.QuickButton, "PLAY NOW")
+		if not ok then
+			self.UI:toast("PLAY NOW", tostring(err), "Warn")
+		end
+	end)
 end
 
 function LobbyHUD:setQueue(data)

@@ -113,14 +113,14 @@ function Record:stats(body: Instance, profile)
 			card,
 			{ Text = value, Font = "Display", TextSize = "Title", Color = "Accent", Size = UDim2.new(1, 0, 0, 28) }
 		)
-		Kit.label(card, {
+		Kit.fit(Kit.label(card, {
 			Text = label,
 			Font = "Mono",
 			TextSize = "Tiny",
 			Color = "Dim",
 			Size = UDim2.new(1, 0, 0, 14),
 			Position = UDim2.new(0, 0, 1, -14),
-		})
+		}))
 	end
 	for _, entry in STATS do
 		tile(entry[2], Format.thousands(stats[entry[1]] or 0))

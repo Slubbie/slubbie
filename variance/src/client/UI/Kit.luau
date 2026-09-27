@@ -170,6 +170,16 @@ function Kit.label(parent: Instance?, props: LabelProps): TextLabel
 	return label
 end
 
+-- Shrinks a label's text to fit its box (never above its normal size).
+function Kit.fit(label: TextLabel | TextButton, minSize: number?): TextLabel | TextButton
+	local constraint = Instance.new("UITextSizeConstraint")
+	constraint.MaxTextSize = label.TextSize
+	constraint.MinTextSize = minSize or 6
+	constraint.Parent = label
+	label.TextScaled = true
+	return label
+end
+
 -- A small keycap hint ("E", "1", "RB").
 function Kit.keycap(parent: Instance?, text: string, order: number?): Frame
 	local cap = Kit.create("Frame", {

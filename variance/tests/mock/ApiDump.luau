@@ -2283,6 +2283,7 @@ return {
 			M = {},
 			E = {},
 		},
+		UITextSizeConstraint = { S = "UIConstraint", P = { MaxTextSize = "n", MinTextSize = "n" }, M = {}, E = {} },
 		UnreliableRemoteEvent = {
 			S = "BaseRemoteEvent",
 			P = {},

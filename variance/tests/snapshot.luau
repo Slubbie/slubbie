@@ -9,8 +9,21 @@
 -- Scenarios: lobby, seat (solo match from the lobby through the intro to the
 -- first turn), match (a few turns in), results.
 
-local scenario = arg and arg[1] or "seat"
-local outDir = arg and arg[2] or "snapshots"
+-- "--phone" anywhere in the arguments: a landscape phone (844 x 390, touch).
+local phone = false
+do
+	local rest = {}
+	for _, a in arg or {} do
+		if a == "--phone" then
+			phone = true
+		else
+			table.insert(rest, a)
+		end
+	end
+	arg = rest
+end
+local scenario = arg[1] or "seat"
+local outDir = arg[2] or "snapshots"
 
 local loaded = {}
 local function mockModule(name: string)
@@ -47,7 +60,16 @@ Scheduler.onError = function(ctx, err, trace)
 	print(trace)
 end
 
+if phone then
+	Instances.viewport = World.Types.Vector2.new(844, 390)
+end
 local world = World.new({ Verbose = false })
+if phone then
+	local uis = D[world.Services.UserInputService].Props
+	uis.TouchEnabled = true
+	uis.KeyboardEnabled = false
+	uis.MouseEnabled = false
+end
 
 local function ctl(ctx, name: string)
 	return world:require(ctx, ctx.Player.PlayerScripts.VarianceClient.Controllers[name])
@@ -79,8 +101,10 @@ end
 ---------------------------------------------------------------------------
 
 local function num(n: number): string
-	if n ~= n or n == math.huge or n == -math.huge then
+	if n ~= n then
 		return "0"
+	elseif n == math.huge or n == -math.huge then
+		return if n > 0 then "1e9" else "-1e9"
 	end
 	local s = string.format("%.4f", n):gsub("%.?0+$", "")
 	return if s == "" or s == "-" then "0" else s
@@ -504,10 +528,14 @@ if scenario == "turn" then
 	-- surrogate's turn. Frames every `step` seconds.
 	local choice = arg[3] or "FireOther"
 	local step = tonumber(arg[4]) or 0.2
+	local pattern = arg[5] -- e.g. "CCCC" forces the loaded cells
 	local client = ctl(ctx, "MatchClient")
 	Scheduler.runUntil(function()
 		return client:isMyTurn() and not client:busy()
 	end, 90, 60)
+	if pattern then
+		print(request(ctx, "Debug.Command", "Sequence", { Pattern = pattern, Now = true }))
+	end
 	Scheduler.run(0.5, 60)
 	snap(ctx, "my_turn")
 	local hud = ctl(ctx, "UIController"):screen("MatchHUD")
@@ -520,6 +548,49 @@ if scenario == "turn" then
 		Scheduler.run(step, 60)
 		t += step
 		snap(ctx, string.format("fire_%05.2f", t))
+	end
+	return
+end
+
+if scenario == "ending" then
+	-- The winning shot of a match and the results screen: the surrogate is
+	-- left on one Integrity with a CHARGED cell loaded, one Trial from losing.
+	local client = ctl(ctx, "MatchClient")
+	Scheduler.runUntil(function()
+		return client:isMyTurn() and not client:busy()
+	end, 90, 60)
+	print(request(ctx, "Debug.Command", "SkipToTrial", { Trial = 2 }))
+	Scheduler.runUntil(function()
+		return client:isMyTurn() and not client:busy()
+	end, 90, 60)
+	local state = client.State
+	if state then
+		local s1 = state.Subjects[1]
+		if s1 then
+			s1.TrialWins = 1
+		end
+	end
+	print(request(ctx, "Debug.Command", "Integrity", { Subject = 2, Value = 1 }))
+	for _ = 1, 200 do
+		Scheduler.runUntil(function()
+			return client:isMyTurn() and not client:busy()
+		end, 90, 60)
+		if request(ctx, "Debug.Command", "Sequence", { Pattern = "CCCC", Now = true }) then
+			break
+		end
+		Scheduler.run(0.2, 60)
+	end
+	Scheduler.run(0.5, 60)
+	local hud = ctl(ctx, "UIController"):screen("MatchHUD")
+	run(ctx, function()
+		hud:pressFire("FireOther", "Begin", true)
+		hud:pressFire("FireOther", "Begin", true)
+	end)
+	local t = 0
+	while t < 24 do
+		Scheduler.run(0.75, 60)
+		t += 0.75
+		snap(ctx, string.format("end_%05.2f", t))
 	end
 	return
 end

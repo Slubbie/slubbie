@@ -27,6 +27,7 @@ Net.Endpoints = {
 	["Queue.Leave"] = {},
 	["Solo.Start"] = { "string", "string" },
 	["Endurance.Start"] = {},
+	["Solo.Quick"] = {},
 	["Sandbox.Start"] = { "table" },
 	["Tutorial.Start"] = { "string" },
 	["Tutorial.Continue"] = {},
