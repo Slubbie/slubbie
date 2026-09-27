@@ -42,7 +42,7 @@ source tree (emulating `require(script.Parent.X)`).
 ## Integration test (real server + real clients)
 
 ```
-luaurun tests/integration.luau             # ~3 minutes, 104 checks
+luaurun tests/integration.luau             # ~3 minutes, 107 checks
 luaurun tests/integration.luau verbose     # also echo game prints
 luaurun tests/integration.luau immediate   # Immediate signal behaviour
 ```
@@ -104,6 +104,8 @@ luaurun tests/snapshot.luau seat out/seat 0.25 7     # lobby -> table, every 0.2
 luaurun tests/snapshot.luau turn out/turn FireSelf   # your turn, firing at yourself
 luaurun tests/snapshot.luau screens out/screens      # every lobby screen
 luaurun tests/snapshot.luau lobby out/lobby
+luaurun tests/snapshot.luau results out/results      # a whole match, then the results
+luaurun tests/snapshot.luau turn out/phone FireOther 1 --phone   # 844 x 390 touch
 node tools/render/render.mjs out/seat                # one PNG per frame
 node tools/render/render.mjs out/seat --sheet seat.png --cols 4 --tile 400
 node tools/render/render.mjs out/seat --no-gui --bright --camera 3011,3.4,5.3:3000,2.6,4.6:45

@@ -595,7 +595,37 @@ if scenario == "ending" then
 	return
 end
 
-if scenario == "match" or scenario == "results" then
+if scenario == "results" then
+	-- Plays the whole match through the HUD (fire at the likelier target),
+	-- then captures the results screen as it fills in.
+	local client = ctl(ctx, "MatchClient")
+	local hud = ctl(ctx, "UIController"):screen("MatchHUD")
+	local ui = ctl(ctx, "UIController")
+	local acted = nil
+	local finished = Scheduler.runUntil(function()
+		if ui:currentScreen() == "PostMatch" then
+			return true
+		end
+		if client:isMyTurn() and not client:busy() and client.TurnInfo and client.TurnInfo.Token ~= acted then
+			acted = client.TurnInfo.Token
+			local p = client:probability() or 0.5
+			local choice = if p < 0.4 then "FireSelf" else "FireOther"
+			Scheduler.spawnIn(ctx, function()
+				hud:pressFire(choice, "Begin", true)
+				hud:pressFire(choice, "Begin", true)
+			end)
+		end
+		return false
+	end, 1200, 30)
+	print("match finished:", finished)
+	for i = 1, 6 do
+		Scheduler.run(0.8, 30)
+		snap(ctx, string.format("results_%d", i))
+	end
+	return
+end
+
+if scenario == "match" then
 	Scheduler.runUntil(function()
 		return ctl(ctx, "MatchClient"):isMyTurn()
 	end, 60, 60)

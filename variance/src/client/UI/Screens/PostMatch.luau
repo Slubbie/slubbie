@@ -151,6 +151,11 @@ function PostMatch:Open(data)
 	self.Data = data
 	self.Visible = true
 	self.Frame.Visible = true
+	-- The table HUD steps aside (a rematch opens it again).
+	local hud = self.UI:screen("MatchHUD")
+	if hud and hud.Visible then
+		hud:Close()
+	end
 	local report = data.Report or {}
 	local you = data.You
 	local me = you and report.Subjects and report.Subjects[you]
