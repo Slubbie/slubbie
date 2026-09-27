@@ -1,0 +1,41 @@
+{
+  "name": "dicebound",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Dicebound": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "Dicebound": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "CameraMaxZoomDistance": 60
+      },
+      "StarterPlayerScripts": {
+        "Dicebound": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Workspace": {
+      "$properties": {
+        "FallenPartsDestroyHeight": -200
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Technology": "ShadowMap"
+      }
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}

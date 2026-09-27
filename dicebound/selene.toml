@@ -1,0 +1,5 @@
+std = "roblox"
+
+[lints]
+# Luau generics / type casts confuse this older rule.
+mixed_table = "allow"
