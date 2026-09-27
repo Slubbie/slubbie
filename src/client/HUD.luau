@@ -126,7 +126,7 @@ function HUD.Start(Movement)
 	-- Controls hint ---------------------------------------------------------------
 	local hintText = if UserInputService.TouchEnabled
 		then "HOOK to grapple  ·  JUMP off walls  ·  SLIDE at speed  ·  DASH in the air"
-		else "HOLD LMB grapple  ·  SPACE wall-jump  ·  CTRL slide  ·  Q / SHIFT dash  ·  M menu"
+		else "HOLD LMB grapple  ·  HOLD SPACE reel in  ·  SPACE wall-jump  ·  CTRL slide  ·  Q dash  ·  M menu"
 	local hint = UI.label(screen, {
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -118),

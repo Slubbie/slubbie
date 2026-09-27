@@ -14,7 +14,7 @@
 
 | Move | Input (PC / Pad / Mobile) | What it does | Skill expression |
 |---|---|---|---|
-| **Grapple** | Hold LMB / R2 / Hook | Fires a hook (200 studs, with aim assist). The rope only pulls when stretched, so you *swing*. Reels in slowly. | Release at the bottom of the arc for max speed. Release gives ×1.1 speed plus a pop upward. |
+| **Grapple** | Hold LMB / R2 / Hook | Fires a hook (200 studs, with aim assist). A physics rope, so you *swing*. It reels in slowly; hold jump to zip in fast. | Release at the bottom of the arc for max speed. Release gives ×1.1 speed plus a pop upward. |
 | **Swing pump** | WASD while attached | Pushes perpendicular to the rope | Pump to build arc height |
 | **Wall-run** | Automatic when you hit a wall at 28+ speed | Runs along walls with growing gravity, max 1.8s | Chain wall ↔ wall through corridors |
 | **Wall-jump** | Space / A while wall-running | Kicks off the wall and keeps your speed | 0.15s coyote time after leaving a wall |
@@ -66,6 +66,9 @@ Spawn island → launch pad → swing between islands → collect shards
 
 ## Technical notes
 
+- Grapple: a real `RopeConstraint` solved by the physics engine (many substeps per frame, so there's no per-frame jitter). The client shortens its `Length` each frame to reel in. Swing pumping and pull are a `VectorForce`, and the Humanoid is `PlatformStand`ed while attached so its air control can't fight the swing (an `AlignOrientation` keeps you upright).
+- Map: islands are sculpted Terrain (layered rock underside, grass cap, hills, rim outcrops, floating debris) in four biomes. Decorations are placed by raycasting onto the real terrain. Future lighting is set in `default.project.json` because scripts can't change `Lighting.Technology`.
+
 - Movement runs on the **client** (the player owns their character's physics). We set `AssemblyLinearVelocity` every Heartbeat.
 - Air momentum: above walk speed, we take over horizontal air velocity so the Humanoid's air control can't eat momentum. A sudden large speed loss counts as a collision and is accepted.
 - Animation: `R6Animator` sets every R6 `Motor6D.Transform` each frame from a pose built in torso space. Each client animates *all* characters itself, using their replicated velocity plus the `MoveState` / `WallNormal` / `GrapplePoint` attributes and `MoveAction` events that `StateRelay` relays. That's zero animation assets, and everyone sees the same moves.
@@ -81,4 +84,5 @@ Spawn island → launch pad → swing between islands → collect shards
 - [ ] Sky Delivery and Sky Tag modes
 - [ ] Mobile tuning pass (aim assist radius, button layout)
 - [ ] Hand-built showcase map (put it in `Workspace.Map` to skip generation)
+- [ ] Turn on Terrain grass blades in Studio (Terrain → Decoration; scripts can't set it)
 - [ ] Server-side movement sanity checks (anti-cheat)

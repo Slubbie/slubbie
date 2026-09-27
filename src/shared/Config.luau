@@ -34,18 +34,19 @@ Config.Grapple = {
 	-- How fast the hook flies out.
 	HookSpeed = 1100,
 	RetractTime = 0.12,
-	-- Constant pull toward the anchor while attached.
-	PullAccel = 38,
-	-- The rope shortens by this much per second while attached.
-	ReelSpeed = 14,
+	-- The rope starts this much longer than the distance, so it catches you softly.
+	CatchSlack = 1.04,
+	-- Gentle constant pull toward the anchor while attached.
+	PullAccel = 22,
+	-- The rope reels in at this speed; hold jump for the fast reel.
+	ReelSpeed = 12,
+	FastReelSpeed = 55,
 	MinLength = 10,
 	-- Push from movement keys while swinging (perpendicular to the rope).
-	SwingAccel = 50,
-	-- How hard a stretched rope snaps back.
-	Stiffness = 9,
+	SwingAccel = 55,
 	-- Horizontal speed multiplier and upward pop applied when you let go.
 	ReleaseBoost = 1.1,
-	ReleasePop = 20,
+	ReleasePop = 18,
 	Cooldown = 0.2,
 	MaxSpeed = 170,
 	RopeColor = Color3.fromRGB(120, 230, 255),

@@ -2,7 +2,7 @@
 
 A momentum movement game for Roblox (R6 only): grapple-swing between floating sky islands, wall-run, slide and air-dash without touching the ground.
 
-**Features:** custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen.
+**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen.
 
 See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 
@@ -12,6 +12,7 @@ See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 |---|---|---|---|
 | Grapple (hold) | Left mouse | R2 | Hook button |
 | Jump / wall-jump | Space | A | Jump |
+| Fast reel-in (while grappling) | Hold Space | Hold A | |
 | Slide (hold, at speed) | Ctrl or C | B | Slide button |
 | Air dash | Q or Shift | X | Dash button |
 | Menu (shop, trials) | M | Select | MENU button |
@@ -26,6 +27,8 @@ This project uses [Rojo](https://rojo.space) to sync code from this repo into Ro
 3. Create a new **Baseplate** place in Studio.
 4. Run `rojo serve` here, then click **Connect** in the Studio Rojo plugin.
 5. Press **Play**. The server generates the sky map on start (and removes the template baseplate).
+
+For extra polish, select **Terrain** in Studio and tick **Decoration** for animated grass blades (scripts can't turn it on).
 
 To test saving in Studio, enable **Game Settings → Security → Enable Studio Access to API Services**. Without it everything works, but progress resets each session.
 

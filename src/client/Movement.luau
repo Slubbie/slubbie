@@ -85,6 +85,7 @@ local lastLandTime = -math.huge
 local lastLandSpeed = 0
 
 local jumpPressedAt = -math.huge
+local jumpHeld = false
 local lastTouchJump = -math.huge
 
 local slideHeld = false
@@ -385,6 +386,9 @@ local function updateFacing()
 		local flat = Flat(r.AssemblyLinearVelocity)
 		if flat.Magnitude > M.WalkSpeed then
 			direction = flat.Unit
+		elseif state == "Grapple" then
+			-- The Humanoid isn't holding us upright while swinging: keep our heading.
+			direction = Flat(r.CFrame.LookVector).Unit
 		end
 	end
 	if direction then
@@ -496,7 +500,7 @@ local function onHeartbeat(dt: number)
 
 	if state == "Grapple" then
 		if Grapple.IsAttached() then
-			Grapple.Step(dt, h.MoveDirection)
+			Grapple.Step(dt, h.MoveDirection, jumpHeld)
 		else
 			enterAir()
 		end
@@ -536,7 +540,6 @@ local function onGrappleAttached()
 	end
 	if h.FloorMaterial ~= Enum.Material.Air then
 		-- Pop off the ground so the rope can swing us.
-		h:ChangeState(Enum.HumanoidStateType.Jumping)
 		r.AssemblyLinearVelocity += Vector3.new(0, 20, 0)
 	end
 	refillDash()
@@ -623,6 +626,7 @@ local function handleJump(_, inputState: Enum.UserInputState)
 	if inputState == Enum.UserInputState.Begin then
 		jumpPressedAt = os.clock()
 	end
+	jumpHeld = inputState == Enum.UserInputState.Begin
 	-- Let the default jump still happen.
 	return Enum.ContextActionResult.Pass
 end

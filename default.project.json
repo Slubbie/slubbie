@@ -34,6 +34,11 @@
       "$properties": {
         "CharacterAutoLoads": false
       }
+    },
+    "Lighting": {
+      "$properties": {
+        "Technology": "Future"
+      }
     }
   }
 }
