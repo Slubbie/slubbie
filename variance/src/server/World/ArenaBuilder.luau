@@ -155,10 +155,12 @@ local function buildChair(parent: Instance, origin: CFrame, seat: number, colors
 	local chair = Build.model("Chair_" .. seat, parent)
 	local base = origin * TableLayout.chairCFrame(seat)
 	local h = TableLayout.SeatHeight
-	Build.box(chair, Vector3.new(2.3, 0.25, 2.1), base * CFrame.new(0, h - 0.125, 0), colors.Prop, "Metal", "Pan")
+	-- No armrests and a back narrower than the torso: R6 arms hang straight
+	-- down beside the body and would pass through anything placed there.
+	Build.box(chair, Vector3.new(2.2, 0.25, 2.1), base * CFrame.new(0, h - 0.125, 0), colors.Prop, "Metal", "Pan")
 	Build.box(
 		chair,
-		Vector3.new(2.3, 3.4, 0.25),
+		Vector3.new(1.8, 3.4, 0.25),
 		base * CFrame.new(0, h + 1.6, 1.05) * CFrame.Angles(math.rad(-6), 0, 0),
 		colors.Prop,
 		"Metal",
@@ -169,34 +171,18 @@ local function buildChair(parent: Instance, origin: CFrame, seat: number, colors
 			Build.box(
 				chair,
 				Vector3.new(0.18, h - 0.25, 0.18),
-				base * CFrame.new(x, (h - 0.25) / 2, z),
+				base * CFrame.new(x * 0.95, (h - 0.25) / 2, z),
 				Color3.fromRGB(40, 40, 42),
 				"Metal",
 				"Leg"
 			)
 		end
-		-- Armrests with harness straps: the subject is wired to the Arbiter's
-		-- circuit. Low enough to slide under the table when the chair is in.
+		-- Harness straps down the back of the chair: the subject is wired to
+		-- the Arbiter's circuit.
 		Build.box(
 			chair,
-			Vector3.new(0.3, 0.2, 1.7),
-			base * CFrame.new(x * 1.25, h + 0.85, 0.2),
-			colors.Prop,
-			"Metal",
-			"Arm"
-		)
-		Build.box(
-			chair,
-			Vector3.new(0.16, 0.75, 0.16),
-			base * CFrame.new(x * 1.25, h + 0.375, 0.85),
-			Color3.fromRGB(40, 40, 42),
-			"Metal",
-			"Post"
-		)
-		Build.box(
-			chair,
-			Vector3.new(0.34, 0.24, 0.3),
-			base * CFrame.new(x * 1.25, h + 0.87, -0.15),
+			Vector3.new(0.22, 2.6, 0.08),
+			base * CFrame.new(x * 0.55, h + 1.7, 1.24) * CFrame.Angles(math.rad(-6), 0, 0),
 			Color3.fromRGB(28, 28, 30),
 			"Leather",
 			"Strap"
@@ -205,7 +191,7 @@ local function buildChair(parent: Instance, origin: CFrame, seat: number, colors
 	-- Harness cable from the chair back toward the table leg.
 	PropKit.pipe(
 		chair,
-		(base * CFrame.new(0.9, 0.5, 1.2)).Position,
+		(base * CFrame.new(0.7, 0.5, 1.2)).Position,
 		(origin * CFrame.new(TableLayout.direction(seat) * 3.6 + Vector3.new(0.6, 0.2, 0))).Position,
 		0.12,
 		Color3.fromRGB(35, 35, 38)

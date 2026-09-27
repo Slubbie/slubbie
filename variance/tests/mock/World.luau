@@ -441,10 +441,14 @@ function World:installBehaviour()
 		},
 	}
 
+	world.MouseButtons = {} -- [UserInputType name] = held (tests set it)
 	special.UserInputService = {
 		methods = {
 			GetLastInputType = function()
 				return Enum.UserInputType.MouseMovement
+			end,
+			IsMouseButtonPressed = function(_, inputType)
+				return world.MouseButtons[inputType.Name] == true
 			end,
 			GetMouseLocation = function()
 				return Types.Vector2.new(640, 360)

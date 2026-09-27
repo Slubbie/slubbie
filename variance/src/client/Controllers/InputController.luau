@@ -164,9 +164,19 @@ function InputController:Start()
 			InputController.Action:Fire(GAMEPAD[input.KeyCode], "End")
 		end
 	end)
+	-- A release that happens outside the window never arrives.
+	UserInputService.WindowFocusReleased:Connect(function()
+		rmbDown = false
+		touchLook = nil
+		rightStick = Vector2.zero
+	end)
 	UserInputService.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement and rmbDown then
-			lookDelta += Vector2.new(input.Delta.X, input.Delta.Y)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			if rmbDown and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+				lookDelta += Vector2.new(input.Delta.X, input.Delta.Y)
+			else
+				rmbDown = false
+			end
 		elseif input.KeyCode == Enum.KeyCode.Thumbstick2 then
 			rightStick = Vector2.new(input.Position.X, input.Position.Y)
 		elseif input == touchLook then

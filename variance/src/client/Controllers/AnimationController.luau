@@ -89,6 +89,28 @@ local function swing(u: Vector3): CFrame
 	return CFrame.fromAxisAngle(axis / s, math.atan2(s, c))
 end
 
+-- The shortest arc also rolls the arm about its own length, tilting its
+-- square cross-section so a corner dips into whatever it rests on. Once the
+-- arm is raised, turn it about its length so its side axis stays level.
+local UP = Vector3.new(0, 1, 0)
+local function untwist(pose: CFrame): CFrame
+	local y = pose.YVector
+	local flat = UP:Cross(y)
+	local m = flat.Magnitude
+	if m < 0.2 then
+		return pose
+	end
+	local level = flat / m
+	local x = pose.XVector
+	if level:Dot(x) < 0 then
+		level = -level
+	end
+	local w = math.clamp((m - 0.2) / 0.4, 0, 1)
+	x = x:Lerp(level, w)
+	x = (x - y * x:Dot(y)).Unit
+	return CFrame.fromMatrix(Vector3.zero, x, y)
+end
+
 -- Arm pose whose hand points at `q` (torso space). Returns (pose, distance).
 local function reach(side: string, q: Vector3): (CFrame, number)
 	local s = PIVOT[side]
@@ -102,11 +124,11 @@ local function reach(side: string, q: Vector3): (CFrame, number)
 	-- The hand sits beside the arm's centre line; iterate so the hand, not the
 	-- centre line, lands on the ray.
 	local u = dir
-	local pose = swing(u)
+	local pose = untwist(swing(u))
 	for _ = 1, 3 do
 		local lateral = pose:VectorToWorldSpace(Vector3.new(offset.X, 0, 0))
 		u = (dir * ARM_REACH - lateral).Unit
-		pose = swing(u)
+		pose = untwist(swing(u))
 	end
 	return pose, dist
 end
@@ -528,27 +550,36 @@ end
 -- Arrival: walking in and sitting down
 ---------------------------------------------------------------------------
 -- Every chair starts pulled out (TableLayout.ChairPull). The subject walks in
--- beside it, turns to the table, side-steps into the gap between the chair
--- and the table edge, sits back onto the chair, then scoots in with it. All
--- of it is in root space (the root is anchored at the final seated torso), so
--- the pose ends exactly on the seated base pose. Times at speed 1.
+-- along a lane clear of the table and the chair, turns to the table, steps
+-- into the gap in front of the chair, perches on the front of the seat with
+-- the legs swinging up, slides back, then scoots in with the chair. Rigid R6
+-- legs are two studs long, so every stage keeps them clear of the pan and the
+-- underside of the table (tools/render/overlap.py checks it frame by frame).
+-- All of it is in root space (the root is anchored at the final seated
+-- torso), so the pose ends exactly on the seated base pose. Times at speed 1.
 
 local ARRIVE = {
-	WalkEnd = 1.0, -- walk along the table edge, facing along it
+	WalkEnd = 1.0, -- walk along the lane, facing along it
 	TurnEnd = 1.3, -- turn to face the table
-	StepEnd = 2.05, -- side-step in front of the chair
-	SitEnd = 2.95, -- sit back onto the pulled-out chair
-	ScootEnd = 3.65, -- pull the chair in
+	ForwardEnd = 1.6, -- one step forward, off the lane (clear of the chair)
+	StepEnd = 2.2, -- side-step in front of the chair
+	PerchEnd = 2.65, -- hips onto the front edge, legs swinging up
+	SitEnd = 3.1, -- slide back into the chair
+	ScootEnd = 3.85, -- pull the chair in
 }
 AnimationController.ArriveDuration = ARRIVE.ScootEnd
-local WALK_FROM, STEP_FROM, WALK_LANE = 4.3, 2.1, 0.4
+-- Seat-space distances (+Z is away from the table). The lane keeps a body
+-- walking sideways (four studs wide with its arms) off the table edge.
+local WALK_FROM, WALK_TO, WALK_LANE = 4.6, 2.3, 1.5
+local STAND_Z = TableLayout.PanFront + TableLayout.ChairPull - 0.55 -- torso just in front of the pan
+local PERCH_Z = TableLayout.PanFront + TableLayout.ChairPull + 0.02 -- hips over its front edge
 
 local function walkLegs(P, phase: number, amount: number)
 	local s = math.sin(phase) * amount
-	P.RLeg = R(0.55 * s)
-	P.LLeg = R(-0.55 * s)
-	P.RArm = R(-0.42 * s + 0.06, 0, 0.08)
-	P.LArm = R(0.42 * s + 0.06, 0, -0.08)
+	P.RLeg = R(0.5 * s)
+	P.LLeg = R(-0.5 * s)
+	P.RArm = R(-0.35 * s + 0.06, 0, 0.06)
+	P.LArm = R(0.35 * s + 0.06, 0, -0.06)
 end
 
 -- Pose while arriving (nil when finished). Returns (P, lean, chairPull).
@@ -565,69 +596,90 @@ local function arrivalPose(rig: Rig, now: number): ({ [string]: CFrame }?, numbe
 	local chair = pull
 	P.Neck = R(-0.04)
 	if t < ARRIVE.WalkEnd then
-		-- Walk in along the lane beside the chair, facing the direction of travel.
+		-- Walk in along the lane, facing the direction of travel.
 		local k = smooth(t / ARRIVE.WalkEnd * 0.85 + 0.15) -- already moving at t = 0
-		x = side * lerp(WALK_FROM, STEP_FROM, k)
+		x = side * lerp(WALK_FROM, WALK_TO, k)
 		z = WALK_LANE
 		yaw = side * math.pi / 2
 		local travelled = math.abs(x - side * WALK_FROM)
-		local phase = travelled / 1.1 * math.pi
+		local phase = travelled / 1.0 * math.pi
 		local amount = 1 - span(t, ARRIVE.WalkEnd - 0.25, ARRIVE.WalkEnd)
 		walkLegs(P, phase, amount)
-		bob = math.abs(math.sin(phase)) * 0.07 * amount
+		bob = math.abs(math.sin(phase)) * 0.06 * amount
 	elseif t < ARRIVE.TurnEnd then
-		-- Turn to face the table while stepping off the lane.
+		-- Turn to face the table.
 		local k = smooth(span(t, ARRIVE.WalkEnd, ARRIVE.TurnEnd))
-		x = side * STEP_FROM
-		z = WALK_LANE * (1 - k)
+		x = side * WALK_TO
+		z = WALK_LANE
 		yaw = side * math.pi / 2 * (1 - k)
 		local step = math.sin(k * math.pi)
-		P.RLeg = R(0.18 * step)
-		P.LLeg = R(-0.12 * step)
-		P.RArm = R(0.06, 0, 0.08)
-		P.LArm = R(0.06, 0, -0.08)
+		P.RLeg = R(0.16 * step)
+		P.LLeg = R(-0.1 * step)
+		P.RArm = R(0.06, 0, 0.06)
+		P.LArm = R(0.06, 0, -0.06)
+	elseif t < ARRIVE.ForwardEnd then
+		-- A step forward off the lane, still beside the chair.
+		local k = span(t, ARRIVE.TurnEnd, ARRIVE.ForwardEnd)
+		x = side * WALK_TO
+		z = lerp(WALK_LANE, STAND_Z, smooth(k))
+		local step = math.sin(k * math.pi)
+		P.RLeg = R(0.3 * step)
+		P.LLeg = R(-0.2 * step)
+		P.RArm = R(-0.12 * step + 0.06, 0, 0.06)
+		P.LArm = R(0.12 * step + 0.06, 0, -0.06)
+		bob = 0.03 * step
 	elseif t < ARRIVE.StepEnd then
-		-- Two side-steps into the gap between the chair and the table.
-		local k = span(t, ARRIVE.TurnEnd, ARRIVE.StepEnd)
-		x = side * STEP_FROM * (1 - smooth(k))
+		-- Two side-steps into the gap in front of the chair.
+		local k = span(t, ARRIVE.ForwardEnd, ARRIVE.StepEnd)
+		local e = smooth(k)
+		x = side * WALK_TO * (1 - e)
+		z = STAND_Z
 		local stepPhase = k * 2 * math.pi
-		local open = math.max(0, math.sin(stepPhase)) * 0.3
-		-- The leading leg (toward the chair) opens, then the trailing one follows.
+		local open = math.max(0, math.sin(stepPhase)) * 0.28
 		local lead = if side > 0 then "LLeg" else "RLeg"
 		local trail = if side > 0 then "RLeg" else "LLeg"
-		P[lead] = R(0, 0, -side * open)
-		P[trail] = R(0, 0, side * math.max(0, -math.sin(stepPhase)) * 0.18)
+		P[lead] = R(-0.1 * open, 0, -side * open)
+		P[trail] = R(0, 0, side * math.max(0, -math.sin(stepPhase)) * 0.16)
 		bob = math.abs(math.sin(stepPhase)) * 0.04
-		P.RArm = R(0.08, 0, 0.1 + 0.06 * math.sin(stepPhase))
-		P.LArm = R(0.08, 0, -0.1 - 0.06 * math.sin(stepPhase))
+		P.RArm = R(0.08, 0, 0.06 + 0.04 * math.sin(stepPhase))
+		P.LArm = R(0.08, 0, -0.06 - 0.04 * math.sin(stepPhase))
 		P.Neck = R(-0.12)
-	elseif t < ARRIVE.SitEnd then
-		-- Sit back: hips travel onto the pulled-out chair while the thighs swing
-		-- up, the body leaning forward to balance, hands reaching for the armrests.
-		local k = span(t, ARRIVE.StepEnd, ARRIVE.SitEnd)
+	elseif t < ARRIVE.PerchEnd then
+		-- Hips back onto the front edge of the seat while the legs swing up in
+		-- front of it; the body leans forward to balance, arms forward.
+		local k = span(t, ARRIVE.StepEnd, ARRIVE.PerchEnd)
 		local e = smooth(k)
-		z = pull * e
-		local legs = smooth(span(k, 0.1, 0.9))
-		lean = -0.32 * math.sin(e * math.pi) + -0.06 * e
-		bob = -0.12 * math.sin(e * math.pi)
+		-- The legs come up before the hips reach the seat's edge.
+		z = lerp(STAND_Z, PERCH_Z, smooth(span(k, 0.2, 1)))
+		local legs = smooth(span(k, 0, 0.6))
+		lean = -0.3 * math.sin(math.min(1, k * 1.25) * math.pi * 0.5)
+		bob = -0.05 * math.sin(k * math.pi)
 		P.RLeg = R((LEG_ANGLE - lean) * legs, 0, 0.07 * legs)
 		P.LLeg = R((LEG_ANGLE - lean) * legs, 0, -0.07 * legs)
-		local reach = math.sin(e * math.pi)
-		P.RArm = R(-0.35 * reach + 0.9 * legs * legs, 0, 0.18 * reach)
-		P.LArm = R(-0.35 * reach + 0.9 * legs * legs, 0, -0.18 * reach)
-		P.Neck = R(-0.18 + 0.14 * e)
+		P.RArm = R(0.3 + 0.35 * e, 0, 0.1)
+		P.LArm = R(0.3 + 0.35 * e, 0, -0.1)
+		P.Neck = R(-0.16)
+	elseif t < ARRIVE.SitEnd then
+		-- Slide back into the chair, settling upright.
+		local k = span(t, ARRIVE.PerchEnd, ARRIVE.SitEnd)
+		local e = smooth(k)
+		z = lerp(PERCH_Z, pull, e)
+		lean = lerp(-0.3, -0.06, e)
+		P.RLeg = R(LEG_ANGLE - lean, 0, 0.07)
+		P.LLeg = R(LEG_ANGLE - lean, 0, -0.07)
+		P.RArm = R(0.65 - 0.2 * e, 0, 0.1)
+		P.LArm = R(0.65 - 0.2 * e, 0, -0.1)
+		P.Neck = R(-0.16 + 0.12 * e)
 	else
-		-- Scoot in: the chair and the subject slide to the table together.
+		-- Scoot in: the chair and the subject slide to the table together; the
+		-- hands come to rest on it (the table rest pose, filled in later).
 		local k = span(t, ARRIVE.SitEnd, ARRIVE.ScootEnd)
 		local e = smooth(k)
 		z = pull * (1 - e)
 		chair = z
-		lean = -0.06 - 0.1 * math.sin(k * math.pi)
+		lean = -0.06 - 0.08 * math.sin(k * math.pi)
 		P.RLeg = R(LEG_ANGLE - lean, 0, 0.07)
 		P.LLeg = R(LEG_ANGLE - lean, 0, -0.07)
-		-- Hands take the table edge as it arrives.
-		P.RArm = R(0.9 + 0.35 * e, 0, -0.05)
-		P.LArm = R(0.9 + 0.35 * e, 0, 0.05)
 		P.Neck = R(-0.04 - 0.05 * math.sin(k * math.pi))
 	end
 	P.Root = CFrame.new(x, bob, z) * Angles(0, yaw, 0) * hip(lean)
@@ -1023,8 +1075,10 @@ local function evaluate(rig: Rig, now: number, dt: number): { [string]: CFrame }
 
 	-- Hands resting on the table in front of a seated subject.
 	if rig.Kind == "Seated" and P.RArm == nil then
-		local right = seatSpace(rig, Vector3.new(0.78, TableLayout.TableTop + 0.08, -1.35))
-		local left = seatSpace(rig, Vector3.new(-0.78, TableLayout.TableTop + 0.08, -1.35))
+		-- (the hand point is on the arm's centre line: the forearm lies just
+		-- above the tabletop and the tray)
+		local right = seatSpace(rig, Vector3.new(0.78, TableLayout.TableTop + 0.68, -1.35))
+		local left = seatSpace(rig, Vector3.new(-0.78, TableLayout.TableTop + 0.68, -1.35))
 		if right and left then
 			P.RArm = reach("RArm", toTorso(rig, P.Root, right))
 			P.LArm = reach("LArm", toTorso(rig, P.Root, left))
@@ -1036,7 +1090,7 @@ local function evaluate(rig: Rig, now: number, dt: number): { [string]: CFrame }
 
 	-- Clamped: wrists together on the table.
 	if W.Clamped > 0.01 and rig.Kind == "Seated" and not arriving then
-		local centre = seatSpace(rig, Vector3.new(0, TableLayout.TableTop + 0.12, -1.55))
+		local centre = seatSpace(rig, Vector3.new(0, TableLayout.TableTop + 0.7, -1.45))
 		if centre then
 			local q = toTorso(rig, P.Root, centre)
 			P.RArm = P.RArm:Lerp(reach("RArm", q + Vector3.new(0.3, 0, 0)), W.Clamped)
@@ -1168,6 +1222,13 @@ local function evaluate(rig: Rig, now: number, dt: number): { [string]: CFrame }
 end
 
 local function step(rig: Rig, dt: number, now: number)
+	-- A body that jumped (moved to its seat) takes its new pose at once
+	-- instead of easing across the room from where it was.
+	local rootPos = rig.Root.Position
+	if rig.LastRoot and (rootPos - rig.LastRoot).Magnitude > 4 then
+		rig.Snap = true
+	end
+	rig.LastRoot = rootPos
 	local P = evaluate(rig, now, dt)
 	local rate = if rig.Snap then 1 else 1 - math.exp(-16 * dt)
 	rig.Snap = false

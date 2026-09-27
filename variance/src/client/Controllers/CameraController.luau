@@ -277,16 +277,23 @@ end
 -- Frame
 ---------------------------------------------------------------------------
 
+-- The seat view rides on your own head (breathing, leaning, recoil) but never
+-- strays more than EYE_SLACK studs from where a seated head belongs, so the
+-- camera can't end up inside the chair or under the table whatever the body
+-- is doing.
+local EYE_SLACK = 0.9
 local function seatEye(): CFrame
 	local info = seatInfo :: { Origin: CFrame, Seat: number }
 	local anim = CameraController.Controllers.AnimationController
 	local rig = anim:rigFor(Players.LocalPlayer.Character)
 	local facing = info.Origin * TableLayout.seatCFrame(info.Seat)
-	local eyePos
+	local eyePos = (info.Origin * TableLayout.eyeCFrame(info.Seat)).Position
 	if rig and rig.Head then
-		eyePos = (rig.Head * CFrame.new(0, 0.12, -0.3)).Position
-	else
-		eyePos = (info.Origin * TableLayout.eyeCFrame(info.Seat)).Position
+		local offset = (rig.Head * CFrame.new(0, 0.12, -0.3)).Position - eyePos
+		if offset.Magnitude > EYE_SLACK then
+			offset = offset.Unit * EYE_SLACK
+		end
+		eyePos += offset
 	end
 	return CFrame.new(eyePos) * facing.Rotation
 end
@@ -413,8 +420,9 @@ local function frame(dt: number)
 		local k = 1 - math.exp(-3 * dt)
 		focusYaw += (fy - focusYaw) * k
 		focusPitch += (fp - focusPitch) * k
-		local finalYaw = yaw + focusYaw + kickYaw
-		local finalPitch = pitch + focusPitch + kickPitch - slump * 0.55
+		local finalYaw = math.clamp(yaw + focusYaw + kickYaw, -1.45, 1.45)
+		-- Never aimed into your lap or under the table.
+		local finalPitch = math.clamp(pitch + focusPitch + kickPitch - slump * 0.55, -1.0, 0.65)
 		local cf = eye
 			* CFrame.Angles(0, finalYaw, 0)
 			* CFrame.Angles(finalPitch, 0, slump * 0.25)

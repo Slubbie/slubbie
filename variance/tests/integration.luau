@@ -785,6 +785,44 @@ waitFor(function()
 	return inMatch(adaCtx)
 end, 20)
 Scheduler.run(10)
+-- The seat view: above the table, and mouse look only while the right
+-- button is really held (a release lost outside the window can't leave the
+-- view dragging after the mouse).
+local tableTop = world:require(adaCtx, services.ReplicatedStorage.Variance.Visual.TableLayout).TableTop
+local cam = adaCtx.Camera
+check("seat camera sits above the table", cam.CFrame.Position.Y > tableTop + 1.2, tostring(cam.CFrame.Position.Y))
+local uis = services.UserInputService
+local function mouse(kind: string, inputType: string, dx: number?, dy: number?)
+	local input = {
+		UserInputType = World.Enum.UserInputType[inputType],
+		KeyCode = World.Enum.KeyCode.Unknown,
+		Position = World.Types.Vector3.zero,
+		Delta = World.Types.Vector3.new(dx or 0, dy or 0, 0),
+	}
+	Scheduler.spawnIn(adaCtx, function()
+		Instances.fire(uis, kind, input, false)
+	end)
+end
+local cameraCtl = ctl(adaCtx, "CameraController")
+local yaw0 = cameraCtl:look()
+world.MouseButtons.MouseButton2 = true
+mouse("InputBegan", "MouseButton2")
+for _ = 1, 5 do
+	mouse("InputChanged", "MouseMovement", 30, 60)
+	Scheduler.run(0.05)
+end
+local yaw1, pitch1 = cameraCtl:look()
+check("right-drag turns the head", math.abs(yaw1 - yaw0) > 0.3)
+world.MouseButtons.MouseButton2 = false -- released outside the window: no InputEnded
+for _ = 1, 5 do
+	mouse("InputChanged", "MouseMovement", 30, 400)
+	Scheduler.run(0.05)
+end
+local yaw2, pitch2 = cameraCtl:look()
+check("a lost release doesn't leave the view dragging", yaw2 == yaw1 and pitch2 == pitch1)
+Scheduler.run(0.5)
+local look = cam.CFrame.LookVector
+check("the view never points into your lap", math.asin(look.Y) > -1.05, tostring(math.asin(look.Y)))
 local okEmote, whyEmote = request(adaCtx, "Match.Emote", "emote_nod")
 check("table emote accepted", okEmote == true, tostring(whyEmote))
 Scheduler.run(2)

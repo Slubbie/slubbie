@@ -42,7 +42,7 @@ source tree (emulating `require(script.Parent.X)`).
 ## Integration test (real server + real clients)
 
 ```
-luaurun tests/integration.luau             # ~3 minutes, 107 checks
+luaurun tests/integration.luau             # ~3 minutes, 111 checks
 luaurun tests/integration.luau verbose     # also echo game prints
 luaurun tests/integration.luau immediate   # Immediate signal behaviour
 ```
@@ -109,6 +109,17 @@ luaurun tests/snapshot.luau turn out/phone FireOther 1 --phone   # 844 x 390 tou
 node tools/render/render.mjs out/seat                # one PNG per frame
 node tools/render/render.mjs out/seat --sheet seat.png --cols 4 --tile 400
 node tools/render/render.mjs out/seat --no-gui --bright --camera 3011,3.4,5.3:3000,2.6,4.6:45
+```
+
+`tools/render/overlap.py` checks the same frames for bodies sinking into
+furniture: every limb of a rig against the chair and table parts (an
+oriented-box separating-axis test), frame by frame. The walk-in, the
+sit-down and the seated pose are kept at zero penetration with it:
+
+```
+luaurun tests/snapshot.luau seat out/seat 0.05 5.6
+python3 tools/render/overlap.py out/seat --rig Ada        # your character
+python3 tools/render/overlap.py out/seat --rig Puppet_2   # the surrogate
 ```
 
 `--camera x,y,z:ax,ay,az[:fov]` renders from a free camera instead of the

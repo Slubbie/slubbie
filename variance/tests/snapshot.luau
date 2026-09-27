@@ -239,8 +239,10 @@ local function captureScene(ctx)
 				if d.ClassName == "Part" or d.ClassName == "SpawnLocation" or d.ClassName == "Seat" then
 					shape = tostring(prop(d, "Shape") or "Block"):match("[^%.]+$")
 				end
+				local owner = d:FindFirstAncestorOfClass("Model")
 				table.insert(parts, {
 					N = d.Name,
+					Mdl = owner and owner.Name or "",
 					K = shape,
 					CF = cfArray(worldCF(d)),
 					S = { size.X, size.Y, size.Z },

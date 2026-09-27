@@ -623,9 +623,12 @@ function WeaponController:preStep(_dt: number)
 			local brace = nil
 			if h.Reverse then
 				if rig.Origin and rig.Seat then
-					-- The free hand grips the left armrest.
-					local base = rig.Origin * TableLayout.chairCFrame(rig.Seat)
-					brace = (base * CFrame.new(-1.25, TableLayout.SeatHeight + 1.05, -0.1)).Position
+					-- The free hand braces on the table edge.
+					brace = (rig.Origin * TableLayout.seatCFrame(rig.Seat) * CFrame.new(
+						-0.9,
+						TableLayout.TableTop + 0.53,
+						-1.0
+					)).Position
 				end
 			else
 				support = (current * CHAMBER).Position

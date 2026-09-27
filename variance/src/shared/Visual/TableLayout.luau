@@ -15,9 +15,13 @@ TableLayout.SeatDistance = 5.35 -- table centre to the seated subject's root
 TableLayout.SeatHeight = 1.5 -- chair seat surface
 TableLayout.TorsoHeight = TableLayout.SeatHeight + 1.55 -- seated torso centre
 -- The chair's pivot sits behind the seat point so its back meets the torso.
-TableLayout.ChairOffset = -0.38
--- How far a chair starts pulled out before its subject sits (client-side).
-TableLayout.ChairPull = 1.9
+TableLayout.ChairOffset = -0.3
+-- How far a chair starts pulled out before its subject sits (client-side):
+-- far enough that rigid R6 legs can swing up in front of the pan without
+-- touching it or the underside of the table.
+TableLayout.ChairPull = 2.9
+-- Front edge of the chair pan, relative to the seat point (chair pushed in).
+TableLayout.PanFront = TableLayout.ChairOffset - 1.05
 TableLayout.TrayDistance = 3.1 -- table centre to the tray row
 TableLayout.SlotSpacing = 0.82
 
