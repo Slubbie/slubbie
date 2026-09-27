@@ -145,6 +145,27 @@ function Stats.ShopDiscount(profile: any, shopId: string, itemDef: any?): number
 	return math.clamp(discount, 0, 0.6)
 end
 
+-- Has this villager arrived in town for this player? (NPC Unlock conditions)
+function Stats.NpcUnlocked(profile: any, npc: any): boolean
+	local unlock = npc.Unlock
+	if not unlock then
+		return true
+	end
+	if profile.Unlocks and profile.Unlocks["Npc_" .. npc.Id] then
+		return true
+	end
+	if unlock.Quest and profile.Quests and profile.Quests.Done[unlock.Quest] then
+		return true
+	end
+	if unlock.Region and profile.Regions and profile.Regions[unlock.Region] then
+		return true
+	end
+	if unlock.EstateLevel and Stats.EstateLevel(profile) >= unlock.EstateLevel then
+		return true
+	end
+	return false
+end
+
 function Stats.HasPerk(profile: any, key: string): boolean
 	for _, effect in Stats.Perks(profile) do
 		if effect[key] then

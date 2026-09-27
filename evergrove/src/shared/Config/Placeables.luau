@@ -348,4 +348,5 @@ return {
 	-- Sell-back refund when removing a purchased placeable.
 	Refund = 1,
 	GridSnap = { 0.5, 1, 2, 4 }, -- stud options for free placement
+	LayoutSlots = 3, -- saved decoration layouts per farm
 }

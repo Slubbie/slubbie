@@ -77,6 +77,7 @@ local List: { Shop } = {
 			{ Id = "gold_ore", Price = 110, Level = 8 },
 			{ Id = "furnace", Price = 2500 },
 			{ Id = "copper_bar", Price = 250, Level = 5 },
+			{ Id = "tool_pruners", Price = 800, Level = 3 },
 		},
 	},
 	{
