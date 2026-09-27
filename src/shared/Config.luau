@@ -229,11 +229,12 @@ Config.Music = {
 	-- Generative soundtrack voices (built-in engine sounds, pitched).
 	Tone = "rbxasset://sounds/electronicpingshort.wav",
 	Kick = "rbxasset://sounds/action_jump_land.mp3",
+	Snare = "rbxasset://sounds/action_jump.mp3",
 	Hat = "rbxasset://sounds/swoosh.wav",
-	-- Semitone offset of the whole song, beats per minute, and extra BPM at full speed.
+	-- Semitone offset of the whole song, and extra BPM at full speed.
+	-- Base tempo depends on the time of day (see client/Music).
 	Key = 0,
-	BaseTempo = 78,
-	TempoBoost = 42,
+	TempoBoost = 30,
 }
 
 Config.RespawnTime = 2
@@ -306,8 +307,96 @@ Config.Quests = {
 	},
 }
 
--- Emotes (keys 1-4). Names match R6Animator poses.
-Config.Emotes = { "Wave", "Dance", "Flex", "Sit" }
+-- Emotes, in emote-wheel order. Keys 1-9 and 0 play the first ten.
+-- Animations live in client/EmoteLibrary.
+Config.Emotes =
+	{ "Wave", "Groove", "Floss", "Cheer", "Clap", "Salute", "Bow", "Laugh", "Flex", "Spin", "Sit", "Pushups" }
+
+-- Achievements. Stats are lifetime totals (or bests for Best = true).
+Config.Achievements = {
+	{
+		Id = "first_swing",
+		Name = "First Swing",
+		Desc = "Grapple for the first time",
+		Stat = "Grapple",
+		Goal = 1,
+		Reward = 10,
+	},
+	{ Id = "hooked", Name = "Hooked", Desc = "Grapple 500 times", Stat = "Grapple", Goal = 500, Reward = 100 },
+	{
+		Id = "wall_walker",
+		Name = "Wall Walker",
+		Desc = "Wall jump 100 times",
+		Stat = "WallJump",
+		Goal = 100,
+		Reward = 60,
+	},
+	{ Id = "dasher", Name = "Blink", Desc = "Air dash 250 times", Stat = "Dash", Goal = 250, Reward = 60 },
+	{ Id = "slinger", Name = "Slingshot Pro", Desc = "Slingshot 50 times", Stat = "Slingshot", Goal = 50, Reward = 80 },
+	{
+		Id = "speed_demon",
+		Name = "Speed Demon",
+		Desc = "Reach 150 speed",
+		Stat = "TopSpeed",
+		Goal = 150,
+		Reward = 80,
+		Best = true,
+	},
+	{
+		Id = "combo_king",
+		Name = "Combo King",
+		Desc = "Bank a 50 style combo",
+		Stat = "ComboScore",
+		Goal = 50,
+		Reward = 120,
+		Best = true,
+	},
+	{ Id = "collector", Name = "Collector", Desc = "Collect 500 shards", Stat = "Shard", Goal = 500, Reward = 100 },
+	{
+		Id = "trial_rookie",
+		Name = "On The Clock",
+		Desc = "Finish a time trial",
+		Stat = "TrialFinish",
+		Goal = 1,
+		Reward = 25,
+	},
+	{
+		Id = "trial_master",
+		Name = "Trial Master",
+		Desc = "Finish 25 time trials",
+		Stat = "TrialFinish",
+		Goal = 25,
+		Reward = 150,
+	},
+	{
+		Id = "explorer",
+		Name = "Explorer",
+		Desc = "Visit all three landmarks",
+		Stat = "Landmarks",
+		Goal = 3,
+		Reward = 100,
+		Best = true,
+	},
+	{ Id = "dancer", Name = "Showoff", Desc = "Emote 50 times", Stat = "Emote", Goal = 50, Reward = 40 },
+	{
+		Id = "level_10",
+		Name = "Skyrunner",
+		Desc = "Reach level 10",
+		Stat = "Level",
+		Goal = 10,
+		Reward = 100,
+		Best = true,
+	},
+	{
+		Id = "level_25",
+		Name = "Stormchaser",
+		Desc = "Reach level 25",
+		Stat = "Level",
+		Goal = 25,
+		Reward = 250,
+		Best = true,
+	},
+}
 
 -- Player settings and their defaults. Saved per player.
 Config.Settings = {

@@ -1031,6 +1031,9 @@ end
 
 -- Build ------------------------------------------------------------------------------
 
+-- Landmark names and positions, for the Explorer achievement.
+WorldBuilder.Landmarks = LANDMARKS
+
 function WorldBuilder.Build()
 	setupAtmosphere()
 

@@ -36,6 +36,11 @@ Every number is in `src/shared/Config.luau`.
 - **Saving**: shards, owned colours, and best times.
 - **Title screen**: orbiting camera, PLAY / TIME TRIALS / SHOP / SETTINGS.
 - **Controls**: Ctrl dashes, C slides.
+- **Head movement**: heads look where you aim, at grapple targets, at nearby players (and at the camera if it's in front of you), and along your path while flying. It eases in ahead of the body and is shared with other players.
+- **Emotes**: 12 keyframed emotes (Wave, Groove, Floss, Cheer, Clap, Salute, Bow, Laugh, Flex, Spin, Sit, Push-ups) with sounds and particles (music notes, confetti, sparkles), picked from an emote wheel (G) or keys 1–9/0.
+- **Music v2**: song sections (intro/verse/chorus/break), pad chords, bass, arpeggios, a repeating melody motif, drums, a reverb/echo/chorus/EQ mixing chain, a mood per time of day, a swell with speed and combos, and muffling in menus.
+- **Achievements**: 14 with shard rewards, unlock cards, landmark discovery and a menu tab with progress.
+- **Photo mode** (P).
 - **Bigger world**: ~90 islands across 4000 studs, plus three landmark islands (Sky Temple, Frost Peak, Crystal Garden), each with a sky beacon visible from anywhere.
 - **Music**: a generative pentatonic soundtrack built from pitched engine sounds (bass, arpeggios, melody, drums at speed, minor key at night), or a crossfading playlist of Creator Store tracks set in `Config.Music`.
 - **Levels & XP**: earned from tricks, shards, combos, trials and quests. Level-ups grant shards and new titles (Drifter → Sky Legend), shown on nametags above every player.

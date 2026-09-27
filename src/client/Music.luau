@@ -1,10 +1,15 @@
 -- Soundtrack.
 --
 -- If Config.Music.Playlist has track IDs, those play shuffled with crossfades.
--- Otherwise a generative score is composed live from pitched built-in sounds:
--- a bassline, chord arpeggios and sparkling melody notes on a pentatonic scale
--- (so nothing ever clashes). It speeds up and adds drums the faster you move,
--- calms down in menus, and turns minor and moody at night.
+-- Otherwise a generative score is composed live from pitched built-in sounds,
+-- run through a small mixing chain (reverb, tempo-synced echo, chorus, EQ):
+--
+--   * Song structure: Intro → Verse → Chorus → Verse → Chorus → Break, 8 bars each.
+--   * Layers: sustained pad chords, a bassline, arpeggios, a melody built from a
+--     repeating 2-bar motif, and drums that come in with the chorus and with speed.
+--   * Each time of day has its own mood (key, scale, tempo, chord progressions);
+--     night is minor and slow.
+--   * It builds with your speed and your combo, and goes muffled in menus.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -17,7 +22,9 @@ local Settings = require(script.Parent.Settings)
 local UI = require(script.Parent.UI)
 
 local MUSIC = Config.Music
-local POOL_SIZE = 24
+local POOL_SIZE = 32
+local STEPS_PER_BAR = 8 -- eighth notes
+local BARS_PER_SECTION = 8
 
 local Music = {}
 
@@ -76,10 +83,65 @@ end
 
 local MAJOR = { 0, 2, 4, 7, 9 }
 local MINOR = { 0, 3, 5, 7, 10 }
-local DAY_CHORDS = { 0, -3, 5, 7 } -- I  vi  IV  V
-local NIGHT_CHORDS = { 0, -4, -2, 5 } -- i  VI  VII  iv
+
+type Mood = { Scale: { number }, Minor: boolean, Key: number, Tempo: number, Progressions: { { number } } }
+
+local MOODS: { [string]: Mood } = {
+	Sunrise = { Scale = MAJOR, Minor = false, Key = 2, Tempo = 72, Progressions = { { 0, 7, -3, 5 }, { 5, 0, 7, -3 } } },
+	["Golden Hour"] = {
+		Scale = MAJOR,
+		Minor = false,
+		Key = 0,
+		Tempo = 80,
+		Progressions = { { 0, -3, 5, 7 }, { -3, 5, 0, 7 } },
+	},
+	Sunset = { Scale = MAJOR, Minor = false, Key = -2, Tempo = 74, Progressions = { { -3, 5, 0, 7 }, { 5, 7, -3, 0 } } },
+	Night = { Scale = MINOR, Minor = true, Key = -3, Tempo = 66, Progressions = { { 0, -4, 3, -2 }, { -4, -2, 0, 0 } } },
+}
+
+-- Section plan: which layers play in each part of the song.
+local SECTIONS = {
+	{ Name = "Intro", Arp = 0, Melody = 0.25, Drums = 0, Progression = 1 },
+	{ Name = "Verse", Arp = 1, Melody = 0.45, Drums = 0.3, Progression = 1 },
+	{ Name = "Chorus", Arp = 2, Melody = 0.65, Drums = 1, Progression = 2 },
+	{ Name = "Verse", Arp = 1, Melody = 0.45, Drums = 0.3, Progression = 1 },
+	{ Name = "Chorus", Arp = 2, Melody = 0.7, Drums = 1, Progression = 2 },
+	{ Name = "Break", Arp = 0, Melody = 0.15, Drums = 0, Progression = 2 },
+}
+
+local function addEffects(): EqualizerSoundEffect
+	local reverb = Instance.new("ReverbSoundEffect")
+	reverb.DecayTime = 3
+	reverb.Density = 1
+	reverb.Diffusion = 1
+	reverb.DryLevel = -2
+	reverb.WetLevel = -7
+	reverb.Priority = 1
+	reverb.Parent = group
+	local chorus = Instance.new("ChorusSoundEffect")
+	chorus.Depth = 0.25
+	chorus.Mix = 0.35
+	chorus.Rate = 0.6
+	chorus.Priority = 3
+	chorus.Parent = group
+	local eq = Instance.new("EqualizerSoundEffect")
+	eq.LowGain = 2
+	eq.MidGain = 0
+	eq.HighGain = 0
+	eq.Priority = 0
+	eq.Parent = group
+	return eq
+end
 
 local function playGenerative(Movement)
+	local eq = addEffects()
+	local echo = Instance.new("EchoSoundEffect")
+	echo.Feedback = 0.3
+	echo.DryLevel = 0
+	echo.WetLevel = -14
+	echo.Priority = 2
+	echo.Parent = group
+
 	local pool: { Sound } = {}
 	local nextVoice = 1
 	for i = 1, POOL_SIZE do
@@ -89,71 +151,144 @@ local function playGenerative(Movement)
 		pool[i] = sound
 	end
 
+	local rng = Random.new()
 	local function note(soundId: string, semitones: number, volume: number)
 		local voice = pool[nextVoice]
 		nextVoice = nextVoice % POOL_SIZE + 1
 		voice:Stop()
 		voice.SoundId = soundId
-		voice.PlaybackSpeed = 2 ^ (semitones / 12)
-		voice.Volume = volume
+		voice.PlaybackSpeed = 2 ^ (math.clamp(semitones, -30, 30) / 12)
+		-- Slight humanised dynamics.
+		voice.Volume = volume * rng:NextNumber(0.88, 1.08)
 		voice:Play()
 	end
 
-	local rng = Random.new()
-	local key = MUSIC.Key
-	local step = 0
-	local bar = 0
+	local mood = MOODS[Settings.Get("TimeOfDay")] or MOODS["Golden Hour"]
+	local step, bar, sectionIndex = 0, 0, 1
 	local clock = 0
-	local intensity = 0
-	local melody = 0
+	local intensity, excitement = 0, 0
+	local motif: { number | false } = {}
 
+	-- A 2-bar melody: scale degrees (or rests), walking up and down.
+	local function newMotif(density: number)
+		motif = {}
+		local degree = rng:NextInteger(2, 6)
+		for i = 1, STEPS_PER_BAR * 2 do
+			if rng:NextNumber() < density then
+				degree = math.clamp(degree + rng:NextInteger(-2, 2), 0, #mood.Scale * 2 - 1)
+				motif[i] = degree
+			else
+				motif[i] = false
+			end
+		end
+	end
+	newMotif(SECTIONS[1].Melody)
+
+	-- Combos and big moves make the music swell.
+	Movement.Action.Event:Connect(function(action: string)
+		if action ~= "Slide" then
+			excitement = math.min(excitement + 0.12, 1)
+		end
+	end)
+
+	local function playStep()
+		local section = SECTIONS[sectionIndex]
+		local progression = mood.Progressions[section.Progression]
+		local chordRoot = progression[bar % #progression + 1]
+		local root = mood.Key + MUSIC.Key + chordRoot
+		-- Minor chords: vi in major moods; i, iv and v in minor moods.
+		local isMinor = if mood.Minor then (chordRoot == 0 or chordRoot == 5 or chordRoot == 7) else chordRoot == -3
+		local third = if isMinor then 3 else 4
+		local chord = { 0, third, 7, 12 }
+		local energy = math.max(intensity, excitement)
+
+		-- Pad: soft chord swells on beats 1 and 3.
+		if step == 0 or step == 4 then
+			local swell = if step == 0 then 0.11 else 0.07
+			for _, tone in { 0, third, 7 } do
+				note(MUSIC.Tone, root + tone - 12, swell)
+			end
+		end
+
+		-- Bass.
+		if step == 0 then
+			note(MUSIC.Tone, root - 24, 0.45)
+		elseif step == 3 and section.Arp > 0 then
+			note(MUSIC.Tone, root + 7 - 24, 0.28)
+		elseif step == 6 and section.Arp > 1 then
+			note(MUSIC.Tone, root - 12, 0.22)
+		end
+
+		-- Arpeggios: quarters in verses, eighths in choruses (or when flying fast).
+		local arpLevel = section.Arp + (if energy > 0.5 then 1 else 0)
+		if arpLevel >= 2 or (arpLevel == 1 and step % 2 == 0) then
+			local pattern = { 1, 2, 3, 4, 3, 2, 3, 4 }
+			note(MUSIC.Tone, root + chord[pattern[step + 1]], 0.16 + energy * 0.08)
+		end
+
+		-- Melody from the motif, with the last bar varied each time around.
+		local motifStep = (bar % 2) * STEPS_PER_BAR + step + 1
+		local degree = motif[motifStep]
+		if bar % BARS_PER_SECTION >= BARS_PER_SECTION - 2 and rng:NextNumber() < 0.3 then
+			degree = if rng:NextNumber() < 0.5 then false else rng:NextInteger(0, #mood.Scale * 2 - 1)
+		end
+		if degree then
+			local octave = math.floor(degree / #mood.Scale)
+			note(MUSIC.Tone, mood.Key + MUSIC.Key + mood.Scale[degree % #mood.Scale + 1] + octave * 12 + 12, 0.17)
+		end
+
+		-- Drums come in with the chorus, or when you're really moving.
+		local drums = math.max(section.Drums, energy)
+		if Movement.Enabled and drums > 0.35 then
+			if step == 0 or step == 4 or (drums > 0.8 and step == 5) then
+				note(MUSIC.Kick, -8, 0.35 * drums)
+			elseif step == 2 or step == 6 then
+				note(MUSIC.Snare, 3, 0.16 * drums)
+			end
+			if step % 2 == 1 then
+				note(MUSIC.Hat, 26, 0.045 * drums)
+			end
+		end
+
+		step += 1
+		if step >= STEPS_PER_BAR then
+			step = 0
+			bar += 1
+			if bar % BARS_PER_SECTION == 0 then
+				sectionIndex = sectionIndex % #SECTIONS + 1
+				-- Pick up time-of-day changes between sections.
+				mood = MOODS[Settings.Get("TimeOfDay")] or mood
+				newMotif(SECTIONS[sectionIndex].Melody)
+			end
+		end
+	end
+
+	local muffled = false
 	RunService.Heartbeat:Connect(function(dt)
+		-- Muffle the music while menus are open.
+		if muffled ~= not Movement.Enabled then
+			muffled = not Movement.Enabled
+			TweenService:Create(
+				eq,
+				TweenInfo.new(0.6),
+				{ HighGain = if muffled then -24 else 0, MidGain = if muffled then -6 else 0 }
+			):Play()
+		end
 		if group.Volume <= 0 then
 			return
 		end
 		local speed = if Movement.Enabled then Movement.Info.Velocity.Magnitude else 0
 		intensity = MathUtil.Damp(intensity, math.clamp(speed / 120, 0, 1), 0.8, dt)
-		local bpm = MUSIC.BaseTempo + intensity * MUSIC.TempoBoost
-		local stepLength = 60 / bpm / 2 -- eighth notes
+		excitement = math.max(excitement - dt * 0.08, 0)
+		local bpm = mood.Tempo + math.max(intensity, excitement) * MUSIC.TempoBoost
+		local stepLength = 60 / bpm / 2
+		-- Dotted-quarter echo, locked to the tempo.
+		echo.Delay = math.clamp(stepLength * 3, 0.01, 1)
 
 		clock += dt
 		while clock >= stepLength do
 			clock -= stepLength
-			local night = Settings.Get("TimeOfDay") == "Night"
-			local scale = if night then MINOR else MAJOR
-			local chords = if night then NIGHT_CHORDS else DAY_CHORDS
-			local root = key + chords[bar % #chords + 1]
-			local tones = { 0, scale[3], 7, 12 }
-
-			-- Bass on the downbeats.
-			if step == 0 or step == 4 then
-				note(MUSIC.Tone, root - 24, 0.45)
-			end
-			-- Arpeggio: every eighth when moving fast, every quarter when calm.
-			if intensity > 0.3 or step % 2 == 0 then
-				local tone = tones[step % 4 + 1] + (if step >= 4 then 12 else 0)
-				note(MUSIC.Tone, root + tone - 12, 0.2 + intensity * 0.1)
-			end
-			-- Melody: a gentle random walk up and down the scale.
-			if rng:NextNumber() < 0.18 + intensity * 0.3 then
-				melody = math.clamp(melody + rng:NextInteger(-2, 2), 0, #scale * 2 - 1)
-				local octave = math.floor(melody / #scale)
-				local degree = scale[melody % #scale + 1]
-				note(MUSIC.Tone, key + degree + octave * 12 + 12, 0.14)
-			end
-			-- Drums join in at speed.
-			if intensity > 0.45 then
-				if step == 0 or step == 4 then
-					note(MUSIC.Kick, -8, 0.35 * intensity)
-				elseif step % 2 == 1 then
-					note(MUSIC.Hat, 26, 0.05 * intensity)
-				end
-			end
-
-			step = (step + 1) % 8
-			if step == 0 then
-				bar += 1
-			end
+			playStep()
 		end
 	end)
 end

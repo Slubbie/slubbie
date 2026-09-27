@@ -18,10 +18,6 @@ local VALID_ACTIONS = {
 	Grapple = true,
 	WallRun = true,
 	Slide = true,
-	Emote_Wave = true,
-	Emote_Dance = true,
-	Emote_Flex = true,
-	Emote_Sit = true,
 	Emote_Stop = true,
 	Dash = true,
 	WallJump = true,
@@ -32,7 +28,11 @@ local VALID_ACTIONS = {
 	BunnyHop = true,
 	SlideJump = true,
 }
+for _, name in Config.Emotes do
+	VALID_ACTIONS["Emote_" .. name] = true
+end
 local MAX_PER_SECOND = 30
+local lastLook: { [Player]: number } = {}
 
 local StateRelay = {}
 
@@ -78,6 +78,22 @@ function StateRelay.Start()
 		character:SetAttribute("GrapplePoint", point)
 	end)
 
+	-- Head direction, mirrored to the "Look" character attribute for other players.
+	Net.Event("Look").OnServerEvent:Connect(function(player, direction)
+		local now = os.clock()
+		if now - (lastLook[player] or 0) < 0.08 or typeof(direction) ~= "Vector3" then
+			return
+		end
+		if direction.Magnitude < 0.5 or direction.Magnitude > 1.5 then
+			return
+		end
+		lastLook[player] = now
+		local character = player.Character
+		if character then
+			character:SetAttribute("Look", direction.Unit)
+		end
+	end)
+
 	moveAction.OnServerEvent:Connect(function(player, action)
 		if not allow(player) or type(action) ~= "string" or not VALID_ACTIONS[action] then
 			return
@@ -89,10 +105,13 @@ function StateRelay.Start()
 		end
 		if string.sub(action, 1, 6) ~= "Emote_" then
 			Progression.Record(player, action)
+		elseif action ~= "Emote_Stop" then
+			Progression.Record(player, "Emote")
 		end
 	end)
 
 	Players.PlayerRemoving:Connect(function(player)
+		lastLook[player] = nil
 		budget[player] = nil
 	end)
 end

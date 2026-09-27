@@ -159,7 +159,89 @@ function Progress.Start(Movement)
 		Text = "",
 	})
 
+	-- Achievement unlock card, slides in from the left.
+	local achievementCard = UI.new("Frame", {
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, -420, 1, -140),
+		Size = UDim2.fromOffset(380, 84),
+		BackgroundColor3 = UI.Colors.Panel,
+		BackgroundTransparency = 0.08,
+	}, gui)
+	UI.corner(achievementCard, 14)
+	UI.stroke(achievementCard, UI.Colors.Gold, 2)
+	UI.label(achievementCard, {
+		Position = UDim2.fromOffset(12, 0),
+		Size = UDim2.fromOffset(60, 84),
+		TextSize = 40,
+		Text = "🏆",
+	})
+	local achievementTitle = UI.label(achievementCard, {
+		Position = UDim2.fromOffset(78, 10),
+		Size = UDim2.new(1, -90, 0, 18),
+		Font = UI.Fonts.Title,
+		TextSize = 13,
+		TextColor3 = UI.Colors.Gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "ACHIEVEMENT UNLOCKED",
+	})
+	local achievementName = UI.label(achievementCard, {
+		Position = UDim2.fromOffset(78, 28),
+		Size = UDim2.new(1, -90, 0, 26),
+		Font = UI.Fonts.Title,
+		TextSize = 22,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "",
+	})
+	local achievementDesc = UI.label(achievementCard, {
+		Position = UDim2.fromOffset(78, 54),
+		Size = UDim2.new(1, -90, 0, 18),
+		TextSize = 13,
+		TextColor3 = UI.Colors.Muted,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "",
+	})
+	local cardQueue = {}
+	local showingCard = false
+	local function showNextCard()
+		if showingCard or #cardQueue == 0 then
+			return
+		end
+		showingCard = true
+		local entry = table.remove(cardQueue, 1)
+		achievementTitle.Text = entry.Title
+		achievementName.Text = entry.Name
+		achievementDesc.Text = entry.Desc
+		UI.tween(achievementCard, 0.45, { Position = UDim2.new(0, 16, 1, -140) }, Enum.EasingStyle.Back)
+		for i = 0, 2 do
+			task.delay(i * 0.12, function()
+				Sounds.Play(Config.Sounds.Ping, 0.45, 1.2 + i * 0.3)
+			end)
+		end
+		task.delay(3.5, function()
+			UI.tween(achievementCard, 0.35, { Position = UDim2.new(0, -420, 1, -140) })
+			task.wait(0.4)
+			showingCard = false
+			showNextCard()
+		end)
+	end
+
 	Net.Event("Notify").OnClientEvent:Connect(function(kind: string, data)
+		if kind == "Achievement" then
+			table.insert(cardQueue, {
+				Title = "ACHIEVEMENT UNLOCKED  ·  +" .. data.Reward .. " ◆",
+				Name = data.Name,
+				Desc = data.Desc,
+			})
+			showNextCard()
+			return
+		elseif kind == "Landmark" then
+			table.insert(
+				cardQueue,
+				{ Title = "LANDMARK DISCOVERED", Name = data.Name, Desc = "Visit all three to become an Explorer" }
+			)
+			showNextCard()
+			return
+		end
 		if kind == "LevelUp" then
 			bannerTitle.Text = "LEVEL " .. data.Level
 			bannerSub.Text = string.upper(data.Title) .. "   ·   +" .. data.Shards .. " ◆"

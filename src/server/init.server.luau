@@ -18,6 +18,7 @@ local TimeTrials = require(script.TimeTrials)
 local WorldBuilder = require(script.WorldBuilder)
 
 local islands = WorldBuilder.Build()
+Progression.SetLandmarks(WorldBuilder.Landmarks)
 PlayerData.Start()
 Progression.Start()
 Shards.Start()

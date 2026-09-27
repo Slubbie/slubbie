@@ -22,6 +22,8 @@ local EVENTS = {
 	"SubmitGhost",
 	-- client → server: () when the tutorial is finished or skipped
 	"CompleteTutorial",
+	-- client → server: (lookDirection) where your head is looking, a few times a second
+	"Look",
 }
 
 local FUNCTIONS = {

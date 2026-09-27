@@ -4,6 +4,7 @@
 -- drop in. Press M (or the MENU button) any time to come back.
 
 local ContextActionService = game:GetService("ContextActionService")
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -67,7 +68,7 @@ function Menu.Start(Movement, HUD)
 
 	-- Left column: title + buttons ------------------------------------------------
 	local left = UI.new("Frame", {
-		Position = UDim2.new(0, 70, 0.5, -210),
+		Position = UDim2.new(0, 70, 0.5, -270),
 		Size = UDim2.fromOffset(460, 420),
 		BackgroundTransparency = 1,
 	}, gui)
@@ -94,13 +95,14 @@ function Menu.Start(Movement, HUD)
 
 	local buttons = UI.new("Frame", {
 		Position = UDim2.fromOffset(0, 150),
-		Size = UDim2.fromOffset(260, 340),
+		Size = UDim2.fromOffset(260, 410),
 		BackgroundTransparency = 1,
 	}, left)
 	UI.new("UIListLayout", { Padding = UDim.new(0, 12) }, buttons)
 	local playButton = UI.button(buttons, "PLAY", { BackgroundColor3 = UI.Colors.Accent, TextColor3 = UI.Colors.Panel })
 	local trialsButton = UI.button(buttons, "TIME TRIALS")
 	local shopButton = UI.button(buttons, "SHOP")
+	local achievementsButton = UI.button(buttons, "ACHIEVEMENTS")
 	local settingsButton = UI.button(buttons, "SETTINGS")
 	local spawnButton = UI.button(buttons, "RETURN TO SPAWN", { TextSize = 18 })
 
@@ -306,6 +308,88 @@ function Menu.Start(Movement, HUD)
 		end
 	end
 
+	-- Achievements tab ---------------------------------------------------------------
+	local function showAchievements()
+		currentTab = "Achievements"
+		panel.Visible = true
+		clearContent()
+		UI.new("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, content)
+		local okStats, stats = pcall(function()
+			return HttpService:JSONDecode(localPlayer:GetAttribute("AchievementStats"))
+		end)
+		local okUnlocked, unlocked = pcall(function()
+			return HttpService:JSONDecode(localPlayer:GetAttribute("Achievements"))
+		end)
+		stats = if okStats and type(stats) == "table" then stats else {}
+		unlocked = if okUnlocked and type(unlocked) == "table" then unlocked else {}
+		local count = 0
+		for order, achievement in Config.Achievements do
+			local done = unlocked[achievement.Id] == true
+			if done then
+				count += 1
+			end
+			local progress = math.min(stats[achievement.Stat] or 0, achievement.Goal)
+			local card = UI.new("Frame", {
+				Size = UDim2.new(1, -8, 0, 58),
+				BackgroundColor3 = UI.Colors.PanelLight,
+				BackgroundTransparency = if done then 0 else 0.35,
+				LayoutOrder = order,
+			}, content)
+			UI.corner(card, 12)
+			if done then
+				UI.stroke(card, UI.Colors.Gold, 2, 0.2)
+			end
+			UI.label(card, {
+				Position = UDim2.fromOffset(8, 0),
+				Size = UDim2.fromOffset(44, 58),
+				TextSize = 28,
+				TextTransparency = if done then 0 else 0.6,
+				Text = if done then "🏆" else "🔒",
+			})
+			UI.label(card, {
+				Position = UDim2.fromOffset(56, 8),
+				Size = UDim2.new(1, -150, 0, 20),
+				Font = UI.Fonts.Title,
+				TextSize = 17,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextColor3 = if done then UI.Colors.Gold else UI.Colors.Text,
+				Text = achievement.Name,
+			})
+			UI.label(card, {
+				Position = UDim2.fromOffset(56, 28),
+				Size = UDim2.new(1, -150, 0, 16),
+				TextSize = 13,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextColor3 = UI.Colors.Muted,
+				Text = achievement.Desc,
+			})
+			UI.label(card, {
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.new(1, -12, 0, 8),
+				Size = UDim2.fromOffset(90, 18),
+				TextSize = 14,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				TextColor3 = UI.Colors.Gold,
+				Text = "◆ " .. achievement.Reward,
+			})
+			if not done then
+				local track = UI.new("Frame", {
+					AnchorPoint = Vector2.new(1, 0),
+					Position = UDim2.new(1, -12, 0, 34),
+					Size = UDim2.fromOffset(90, 6),
+					BackgroundColor3 = UI.Colors.Panel,
+				}, card)
+				UI.corner(track)
+				local fill = UI.new("Frame", {
+					Size = UDim2.fromScale(progress / achievement.Goal, 1),
+					BackgroundColor3 = UI.Colors.Accent,
+				}, track)
+				UI.corner(fill)
+			end
+		end
+		panelTitle.Text = string.format("ACHIEVEMENTS  %d/%d", count, #Config.Achievements)
+	end
+
 	-- Settings tab -----------------------------------------------------------------
 	local function showSettings()
 		currentTab = "Settings"
@@ -426,6 +510,15 @@ function Menu.Start(Movement, HUD)
 		local ok = Net.Function("ReturnToSpawn"):InvokeServer()
 		if not ok then
 			UI.toast("Can't return right now", UI.Colors.Bad)
+		end
+	end)
+	achievementsButton.Activated:Connect(function()
+		click()
+		if currentTab == "Achievements" then
+			panel.Visible = false
+			currentTab = nil
+		else
+			showAchievements()
 		end
 	end)
 	settingsButton.Activated:Connect(function()

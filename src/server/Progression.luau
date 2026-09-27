@@ -16,6 +16,7 @@ local PlayerData = require(script.Parent.PlayerData)
 
 local P = Config.Progression
 local Q = Config.Quests
+local LANDMARK_RADIUS = 160
 
 -- Moves that earn XP, and how many per second can count (stops remote spam).
 local XP_MOVES = {
@@ -34,6 +35,42 @@ local Progression = {}
 
 local notify: RemoteEvent
 local moveBudget: { [Player]: { Count: number, Window: number } } = {}
+local landmarks: { { Name: string, Position: Vector3 } } = {}
+
+-- Achievements ----------------------------------------------------------------------
+
+local function publishAchievements(player: Player)
+	local data = PlayerData.Get(player)
+	if data then
+		player:SetAttribute("AchievementStats", HttpService:JSONEncode(data.Stats))
+		player:SetAttribute("Achievements", HttpService:JSONEncode(data.Achievements))
+	end
+end
+
+-- Update a lifetime stat and unlock any achievements it completes.
+local function bumpStat(player: Player, stat: string, value: number, best: boolean)
+	local data = PlayerData.Get(player)
+	if not data then
+		return
+	end
+	local current = data.Stats[stat] or 0
+	data.Stats[stat] = if best then math.max(current, value) else current + value
+	local total = data.Stats[stat]
+	for _, achievement in Config.Achievements do
+		if achievement.Stat == stat and not data.Achievements[achievement.Id] and total >= achievement.Goal then
+			data.Achievements[achievement.Id] = true
+			PlayerData.AddShards(player, achievement.Reward)
+			notify:FireClient(player, "Achievement", {
+				Name = achievement.Name,
+				Desc = achievement.Desc,
+				Reward = achievement.Reward,
+			})
+		end
+	end
+	publishAchievements(player)
+end
+
+local BEST_STATS = { TopSpeed = true, ComboScore = true, Landmarks = true, Level = true }
 
 local function today(): string
 	local date = os.date("!*t")
@@ -126,6 +163,7 @@ function Progression.AddXP(player: Player, amount: number)
 	end)
 	if after > before then
 		notify:FireClient(player, "LevelUp", { Level = after, Title = Config.TitleForLevel(after), Shards = bonus })
+		bumpStat(player, "Level", after, true)
 	end
 end
 
@@ -147,6 +185,7 @@ function Progression.Record(player: Player, stat: string, amount: number?)
 		Progression.AddXP(player, P.XP.Move)
 	end
 
+	bumpStat(player, stat, value, BEST_STATS[stat] == true)
 	ensureQuests(player)
 	local data = PlayerData.Get(player)
 	if not data then
@@ -237,12 +276,49 @@ local function onPlayerAdded(player: Player)
 	end
 end
 
+function Progression.SetLandmarks(list)
+	landmarks = list or {}
+end
+
 function Progression.Start()
 	notify = Net.Event("Notify")
 
 	PlayerData.Loaded.Event:Connect(function(player)
 		ensureQuests(player)
 		publish(player)
+		publishAchievements(player)
+	end)
+
+	-- Top speed and landmark visits, sampled from where players actually are.
+	task.spawn(function()
+		while true do
+			task.wait(0.5)
+			for _, player in Players:GetPlayers() do
+				local character = player.Character
+				local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+				local data = PlayerData.Get(player)
+				if root and data then
+					local speed = math.floor(root.AssemblyLinearVelocity.Magnitude)
+					if speed > (data.Stats.TopSpeed or 0) and speed <= Config.Movement.MaxSpeed * 1.3 then
+						bumpStat(player, "TopSpeed", speed, true)
+					end
+					for _, landmark in landmarks do
+						if
+							not data.Visited[landmark.Name]
+							and (root.Position - landmark.Position).Magnitude < LANDMARK_RADIUS
+						then
+							data.Visited[landmark.Name] = true
+							local count = 0
+							for _ in data.Visited do
+								count += 1
+							end
+							notify:FireClient(player, "Landmark", { Name = landmark.Name })
+							bumpStat(player, "Landmarks", count, true)
+						end
+					end
+				end
+			end
+		end
 	end)
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	for _, player in Players:GetPlayers() do

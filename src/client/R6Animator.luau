@@ -5,6 +5,8 @@
 --   idle breathing · speed-scaled run cycle · ninja run · jump tuck · flailing fall
 --   superman dive · rope hang with the arm aimed at the hook · wall-run
 --   slide · landing crouch · flips (wall jumps, launches, slingshots) · landing rolls
+--   keyframed emotes (EmoteLibrary) with sounds and particles
+--   head look: where you aim, the grapple target, nearby players, your path
 --
 -- Our own state comes straight from Movement; other players' state arrives as
 -- character attributes plus MoveAction events relayed by the server.
@@ -19,16 +21,23 @@ local RunService = game:GetService("RunService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 local Net = require(ReplicatedStorage.Shared.Net)
+local EmoteLibrary = require(script.Parent.EmoteLibrary)
 local Emotes = require(script.Parent.Emotes)
+local Sounds = require(script.Parent.Sounds)
 local Grapple = require(script.Parent.Grapple)
 
 local A = Config.Animation
 local Flat = MathUtil.Flat
 local RotationBetween = MathUtil.RotationBetween
 local Angles = CFrame.Angles
+local Damp = MathUtil.Damp
 local I = CFrame.identity
 local TAU = math.pi * 2
 local MAX_ROPE_TILT = math.rad(65)
+local MAX_HEAD_YAW = math.rad(75)
+local MIN_HEAD_PITCH, MAX_HEAD_PITCH = math.rad(-50), math.rad(55)
+local LOOK_SEND_INTERVAL = 0.15
+local SPARKLE = "rbxasset://textures/particles/sparkles_main.dds"
 
 local JOINTS = {
 	Root = { "HumanoidRootPart", "RootJoint" },
@@ -67,6 +76,10 @@ type Rig = {
 	LastWallNormal: Vector3,
 	Flip: Flip?,
 	Emote: { Name: string, Start: number }?,
+	EmoteFx: { Name: string, Attachment: Attachment, Emitter: ParticleEmitter? }?,
+	EmoteClock: number,
+	LookYaw: number,
+	LookPitch: number,
 }
 
 local R6Animator = {}
@@ -242,38 +255,180 @@ local function airPose(rig: Rig, P: Pose, now: number, flatSpeed: number, vy: nu
 	end
 end
 
--- Emotes (standing still only).
-local function emotePose(P: Pose, name: string, t: number)
-	if name == "Wave" then
-		P.RArm = Angles(0, 0, 2.7 + math.sin(t * 9) * 0.35)
-		P.LArm = Angles(0, 0, -0.1)
-		P.Root = Angles(0, 0, 0.05)
-		P.Neck = Angles(0.1, 0, math.sin(t * 2) * 0.05)
-	elseif name == "Dance" then
-		local beat = t * 6
-		local bob = math.abs(math.sin(beat))
-		P.Root = CFrame.new(0, bob * 0.3 - 0.1, 0) * Angles(0, math.sin(beat / 2) * 0.35, math.sin(beat) * 0.08)
-		P.RArm = Angles(math.sin(beat) * 1.2 + 1.2, 0, 0.4)
-		P.LArm = Angles(-math.sin(beat) * 1.2 + 1.2, 0, -0.4)
-		P.RLeg = Angles(0, 0, 0.15 + bob * 0.15)
-		P.LLeg = Angles(0, 0, -0.15 - bob * 0.15)
-		P.Neck = Angles(0, -math.sin(beat / 2) * 0.3, math.sin(beat) * 0.1)
-	elseif name == "Flex" then
-		local pulse = math.sin(t * 5) * 0.08
-		P.Root = Angles(0.08, 0, 0)
-		P.RArm = Angles(0.2, 0, 1.6 + pulse)
-		P.LArm = Angles(0.2, 0, -1.6 - pulse)
-		P.RLeg = Angles(0, 0, 0.18)
-		P.LLeg = Angles(0, 0, -0.18)
-		P.Neck = Angles(0.15, 0, 0)
-	elseif name == "Sit" then
-		local breathe = math.sin(t * 2) * 0.02
-		P.Root = CFrame.new(0, -2, 0) * Angles(0.1 + breathe, 0, 0)
-		P.RLeg = Angles(1.5, 0, 0.1)
-		P.LLeg = Angles(1.45, 0, -0.12)
-		P.RArm = Angles(-0.45, 0, 0.3)
-		P.LArm = Angles(-0.45, 0, -0.3)
-		P.Neck = Angles(0.05, 0, 0)
+-- Emote effects ----------------------------------------------------------------
+
+local RAINBOW = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 90, 120)),
+	ColorSequenceKeypoint.new(0.25, Color3.fromRGB(255, 210, 80)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 255, 150)),
+	ColorSequenceKeypoint.new(0.75, Color3.fromRGB(110, 190, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(210, 120, 255)),
+})
+
+local function makeEmitter(kind: string, attachment: Attachment): ParticleEmitter
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Texture = SPARKLE
+	emitter.LightEmission = 0.8
+	if kind == "Notes" then
+		emitter.Color = RAINBOW
+		emitter.Rate = 5
+		emitter.Lifetime = NumberRange.new(1.2, 1.8)
+		emitter.Speed = NumberRange.new(3, 5)
+		emitter.SpreadAngle = Vector2.new(35, 35)
+		emitter.Acceleration = Vector3.new(0, 1, 0)
+		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.7), NumberSequenceKeypoint.new(1, 0) })
+	elseif kind == "Confetti" then
+		emitter.Color = RAINBOW
+		emitter.Rate = 0
+		emitter.Lifetime = NumberRange.new(1.5, 2.5)
+		emitter.Speed = NumberRange.new(18, 26)
+		emitter.SpreadAngle = Vector2.new(40, 40)
+		emitter.Acceleration = Vector3.new(0, -30, 0)
+		emitter.Drag = 2
+		emitter.RotSpeed = NumberRange.new(-200, 200)
+		emitter.Size = NumberSequence.new(0.45)
+	else -- Sparkles
+		emitter.Color = ColorSequence.new(Color3.fromRGB(255, 240, 190))
+		emitter.LightEmission = 1
+		emitter.Rate = 10
+		emitter.Lifetime = NumberRange.new(0.5, 0.8)
+		emitter.Speed = NumberRange.new(2, 4)
+		emitter.SpreadAngle = Vector2.new(180, 180)
+		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(1, 0) })
+	end
+	emitter.Parent = attachment
+	return emitter
+end
+
+local function clearEmoteFx(rig: Rig)
+	if rig.EmoteFx then
+		rig.EmoteFx.Attachment:Destroy()
+		rig.EmoteFx = nil
+	end
+end
+
+-- Particles while an emote plays, and sounds on its beats.
+local function updateEmoteFx(rig: Rig, emote: EmoteLibrary.Emote?, t: number)
+	if rig.EmoteFx and (not emote or rig.EmoteFx.Name ~= emote.Name) then
+		clearEmoteFx(rig)
+	end
+	if not emote then
+		return
+	end
+	local head = rig.Character:FindFirstChild("Head")
+	if not rig.EmoteFx then
+		local attachment = Instance.new("Attachment")
+		attachment.Name = "EmoteFX"
+		attachment.Position = Vector3.new(0, 0.8, 0)
+		attachment.Parent = head or rig.Torso
+		local emitter = if emote.Particles then makeEmitter(emote.Particles, attachment) else nil
+		if emitter and emote.Particles == "Confetti" then
+			emitter:Emit(40)
+		end
+		rig.EmoteFx = { Name = emote.Name, Attachment = attachment, Emitter = emitter }
+		rig.EmoteClock = 0
+	end
+
+	local previous = rig.EmoteClock
+	rig.EmoteClock = t
+	for _, beat in emote.Beats or {} do
+		local crossed = if emote.Loop
+			then math.floor((t - beat.T) / emote.Length) > math.floor((previous - beat.T) / emote.Length)
+			else previous < beat.T and t >= beat.T
+		if crossed and t > 0 then
+			local sound = EmoteLibrary.Sounds[beat.Sound]
+			if sound then
+				Sounds.PlayAt(sound.Id, rig.Torso, sound.Volume, sound.Pitch)
+			end
+			local fx = rig.EmoteFx
+			if fx and fx.Emitter and emote.Particles == "Confetti" then
+				fx.Emitter:Emit(18)
+			end
+		end
+	end
+end
+
+-- Head look -------------------------------------------------------------------------
+
+local lastLookSent = 0
+local lastLookDirection = Vector3.zero
+
+local function headPosition(rig: Rig): Vector3
+	local head = rig.Character:FindFirstChild("Head")
+	return if head and head:IsA("BasePart") then head.Position else rig.Root.Position + Vector3.new(0, 1.5, 0)
+end
+
+-- Nearest other player's head within `range` that's roughly in front of us.
+local function nearbyHead(rig: Rig, range: number): Vector3?
+	local from = headPosition(rig)
+	local forward = rig.Root.CFrame.LookVector
+	local best, bestDistance = nil, range
+	for character, other in rigs do
+		if character ~= rig.Character then
+			local target = headPosition(other)
+			local offset = target - from
+			local distance = offset.Magnitude
+			if distance < bestDistance and distance > 0.1 and offset.Unit:Dot(forward) > -0.2 then
+				best, bestDistance = target, distance
+			end
+		end
+	end
+	return best
+end
+
+-- Where this character's head wants to look, as a world direction.
+local function lookDirection(rig: Rig, state: string, velocity: Vector3, hookPos: Vector3?): Vector3?
+	local from = headPosition(rig)
+	if not rig.IsLocal then
+		local look = rig.Character:GetAttribute("Look")
+		return if typeof(look) == "Vector3" then look else nil
+	end
+	if state == "Grapple" and hookPos then
+		return hookPos - from
+	end
+	local target = Grapple.GetAimTarget()
+	if target then
+		return target.Position - from
+	end
+	local flat = Flat(velocity)
+	if state == "Ground" and flat.Magnitude < 3 then
+		local other = nearbyHead(rig, 22)
+		if other then
+			return other - from
+		end
+	elseif state ~= "Ground" and flat.Magnitude > 12 then
+		-- Look where we're flying, with a bit of where the camera points.
+		return flat.Unit * 2 + workspace.CurrentCamera.CFrame.LookVector
+	end
+	local camera = workspace.CurrentCamera.CFrame
+	if camera.LookVector:Dot(rig.Root.CFrame.LookVector) < -0.2 then
+		-- Camera's in front of us: look at it.
+		return camera.Position - from
+	end
+	return camera.LookVector
+end
+
+local function applyHeadLook(rig: Rig, P: Pose, direction: Vector3?, weight: number, dt: number)
+	local yaw, pitch = 0, 0
+	if direction and direction.Magnitude > 0.01 then
+		local localDir = rig.Torso.CFrame:VectorToObjectSpace(direction.Unit)
+		yaw = math.clamp(math.atan2(-localDir.X, -localDir.Z), -MAX_HEAD_YAW, MAX_HEAD_YAW)
+		pitch = math.clamp(math.asin(math.clamp(localDir.Y, -1, 1)), MIN_HEAD_PITCH, MAX_HEAD_PITCH)
+	end
+	-- The head turns a little ahead of the body, and eases in.
+	rig.LookYaw = Damp(rig.LookYaw, yaw * weight, 9, dt)
+	rig.LookPitch = Damp(rig.LookPitch, pitch * weight, 9, dt)
+	P.Neck = Angles(0, rig.LookYaw, 0) * Angles(rig.LookPitch, 0, 0) * P.Neck
+
+	-- Share our look with other players a few times a second.
+	if rig.IsLocal and direction and direction.Magnitude > 0.01 then
+		local now = os.clock()
+		local unit = direction.Unit
+		if now - lastLookSent > LOOK_SEND_INTERVAL and unit:Dot(lastLookDirection) < 0.995 then
+			lastLookSent = now
+			lastLookDirection = unit
+			Net.Event("Look"):FireServer(unit)
+		end
 	end
 end
 
@@ -304,17 +459,21 @@ local function animate(rig: Rig, dt: number, now: number)
 		rig.Emote = nil
 	end
 
-	if state == "Ground" and rig.Emote and flatSpeed < 3 then
-		emotePose(P, rig.Emote.Name, now - rig.Emote.Start)
+	local emote = rig.Emote and EmoteLibrary.Get(rig.Emote.Name)
+	local emoteTime = if rig.Emote then now - rig.Emote.Start else 0
+	if emote and not emote.Loop and emoteTime > emote.Length then
+		rig.Emote, emote = nil, nil
+	end
+	local playingEmote = emote ~= nil and state == "Ground" and flatSpeed < 3
+	updateEmoteFx(rig, if playingEmote then emote else nil, emoteTime)
+
+	if playingEmote and emote then
+		local pose = EmoteLibrary.Sample(emote, emoteTime)
+		for joint, value in pose do
+			P[joint] = value
+		end
 	elseif state == "Ground" then
 		groundPose(rig, P, dt, now, flatSpeed, -localVel.Z)
-		if rig.IsLocal then
-			-- Glance where the camera is looking.
-			local look = root.CFrame:VectorToObjectSpace(workspace.CurrentCamera.CFrame.LookVector)
-			local yaw = math.clamp(math.atan2(-look.X, -look.Z), -1, 1)
-			local pitch = math.clamp(math.asin(math.clamp(look.Y, -1, 1)), -0.6, 0.6)
-			P.Neck = Angles(pitch * 0.6, yaw * 0.8, 0) * P.Neck
-		end
 	elseif state == "Slide" then
 		slidePose(P, now)
 	elseif state == "WallRun" then
@@ -324,6 +483,14 @@ local function animate(rig: Rig, dt: number, now: number)
 	else
 		airPose(rig, P, now, flatSpeed, velocity.Y)
 	end
+
+	-- Head look (not while flipping, or when an emote drives the head).
+	local headWeight = if rig.Flip
+		then 0
+		elseif playingEmote then (if emote and emote.FreeHead then 1 else 0)
+		elseif state == "Slide" then 0.5
+		else 1
+	applyHeadLook(rig, P, lookDirection(rig, state, velocity, hookPos), headWeight, dt)
 
 	-- Landing crouch.
 	local landAge = now - rig.LandTime
@@ -406,6 +573,10 @@ local function addRig(character: Model, isLocal: boolean)
 		LastWallNormal = Vector3.xAxis,
 		Flip = nil,
 		Emote = nil,
+		EmoteFx = nil,
+		EmoteClock = 0,
+		LookYaw = 0,
+		LookPitch = 0,
 	}
 	character.Destroying:Connect(function()
 		rigs[character] = nil

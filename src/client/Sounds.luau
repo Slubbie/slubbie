@@ -48,6 +48,26 @@ function Sounds.Play(id: string, volume: number?, pitch: number?)
 	end)
 end
 
+-- Plays a sound in the world (heard louder up close) attached to `parent`.
+function Sounds.PlayAt(id: string, parent: Instance, volume: number?, pitch: number?)
+	local sound = Instance.new("Sound")
+	sound.SoundId = id
+	sound.SoundGroup = effectsGroup
+	sound.Volume = volume or 0.5
+	sound.PlaybackSpeed = pitch or 1
+	sound.RollOffMaxDistance = 90
+	sound.Parent = parent
+	sound.Ended:Connect(function()
+		sound:Destroy()
+	end)
+	sound:Play()
+	task.delay(6, function()
+		if sound.Parent then
+			sound:Destroy()
+		end
+	end)
+end
+
 local function jitter(pitch: number): number
 	return pitch * (0.93 + math.random() * 0.14)
 end

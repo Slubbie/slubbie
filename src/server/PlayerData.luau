@@ -30,6 +30,10 @@ type Data = {
 	-- Best-run ghost recordings per course (compact strings).
 	Ghosts: { [string]: string },
 	TutorialDone: boolean,
+	-- Lifetime totals / bests, unlocked achievements and visited landmarks.
+	Stats: { [string]: number },
+	Achievements: { [string]: boolean },
+	Visited: { [string]: boolean },
 }
 
 local PlayerData = {}
@@ -62,6 +66,9 @@ local function defaults(): Data
 		Quests = {},
 		Ghosts = {},
 		TutorialDone = false,
+		Stats = {},
+		Achievements = {},
+		Visited = {},
 	}
 end
 
@@ -153,6 +160,15 @@ local function load(player: Player)
 				end
 			end
 			data.TutorialDone = saved.TutorialDone == true
+			for _, field in { "Stats", "Achievements", "Visited" } do
+				if type(saved[field]) == "table" then
+					for name, value in saved[field] do
+						if type(name) == "string" then
+							(data :: any)[field][name] = value
+						end
+					end
+				end
+			end
 		end
 	end
 	if not player.Parent then
