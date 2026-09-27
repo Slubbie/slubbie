@@ -23,13 +23,36 @@ local STEEL = Color3.fromRGB(120, 122, 124)
 -- Caged industrial lamp hanging from `at` (the ceiling mount).
 function PropKit.cageLamp(parent: Instance, at: CFrame, color: Color3, brightness: number, range: number, key: boolean?)
 	local model = Build.model("CageLamp", parent)
-	Build.cylinder(model, 2.2, 0.12, at * CFrame.new(0, -1.1, 0) * CFrame.Angles(0, 0, math.pi / 2), DARK, "Metal", "Cord")
-	local shade = Build.cylinder(model, 0.6, 1.6, at * CFrame.new(0, -2.4, 0) * CFrame.Angles(0, 0, math.pi / 2), STEEL, "Metal", "Shade")
+	Build.cylinder(
+		model,
+		2.2,
+		0.12,
+		at * CFrame.new(0, -1.1, 0) * CFrame.Angles(0, 0, math.pi / 2),
+		DARK,
+		"Metal",
+		"Cord"
+	)
+	local shade = Build.cylinder(
+		model,
+		0.6,
+		1.6,
+		at * CFrame.new(0, -2.4, 0) * CFrame.Angles(0, 0, math.pi / 2),
+		STEEL,
+		"Metal",
+		"Shade"
+	)
 	local bulb = Build.ball(model, 0.6, at * CFrame.new(0, -2.8, 0), color, "Neon", "Bulb")
 	bulb.CastShadow = false
 	for i = 0, 3 do
 		local a = i * math.pi / 2
-		Build.box(model, Vector3.new(0.06, 0.7, 0.06), at * CFrame.new(math.cos(a) * 0.45, -2.95, math.sin(a) * 0.45), DARK, "Metal", "Cage")
+		Build.box(
+			model,
+			Vector3.new(0.06, 0.7, 0.06),
+			at * CFrame.new(math.cos(a) * 0.45, -2.95, math.sin(a) * 0.45),
+			DARK,
+			"Metal",
+			"Cage"
+		)
 	end
 	local light = Build.spotLight(bulb, color, brightness, range, 70, Enum.NormalId.Bottom, true)
 	light.Name = "Light"
@@ -44,7 +67,15 @@ function PropKit.pipe(parent: Instance, a: Vector3, b: Vector3, diameter: number
 	local cf = CFrame.lookAt(mid, b) * CFrame.Angles(0, math.pi / 2, 0)
 	Build.cylinder(parent, length, diameter, cf, color, "Metal", "Pipe")
 	for _, p in { a, b } do
-		Build.cylinder(parent, 0.2, diameter + 0.25, CFrame.lookAt(p, mid) * CFrame.Angles(0, math.pi / 2, 0), STEEL, "Metal", "Flange")
+		Build.cylinder(
+			parent,
+			0.2,
+			diameter + 0.25,
+			CFrame.lookAt(p, mid) * CFrame.Angles(0, math.pi / 2, 0),
+			STEEL,
+			"Metal",
+			"Flange"
+		)
 	end
 end
 
@@ -52,8 +83,23 @@ end
 function PropKit.cctv(parent: Instance, at: CFrame)
 	local model = Build.model("CCTV", parent)
 	Build.box(model, Vector3.new(0.3, 0.3, 0.6), at * CFrame.new(0, 0, 0.3), DARK, "Metal", "Arm")
-	local head = Build.box(model, Vector3.new(0.5, 0.45, 1.1), at * CFrame.new(0, -0.3, -0.35), Color3.fromRGB(200, 200, 196), "SmoothPlastic", "Head")
-	local lens = Build.cylinder(model, 0.12, 0.34, at * CFrame.new(0, -0.3, -0.92) * CFrame.Angles(0, math.pi / 2, 0), DARK, "Glass", "Lens")
+	local head = Build.box(
+		model,
+		Vector3.new(0.5, 0.45, 1.1),
+		at * CFrame.new(0, -0.3, -0.35),
+		Color3.fromRGB(200, 200, 196),
+		"SmoothPlastic",
+		"Head"
+	)
+	local lens = Build.cylinder(
+		model,
+		0.12,
+		0.34,
+		at * CFrame.new(0, -0.3, -0.92) * CFrame.Angles(0, math.pi / 2, 0),
+		DARK,
+		"Glass",
+		"Lens"
+	)
 	lens.Parent = model
 	local led = Build.ball(model, 0.1, at * CFrame.new(0.18, -0.12, -0.9), Color3.fromRGB(255, 40, 40), "Neon", "Led")
 	led.CastShadow = false
@@ -69,11 +115,24 @@ function PropKit.monitor(parent: Instance, at: CFrame, size: Vector3?, text: str
 	local s = size or Vector3.new(2.2, 1.7, 1.6)
 	local model = Build.model("Monitor", parent)
 	Build.box(model, s, at, Color3.fromRGB(44, 44, 42), "SmoothPlastic", "Casing")
-	local screen = Build.box(model, Vector3.new(s.X * 0.82, s.Y * 0.74, 0.05), at * CFrame.new(0, 0.02, -s.Z / 2 - 0.02), Color3.fromRGB(8, 14, 12), "Glass", "Screen")
-	local label = Build.label(screen, Enum.NormalId.Front, text or "EVALUATION IN PROGRESS", color or Color3.fromRGB(140, 255, 170), {
-		PixelsPerStud = 60,
-		Font = Enum.Font.Code,
-	})
+	local screen = Build.box(
+		model,
+		Vector3.new(s.X * 0.82, s.Y * 0.74, 0.05),
+		at * CFrame.new(0, 0.02, -s.Z / 2 - 0.02),
+		Color3.fromRGB(8, 14, 12),
+		"Glass",
+		"Screen"
+	)
+	local label = Build.label(
+		screen,
+		Enum.NormalId.Front,
+		text or "EVALUATION IN PROGRESS",
+		color or Color3.fromRGB(140, 255, 170),
+		{
+			PixelsPerStud = 60,
+			Font = Enum.Font.Code,
+		}
+	)
 	label.Parent.Name = "Screen"
 	Build.fx(screen, "Monitor")
 	local glow = Build.pointLight(screen, color or Color3.fromRGB(140, 255, 170), 0.6, 6, false)
@@ -97,7 +156,14 @@ function PropKit.fan(parent: Instance, at: CFrame, diameter: number, speed: numb
 	Build.cylinder(model, 0.3, diameter + 0.4, at * CFrame.Angles(0, math.pi / 2, 0), DARK, "Metal", "Housing")
 	local hub = Build.cylinder(model, 0.35, 0.5, at * CFrame.Angles(0, math.pi / 2, 0), STEEL, "Metal", "Hub")
 	for i = 0, 3 do
-		local blade = Build.box(model, Vector3.new(0.35, diameter * 0.45, 0.08), at * CFrame.Angles(0, 0, i * math.pi / 2) * CFrame.new(0, diameter * 0.24, 0) * CFrame.Angles(0, 0.4, 0), STEEL, "Metal", "Blade")
+		local blade = Build.box(
+			model,
+			Vector3.new(0.35, diameter * 0.45, 0.08),
+			at * CFrame.Angles(0, 0, i * math.pi / 2) * CFrame.new(0, diameter * 0.24, 0) * CFrame.Angles(0, 0.4, 0),
+			STEEL,
+			"Metal",
+			"Blade"
+		)
 		blade:SetAttribute("Rest", at:ToObjectSpace(blade.CFrame))
 	end
 	hub:SetAttribute("Rest", at:ToObjectSpace(hub.CFrame))
@@ -108,7 +174,15 @@ end
 -- Rotating warning beacon (off until the client switches it on).
 function PropKit.beacon(parent: Instance, at: CFrame, color: Color3)
 	local model = Build.model("Beacon", parent)
-	Build.cylinder(model, 0.3, 0.8, at * CFrame.new(0, 0.15, 0) * CFrame.Angles(0, 0, math.pi / 2), DARK, "Metal", "Base")
+	Build.cylinder(
+		model,
+		0.3,
+		0.8,
+		at * CFrame.new(0, 0.15, 0) * CFrame.Angles(0, 0, math.pi / 2),
+		DARK,
+		"Metal",
+		"Base"
+	)
 	local dome = Build.ball(model, 0.7, at * CFrame.new(0, 0.5, 0), color, "Glass", "Dome")
 	dome.Transparency = 0.3
 	dome.CastShadow = false
@@ -140,16 +214,51 @@ function PropKit.silhouette(parent: Instance, at: CFrame, color: Color3?)
 end
 
 -- A pane of glass with a frame (observation windows, two-way mirrors).
-function PropKit.window(parent: Instance, at: CFrame, size: Vector2, frameColor: Color3, tint: Color3, transparency: number)
+function PropKit.window(
+	parent: Instance,
+	at: CFrame,
+	size: Vector2,
+	frameColor: Color3,
+	tint: Color3,
+	transparency: number
+)
 	local model = Build.model("Window", parent)
 	local glass = Build.box(model, Vector3.new(size.X, size.Y, 0.15), at, tint, "Glass", "Glass")
 	glass.Transparency = transparency
 	glass.CastShadow = false
 	local t = 0.3
-	Build.box(model, Vector3.new(size.X + t * 2, t, 0.4), at * CFrame.new(0, size.Y / 2 + t / 2, 0), frameColor, "Metal", "Frame")
-	Build.box(model, Vector3.new(size.X + t * 2, t, 0.4), at * CFrame.new(0, -size.Y / 2 - t / 2, 0), frameColor, "Metal", "Frame")
-	Build.box(model, Vector3.new(t, size.Y, 0.4), at * CFrame.new(size.X / 2 + t / 2, 0, 0), frameColor, "Metal", "Frame")
-	Build.box(model, Vector3.new(t, size.Y, 0.4), at * CFrame.new(-size.X / 2 - t / 2, 0, 0), frameColor, "Metal", "Frame")
+	Build.box(
+		model,
+		Vector3.new(size.X + t * 2, t, 0.4),
+		at * CFrame.new(0, size.Y / 2 + t / 2, 0),
+		frameColor,
+		"Metal",
+		"Frame"
+	)
+	Build.box(
+		model,
+		Vector3.new(size.X + t * 2, t, 0.4),
+		at * CFrame.new(0, -size.Y / 2 - t / 2, 0),
+		frameColor,
+		"Metal",
+		"Frame"
+	)
+	Build.box(
+		model,
+		Vector3.new(t, size.Y, 0.4),
+		at * CFrame.new(size.X / 2 + t / 2, 0, 0),
+		frameColor,
+		"Metal",
+		"Frame"
+	)
+	Build.box(
+		model,
+		Vector3.new(t, size.Y, 0.4),
+		at * CFrame.new(-size.X / 2 - t / 2, 0, 0),
+		frameColor,
+		"Metal",
+		"Frame"
+	)
 	return model
 end
 
@@ -157,20 +266,55 @@ function PropKit.crate(parent: Instance, at: CFrame, size: Vector3, color: Color
 	local model = Build.model("Crate", parent)
 	Build.solid(model, size, at, color, "WoodPlanks", "Body")
 	local trim = Color3.new(color.R * 0.6, color.G * 0.6, color.B * 0.6)
-	Build.box(model, Vector3.new(size.X + 0.05, 0.25, size.Z + 0.05), at * CFrame.new(0, size.Y / 2 - 0.3, 0), trim, "WoodPlanks", "Band")
-	Build.box(model, Vector3.new(size.X + 0.05, 0.25, size.Z + 0.05), at * CFrame.new(0, -size.Y / 2 + 0.3, 0), trim, "WoodPlanks", "Band")
+	Build.box(
+		model,
+		Vector3.new(size.X + 0.05, 0.25, size.Z + 0.05),
+		at * CFrame.new(0, size.Y / 2 - 0.3, 0),
+		trim,
+		"WoodPlanks",
+		"Band"
+	)
+	Build.box(
+		model,
+		Vector3.new(size.X + 0.05, 0.25, size.Z + 0.05),
+		at * CFrame.new(0, -size.Y / 2 + 0.3, 0),
+		trim,
+		"WoodPlanks",
+		"Band"
+	)
 	return model
 end
 
 -- Server rack with blinking LEDs (client blinks parts tagged "Blink").
 function PropKit.serverRack(parent: Instance, at: CFrame, ledColor: Color3)
 	local model = Build.model("ServerRack", parent)
-	Build.solid(model, Vector3.new(2.4, 7, 2), at * CFrame.new(0, 3.5, 0), Color3.fromRGB(26, 28, 30), "Metal", "Cabinet")
+	Build.solid(
+		model,
+		Vector3.new(2.4, 7, 2),
+		at * CFrame.new(0, 3.5, 0),
+		Color3.fromRGB(26, 28, 30),
+		"Metal",
+		"Cabinet"
+	)
 	for i = 1, 10 do
 		local y = 0.8 + i * 0.58
-		Build.box(model, Vector3.new(2.1, 0.42, 0.05), at * CFrame.new(0, y, -1.02), Color3.fromRGB(40, 42, 46), "Metal", "Unit")
+		Build.box(
+			model,
+			Vector3.new(2.1, 0.42, 0.05),
+			at * CFrame.new(0, y, -1.02),
+			Color3.fromRGB(40, 42, 46),
+			"Metal",
+			"Unit"
+		)
 		for j = 1, 3 do
-			local led = Build.box(model, Vector3.new(0.08, 0.08, 0.04), at * CFrame.new(0.55 + j * 0.16, y, -1.06), ledColor, "Neon", "Led")
+			local led = Build.box(
+				model,
+				Vector3.new(0.08, 0.08, 0.04),
+				at * CFrame.new(0.55 + j * 0.16, y, -1.06),
+				ledColor,
+				"Neon",
+				"Led"
+			)
 			led.CastShadow = false
 			Build.fx(led, "Blink", { Rate = 0.6 + ((i * 7 + j * 3) % 10) / 6 })
 		end
@@ -182,10 +326,19 @@ end
 function PropKit.tank(parent: Instance, at: CFrame, height: number, color: Color3)
 	local model = Build.model("Tank", parent)
 	Build.column(model, 0.6, 3.2, at * CFrame.new(0, 0.3, 0), DARK, "Metal", "Base")
-	local glass = Build.column(model, height, 2.8, at * CFrame.new(0, 0.6 + height / 2, 0), Color3.fromRGB(170, 210, 220), "Glass", "Glass")
+	local glass = Build.column(
+		model,
+		height,
+		2.8,
+		at * CFrame.new(0, 0.6 + height / 2, 0),
+		Color3.fromRGB(170, 210, 220),
+		"Glass",
+		"Glass"
+	)
 	glass.Transparency = 0.7
 	glass.CastShadow = false
-	local fluid = Build.column(model, height * 0.8, 2.5, at * CFrame.new(0, 0.6 + height * 0.4, 0), color, "Neon", "Fluid")
+	local fluid =
+		Build.column(model, height * 0.8, 2.5, at * CFrame.new(0, 0.6 + height * 0.4, 0), color, "Neon", "Fluid")
 	fluid.Transparency = 0.55
 	fluid.CastShadow = false
 	Build.column(model, 0.5, 3.2, at * CFrame.new(0, 0.85 + height, 0), DARK, "Metal", "Cap")
@@ -199,7 +352,14 @@ end
 function PropKit.speaker(parent: Instance, at: CFrame)
 	local model = Build.model("Speaker", parent)
 	local box = Build.box(model, Vector3.new(1.2, 0.9, 0.6), at, Color3.fromRGB(56, 58, 58), "Metal", "Box")
-	Build.box(model, Vector3.new(1.0, 0.7, 0.05), at * CFrame.new(0, 0, -0.32), Color3.fromRGB(20, 20, 22), "Fabric", "Grille")
+	Build.box(
+		model,
+		Vector3.new(1.0, 0.7, 0.05),
+		at * CFrame.new(0, 0, -0.32),
+		Color3.fromRGB(20, 20, 22),
+		"Fabric",
+		"Grille"
+	)
 	Build.fx(box, "Speaker")
 	return model
 end
@@ -210,7 +370,14 @@ function PropKit.vent(parent: Instance, at: CFrame, size: Vector2)
 	local frame = Build.box(model, Vector3.new(size.X, size.Y, 0.3), at, Color3.fromRGB(70, 72, 74), "Metal", "Frame")
 	for i = 1, 5 do
 		local y = (i - 3) * size.Y / 6
-		Build.box(model, Vector3.new(size.X * 0.9, 0.08, 0.35), at * CFrame.new(0, y, -0.02) * CFrame.Angles(0.5, 0, 0), Color3.fromRGB(40, 42, 44), "Metal", "Slat")
+		Build.box(
+			model,
+			Vector3.new(size.X * 0.9, 0.08, 0.35),
+			at * CFrame.new(0, y, -0.02) * CFrame.Angles(0.5, 0, 0),
+			Color3.fromRGB(40, 42, 44),
+			"Metal",
+			"Slat"
+		)
 	end
 	local attachment = Build.attachment(frame, "Emit", CFrame.new(0, 0, -0.3))
 	local mist = Instance.new("ParticleEmitter")
@@ -232,9 +399,23 @@ function PropKit.vent(parent: Instance, at: CFrame, size: Vector2)
 end
 
 -- Poster / sign plate with text.
-function PropKit.sign(parent: Instance, at: CFrame, size: Vector2, text: string, bg: Color3, fg: Color3, font: Enum.Font?)
+function PropKit.sign(
+	parent: Instance,
+	at: CFrame,
+	size: Vector2,
+	text: string,
+	bg: Color3,
+	fg: Color3,
+	font: Enum.Font?
+)
 	local plate = Build.box(parent, Vector3.new(size.X, size.Y, 0.08), at, bg, "SmoothPlastic", "Sign")
-	Build.label(plate, Enum.NormalId.Front, text, fg, { Font = font or Enum.Font.Michroma, PixelsPerStud = 50, LightInfluence = 0.8, Brightness = 1 })
+	Build.label(
+		plate,
+		Enum.NormalId.Front,
+		text,
+		fg,
+		{ Font = font or Enum.Font.Michroma, PixelsPerStud = 50, LightInfluence = 0.8, Brightness = 1 }
+	)
 	return plate
 end
 
@@ -243,16 +424,38 @@ function PropKit.hazardBand(parent: Instance, at: CFrame, length: number, width:
 	local count = math.floor(length / 1.2)
 	for i = 0, count - 1 do
 		local x = (i - (count - 1) / 2) * 1.2
-		Build.box(parent, Vector3.new(1.2, 0.02, width), at * CFrame.new(x, 0, 0), (i % 2 == 0) and a or b, "SmoothPlastic", "Stripe")
+		Build.box(
+			parent,
+			Vector3.new(1.2, 0.02, width),
+			at * CFrame.new(x, 0, 0),
+			(i % 2 == 0) and a or b,
+			"SmoothPlastic",
+			"Stripe"
+		)
 	end
 end
 
 -- Stage light on a stand or truss (spot aimed at `target`).
-function PropKit.stageLight(parent: Instance, at: Vector3, target: Vector3, color: Color3, brightness: number, flicker: boolean?)
+function PropKit.stageLight(
+	parent: Instance,
+	at: Vector3,
+	target: Vector3,
+	color: Color3,
+	brightness: number,
+	flicker: boolean?
+)
 	local model = Build.model("StageLight", parent)
 	local cf = CFrame.lookAt(at, target)
 	local can = Build.cylinder(model, 1.3, 0.9, cf * CFrame.Angles(0, math.pi / 2, 0), DARK, "Metal", "Can")
-	local lens = Build.cylinder(model, 0.1, 0.8, cf * CFrame.new(0, 0, -0.66) * CFrame.Angles(0, math.pi / 2, 0), color, "Neon", "Lens")
+	local lens = Build.cylinder(
+		model,
+		0.1,
+		0.8,
+		cf * CFrame.new(0, 0, -0.66) * CFrame.Angles(0, math.pi / 2, 0),
+		color,
+		"Neon",
+		"Lens"
+	)
 	lens.CastShadow = false
 	local light = Build.spotLight(lens, color, brightness, 60, 30, Enum.NormalId.Right, true)
 	light.Name = "Light"

@@ -47,7 +47,9 @@ function Ranked:render()
 		Kit.label(body, { Text = "Your file is still loading.", Font = "Mono", TextSize = "Small", Color = "Dim" })
 		return
 	end
-	self.Window:setSubtitle(string.format("%s  ·  ENDS IN %s", info.Season.Name or "", duration(info.Season.EndsIn or 0)))
+	self.Window:setSubtitle(
+		string.format("%s  ·  ENDS IN %s", info.Season.Name or "", duration(info.Season.EndsIn or 0))
+	)
 
 	-- Division card.
 	local card = Kit.panel(body, { Size = UDim2.new(0.4, -8, 0, 250), Color = "PanelAlt" })
@@ -55,23 +57,50 @@ function Ranked:render()
 	local division = info.Division or Rating.division(info.Rating or 1000)
 	local color = Color3.fromRGB(division.Color[1], division.Color[2], division.Color[3])
 	local placed = info.Placed
-	local title = Kit.label(card, { Text = if placed then division.Label else "UNPLACED", Font = "Display", TextSize = "Heading", Size = UDim2.new(1, 0, 0, 40) })
+	local title = Kit.label(card, {
+		Text = if placed then division.Label else "UNPLACED",
+		Font = "Display",
+		TextSize = "Heading",
+		Size = UDim2.new(1, 0, 0, 40),
+	})
 	title.TextColor3 = if placed then color else Theme.Colors.Dim
 	Kit.label(card, {
-		Text = if placed then string.format("STANDING %d", info.Rating) else string.format("%d PLACEMENT TRIAL%s LEFT", info.PlacementsLeft, info.PlacementsLeft == 1 and "" or "S"),
+		Text = if placed
+			then string.format("STANDING %d", info.Rating)
+			else string.format(
+				"%d PLACEMENT TRIAL%s LEFT",
+				info.PlacementsLeft,
+				info.PlacementsLeft == 1 and "" or "S"
+			),
 		Font = "Mono",
 		TextSize = "Body",
 		Size = UDim2.new(1, 0, 0, 22),
 		Position = UDim2.fromOffset(0, 44),
 	})
-	Kit.bar(card, { Size = UDim2.new(1, 0, 0, 6), Position = UDim2.fromOffset(0, 76), Value = if placed then division.Progress else (Rating.Placements - info.PlacementsLeft) / Rating.Placements })
+	Kit.bar(card, {
+		Size = UDim2.new(1, 0, 0, 6),
+		Position = UDim2.fromOffset(0, 76),
+		Value = if placed then division.Progress else (Rating.Placements - info.PlacementsLeft) / Rating.Placements,
+	})
 	local stats = {
 		string.format("SEASON TRIALS %d  ·  ALL-TIME %d", info.SeasonGames or 0, info.Games or 0),
-		string.format("WINS %d  ·  WIN RATE %s", info.Wins or 0, Format.percent((info.Wins or 0) / math.max(info.Games or 0, 1))),
+		string.format(
+			"WINS %d  ·  WIN RATE %s",
+			info.Wins or 0,
+			Format.percent((info.Wins or 0) / math.max(info.Games or 0, 1))
+		),
 		string.format("SEASON PEAK %d  ·  ALL-TIME PEAK %d", info.SeasonPeak or 0, info.Peak or 0),
 		string.format("K FACTOR %d  ·  ABANDON STRIKES %d", info.K or 32, info.Strikes or 0),
 	}
-	Kit.label(card, { Text = table.concat(stats, "\n"), Font = "Mono", TextSize = "Tiny", Color = "Dim", YAlign = "Top", Size = UDim2.new(1, 0, 0, 80), Position = UDim2.fromOffset(0, 92) })
+	Kit.label(card, {
+		Text = table.concat(stats, "\n"),
+		Font = "Mono",
+		TextSize = "Tiny",
+		Color = "Dim",
+		YAlign = "Top",
+		Size = UDim2.new(1, 0, 0, 80),
+		Position = UDim2.fromOffset(0, 92),
+	})
 	local locked = (info.LockoutRemaining or 0) > 0
 	local queue = Kit.button(card, {
 		Text = if locked then "LOCKED :: " .. duration(info.LockoutRemaining) else "ENTER RANKED QUEUE",
@@ -88,14 +117,24 @@ function Ranked:render()
 		end,
 	})
 	if locked then
-		Kit.setEnabled(queue, false, "Leaving an active ranked Trial locks the queue for a while. Clean matches clear strikes.")
+		Kit.setEnabled(
+			queue,
+			false,
+			"Leaving an active ranked Trial locks the queue for a while. Clean matches clear strikes."
+		)
 	end
 
 	-- Recent changes (sparkline + list).
-	local history = Kit.panel(body, { Size = UDim2.new(0.6, -8, 0, 250), Position = UDim2.new(0.4, 8, 0, 0), Color = "PanelAlt" })
+	local history =
+		Kit.panel(body, { Size = UDim2.new(0.6, -8, 0, 250), Position = UDim2.new(0.4, 8, 0, 0), Color = "PanelAlt" })
 	Kit.padding(history, 12, 14)
 	Kit.header(history, "RECENT CHANGES", 0)
-	local chart = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 120), Position = UDim2.fromOffset(0, 30), Parent = history }) :: Frame
+	local chart = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 120),
+		Position = UDim2.fromOffset(0, 30),
+		Parent = history,
+	}) :: Frame
 	local entries = info.History or {}
 	local first = math.max(1, #entries - 19)
 	local lo, hi = math.huge, -math.huge
@@ -110,42 +149,74 @@ function Ranked:render()
 			local e = entries[i]
 			local x = (i - first) / math.max(count - 1, 1)
 			local y = 1 - (e.Rating - lo) / span
-			local dot = Kit.create("Frame", { BorderSizePixel = 0, Size = UDim2.fromOffset(8, 8), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(x, 0.1 + y * 0.8), Parent = chart }) :: Frame
+			local dot = Kit.create("Frame", {
+				BorderSizePixel = 0,
+				Size = UDim2.fromOffset(8, 8),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(x, 0.1 + y * 0.8),
+				Parent = chart,
+			}) :: Frame
 			Theme.bind(dot, "BackgroundColor3", if e.Delta >= 0 then "Good" else "Bad")
 			Kit.corner(dot, 4)
 			Kit.tooltip(dot, string.format("%d (%s)", e.Rating, Format.signed(e.Delta)))
 		end
 	else
-		Kit.label(chart, { Text = "No ranked Trials this season yet.", Font = "Mono", TextSize = "Small", Color = "Dim", XAlign = "Center", Size = UDim2.fromScale(1, 1) })
+		Kit.label(chart, {
+			Text = "No ranked Trials this season yet.",
+			Font = "Mono",
+			TextSize = "Small",
+			Color = "Dim",
+			XAlign = "Center",
+			Size = UDim2.fromScale(1, 1),
+		})
 	end
 	local recent = {}
 	for i = #entries, math.max(1, #entries - 4), -1 do
 		table.insert(recent, string.format("%s  %d", Format.signed(entries[i].Delta), entries[i].Rating))
 	end
-	Kit.label(history, { Text = table.concat(recent, "   ·   "), Font = "Mono", TextSize = "Tiny", Color = "Dim", Size = UDim2.new(1, 0, 0, 16), Position = UDim2.new(0, 0, 1, -16) })
+	Kit.label(history, {
+		Text = table.concat(recent, "   ·   "),
+		Font = "Mono",
+		TextSize = "Tiny",
+		Color = "Dim",
+		Size = UDim2.new(1, 0, 0, 16),
+		Position = UDim2.new(0, 0, 1, -16),
+	})
 
 	-- Ladder and rules.
-	local ladder = Kit.panel(body, { Size = UDim2.new(0.4, -8, 1, -262), Position = UDim2.fromOffset(0, 262), Color = "PanelAlt" })
+	local ladder =
+		Kit.panel(body, { Size = UDim2.new(0.4, -8, 1, -262), Position = UDim2.fromOffset(0, 262), Color = "PanelAlt" })
 	Kit.padding(ladder, 12, 14)
 	Kit.list(ladder, "Y", 4)
 	Kit.header(ladder, "DIVISIONS", 0)
 	for i = #Rating.Divisions, 1, -1 do
 		local div = Rating.Divisions[i]
 		local label = Kit.label(ladder, {
-			Text = string.format("%s  ·  %d+%s", div.Name, div.Min, if i < #Rating.Divisions then "  ·  III / II / I" else ""),
+			Text = string.format(
+				"%s  ·  %d+%s",
+				div.Name,
+				div.Min,
+				if i < #Rating.Divisions then "  ·  III / II / I" else ""
+			),
 			Font = "Mono",
 			TextSize = "Small",
 			LayoutOrder = #Rating.Divisions - i + 1,
 		})
 		label.TextColor3 = Color3.fromRGB(div.Color[1], div.Color[2], div.Color[3])
 	end
-	local rules = Kit.panel(body, { Size = UDim2.new(0.6, -8, 1, -262), Position = UDim2.new(0.4, 8, 0, 262), Color = "PanelAlt" })
+	local rules = Kit.panel(
+		body,
+		{ Size = UDim2.new(0.6, -8, 1, -262), Position = UDim2.new(0.4, 8, 0, 262), Color = "PanelAlt" }
+	)
 	Kit.padding(rules, 12, 14)
 	Kit.header(rules, "HOW STANDING WORKS", 0)
 	Kit.label(rules, {
 		Text = table.concat({
 			"Standard rules, locked. After each Trial your Standing moves by K × (result − expected), where expected comes from the gap between your Standing and your opponent's.",
-			string.format("K is 48 for your first %d Trials, 32 until 30, then 24. Every win gains at least 1; every loss costs at least 1.", Rating.Placements),
+			string.format(
+				"K is 48 for your first %d Trials, 32 until 30, then 24. Every win gains at least 1; every loss costs at least 1.",
+				Rating.Placements
+			),
 			"Leaving an active ranked Trial counts as a loss, adds an abandon strike and locks the queue (5 min, 15 min, 1 h, 4 h). Clean Trials clear strikes. Reconnecting in time refunds it.",
 			"The same opponent can only move your Standing a few times a day. Seasons end with a soft reset halfway toward 1000; your peak division earns its season cosmetic.",
 		}, "\n\n"),

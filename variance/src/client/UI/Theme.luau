@@ -38,11 +38,36 @@ local BASE = {
 }
 
 Theme.Palettes = {
-	Default = { Charged = hex("e0482f"), Hollow = hex("cfe3de"), ChargedText = hex("ffd9cf"), HollowText = hex("0e1413") },
-	Deuteranopia = { Charged = hex("f2a03d"), Hollow = hex("5aa9e6"), ChargedText = hex("1a1206"), HollowText = hex("06121a") },
-	Protanopia = { Charged = hex("f5c542"), Hollow = hex("4f8fd6"), ChargedText = hex("1a1506"), HollowText = hex("06101a") },
-	Tritanopia = { Charged = hex("e8407a"), Hollow = hex("62d0c4"), ChargedText = hex("1a0610"), HollowText = hex("061a17") },
-	Monochrome = { Charged = hex("f4f4f4"), Hollow = hex("7c7c7c"), ChargedText = hex("111111"), HollowText = hex("f4f4f4") },
+	Default = {
+		Charged = hex("e0482f"),
+		Hollow = hex("cfe3de"),
+		ChargedText = hex("ffd9cf"),
+		HollowText = hex("0e1413"),
+	},
+	Deuteranopia = {
+		Charged = hex("f2a03d"),
+		Hollow = hex("5aa9e6"),
+		ChargedText = hex("1a1206"),
+		HollowText = hex("06121a"),
+	},
+	Protanopia = {
+		Charged = hex("f5c542"),
+		Hollow = hex("4f8fd6"),
+		ChargedText = hex("1a1506"),
+		HollowText = hex("06101a"),
+	},
+	Tritanopia = {
+		Charged = hex("e8407a"),
+		Hollow = hex("62d0c4"),
+		ChargedText = hex("1a0610"),
+		HollowText = hex("061a17"),
+	},
+	Monochrome = {
+		Charged = hex("f4f4f4"),
+		Hollow = hex("7c7c7c"),
+		ChargedText = hex("111111"),
+		HollowText = hex("f4f4f4"),
+	},
 }
 
 Theme.Colors = table.clone(BASE)
@@ -93,8 +118,8 @@ local bindings = setmetatable({}, { __mode = "k" })
 
 function Theme.bind(instance: Instance, property: string, key: string)
 	bindings[instance] = bindings[instance] or {}
-	bindings[instance][property] = key
-	;(instance :: any)[property] = Theme.Colors[key]
+	bindings[instance][property] = key;
+	(instance :: any)[property] = Theme.Colors[key]
 	return instance
 end
 

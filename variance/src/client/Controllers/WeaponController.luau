@@ -176,7 +176,10 @@ function WeaponController:presentCF(seat: number): CFrame
 end
 
 function WeaponController:centreCF(): CFrame
-	return origin * CFrame.new(0, TableLayout.TableTop + 0.42, 0) * CFrame.Angles(0, math.pi / 2, 0) * CFrame.Angles(0, 0, -math.pi / 2)
+	return origin
+		* CFrame.new(0, TableLayout.TableTop + 0.42, 0)
+		* CFrame.Angles(0, math.pi / 2, 0)
+		* CFrame.Angles(0, 0, -math.pi / 2)
 end
 
 function WeaponController:current(): CFrame
@@ -206,7 +209,8 @@ end
 function WeaponController:slideTo(target: CFrame, duration: number?, hop: number?)
 	held = nil
 	hoisted = nil
-	free = { From = current, To = target, Start = os.clock(), Duration = math.max(duration or 0.5, 0.01), Hop = hop or 0 }
+	free =
+		{ From = current, To = target, Start = os.clock(), Duration = math.max(duration or 0.5, 0.01), Hop = hop or 0 }
 	if (target.Position - current.Position).Magnitude > 0.2 then
 		audio():play("Aim", { At = current.Position, Pitch = 0.8 })
 	end
@@ -374,7 +378,10 @@ function WeaponController:ejectCell(charged: boolean, spent: boolean?)
 	local index = #spentCells + 1
 	local col = (index - 1) % 5
 	local row = math.floor((index - 1) / 5)
-	local land = origin * TableLayout.spentCFrame() * CFrame.new(-0.5 + col * 0.25, 0.12, -0.3 + row * 0.3) * CFrame.Angles(0, 0, math.pi / 2)
+	local land = origin
+		* TableLayout.spentCFrame()
+		* CFrame.new(-0.5 + col * 0.25, 0.12, -0.3 + row * 0.3)
+		* CFrame.Angles(0, 0, math.pi / 2)
 	table.insert(flying, {
 		Model = cell,
 		From = from,
@@ -449,7 +456,10 @@ function WeaponController:showWindow(charged: boolean?, duration: number?)
 	local light = Instance.new("PointLight")
 	light.Range = 4
 	light.Brightness = 2.5
-	light.Color = if charged == nil then Color3.fromRGB(230, 230, 220) elseif charged then Theme.Colors.Charged else Theme.Colors.Hollow
+	light.Color = if charged == nil
+		then Color3.fromRGB(230, 230, 220)
+		elseif charged then Theme.Colors.Charged
+		else Theme.Colors.Hollow
 	light.Parent = cell.PrimaryPart
 	if windowPart then
 		windowPart.Transparency = 0.55
@@ -605,7 +615,10 @@ function WeaponController:preStep(_dt: number)
 			else
 				support = (current * CHAMBER).Position
 			end
-			anim:setIntent(rig, { Kind = "Hold", Aim = h.Aim, Reverse = h.Reverse, Lift = lift, Support = support, Brace = brace })
+			anim:setIntent(
+				rig,
+				{ Kind = "Hold", Aim = h.Aim, Reverse = h.Reverse, Lift = lift, Support = support, Brace = brace }
+			)
 		end
 	elseif hoisted then
 		anim:setIntent(hoisted.Rig, nil)
@@ -629,7 +642,8 @@ function WeaponController:postStep(dt: number)
 		local rig = hoisted.Rig
 		local mid = (rig.HandR.Position + rig.HandL.Position) / 2
 		local across = (rig.HandR.Position - rig.HandL.Position)
-		local target = CFrame.lookAt(mid + Vector3.new(0, 0.35, 0), mid + Vector3.new(0, 0.35, 0) - across, Vector3.yAxis)
+		local target =
+			CFrame.lookAt(mid + Vector3.new(0, 0.35, 0), mid + Vector3.new(0, 0.35, 0) - across, Vector3.yAxis)
 		local a = smooth((now - hoisted.Start) / 0.7)
 		cf = hoisted.From:Lerp(target, a)
 	else
@@ -651,7 +665,9 @@ function WeaponController:postStep(dt: number)
 			shake = nil
 		else
 			local a = shake.Amp
-			cf = cf * CFrame.new(math.sin(now * 53) * a, math.sin(now * 61) * a, math.sin(now * 47) * a) * CFrame.Angles(math.sin(now * 39) * a, 0, math.sin(now * 43) * a)
+			cf = cf
+				* CFrame.new(math.sin(now * 53) * a, math.sin(now * 61) * a, math.sin(now * 47) * a)
+				* CFrame.Angles(math.sin(now * 39) * a, 0, math.sin(now * 43) * a)
 		end
 	end
 	current = cf
@@ -729,7 +745,8 @@ function WeaponController:postStep(dt: number)
 				end
 			else
 				local a = smooth(t)
-				local pos = f.From.Position:Lerp(to.Position, a) + Vector3.new(0, math.sin(t * math.pi) * (f.Height or 0), 0)
+				local pos = f.From.Position:Lerp(to.Position, a)
+					+ Vector3.new(0, math.sin(t * math.pi) * (f.Height or 0), 0)
 				local rot = f.From.Rotation:Lerp(to.Rotation, a) * CFrame.Angles(f.Spin * t, 0, 0)
 				CellModel.place(f.Model, CFrame.new(pos) * rot)
 			end

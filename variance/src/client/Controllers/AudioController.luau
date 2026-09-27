@@ -129,6 +129,13 @@ local function positionalParent(at: any): Instance
 		a.WorldPosition = at
 		a.Parent = workspace.Terrain
 		task.delay(8, function()
+			-- Pooled sounds outlive their temporary emitter point.
+			for _, child in a:GetChildren() do
+				if child:IsA("Sound") then
+					child:Stop()
+					child.Parent = SoundService
+				end
+			end
 			a:Destroy()
 		end)
 		return a
@@ -232,7 +239,13 @@ end
 function AudioController:duck(depth: number, time: number?)
 	local TweenService = game:GetService("TweenService")
 	for _, eq in duckers do
-		TweenService:Create(eq, TweenInfo.new(time or 0.4), { HighGain = -30 * depth, MidGain = -14 * depth, LowGain = -6 * depth }):Play()
+		TweenService
+			:Create(
+				eq,
+				TweenInfo.new(time or 0.4),
+				{ HighGain = -30 * depth, MidGain = -14 * depth, LowGain = -6 * depth }
+			)
+			:Play()
 	end
 	for _, name in { "Music", "Ambience" } do
 		local base = groups[name]:GetAttribute("Base") or 1
@@ -337,11 +350,25 @@ end
 
 local function runScore(self)
 	-- Generative layers.
-	local drone = makeSound({ Id = "rbxasset://sounds/action_falling.mp3", Pitch = 0.18, Volume = 0, Looped = true, Group = "Music", LowPass = 0.9 })
+	local drone = makeSound({
+		Id = "rbxasset://sounds/action_falling.mp3",
+		Pitch = 0.18,
+		Volume = 0,
+		Looped = true,
+		Group = "Music",
+		LowPass = 0.9,
+	})
 	drone.Name = "ScoreDrone"
 	drone.Parent = SoundService
 	drone:Play()
-	local tension = makeSound({ Id = "rbxasset://sounds/electronicpingshort.wav", Pitch = 0.25, Volume = 0, Looped = true, Group = "Music", Reverb = true })
+	local tension = makeSound({
+		Id = "rbxasset://sounds/electronicpingshort.wav",
+		Pitch = 0.25,
+		Volume = 0,
+		Looped = true,
+		Group = "Music",
+		Reverb = true,
+	})
 	tension.Name = "ScoreTension"
 	tension.Parent = SoundService
 	tension:Play()
@@ -352,7 +379,8 @@ local function runScore(self)
 		local intensity = musicIntensity
 		local inMatch = musicContext == "Match"
 		local off = musicContext == "Off"
-		local key = off and nil or (not inMatch and "Lobby" or (intensity < 0.35 and "Low" or (intensity < 0.7 and "Mid" or "High")))
+		local key = off and nil
+			or (not inMatch and "Lobby" or (intensity < 0.35 and "Low" or (intensity < 0.7 and "Mid" or "High")))
 		local usingLicensed = false
 		for k, def in SoundLibrary.Music do
 			local track = licensedTrack(k)

@@ -266,7 +266,12 @@ local function setEffectVisual(subjectId: number, effect: string, active: boolea
 			C.WeaponController:setCharge(effect, active)
 			if active then
 				local muzzle = C.WeaponController:muzzleCF()
-				vfx:arc(C.WeaponController:chamberCF().Position, muzzle.Position, if effect == "Capacitor" then Theme.Colors.Accent else Theme.Colors.Bad, 0.5)
+				vfx:arc(
+					C.WeaponController:chamberCF().Position,
+					muzzle.Position,
+					if effect == "Capacitor" then Theme.Colors.Accent else Theme.Colors.Bad,
+					0.5
+				)
 			end
 		end
 	end
@@ -490,7 +495,13 @@ end
 
 -- Carries a prop from the tray to a use point with the actor's hand, calls
 -- `effect` on arrival, then dissolves it. All times scale with the match.
-local function useProp(actorId: number, prop: Model?, usePoint: () -> Vector3, effect: () -> (), opts: { [string]: any }?)
+local function useProp(
+	actorId: number,
+	prop: Model?,
+	usePoint: () -> Vector3,
+	effect: () -> (),
+	opts: { [string]: any }?
+)
 	local o = opts or {}
 	local r = rig(actorId)
 	local s = scale()
@@ -684,7 +695,12 @@ local function playInstrument(data)
 			return (origin * TableLayout.trayCFrame(seatOf(actorId) or 1) * CFrame.new(1.8, 0.3, 0)).Position
 		end, function()
 			audio:play("PowerTap", { At = chestPos(actorId) })
-			vfx:arc(chestPos(actorId), (origin * TableLayout.trayCFrame(seatOf(actorId) or 1)).Position, Theme.Colors.Accent, 0.6)
+			vfx:arc(
+				chestPos(actorId),
+				(origin * TableLayout.trayCFrame(seatOf(actorId) or 1)).Position,
+				Theme.Colors.Accent,
+				0.6
+			)
 			vfx:sparks(chestPos(actorId), Vector3.new(0, 1, 0), Theme.Colors.Accent, 16)
 			anim:play(r, "Flinch")
 		end, { Carry = 0.35, Hold = 0.5 })
@@ -710,7 +726,9 @@ local function playInstrument(data)
 			end)
 			C.UIController:banner(
 				"RE-CAST",
-				if charged == nil then string.format("%d CELLS :: MIX UNKNOWN", size) else string.format("%d CHARGED · %d HOLLOW", charged, size - charged),
+				if charged == nil
+					then string.format("%d CELLS :: MIX UNKNOWN", size)
+					else string.format("%d CHARGED · %d HOLLOW", charged, size - charged),
 				"Accent",
 				1.4 * scale()
 			)
@@ -738,17 +756,28 @@ handlers.MatchStart = function()
 	local e2 = cams and cams:FindFirstChild("Establish2") :: BasePart?
 	local shots = {}
 	if e1 then
-		table.insert(shots, { From = e1.CFrame, To = e1.CFrame * CFrame.new(0, -1.2, -5), Duration = 2.2 * scale(), Fov = 45 })
+		table.insert(
+			shots,
+			{ From = e1.CFrame, To = e1.CFrame * CFrame.new(0, -1.2, -5), Duration = 2.2 * scale(), Fov = 45 }
+		)
 	end
 	if e2 then
-		table.insert(shots, { From = e2.CFrame * CFrame.new(-1, 0, 0), To = e2.CFrame * CFrame.new(1, 0, -1.2), Duration = 1.7 * scale(), Fov = 38 })
+		table.insert(shots, {
+			From = e2.CFrame * CFrame.new(-1, 0, 0),
+			To = e2.CFrame * CFrame.new(1, 0, -1.2),
+			Duration = 1.7 * scale(),
+			Fov = 38,
+		})
 	end
 	if not sc.Spectating then
 		local seat = seatOf(sc.You) or 1
 		local eye = origin * TableLayout.eyeCFrame(seat)
 		local facing = (origin * TableLayout.seatCFrame(seat)).Rotation
 		local final = CFrame.new(eye.Position) * facing * CFrame.Angles(-0.3, 0, 0)
-		table.insert(shots, { From = final * CFrame.new(0, 1.4, 3.5), To = final, Duration = 1.0 * scale(), Fov = 68, Essential = true })
+		table.insert(
+			shots,
+			{ From = final * CFrame.new(0, 1.4, 3.5), To = final, Duration = 1.0 * scale(), Fov = 68, Essential = true }
+		)
 	end
 	C.CameraController:shots(shots, true)
 	-- Surrogates take a look at who they are up against.
@@ -820,9 +849,17 @@ handlers.TrialStart = function(data)
 	if data.Surge then
 		table.insert(parts, "SURGE ACTIVE")
 	end
-	C.UIController:banner("TRIAL " .. Format.roman(data.Trial), table.concat(parts, "  ·  "), if final then "Bad" else "Accent", 2.4 * scale())
+	C.UIController:banner(
+		"TRIAL " .. Format.roman(data.Trial),
+		table.concat(parts, "  ·  "),
+		if final then "Bad" else "Accent",
+		2.4 * scale()
+	)
 	C.AudioController:play("Stinger", { Pitch = 1 + (data.Trial - 1) * 0.12 })
-	announce(if final then "TrialStartFinal" else "TrialStart", { trial = Format.roman(data.Trial), integrity = maxIntegrity })
+	announce(
+		if final then "TrialStartFinal" else "TrialStart",
+		{ trial = Format.roman(data.Trial), integrity = maxIntegrity }
+	)
 	if data.TrialModifiers and #data.TrialModifiers > 0 then
 		local names = {}
 		for _, modId in data.TrialModifiers do
@@ -837,7 +874,14 @@ handlers.TrialStart = function(data)
 		local cams = arena:FindFirstChild("Cameras")
 		local overhead = cams and cams:FindFirstChild("Overhead") :: BasePart?
 		if overhead then
-			C.CameraController:shots({ { From = overhead.CFrame * CFrame.new(0, 0, 2), To = overhead.CFrame, Duration = 1.4 * scale(), Fov = 55 } })
+			C.CameraController:shots({
+				{
+					From = overhead.CFrame * CFrame.new(0, 0, 2),
+					To = overhead.CFrame,
+					Duration = 1.4 * scale(),
+					Fov = 55,
+				},
+			})
 		end
 	end
 	refreshMonitors()
@@ -867,7 +911,10 @@ handlers.LoadStart = function(data)
 	else
 		C.UIController:banner(
 			string.format("%d CHARGED  ·  %d HOLLOW", data.PoolCharged, n - data.PoolCharged),
-			if data.SuddenDeath then "SUDDEN DEATH" elseif data.Surge then "THE FINAL CELL CARRIES A SURGE" else "LOAD " .. tostring(data.LoadInTrial or 1),
+			if data.SuddenDeath
+				then "SUDDEN DEATH"
+				elseif data.Surge then "THE FINAL CELL CARRIES A SURGE"
+				else "LOAD " .. tostring(data.LoadInTrial or 1),
 			if data.Surge or data.SuddenDeath then "Bad" else "Text",
 			(1.2 + 0.2 * n) * s
 		)
@@ -910,7 +957,11 @@ handlers.Dealt = function(data)
 	end
 	for id, lost in data.Lost or {} do
 		if #lost > 0 and isMe(id) then
-			C.UIController:toast("TRAY FULL", string.format("%d instrument%s lost.", #lost, #lost == 1 and " was" or "s were"), "Warn")
+			C.UIController:toast(
+				"TRAY FULL",
+				string.format("%d instrument%s lost.", #lost, #lost == 1 and " was" or "s were"),
+				"Warn"
+			)
 		end
 	end
 end
@@ -982,7 +1033,12 @@ handlers.TurnSkipped = function(data)
 	after(0.3, function()
 		C.AnimationController:play(r, "Twitch")
 	end)
-	C.UIController:banner(if isMe(data.Subject) then "YOUR TURN IS SKIPPED" else nameOf(data.Subject) .. " IS CLAMPED", "THE RESTRAINT RELEASES", "Warn", 1.4 * scale())
+	C.UIController:banner(
+		if isMe(data.Subject) then "YOUR TURN IS SKIPPED" else nameOf(data.Subject) .. " IS CLAMPED",
+		"THE RESTRAINT RELEASES",
+		"Warn",
+		1.4 * scale()
+	)
 	C.AudioController:play("Clamp", { At = chestPos(data.Subject), Pitch = 1.3 })
 end
 
@@ -1102,7 +1158,12 @@ handlers.FireResult = function(data)
 			cam:punch(2)
 		end
 		local label = if data.Surge then "SURGE" else "CHARGED"
-		C.UIController:banner(label, string.format("%s  −%d INTEGRITY", nameOf(targetId), data.Damage or 1), "Bad", 1.0 * s)
+		C.UIController:banner(
+			label,
+			string.format("%s  −%d INTEGRITY", nameOf(targetId), data.Damage or 1),
+			"Bad",
+			1.0 * s
+		)
 	else
 		weapon:discharge(false)
 		cam:kick(0.02)
@@ -1147,7 +1208,12 @@ handlers.Damage = function(data)
 		C.AnimationController:play(r, "Hit")
 		C.VFXController:sparks(chestPos(id), Vector3.new(0, 1, 0), Theme.Colors.Charged, 12)
 		if data.Mirrored then
-			C.VFXController:arc(C.WeaponController:chamberCF().Position, chestPos(id), Color3.fromRGB(190, 140, 255), 0.35)
+			C.VFXController:arc(
+				C.WeaponController:chamberCF().Position,
+				chestPos(id),
+				Color3.fromRGB(190, 140, 255),
+				0.35
+			)
 		end
 		if isMe(id) then
 			C.CameraController:shake(0.45)
@@ -1259,13 +1325,25 @@ handlers.TrialEnd = function(data)
 	for id, wins in data.Wins or {} do
 		table.insert(score, string.format("%s %d", nameOf(id), wins))
 	end
-	C.UIController:banner(title, "TRIAL " .. Format.roman(data.Trial) .. "  ·  " .. table.concat(score, "  ·  "), if won then "Good" else "Bad", 2.6 * scale())
+	C.UIController:banner(
+		title,
+		"TRIAL " .. Format.roman(data.Trial) .. "  ·  " .. table.concat(score, "  ·  "),
+		if won then "Good" else "Bad",
+		2.6 * scale()
+	)
 	C.AudioController:play(if won or sc.Spectating then "WinSting" else "LoseSting")
 	if arena then
 		local cams = arena:FindFirstChild("Cameras")
 		local gallery = cams and cams:FindFirstChild("Gallery") :: BasePart?
 		if gallery then
-			C.CameraController:shots({ { From = gallery.CFrame, To = gallery.CFrame * CFrame.new(0, -0.6, -3), Duration = 2.6 * scale(), Fov = 42 } })
+			C.CameraController:shots({
+				{
+					From = gallery.CFrame,
+					To = gallery.CFrame * CFrame.new(0, -0.6, -3),
+					Duration = 2.6 * scale(),
+					Fov = 42,
+				},
+			})
 		end
 	end
 	after(3.6, function()
@@ -1311,7 +1389,8 @@ handlers.MatchEnd = function(data)
 		C.AnimationController:setState(r, "Tension", 0)
 		if winners[id] then
 			C.AnimationController:setState(r, "Slumped", 0)
-			local pose = info.Look and info.Look.Victory and info.Look.Victory.Data and info.Look.Victory.Data.Pose or "Nod"
+			local pose = info.Look and info.Look.Victory and info.Look.Victory.Data and info.Look.Victory.Data.Pose
+				or "Nod"
 			C.AnimationController:victory(r, pose)
 			if pose == "Raise" then
 				C.WeaponController:hoist(r)
@@ -1329,7 +1408,13 @@ handlers.MatchEnd = function(data)
 		local toward = (origin * CFrame.new(0, TableLayout.TableTop + 1.8, 0)).Position
 		local from = CFrame.lookAt(toward + (toward - head).Unit * 0.5 + Vector3.new(0, 0.6, 0), head)
 		C.CameraController:shots({
-			{ From = from, To = CFrame.lookAt(head:Lerp(toward, 0.55), head), Duration = 2.6, Fov = 40, Essential = true },
+			{
+				From = from,
+				To = CFrame.lookAt(head:Lerp(toward, 0.55), head),
+				Duration = 2.6,
+				Fov = 40,
+				Essential = true,
+			},
 		}, true)
 	end
 end
@@ -1337,7 +1422,10 @@ end
 handlers.Forfeit = function(data)
 	local id = data.Subject
 	C.AnimationController:setState(rig(id), "Slumped", 1)
-	local reason = if data.Reason == "AFK" then "REMOVED FOR INACTIVITY" elseif data.Reason == "Disconnected" then "CONNECTION LOST" else "LEFT THE EVALUATION"
+	local reason = if data.Reason == "AFK"
+		then "REMOVED FOR INACTIVITY"
+		elseif data.Reason == "Disconnected" then "CONNECTION LOST"
+		else "LEFT THE EVALUATION"
 	C.UIController:banner(nameOf(id) .. " FORFEITS", reason, "Warn", 1.3 * scale())
 	refreshMonitors()
 end
@@ -1345,7 +1433,11 @@ end
 handlers.Timeout = function(data)
 	announce("Timeout")
 	if isMe(data.Subject) then
-		C.UIController:toast("HESITATION LIMIT", "The Arbiter fired for you. Two timeouts in a row forfeit a live Trial.", "Warn")
+		C.UIController:toast(
+			"HESITATION LIMIT",
+			"The Arbiter fired for you. Two timeouts in a row forfeit a live Trial.",
+			"Warn"
+		)
 	end
 end
 
@@ -1378,7 +1470,11 @@ local function onPresence(data)
 	elseif data.Connected then
 		C.UIController:toast(name .. " RECONNECTED", nil, "Good")
 	else
-		C.UIController:toast(name .. " DISCONNECTED", string.format("Holding their seat for %d seconds.", data.Grace or 45), "Warn")
+		C.UIController:toast(
+			name .. " DISCONNECTED",
+			string.format("Holding their seat for %d seconds.", data.Grace or 45),
+			"Warn"
+		)
 	end
 end
 

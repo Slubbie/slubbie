@@ -63,7 +63,9 @@ function SpectatorController:cycle(direction: number)
 	else
 		camera:spectateSeat(scene.Subjects[ids[viewIndex]].Seat)
 	end
-	SpectatorController.Changed:Fire(viewIndex == 0 and "ORBIT" or string.upper(scene.Subjects[ids[viewIndex]].Name or "SEAT"))
+	SpectatorController.Changed:Fire(
+		viewIndex == 0 and "ORBIT" or string.upper(scene.Subjects[ids[viewIndex]].Name or "SEAT")
+	)
 end
 
 function SpectatorController:Start()

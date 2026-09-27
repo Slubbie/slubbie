@@ -188,7 +188,9 @@ function LobbyWorldService:Start()
 			end
 			local line = Lore.Broadcasts[table.remove(order)]
 			for _, player in Players:GetPlayers() do
-				if not self.Services.MatchService:isBusy(player) and not self.Services.SpectatorService:matchOf(player) then
+				if
+					not self.Services.MatchService:isBusy(player) and not self.Services.SpectatorService:matchOf(player)
+				then
 					self.Services.NetworkService:push(player, "Broadcast", { Text = line })
 				end
 			end

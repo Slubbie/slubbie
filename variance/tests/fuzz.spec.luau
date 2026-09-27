@@ -189,7 +189,13 @@ return function(H)
 
 	H.test("fuzz: infinite instruments debug rule", function()
 		for seed = 1, 30 do
-			play("Standard", seed, { { Name = "A" }, { Name = "B" } }, nil, { InfiniteInstruments = true, StartingInstruments = 4 })
+			play(
+				"Standard",
+				seed,
+				{ { Name = "A" }, { Name = "B" } },
+				nil,
+				{ InfiniteInstruments = true, StartingInstruments = 4 }
+			)
 		end
 	end)
 end

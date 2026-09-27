@@ -18,18 +18,35 @@ function Dresser.dress(ctx)
 	local black = Color3.fromRGB(24, 24, 24)
 
 	-- Hazard band framing the table area.
-	for _, spec in {
-		{ at(0, 0.01, 9.5), 20 },
-		{ at(0, 0.01, -9.5), 20 },
-		{ at(9.5, 0.01, 0, CFrame.Angles(0, math.pi / 2, 0)), 20 },
-		{ at(-9.5, 0.01, 0, CFrame.Angles(0, math.pi / 2, 0)), 20 },
-	} do
+	for _, spec in
+		{
+			{ at(0, 0.01, 9.5), 20 },
+			{ at(0, 0.01, -9.5), 20 },
+			{ at(9.5, 0.01, 0, CFrame.Angles(0, math.pi / 2, 0)), 20 },
+			{ at(-9.5, 0.01, 0, CFrame.Angles(0, math.pi / 2, 0)), 20 },
+		}
+	do
 		PropKit.hazardBand(m, spec[1], spec[2], 0.9, yellow, black)
 	end
 	-- Floor drain and bolted plates.
-	Build.cylinder(m, 0.05, 1.6, at(6, 0.02, -6) * CFrame.Angles(0, 0, math.pi / 2), Color3.fromRGB(30, 30, 30), "DiamondPlate", "Drain")
+	Build.cylinder(
+		m,
+		0.05,
+		1.6,
+		at(6, 0.02, -6) * CFrame.Angles(0, 0, math.pi / 2),
+		Color3.fromRGB(30, 30, 30),
+		"DiamondPlate",
+		"Drain"
+	)
 	for i = -2, 2 do
-		Build.box(m, Vector3.new(3.8, 0.05, 3.8), at(i * 4.2, 0.02, 15), Color3.fromRGB(58, 58, 56), "DiamondPlate", "Plate")
+		Build.box(
+			m,
+			Vector3.new(3.8, 0.05, 3.8),
+			at(i * 4.2, 0.02, 15),
+			Color3.fromRGB(58, 58, 56),
+			"DiamondPlate",
+			"Plate"
+		)
 	end
 
 	-- Blast door on the north wall.
@@ -38,18 +55,53 @@ function Dresser.dress(ctx)
 	Build.box(m, Vector3.new(11.6, 0.6, 1), door * CFrame.new(0, 5.7, 0), yellow, "Metal", "DoorFrame")
 	Build.box(m, Vector3.new(0.6, 11.6, 1), door * CFrame.new(-5.8, 0, 0), yellow, "Metal", "DoorFrame")
 	Build.box(m, Vector3.new(0.6, 11.6, 1), door * CFrame.new(5.8, 0, 0), yellow, "Metal", "DoorFrame")
-	Build.cylinder(m, 0.3, 3.2, door * CFrame.new(0, 0, 0.5) * CFrame.Angles(0, math.pi / 2, 0), Color3.fromRGB(150, 40, 30), "Metal", "Wheel")
+	Build.cylinder(
+		m,
+		0.3,
+		3.2,
+		door * CFrame.new(0, 0, 0.5) * CFrame.Angles(0, math.pi / 2, 0),
+		Color3.fromRGB(150, 40, 30),
+		"Metal",
+		"Wheel"
+	)
 	for i = 0, 3 do
-		Build.box(m, Vector3.new(3.0, 0.2, 0.2), door * CFrame.new(0, 0, 0.62) * CFrame.Angles(0, 0, i * math.pi / 4), Color3.fromRGB(150, 40, 30), "Metal", "Spoke")
+		Build.box(
+			m,
+			Vector3.new(3.0, 0.2, 0.2),
+			door * CFrame.new(0, 0, 0.62) * CFrame.Angles(0, 0, i * math.pi / 4),
+			Color3.fromRGB(150, 40, 30),
+			"Metal",
+			"Spoke"
+		)
 	end
-	PropKit.sign(m, door * CFrame.new(0, 3.6, 0.45) * CFrame.Angles(0, math.pi, 0), Vector2.new(5.5, 1.2), "TEST CHAMBER 04", black, yellow)
-	PropKit.sign(m, at(-14, 7, -23.4, CFrame.Angles(0, math.pi, 0)), Vector2.new(6, 1.4), "KEEP BOTH HANDS ON THE TABLE", Color3.fromRGB(200, 200, 196), black)
+	PropKit.sign(
+		m,
+		door * CFrame.new(0, 3.6, 0.45) * CFrame.Angles(0, math.pi, 0),
+		Vector2.new(5.5, 1.2),
+		"TEST CHAMBER 04",
+		black,
+		yellow
+	)
+	PropKit.sign(
+		m,
+		at(-14, 7, -23.4, CFrame.Angles(0, math.pi, 0)),
+		Vector2.new(6, 1.4),
+		"KEEP BOTH HANDS ON THE TABLE",
+		Color3.fromRGB(200, 200, 196),
+		black
+	)
 
 	-- Pipe runs along the east and west walls.
 	for i, y in { 13, 14.6, 16 } do
 		local d = 0.6 + i * 0.12
 		PropKit.pipe(m, at(23, y, -22).Position, at(23, y, 22).Position, d, Color3.fromRGB(96 + i * 10, 90, 80))
-		PropKit.pipe(m, at(-23, y + 0.4, -22).Position, at(-23, y + 0.4, 22).Position, d * 0.8, Color3.fromRGB(80, 90, 96))
+		PropKit.pipe(
+			m,
+			at(-23, y + 0.4, -22).Position,
+			at(-23, y + 0.4, 22).Position,
+			d * 0.8,
+			Color3.fromRGB(80, 90, 96)
+		)
 	end
 	PropKit.pipe(m, at(22.6, 13, 14).Position, at(22.6, 0.2, 14).Position, 0.9, Color3.fromRGB(110, 90, 70))
 
@@ -67,7 +119,8 @@ function Dresser.dress(ctx)
 		local s = PropKit.silhouette(m, at(-26.5, 9.5, z, CFrame.Angles(0, -math.pi / 2, 0)))
 		s.Name = "Observer" .. i
 	end
-	local boothLight = Build.part({ Name = "BoothLight", Size = Vector3.one, CFrame = at(-26, 13, 0), Transparency = 1, Parent = m })
+	local boothLight =
+		Build.part({ Name = "BoothLight", Size = Vector3.one, CFrame = at(-26, 13, 0), Transparency = 1, Parent = m })
 	Build.pointLight(boothLight, Color3.fromRGB(90, 110, 120), 0.8, 14, false)
 	-- The room behind the booth glass.
 	Build.box(m, Vector3.new(0.5, 6, 16), at(-29, 11.5, 0), Color3.fromRGB(34, 36, 36), "Concrete", "BoothBack")
@@ -86,19 +139,49 @@ function Dresser.dress(ctx)
 
 	-- Control console on the south wall.
 	local console = at(12, 0, 21.5) -- local -Z faces into the room
-	Build.box(m, Vector3.new(8, 3, 2.2), console * CFrame.new(0, 1.5, 0), Color3.fromRGB(64, 66, 64), "Metal", "Console")
+	Build.box(
+		m,
+		Vector3.new(8, 3, 2.2),
+		console * CFrame.new(0, 1.5, 0),
+		Color3.fromRGB(64, 66, 64),
+		"Metal",
+		"Console"
+	)
 	PropKit.monitor(m, console * CFrame.new(-2, 4, 0.2), nil, "HARNESS NOMINAL", Color3.fromRGB(150, 255, 170))
 	PropKit.monitor(m, console * CFrame.new(2, 4, 0.2), nil, "RECORDING", Color3.fromRGB(255, 190, 110))
 	for i = 1, 6 do
-		Build.box(m, Vector3.new(0.3, 0.1, 0.3), console * CFrame.new(-3 + i, 3.05, -0.4), i % 2 == 0 and yellow or Color3.fromRGB(200, 40, 30), "Neon", "Button")
+		Build.box(
+			m,
+			Vector3.new(0.3, 0.1, 0.3),
+			console * CFrame.new(-3 + i, 3.05, -0.4),
+			i % 2 == 0 and yellow or Color3.fromRGB(200, 40, 30),
+			"Neon",
+			"Button"
+		)
 	end
 
 	-- Stacked gas cylinders and cable coils for clutter.
 	for i = 0, 3 do
-		Build.column(m, 4.5, 1.1, at(-20 + i * 1.3, 2.25, 20), i % 2 == 0 and Color3.fromRGB(70, 110, 80) or Color3.fromRGB(150, 60, 50), "Metal", "GasCylinder")
+		Build.column(
+			m,
+			4.5,
+			1.1,
+			at(-20 + i * 1.3, 2.25, 20),
+			i % 2 == 0 and Color3.fromRGB(70, 110, 80) or Color3.fromRGB(150, 60, 50),
+			"Metal",
+			"GasCylinder"
+		)
 	end
 	for i = 0, 2 do
-		Build.cylinder(m, 0.6, 2.6 - i * 0.4, at(19, 0.3 + i * 0.6, -19) * CFrame.Angles(0, 0, math.pi / 2), Color3.fromRGB(30, 30, 32), "Rubber", "Coil")
+		Build.cylinder(
+			m,
+			0.6,
+			2.6 - i * 0.4,
+			at(19, 0.3 + i * 0.6, -19) * CFrame.Angles(0, 0, math.pi / 2),
+			Color3.fromRGB(30, 30, 32),
+			"Rubber",
+			"Coil"
+		)
 	end
 end
 

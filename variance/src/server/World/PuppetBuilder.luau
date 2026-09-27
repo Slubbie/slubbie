@@ -49,7 +49,16 @@ local function motor(name: string, parent: BasePart, part0: BasePart, part1: Bas
 end
 
 -- Attaches a decorative part to `to` at an offset (welded, unanchored).
-local function deco(model: Model, to: BasePart, size: Vector3, offset: CFrame, color: Color3, mat: string?, name: string?, shape: Enum.PartType?): BasePart
+local function deco(
+	model: Model,
+	to: BasePart,
+	size: Vector3,
+	offset: CFrame,
+	color: Color3,
+	mat: string?,
+	name: string?,
+	shape: Enum.PartType?
+): BasePart
 	local p = Build.part({
 		Name = name or "Deco",
 		Size = size,
@@ -70,28 +79,102 @@ local heads = {}
 
 function heads.Monitor(model, head, look)
 	head.Transparency = 1
-	deco(model, head, Vector3.new(1.35, 1.15, 1.2), CFrame.new(0, 0.05, 0), Build.rgb(look.Body), "SmoothPlastic", "Casing")
-	local screen = deco(model, head, Vector3.new(1.1, 0.85, 0.05), CFrame.new(0, 0.07, -0.61), Color3.fromRGB(8, 20, 12), "Glass", "Screen")
-	Build.label(screen, Enum.NormalId.Front, "0114", Build.rgb(look.Eye), { Font = Enum.Font.Code, PixelsPerStud = 80, Brightness = 2 })
-	deco(model, head, Vector3.new(0.06, 0.6, 0.06), CFrame.new(0.4, 0.9, 0.1), Build.rgb(look.Limbs), "Metal", "Antenna")
+	deco(
+		model,
+		head,
+		Vector3.new(1.35, 1.15, 1.2),
+		CFrame.new(0, 0.05, 0),
+		Build.rgb(look.Body),
+		"SmoothPlastic",
+		"Casing"
+	)
+	local screen = deco(
+		model,
+		head,
+		Vector3.new(1.1, 0.85, 0.05),
+		CFrame.new(0, 0.07, -0.61),
+		Color3.fromRGB(8, 20, 12),
+		"Glass",
+		"Screen"
+	)
+	Build.label(
+		screen,
+		Enum.NormalId.Front,
+		"0114",
+		Build.rgb(look.Eye),
+		{ Font = Enum.Font.Code, PixelsPerStud = 80, Brightness = 2 }
+	)
+	deco(
+		model,
+		head,
+		Vector3.new(0.06, 0.6, 0.06),
+		CFrame.new(0.4, 0.9, 0.1),
+		Build.rgb(look.Limbs),
+		"Metal",
+		"Antenna"
+	)
 end
 
 function heads.Coil(model, head, look)
 	head.Transparency = 1
-	deco(model, head, Vector3.new(1.25, 1.25, 1.25), CFrame.identity, Build.rgb(look.Body), "Metal", "Dome", Enum.PartType.Ball)
+	deco(
+		model,
+		head,
+		Vector3.new(1.25, 1.25, 1.25),
+		CFrame.identity,
+		Build.rgb(look.Body),
+		"Metal",
+		"Dome",
+		Enum.PartType.Ball
+	)
 	deco(model, head, Vector3.new(1.05, 0.22, 0.2), CFrame.new(0, 0.1, -0.55), Build.rgb(look.Eye), "Neon", "Visor")
 	for _, x in { -0.35, 0.35 } do
-		deco(model, head, Vector3.new(0.08, 0.9, 0.08), CFrame.new(x, 0.95, 0) * CFrame.Angles(0, 0, x * 0.6), Build.rgb(look.Limbs), "Metal", "Antenna")
-		deco(model, head, Vector3.new(0.2, 0.2, 0.2), CFrame.new(x * 1.45, 1.38, 0), Build.rgb(look.Accent), "Neon", "Spark", Enum.PartType.Ball)
+		deco(
+			model,
+			head,
+			Vector3.new(0.08, 0.9, 0.08),
+			CFrame.new(x, 0.95, 0) * CFrame.Angles(0, 0, x * 0.6),
+			Build.rgb(look.Limbs),
+			"Metal",
+			"Antenna"
+		)
+		deco(
+			model,
+			head,
+			Vector3.new(0.2, 0.2, 0.2),
+			CFrame.new(x * 1.45, 1.38, 0),
+			Build.rgb(look.Accent),
+			"Neon",
+			"Spark",
+			Enum.PartType.Ball
+		)
 	end
 	for i = 0, 2 do
-		deco(model, head, Vector3.new(0.08, 1.3, 1.3), CFrame.new(-0.3 + i * 0.3, 0, 0), Build.rgb(look.Accent), "Neon", "Coil", Enum.PartType.Cylinder)
+		deco(
+			model,
+			head,
+			Vector3.new(0.08, 1.3, 1.3),
+			CFrame.new(-0.3 + i * 0.3, 0, 0),
+			Build.rgb(look.Accent),
+			"Neon",
+			"Coil",
+			Enum.PartType.Cylinder
+		)
 	end
 end
 
 function heads.Beak(model, head, look)
 	head.Transparency = 1
-	deco(model, head, Vector3.new(1.15, 1.2, 1.2), CFrame.identity, Build.rgb(look.Body), "Fabric", "Hood", Enum.PartType.Ball)
+	deco(
+		model,
+		head,
+		Vector3.new(1.15, 1.2, 1.2),
+		CFrame.identity,
+		Build.rgb(look.Body),
+		"Fabric",
+		"Hood",
+		Enum.PartType.Ball
+	)
 	local beak = Instance.new("WedgePart")
 	beak.Name = "Beak"
 	beak.Size = Vector3.new(0.35, 0.4, 0.9)
@@ -106,84 +189,272 @@ function heads.Beak(model, head, look)
 	beak.Parent = model
 	Build.weld(beak, head)
 	for _, x in { -0.28, 0.28 } do
-		deco(model, head, Vector3.new(0.12, 0.34, 0.34), CFrame.new(x, 0.18, -0.55) * CFrame.Angles(0, math.pi / 2, 0), Build.rgb(look.Eye), "Neon", "Lens", Enum.PartType.Cylinder)
+		deco(
+			model,
+			head,
+			Vector3.new(0.12, 0.34, 0.34),
+			CFrame.new(x, 0.18, -0.55) * CFrame.Angles(0, math.pi / 2, 0),
+			Build.rgb(look.Eye),
+			"Neon",
+			"Lens",
+			Enum.PartType.Cylinder
+		)
 	end
 end
 
 function heads.Die(model, head, look)
 	head.Transparency = 1
-	local cube = deco(model, head, Vector3.new(1.2, 1.2, 1.2), CFrame.identity, Color3.fromRGB(235, 232, 222), "SmoothPlastic", "Die")
+	local cube = deco(
+		model,
+		head,
+		Vector3.new(1.2, 1.2, 1.2),
+		CFrame.identity,
+		Color3.fromRGB(235, 232, 222),
+		"SmoothPlastic",
+		"Die"
+	)
 	local pips = { { 0, 0 }, { -0.3, 0.3 }, { 0.3, -0.3 }, { -0.3, -0.3 }, { 0.3, 0.3 } }
 	for _, p in pips do
-		deco(model, cube, Vector3.new(0.18, 0.18, 0.06), CFrame.new(p[1], p[2], -0.6), Color3.fromRGB(20, 20, 20), "SmoothPlastic", "Pip", Enum.PartType.Ball)
+		deco(
+			model,
+			cube,
+			Vector3.new(0.18, 0.18, 0.06),
+			CFrame.new(p[1], p[2], -0.6),
+			Color3.fromRGB(20, 20, 20),
+			"SmoothPlastic",
+			"Pip",
+			Enum.PartType.Ball
+		)
 	end
 	deco(model, cube, Vector3.new(1.3, 0.2, 1.3), CFrame.new(0, 0.66, 0), Build.rgb(look.Accent), "Foil", "Band")
 end
 
 function heads.Aperture(model, head, look)
 	head.Transparency = 1
-	local shell = deco(model, head, Vector3.new(1.1, 1.6, 1.15), CFrame.new(0, 0.25, 0), Build.rgb(look.Body), "SmoothPlastic", "Shell", Enum.PartType.Ball)
-	deco(model, shell, Vector3.new(0.08, 0.5, 0.5), CFrame.new(0, 0.05, -0.54) * CFrame.Angles(0, math.pi / 2, 0), Build.rgb(look.Eye), "Neon", "Aperture", Enum.PartType.Cylinder)
-	deco(model, shell, Vector3.new(0.06, 0.26, 0.26), CFrame.new(0, 0.05, -0.59) * CFrame.Angles(0, math.pi / 2, 0), Color3.fromRGB(10, 10, 10), "SmoothPlastic", "Pupil", Enum.PartType.Cylinder)
+	local shell = deco(
+		model,
+		head,
+		Vector3.new(1.1, 1.6, 1.15),
+		CFrame.new(0, 0.25, 0),
+		Build.rgb(look.Body),
+		"SmoothPlastic",
+		"Shell",
+		Enum.PartType.Ball
+	)
+	deco(
+		model,
+		shell,
+		Vector3.new(0.08, 0.5, 0.5),
+		CFrame.new(0, 0.05, -0.54) * CFrame.Angles(0, math.pi / 2, 0),
+		Build.rgb(look.Eye),
+		"Neon",
+		"Aperture",
+		Enum.PartType.Cylinder
+	)
+	deco(
+		model,
+		shell,
+		Vector3.new(0.06, 0.26, 0.26),
+		CFrame.new(0, 0.05, -0.59) * CFrame.Angles(0, math.pi / 2, 0),
+		Color3.fromRGB(10, 10, 10),
+		"SmoothPlastic",
+		"Pupil",
+		Enum.PartType.Cylinder
+	)
 end
 
 function heads.Dummy(model, head, look)
 	head.Transparency = 1
-	local ball = deco(model, head, Vector3.new(1.2, 1.25, 1.2), CFrame.identity, Build.rgb(look.Body), "SmoothPlastic", "Head", Enum.PartType.Ball)
+	local ball = deco(
+		model,
+		head,
+		Vector3.new(1.2, 1.25, 1.2),
+		CFrame.identity,
+		Build.rgb(look.Body),
+		"SmoothPlastic",
+		"Head",
+		Enum.PartType.Ball
+	)
 	for _, x in { -0.62, 0.62 } do
-		deco(model, ball, Vector3.new(0.05, 0.45, 0.45), CFrame.new(x, 0.1, 0), Color3.fromRGB(25, 25, 25), "SmoothPlastic", "Marker", Enum.PartType.Cylinder)
+		deco(
+			model,
+			ball,
+			Vector3.new(0.05, 0.45, 0.45),
+			CFrame.new(x, 0.1, 0),
+			Color3.fromRGB(25, 25, 25),
+			"SmoothPlastic",
+			"Marker",
+			Enum.PartType.Cylinder
+		)
 	end
-	deco(model, ball, Vector3.new(0.9, 0.06, 0.1), CFrame.new(0, 0.1, -0.58), Color3.fromRGB(25, 25, 25), "SmoothPlastic", "Stripe")
+	deco(
+		model,
+		ball,
+		Vector3.new(0.9, 0.06, 0.1),
+		CFrame.new(0, 0.1, -0.58),
+		Color3.fromRGB(25, 25, 25),
+		"SmoothPlastic",
+		"Stripe"
+	)
 end
 
 local extras = {}
 
 function extras.Tie(model, parts, look)
-	deco(model, parts.Torso, Vector3.new(0.3, 1.3, 0.06), CFrame.new(0, 0.2, -0.53), Build.rgb(look.Accent), "Fabric", "Tie")
-	deco(model, parts.Torso, Vector3.new(1.2, 0.3, 0.08), CFrame.new(0, 0.9, -0.5), Build.rgb(look.Shirt), "Fabric", "Collar")
+	deco(
+		model,
+		parts.Torso,
+		Vector3.new(0.3, 1.3, 0.06),
+		CFrame.new(0, 0.2, -0.53),
+		Build.rgb(look.Accent),
+		"Fabric",
+		"Tie"
+	)
+	deco(
+		model,
+		parts.Torso,
+		Vector3.new(1.2, 0.3, 0.08),
+		CFrame.new(0, 0.9, -0.5),
+		Build.rgb(look.Shirt),
+		"Fabric",
+		"Collar"
+	)
 end
 
 function extras.Visor(model, parts, look)
-	deco(model, parts.Head, Vector3.new(1.45, 0.08, 0.7), CFrame.new(0, 0.62, -0.5), Build.rgb(look.Accent), "Glass", "Visor").Transparency = 0.3
+	deco(
+		model,
+		parts.Head,
+		Vector3.new(1.45, 0.08, 0.7),
+		CFrame.new(0, 0.62, -0.5),
+		Build.rgb(look.Accent),
+		"Glass",
+		"Visor"
+	).Transparency =
+		0.3
 end
 
 function extras.Antennae() end
 
 function extras.Harness(model, parts, look)
 	for _, x in { -0.5, 0.5 } do
-		deco(model, parts.Torso, Vector3.new(0.25, 2.05, 1.06), CFrame.new(x, 0, 0), Build.rgb(look.Shirt), "Fabric", "Strap")
+		deco(
+			model,
+			parts.Torso,
+			Vector3.new(0.25, 2.05, 1.06),
+			CFrame.new(x, 0, 0),
+			Build.rgb(look.Shirt),
+			"Fabric",
+			"Strap"
+		)
 	end
-	deco(model, parts.Torso, Vector3.new(0.5, 0.5, 0.2), CFrame.new(0, 0.2, -0.55), Build.rgb(look.Accent), "Neon", "Core")
+	deco(
+		model,
+		parts.Torso,
+		Vector3.new(0.5, 0.5, 0.2),
+		CFrame.new(0, 0.2, -0.55),
+		Build.rgb(look.Accent),
+		"Neon",
+		"Core"
+	)
 end
 
 function extras.Cloak(model, parts, look)
-	deco(model, parts.Torso, Vector3.new(2.3, 2.1, 0.3), CFrame.new(0, -0.1, 0.62), Build.rgb(look.Body), "Fabric", "Cloak")
+	deco(
+		model,
+		parts.Torso,
+		Vector3.new(2.3, 2.1, 0.3),
+		CFrame.new(0, -0.1, 0.62),
+		Build.rgb(look.Body),
+		"Fabric",
+		"Cloak"
+	)
 	for _, x in { -1, 1 } do
-		deco(model, parts.Torso, Vector3.new(1.1, 0.4, 1.3), CFrame.new(x * 0.7, 1.05, 0) * CFrame.Angles(0, 0, -x * 0.35), Build.rgb(look.Body), "Fabric", "Mantle")
+		deco(
+			model,
+			parts.Torso,
+			Vector3.new(1.1, 0.4, 1.3),
+			CFrame.new(x * 0.7, 1.05, 0) * CFrame.Angles(0, 0, -x * 0.35),
+			Build.rgb(look.Body),
+			"Fabric",
+			"Mantle"
+		)
 	end
 end
 
 function extras.Trinkets(model, parts, look)
 	for i = 0, 3 do
-		deco(model, parts.Torso, Vector3.new(0.14, 0.14, 0.14), CFrame.new(-0.6 + i * 0.4, -0.5 - (i % 2) * 0.2, -0.54), Build.rgb(look.Accent), "Foil", "Trinket", Enum.PartType.Ball)
+		deco(
+			model,
+			parts.Torso,
+			Vector3.new(0.14, 0.14, 0.14),
+			CFrame.new(-0.6 + i * 0.4, -0.5 - (i % 2) * 0.2, -0.54),
+			Build.rgb(look.Accent),
+			"Foil",
+			"Trinket",
+			Enum.PartType.Ball
+		)
 	end
 end
 
 function extras.Vest(model, parts, look)
-	deco(model, parts.Torso, Vector3.new(2.06, 1.9, 1.06), CFrame.new(0, -0.02, 0), Build.rgb(look.Body), "Fabric", "Vest")
-	deco(model, parts.Torso, Vector3.new(0.7, 1.6, 0.08), CFrame.new(0, 0.1, -0.54), Build.rgb(look.Shirt), "Fabric", "Shirt")
+	deco(
+		model,
+		parts.Torso,
+		Vector3.new(2.06, 1.9, 1.06),
+		CFrame.new(0, -0.02, 0),
+		Build.rgb(look.Body),
+		"Fabric",
+		"Vest"
+	)
+	deco(
+		model,
+		parts.Torso,
+		Vector3.new(0.7, 1.6, 0.08),
+		CFrame.new(0, 0.1, -0.54),
+		Build.rgb(look.Shirt),
+		"Fabric",
+		"Shirt"
+	)
 	for i = 0, 2 do
-		deco(model, parts.Torso, Vector3.new(0.12, 0.12, 0.06), CFrame.new(0, 0.5 - i * 0.45, -0.58), Build.rgb(look.Accent), "Foil", "Button", Enum.PartType.Ball)
+		deco(
+			model,
+			parts.Torso,
+			Vector3.new(0.12, 0.12, 0.06),
+			CFrame.new(0, 0.5 - i * 0.45, -0.58),
+			Build.rgb(look.Accent),
+			"Foil",
+			"Button",
+			Enum.PartType.Ball
+		)
 	end
 end
 
 function extras.Halo(model, parts, look)
-	deco(model, parts.Head, Vector3.new(0.1, 1.9, 1.9), CFrame.new(0, 1.35, 0) * CFrame.Angles(0, 0, math.pi / 2), Build.rgb(look.Accent), "Neon", "Halo", Enum.PartType.Cylinder).Transparency = 0.2
+	deco(
+		model,
+		parts.Head,
+		Vector3.new(0.1, 1.9, 1.9),
+		CFrame.new(0, 1.35, 0) * CFrame.Angles(0, 0, math.pi / 2),
+		Build.rgb(look.Accent),
+		"Neon",
+		"Halo",
+		Enum.PartType.Cylinder
+	).Transparency =
+		0.2
 end
 
 function extras.Markers(model, parts)
 	for _, limbName in { "Left Arm", "Right Arm", "Left Leg", "Right Leg" } do
-		deco(model, parts[limbName], Vector3.new(1.02, 0.22, 1.02), CFrame.new(0, 0.2, 0), Color3.fromRGB(25, 25, 25), "SmoothPlastic", "Band")
+		deco(
+			model,
+			parts[limbName],
+			Vector3.new(1.02, 0.22, 1.02),
+			CFrame.new(0, 0.2, 0),
+			Color3.fromRGB(25, 25, 25),
+			"SmoothPlastic",
+			"Band"
+		)
 	end
 end
 
@@ -194,7 +465,13 @@ function PuppetBuilder.build(personality: string, rootCFrame: CFrame, name: stri
 	model.Name = name or ("Puppet_" .. personality)
 	model:SetAttribute("Surrogate", personality)
 
-	local root = Build.part({ Name = "HumanoidRootPart", Size = Vector3.new(2, 2, 1), CFrame = rootCFrame, Transparency = 1, Parent = model })
+	local root = Build.part({
+		Name = "HumanoidRootPart",
+		Size = Vector3.new(2, 2, 1),
+		CFrame = rootCFrame,
+		Transparency = 1,
+		Parent = model,
+	})
 	root.Anchored = true
 	local torso = limb(model, "Torso", Vector3.new(2, 2, 1), Build.rgb(look.Body))
 	local head = limb(model, "Head", Vector3.new(2, 1, 1), Build.rgb(look.Limbs))
@@ -218,7 +495,8 @@ function PuppetBuilder.build(personality: string, rootCFrame: CFrame, name: stri
 	motor("Left Hip", torso, torso, ll, LH_C0, LH_C1)
 	motor("Right Hip", torso, torso, rl, RH_C0, RH_C1)
 
-	local parts = { Torso = torso, Head = head, ["Left Arm"] = la, ["Right Arm"] = ra, ["Left Leg"] = ll, ["Right Leg"] = rl }
+	local parts =
+		{ Torso = torso, Head = head, ["Left Arm"] = la, ["Right Arm"] = ra, ["Left Leg"] = ll, ["Right Leg"] = rl }
 	local headBuilder = heads[look.Head]
 	if headBuilder then
 		headBuilder(model, head, look)
@@ -231,7 +509,15 @@ function PuppetBuilder.build(personality: string, rootCFrame: CFrame, name: stri
 	end
 	-- Hands: slightly darker cuffs so reach animations read well.
 	for _, arm in { la, ra } do
-		deco(model, arm, Vector3.new(1.04, 0.4, 1.04), CFrame.new(0, -0.8, 0), Color3.new(0.1, 0.1, 0.11), "SmoothPlastic", "Glove")
+		deco(
+			model,
+			arm,
+			Vector3.new(1.04, 0.4, 1.04),
+			CFrame.new(0, -0.8, 0),
+			Color3.new(0.1, 0.1, 0.11),
+			"SmoothPlastic",
+			"Glove"
+		)
 	end
 	for _, d in model:GetDescendants() do
 		if d:IsA("BasePart") then

@@ -128,7 +128,8 @@ function CharacterService:spawn(player: Player, at: CFrame?)
 	if player.Character then
 		player.Character:Destroy()
 	end
-	local ok, character = pcall(Players.CreateHumanoidModelFromDescription, Players, description(player), Enum.HumanoidRigType.R6)
+	local ok, character =
+		pcall(Players.CreateHumanoidModelFromDescription, Players, description(player), Enum.HumanoidRigType.R6)
 	if not ok or character == nil then
 		warn("[VARIANCE/Character] could not build character: " .. tostring(character))
 		player:LoadCharacter()
@@ -169,7 +170,9 @@ local function characterParts(player: Player)
 	if character == nil then
 		return nil
 	end
-	return character, character:FindFirstChild("HumanoidRootPart") :: BasePart?, character:FindFirstChildOfClass("Humanoid")
+	return character,
+		character:FindFirstChild("HumanoidRootPart") :: BasePart?,
+		character:FindFirstChildOfClass("Humanoid")
 end
 
 -- Adds match-only cosmetics (gloves, headwear) to a seated character.
@@ -222,18 +225,42 @@ local function dressForMatch(self, player: Player, character: Model): { Instance
 			piece(Vector3.new(0.2, 0.45, 0.45), CFrame.new(-0.72, 0.05, 0), "SmoothPlastic")
 			piece(Vector3.new(0.08, 0.08, 0.5), CFrame.new(0.62, -0.25, -0.35), "SmoothPlastic")
 		elseif acc.Kind == "Goggles" or acc.Kind == "Visor" then
-			local lens = piece(Vector3.new(1.25, 0.32, 0.2), CFrame.new(0, 0.18, -0.55), acc.Kind == "Goggles" and "Glass" or "SmoothPlastic")
+			local lens = piece(
+				Vector3.new(1.25, 0.32, 0.2),
+				CFrame.new(0, 0.18, -0.55),
+				acc.Kind == "Goggles" and "Glass" or "SmoothPlastic"
+			)
 			lens.Transparency = acc.Kind == "Goggles" and 0.35 or 0.15
 			piece(Vector3.new(1.3, 0.12, 1.15), CFrame.new(0, 0.2, 0), "Fabric")
 		elseif acc.Kind == "Fedora" then
-			piece(Vector3.new(0.12, 2.0, 2.0), CFrame.new(0, 0.55, 0) * CFrame.Angles(0, 0, math.pi / 2), "Fabric", Enum.PartType.Cylinder)
-			piece(Vector3.new(0.7, 1.2, 1.2), CFrame.new(0, 0.9, 0) * CFrame.Angles(0, 0, math.pi / 2), "Fabric", Enum.PartType.Cylinder)
+			piece(
+				Vector3.new(0.12, 2.0, 2.0),
+				CFrame.new(0, 0.55, 0) * CFrame.Angles(0, 0, math.pi / 2),
+				"Fabric",
+				Enum.PartType.Cylinder
+			)
+			piece(
+				Vector3.new(0.7, 1.2, 1.2),
+				CFrame.new(0, 0.9, 0) * CFrame.Angles(0, 0, math.pi / 2),
+				"Fabric",
+				Enum.PartType.Cylinder
+			)
 		elseif acc.Kind == "Monocle" then
-			piece(Vector3.new(0.06, 0.34, 0.34), CFrame.new(0.25, 0.15, -0.58) * CFrame.Angles(0, math.pi / 2, 0), "Foil", Enum.PartType.Cylinder)
+			piece(
+				Vector3.new(0.06, 0.34, 0.34),
+				CFrame.new(0.25, 0.15, -0.58) * CFrame.Angles(0, math.pi / 2, 0),
+				"Foil",
+				Enum.PartType.Cylinder
+			)
 		elseif acc.Kind == "Mask" then
 			piece(Vector3.new(1.15, 0.9, 0.2), CFrame.new(0, 0, -0.55), "SmoothPlastic")
 		elseif acc.Kind == "Halo" then
-			local ring = piece(Vector3.new(0.08, 1.7, 1.7), CFrame.new(0, 1.2, 0) * CFrame.Angles(0, 0, math.pi / 2), "Neon", Enum.PartType.Cylinder)
+			local ring = piece(
+				Vector3.new(0.08, 1.7, 1.7),
+				CFrame.new(0, 1.2, 0) * CFrame.Angles(0, 0, math.pi / 2),
+				"Neon",
+				Enum.PartType.Cylinder
+			)
 			ring.Transparency = 0.2
 		elseif acc.Kind == "Earpiece" then
 			piece(Vector3.new(0.18, 0.3, 0.18), CFrame.new(-0.6, 0, 0), "SmoothPlastic")

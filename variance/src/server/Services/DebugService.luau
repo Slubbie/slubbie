@@ -99,7 +99,10 @@ function DebugService:validationSuite()
 	end
 	local owner = state.Turn.Owner
 	local other = owner == 1 and 2 or 1
-	check("rejects acting out of turn", not Engine.act(state, other, { Kind = "Fire", Target = owner }, state.Turn.Token))
+	check(
+		"rejects acting out of turn",
+		not Engine.act(state, other, { Kind = "Fire", Target = owner }, state.Turn.Token)
+	)
 	check("rejects stale tokens", not Engine.act(state, owner, { Kind = "Fire", Target = owner }, state.Turn.Token - 1))
 	check("rejects empty slots", not Engine.act(state, owner, { Kind = "Use", Slot = 1 }, state.Turn.Token))
 	check("rejects fractional slots", not Engine.act(state, owner, { Kind = "Use", Slot = 1.5 }, state.Turn.Token))
@@ -107,7 +110,10 @@ function DebugService:validationSuite()
 	check("rejects unknown kinds", not Engine.act(state, owner, { Kind = "Win" }, state.Turn.Token))
 	local ok = Engine.act(state, owner, { Kind = "Fire", Target = owner }, state.Turn.Token)
 	check("accepts a legal action", ok == true)
-	check("rejects the duplicate of that action", not Engine.act(state, owner, { Kind = "Fire", Target = owner }, state.Turn.Token - 1))
+	check(
+		"rejects the duplicate of that action",
+		not Engine.act(state, owner, { Kind = "Fire", Target = owner }, state.Turn.Token - 1)
+	)
 	check("custom rules are clamped", Rules.sanitizeCustom({ MaxIntegrity = 1e9 }).MaxIntegrity == 8)
 	return results
 end
@@ -255,12 +261,18 @@ function commands.Flags(self)
 end
 
 function commands.Grant(self, player, args)
-	self.Services.ProgressionService:award(player, math.max(0, num(args.XP, 0)), math.max(0, num(args.Marks, 0)), "Debug")
+	self.Services.ProgressionService:award(
+		player,
+		math.max(0, num(args.XP, 0)),
+		math.max(0, num(args.Marks, 0)),
+		"Debug"
+	)
 	return true, "Granted."
 end
 
 function commands.SoloQuick(self, player, args)
-	local ok, result = self.Services.MatchService:startSolo(player, args.Personality or "Ledger", args.Difficulty or "Standard")
+	local ok, result =
+		self.Services.MatchService:startSolo(player, args.Personality or "Ledger", args.Difficulty or "Standard")
 	if ok and type(args.Pattern) == "string" then
 		local match = self.Services.MatchService:get(result)
 		if match then

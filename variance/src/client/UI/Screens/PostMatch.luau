@@ -21,27 +21,71 @@ function PostMatch.new(ui, controllers)
 	self.C = controllers
 	self.Main = true
 	self.Visible = false
-	local root = Kit.create("Frame", { Name = "PostMatch", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, Parent = ui.Screens }) :: Frame
+	local root = Kit.create("Frame", {
+		Name = "PostMatch",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = ui.Screens,
+	}) :: Frame
 	self.Frame = root
-	local shade = Kit.create("Frame", { BorderSizePixel = 0, BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.35, Size = UDim2.fromScale(1, 1), Parent = root }) :: Frame
+	local shade = Kit.create("Frame", {
+		BorderSizePixel = 0,
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.35,
+		Size = UDim2.fromScale(1, 1),
+		Parent = root,
+	}) :: Frame
 	local gradient = Instance.new("UIGradient")
-	gradient.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.55, 0.3), NumberSequenceKeypoint.new(1, 0.9) })
+	gradient.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.55, 0.3),
+		NumberSequenceKeypoint.new(1, 0.9),
+	})
 	gradient.Parent = shade
 
-	self.Title = Kit.label(root, { Text = "", Font = "Display", TextSize = "Banner", Size = UDim2.new(0.6, 0, 0, 60), Position = UDim2.fromOffset(40, 36) })
-	self.Subtitle = Kit.label(root, { Text = "", Font = "Mono", TextSize = "Body", Color = "Dim", Size = UDim2.new(0.6, 0, 0, 22), Position = UDim2.fromOffset(40, 98) })
+	self.Title = Kit.label(root, {
+		Text = "",
+		Font = "Display",
+		TextSize = "Banner",
+		Size = UDim2.new(0.6, 0, 0, 60),
+		Position = UDim2.fromOffset(40, 36),
+	})
+	self.Subtitle = Kit.label(root, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Body",
+		Color = "Dim",
+		Size = UDim2.new(0.6, 0, 0, 22),
+		Position = UDim2.fromOffset(40, 98),
+	})
 
 	-- Left column: subjects and key moments.
-	local left = Kit.scroll(root, { Name = "Left", Size = UDim2.new(0.52, -40, 1, -230), Position = UDim2.fromOffset(40, 136), Padding = 10 })
+	local left = Kit.scroll(
+		root,
+		{ Name = "Left", Size = UDim2.new(0.52, -40, 1, -230), Position = UDim2.fromOffset(40, 136), Padding = 10 }
+	)
 	self.Left = left
 	-- Right column: rewards.
-	local right = Kit.panel(root, { Name = "Rewards", Size = UDim2.new(0.4, -40, 1, -230), Position = UDim2.new(0.6, 0, 0, 136), Color = "Panel", Transparency = 0.1 })
+	local right = Kit.panel(root, {
+		Name = "Rewards",
+		Size = UDim2.new(0.4, -40, 1, -230),
+		Position = UDim2.new(0.6, 0, 0, 136),
+		Color = "Panel",
+		Transparency = 0.1,
+	})
 	Kit.padding(right, 14, 16)
 	local rightScroll = Kit.scroll(right, { Padding = 8 })
 	self.Right = rightScroll
 
 	-- Footer: rematch and leave.
-	local footer = Kit.create("Frame", { Name = "Footer", BackgroundTransparency = 1, Size = UDim2.new(1, -80, 0, 52), Position = UDim2.new(0, 40, 1, -76), Parent = root }) :: Frame
+	local footer = Kit.create("Frame", {
+		Name = "Footer",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -80, 0, 52),
+		Position = UDim2.new(0, 40, 1, -76),
+		Parent = root,
+	}) :: Frame
 	self.RematchButton = Kit.button(footer, {
 		Text = "REMATCH",
 		Size = UDim2.fromOffset(220, 48),
@@ -58,7 +102,14 @@ function PostMatch.new(ui, controllers)
 			self:leave()
 		end,
 	})
-	self.RematchStatus = Kit.label(footer, { Text = "", Font = "Mono", TextSize = "Label", Color = "Dim", Size = UDim2.new(1, -520, 1, 0), Position = UDim2.fromOffset(516, 0) })
+	self.RematchStatus = Kit.label(footer, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Label",
+		Color = "Dim",
+		Size = UDim2.new(1, -520, 1, 0),
+		Position = UDim2.fromOffset(516, 0),
+	})
 
 	controllers.MatchClient.Rematch:Connect(function(data)
 		self:rematch(data)
@@ -77,9 +128,20 @@ local function section(parent: Instance, text: string, order: number)
 end
 
 local function row(parent: Instance, left: string, right: string, order: number, color: string?)
-	local frame = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 20), LayoutOrder = order, Parent = parent }) :: Frame
+	local frame = Kit.create(
+		"Frame",
+		{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 20), LayoutOrder = order, Parent = parent }
+	) :: Frame
 	Kit.label(frame, { Text = left, Font = "Mono", TextSize = "Small", Color = "Dim", Size = UDim2.new(0.65, 0, 1, 0) })
-	return Kit.label(frame, { Text = right, Font = "Mono", TextSize = "Small", Color = color or "Text", XAlign = "Right", Size = UDim2.new(0.35, 0, 1, 0), Position = UDim2.fromScale(0.65, 0) })
+	return Kit.label(frame, {
+		Text = right,
+		Font = "Mono",
+		TextSize = "Small",
+		Color = color or "Text",
+		XAlign = "Right",
+		Size = UDim2.new(0.35, 0, 1, 0),
+		Position = UDim2.fromScale(0.65, 0),
+	})
 end
 
 function PostMatch:Open(data)
@@ -149,30 +211,80 @@ function PostMatch:renderLeft(report, you)
 	table.sort(ids)
 	for _, id in ids do
 		local s = report.Subjects[id]
-		local card = Kit.panel(left, { Size = UDim2.new(1, -8, 0, 96), LayoutOrder = order, Color = "Panel", Transparency = 0.15 })
+		local card = Kit.panel(
+			left,
+			{ Size = UDim2.new(1, -8, 0, 96), LayoutOrder = order, Color = "Panel", Transparency = 0.15 }
+		)
 		order += 1
 		Kit.padding(card, 8, 12)
-		local nameText = string.upper(s.Name or "?") .. (if id == you then "  (YOU)" else "") .. (if s.Won then "  ·  WINNER" else "")
-		Kit.label(card, { Text = nameText, Font = "Bold", TextSize = "Body", Color = if s.Won then "Good" else "Text", Size = UDim2.new(1, 0, 0, 20) })
+		local nameText = string.upper(s.Name or "?")
+			.. (if id == you then "  (YOU)" else "")
+			.. (if s.Won then "  ·  WINNER" else "")
+		Kit.label(card, {
+			Text = nameText,
+			Font = "Bold",
+			TextSize = "Body",
+			Color = if s.Won then "Good" else "Text",
+			Size = UDim2.new(1, 0, 0, 20),
+		})
 		local fav = s.Favourite and Instruments.get(s.Favourite)
 		local lines = {
-			string.format("TRIALS WON %d   ·   SHOTS %d   ·   READS %d (%s)", s.TrialWins or 0, s.Shots or 0, s.Reads or 0, Format.percent(s.Accuracy or 0)),
-			string.format("DAMAGE DEALT %d   ·   TAKEN %d   ·   RESTORED %d", s.DamageDealt or 0, s.DamageTaken or 0, s.Healed or 0),
-			string.format("INSTRUMENTS %d%s%s", s.InstrumentCount or 0, fav and ("   ·   FAVOURITE " .. fav.Name) or "", if (s.BestRisk or 0) > 0 then "   ·   BOLDEST SELF-SHOT " .. Format.percent(s.BestRisk) else ""),
+			string.format(
+				"TRIALS WON %d   ·   SHOTS %d   ·   READS %d (%s)",
+				s.TrialWins or 0,
+				s.Shots or 0,
+				s.Reads or 0,
+				Format.percent(s.Accuracy or 0)
+			),
+			string.format(
+				"DAMAGE DEALT %d   ·   TAKEN %d   ·   RESTORED %d",
+				s.DamageDealt or 0,
+				s.DamageTaken or 0,
+				s.Healed or 0
+			),
+			string.format(
+				"INSTRUMENTS %d%s%s",
+				s.InstrumentCount or 0,
+				fav and ("   ·   FAVOURITE " .. fav.Name) or "",
+				if (s.BestRisk or 0) > 0 then "   ·   BOLDEST SELF-SHOT " .. Format.percent(s.BestRisk) else ""
+			),
 		}
-		Kit.label(card, { Text = table.concat(lines, "\n"), Font = "Mono", TextSize = "Tiny", Color = "Dim", Size = UDim2.new(1, 0, 0, 54), Position = UDim2.fromOffset(0, 24), YAlign = "Top", Wrap = true })
+		Kit.label(card, {
+			Text = table.concat(lines, "\n"),
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = "Dim",
+			Size = UDim2.new(1, 0, 0, 54),
+			Position = UDim2.fromOffset(0, 24),
+			YAlign = "Top",
+			Wrap = true,
+		})
 	end
 	if report.KeyMoments and #report.KeyMoments > 0 then
 		section(left, "KEY MOMENTS", order)
 		order += 1
 		for _, moment in report.KeyMoments do
-			local card = Kit.panel(left, { Size = UDim2.new(1, -8, 0, 0), LayoutOrder = order, Color = "PanelAlt", Transparency = 0.2 })
+			local card = Kit.panel(
+				left,
+				{ Size = UDim2.new(1, -8, 0, 0), LayoutOrder = order, Color = "PanelAlt", Transparency = 0.2 }
+			)
 			card.AutomaticSize = Enum.AutomaticSize.Y
 			order += 1
 			Kit.padding(card, 8, 12)
 			Kit.list(card, "Y", 2)
-			Kit.label(card, { Text = moment.Title or "", Font = "Mono", TextSize = "Label", Color = "Accent", LayoutOrder = 1 })
-			Kit.label(card, { Text = moment.Text or "", Font = "Body", TextSize = "Small", Wrap = true, AutoY = true, LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 0) })
+			Kit.label(
+				card,
+				{ Text = moment.Title or "", Font = "Mono", TextSize = "Label", Color = "Accent", LayoutOrder = 1 }
+			)
+			Kit.label(card, {
+				Text = moment.Text or "",
+				Font = "Body",
+				TextSize = "Small",
+				Wrap = true,
+				AutoY = true,
+				LayoutOrder = 2,
+				Size = UDim2.new(1, 0, 0, 0),
+			})
 		end
 	end
 end
@@ -188,12 +300,32 @@ function PostMatch:renderRewards(data)
 	local order = 1
 	if data.Spectating then
 		section(right, "SPECTATOR", order)
-		Kit.label(right, { Text = "You watched this Trial. Nothing was at stake for you.", Font = "Body", TextSize = "Small", Color = "Dim", Wrap = true, AutoY = true, LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 0) })
+		Kit.label(right, {
+			Text = "You watched this Trial. Nothing was at stake for you.",
+			Font = "Body",
+			TextSize = "Small",
+			Color = "Dim",
+			Wrap = true,
+			AutoY = true,
+			LayoutOrder = 2,
+			Size = UDim2.new(1, 0, 0, 0),
+		})
 		return
 	end
 	if rewards == nil then
 		section(right, "NO REWARDS", order)
-		Kit.label(right, { Text = if data.Aborted then "The Trial was aborted." else "Training and sandbox Trials don't award progression.", Font = "Body", TextSize = "Small", Color = "Dim", Wrap = true, AutoY = true, LayoutOrder = 2, Size = UDim2.new(1, 0, 0, 0) })
+		Kit.label(right, {
+			Text = if data.Aborted
+				then "The Trial was aborted."
+				else "Training and sandbox Trials don't award progression.",
+			Font = "Body",
+			TextSize = "Small",
+			Color = "Dim",
+			Wrap = true,
+			AutoY = true,
+			LayoutOrder = 2,
+			Size = UDim2.new(1, 0, 0, 0),
+		})
 		return
 	end
 	section(right, "EXPERIENCE", order)
@@ -215,12 +347,23 @@ function PostMatch:renderRewards(data)
 		self.C.AudioController:play("Confirm")
 		total.Text = "+" .. Format.thousands(rewards.XP or 0) .. " XP"
 	end)
-	row(right, "MARKS", "+" .. Format.thousands(rewards.Marks or 0) .. "  (" .. Format.thousands(rewards.MarksTotal or 0) .. ")", order)
+	row(
+		right,
+		"MARKS",
+		"+" .. Format.thousands(rewards.Marks or 0) .. "  (" .. Format.thousands(rewards.MarksTotal or 0) .. ")",
+		order
+	)
 	order += 1
 	local levelText = if (rewards.LevelAfter or 1) > (rewards.LevelBefore or 1)
 		then string.format("CLEARANCE %d → %d", rewards.LevelBefore, rewards.LevelAfter)
 		else string.format("CLEARANCE %d", rewards.LevelAfter or 1)
-	row(right, levelText, rewards.Title or "", order, if (rewards.LevelAfter or 1) > (rewards.LevelBefore or 1) then "Good" else "Text")
+	row(
+		right,
+		levelText,
+		rewards.Title or "",
+		order,
+		if (rewards.LevelAfter or 1) > (rewards.LevelBefore or 1) then "Good" else "Text"
+	)
 	order += 1
 	local bar = Kit.bar(right, { Size = UDim2.new(1, 0, 0, 6), LayoutOrder = order, Value = 0 })
 	order += 1
@@ -233,7 +376,13 @@ function PostMatch:renderRewards(data)
 		section(right, "STANDING", order)
 		order += 1
 		local delta = rating.Delta or 0
-		row(right, rating.Note and string.upper(rating.Note) or (if rating.Rated == false then "NOT RATED" else "CHANGE"), Format.signed(delta), order, if delta >= 0 then "Good" else "Bad")
+		row(
+			right,
+			rating.Note and string.upper(rating.Note) or (if rating.Rated == false then "NOT RATED" else "CHANGE"),
+			Format.signed(delta),
+			order,
+			if delta >= 0 then "Good" else "Bad"
+		)
 		order += 1
 		if rating.Rating then
 			row(right, "NEW STANDING", tostring(rating.Rating), order)
@@ -244,7 +393,13 @@ function PostMatch:renderRewards(data)
 		section(right, "DIRECTIVES", order)
 		order += 1
 		for _, c in rewards.Challenges do
-			row(right, c.Text or "", if c.Done then "COMPLETE" else string.format("%d/%d", c.Progress or 0, c.Goal or 1), order, if c.Done then "Good" else "Text")
+			row(
+				right,
+				c.Text or "",
+				if c.Done then "COMPLETE" else string.format("%d/%d", c.Progress or 0, c.Goal or 1),
+				order,
+				if c.Done then "Good" else "Text"
+			)
 			order += 1
 		end
 	end
@@ -293,9 +448,14 @@ function PostMatch:rematch(data)
 		return
 	end
 	local needed = data.Needed or total
-	self.RematchStatus.Text = string.format("REMATCH  %d/%d ACCEPTED%s", accepted, needed, if data.EndsIn then "  ·  " .. tostring(data.EndsIn) .. "s" else "")
+	self.RematchStatus.Text = string.format(
+		"REMATCH  %d/%d ACCEPTED%s",
+		accepted,
+		needed,
+		if data.EndsIn then "  ·  " .. tostring(data.EndsIn) .. "s" else ""
+	)
 	local you = self.Data and self.Data.You
-	if you and data.Votes and data.Votes[you] then
+	if you and data.Votes and data.Votes[tostring(you)] then
 		Kit.setText(self.RematchButton, "WAITING...")
 		Kit.setEnabled(self.RematchButton, false, "You have accepted.")
 	end

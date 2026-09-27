@@ -243,7 +243,17 @@ local CLIPS: { [string]: Clip } = {
 		Hold = true,
 		Keys = {
 			{ 0, {} },
-			{ 0.7, { Root = hip(0.32), RArm = R(2.55, 0, 0.75), LArm = R(2.55, 0, -0.75), Neck = R(0.12), RLeg = R(1.25 - 0.32, 0, 0.12), LLeg = R(1.25 - 0.32, 0, -0.12) } },
+			{
+				0.7,
+				{
+					Root = hip(0.32),
+					RArm = R(2.55, 0, 0.75),
+					LArm = R(2.55, 0, -0.75),
+					Neck = R(0.12),
+					RLeg = R(1.25 - 0.32, 0, 0.12),
+					LLeg = R(1.25 - 0.32, 0, -0.12),
+				},
+			},
 		},
 	},
 	SlowClap = {
@@ -437,7 +447,10 @@ local CLIPS: { [string]: Clip } = {
 		FadeIn = 0.1,
 		Fn = function(t)
 			local bob = math.sin(t * 13) * 0.035 + math.sin(t * 7.3) * 0.02
-			return { Neck = R(bob, math.sin(t * 2.1) * 0.05, math.sin(t * 1.7) * 0.03), Root = hip(math.sin(t * 3.1) * 0.015) }
+			return {
+				Neck = R(bob, math.sin(t * 2.1) * 0.05, math.sin(t * 1.7) * 0.03),
+				Root = hip(math.sin(t * 3.1) * 0.015),
+			}
 		end,
 	},
 	Twitch = {

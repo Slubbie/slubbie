@@ -63,11 +63,20 @@ function Window.new(ui, options: Options)
 	self.fit = fit
 	fit()
 
-	local header = Kit.create("Frame", { Name = "Header", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 64), Parent = panel }) :: Frame
+	local header = Kit.create(
+		"Frame",
+		{ Name = "Header", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 64), Parent = panel }
+	) :: Frame
 	Kit.padding(header, 12, 20)
-	local accent = Kit.create("Frame", { BorderSizePixel = 0, Size = UDim2.new(1, 40, 0, 2), Position = UDim2.new(0, -20, 0, -12), Parent = header }) :: Frame
+	local accent = Kit.create(
+		"Frame",
+		{ BorderSizePixel = 0, Size = UDim2.new(1, 40, 0, 2), Position = UDim2.new(0, -20, 0, -12), Parent = header }
+	) :: Frame
 	Theme.bind(accent, "BackgroundColor3", "Accent")
-	self.TitleLabel = Kit.label(header, { Text = options.Title, Font = "Display", TextSize = "Title", Color = "Text", Size = UDim2.new(1, -60, 0, 26) })
+	self.TitleLabel = Kit.label(
+		header,
+		{ Text = options.Title, Font = "Display", TextSize = "Title", Color = "Text", Size = UDim2.new(1, -60, 0, 26) }
+	)
 	self.SubtitleLabel = Kit.label(header, {
 		Text = options.Subtitle or "",
 		Font = "Mono",
@@ -89,7 +98,13 @@ function Window.new(ui, options: Options)
 			ui:close(options.Name)
 		end,
 	})
-	local icon = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(18, 18), Position = UDim2.fromScale(0.5, 0.5), AnchorPoint = Vector2.new(0.5, 0.5), Parent = close }) :: Frame
+	local icon = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(18, 18),
+		Position = UDim2.fromScale(0.5, 0.5),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Parent = close,
+	}) :: Frame
 	Icons.symbol("Close", icon, 18)
 	self.CloseButton = close
 

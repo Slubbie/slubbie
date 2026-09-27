@@ -68,7 +68,8 @@ function Settings:show(category: string)
 	self.Capturing = nil
 	local body = self.Window.Body
 	Window.clear(body)
-	local holder = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -50), Parent = body }) :: Frame
+	local holder =
+		Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -50), Parent = body }) :: Frame
 	local scroll = Kit.scroll(holder, { Padding = 4 })
 	local settings = self.C.SettingsController
 	local order = 0
@@ -151,8 +152,19 @@ end
 function Settings:binds(scroll: Instance, order: number)
 	local settings = self.C.SettingsController
 	for i, action in SettingsSchema.Actions do
-		local rowFrame = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 36), LayoutOrder = order * 100 + i, Parent = scroll }) :: Frame
-		Kit.label(rowFrame, { Text = string.upper(action.Label), Font = "Mono", TextSize = "Label", Color = "Dim", Size = UDim2.new(0.6, 0, 1, 0) })
+		local rowFrame = Kit.create("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, -8, 0, 36),
+			LayoutOrder = order * 100 + i,
+			Parent = scroll,
+		}) :: Frame
+		Kit.label(rowFrame, {
+			Text = string.upper(action.Label),
+			Font = "Mono",
+			TextSize = "Label",
+			Color = "Dim",
+			Size = UDim2.new(0.6, 0, 1, 0),
+		})
 		local button
 		button = Kit.button(rowFrame, {
 			Text = pretty(settings:bind(action.Id)),

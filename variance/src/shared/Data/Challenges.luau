@@ -314,7 +314,10 @@ function Challenges.dailyFor(userId: number, day: number)
 		local seed = mix(math.abs(userId) % 1000003 + i * 7919, day)
 		local c = pick(tier, seed, 1)[1]
 		if c then
-			table.insert(list, { Id = c.Id, Goal = goalFor(c, seed), Progress = 0, Done = false, Claimed = false, Seen = {} })
+			table.insert(
+				list,
+				{ Id = c.Id, Goal = goalFor(c, seed), Progress = 0, Done = false, Claimed = false, Seen = {} }
+			)
 		end
 	end
 	return list

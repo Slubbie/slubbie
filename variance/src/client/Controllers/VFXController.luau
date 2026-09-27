@@ -116,8 +116,14 @@ function VFXController:flash(position: Vector3, color: Color3, size: number?, du
 	light.Brightness = (brightness or 6) * (if reducedFlashing() then 0.35 else 1)
 	light.Shadows = false
 	light.Parent = ball
-	TweenService:Create(ball, TweenInfo.new(d, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = Vector3.one * s, Transparency = 1 }):Play()
-	TweenService:Create(light, TweenInfo.new(d * 1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Brightness = 0 }):Play()
+	TweenService:Create(
+		ball,
+		TweenInfo.new(d, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Size = Vector3.one * s, Transparency = 1 }
+	):Play()
+	TweenService
+		:Create(light, TweenInfo.new(d * 1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Brightness = 0 })
+		:Play()
 	task.delay(d * 1.7, give, ball)
 end
 
@@ -162,7 +168,11 @@ function VFXController:arc(from: Vector3, to: Vector3, color: Color3?, duration:
 				local point = from + axis * t
 				if i < segments then
 					local jitter = 0.35 * math.sin(t * math.pi)
-					point += Vector3.new((math.random() - 0.5) * jitter, (math.random() - 0.5) * jitter, (math.random() - 0.5) * jitter)
+					point += Vector3.new(
+						(math.random() - 0.5) * jitter,
+						(math.random() - 0.5) * jitter,
+						(math.random() - 0.5) * jitter
+					)
 				end
 				local length = (point - previous).Magnitude
 				p.Size = Vector3.new(w, w, length)
@@ -203,7 +213,11 @@ function VFXController:bubble(getCenter: () -> Vector3?, color: Color3, radius: 
 	p.Size = Vector3.one * 0.5
 	local alive = true
 	local handle = {}
-	TweenService:Create(p, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = Vector3.one * radius * 2, Transparency = 0.25 }):Play()
+	TweenService:Create(
+		p,
+		TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+		{ Size = Vector3.one * radius * 2, Transparency = 0.25 }
+	):Play()
 	task.spawn(function()
 		while alive do
 			local c = getCenter()
@@ -395,7 +409,11 @@ function VFXController:screenFlash(color: Color3, alpha: number, duration: numbe
 	f.Size = UDim2.fromScale(1, 1)
 	f.ZIndex = 90
 	f.Parent = screen
-	TweenService:Create(f, TweenInfo.new(duration or 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 }):Play()
+	TweenService:Create(
+		f,
+		TweenInfo.new(duration or 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ BackgroundTransparency = 1 }
+	):Play()
 	task.delay((duration or 0.5) + 0.05, function()
 		f:Destroy()
 	end)
@@ -405,7 +423,13 @@ function VFXController:Start()
 	folder = Instance.new("Folder")
 	folder.Name = "VarianceFX"
 	folder.Parent = workspace
-	emitterPart = Build.part({ Name = "Emitters", Size = Vector3.one * 0.1, Transparency = 1, CastShadow = false, Parent = folder })
+	emitterPart = Build.part({
+		Name = "Emitters",
+		Size = Vector3.one * 0.1,
+		Transparency = 1,
+		CastShadow = false,
+		Parent = folder,
+	})
 	emitter("Spark", {
 		Texture = SPARK,
 		LightEmission = 1,
@@ -448,7 +472,11 @@ function VFXController:Start()
 	emitter("Mote", {
 		Texture = SPARK,
 		LightEmission = 1,
-		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.18), NumberSequenceKeypoint.new(0.5, 0.25), NumberSequenceKeypoint.new(1, 0) }),
+		Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.18),
+			NumberSequenceKeypoint.new(0.5, 0.25),
+			NumberSequenceKeypoint.new(1, 0),
+		}),
 		Lifetime = NumberRange.new(0.8, 1.4),
 		Speed = NumberRange.new(0.8, 2.2),
 		SpreadAngle = Vector2.new(180, 180),

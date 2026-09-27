@@ -337,7 +337,8 @@ local function frame(dt: number)
 		pitch = math.clamp(pitch - delta.Y * sensitivity * invert, PITCH_MIN, PITCH_MAX)
 		local eye
 		if mode == "Spectate" and spectateSeat and seatInfo then
-			eye = CFrame.new((seatInfo.Origin * TableLayout.eyeCFrame(spectateSeat)).Position) * (seatInfo.Origin * TableLayout.seatCFrame(spectateSeat)).Rotation
+			eye = CFrame.new((seatInfo.Origin * TableLayout.eyeCFrame(spectateSeat)).Position)
+				* (seatInfo.Origin * TableLayout.seatCFrame(spectateSeat)).Rotation
 		else
 			eye = seatEye()
 		end
@@ -375,7 +376,8 @@ local function frame(dt: number)
 	-- Orbit / spectate orbit.
 	orbit.Angle += dt * orbit.Speed - delta.X * sensitivity * 0.6
 	orbit.Height = math.clamp(orbit.Height + delta.Y * 0.02, 3, 14)
-	local pos = orbit.Centre + Vector3.new(math.cos(orbit.Angle) * orbit.Radius, orbit.Height, math.sin(orbit.Angle) * orbit.Radius)
+	local pos = orbit.Centre
+		+ Vector3.new(math.cos(orbit.Angle) * orbit.Radius, orbit.Height, math.sin(orbit.Angle) * orbit.Radius)
 	local target = orbit.Centre
 	if focus and now < focus.Until then
 		target = orbit.Centre:Lerp(focus.Point, 0.5 * focus.Strength)

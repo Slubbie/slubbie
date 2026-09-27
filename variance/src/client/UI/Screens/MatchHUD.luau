@@ -63,11 +63,23 @@ function MatchHUD.new(ui, controllers)
 	self.LastEmote = 0
 	self.LastTick = -1
 
-	local root = Kit.create("Frame", { Name = "MatchHUD", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, Parent = ui.Hud }) :: Frame
+	local root = Kit.create("Frame", {
+		Name = "MatchHUD",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = ui.Hud,
+	}) :: Frame
 	self.Frame = root
 
 	-- Cards row.
-	local cards = Kit.create("Frame", { Name = "Cards", BackgroundTransparency = 1, Size = UDim2.new(1, -32, 0, 96), Position = UDim2.fromOffset(16, 12), Parent = root }) :: Frame
+	local cards = Kit.create("Frame", {
+		Name = "Cards",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -32, 0, 96),
+		Position = UDim2.fromOffset(16, 12),
+		Parent = root,
+	}) :: Frame
 	local cardsLayout = Kit.list(cards, "X", 10, "Center")
 	cardsLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 	self.CardsFrame = cards
@@ -78,57 +90,191 @@ function MatchHUD.new(ui, controllers)
 	timer.Position = UDim2.new(0.5, 0, 0, 114)
 	timer.Visible = false
 	self.TimerBar = timer
-	self.TimerText = Kit.label(root, { Text = "", Font = "Mono", TextSize = "Label", XAlign = "Center", Size = UDim2.fromOffset(420, 16), Position = UDim2.new(0.5, 0, 0, 120), AnchorPoint = Vector2.new(0.5, 0), Color = "Dim" })
+	self.TimerText = Kit.label(root, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Label",
+		XAlign = "Center",
+		Size = UDim2.fromOffset(420, 16),
+		Position = UDim2.new(0.5, 0, 0, 120),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Color = "Dim",
+	})
 
 	-- Trial / modifiers (top-left).
-	local info = Kit.create("Frame", { Name = "Info", BackgroundTransparency = 1, Size = UDim2.fromOffset(260, 0), AutomaticSize = Enum.AutomaticSize.Y, Position = UDim2.fromOffset(16, 118), Parent = root }) :: Frame
+	local info = Kit.create("Frame", {
+		Name = "Info",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(260, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Position = UDim2.fromOffset(16, 118),
+		Parent = root,
+	}) :: Frame
 	Kit.list(info, "Y", 4)
-	self.TrialLabel = Kit.label(info, { Text = "", Font = "Mono", TextSize = "Label", Color = "Accent", LayoutOrder = 1 })
+	self.TrialLabel =
+		Kit.label(info, { Text = "", Font = "Mono", TextSize = "Label", Color = "Accent", LayoutOrder = 1 })
 	self.ModeLabel = Kit.label(info, { Text = "", Font = "Mono", TextSize = "Tiny", Color = "Dim", LayoutOrder = 2 })
-	self.Chips = Kit.create("Frame", { Name = "Chips", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 3, Parent = info }) :: Frame
+	self.Chips = Kit.create("Frame", {
+		Name = "Chips",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 3,
+		Parent = info,
+	}) :: Frame
 	local chipGrid = Kit.list(self.Chips, "Y", 3)
 	chipGrid.HorizontalAlignment = Enum.HorizontalAlignment.Left
-	self.SpectateTag = Kit.label(info, { Text = "", Font = "Mono", TextSize = "Tiny", Color = "Warn", LayoutOrder = 4, Wrap = true, AutoY = true })
+	self.SpectateTag = Kit.label(
+		info,
+		{ Text = "", Font = "Mono", TextSize = "Tiny", Color = "Warn", LayoutOrder = 4, Wrap = true, AutoY = true }
+	)
 
 	-- Chamber panel.
-	local chamber = Kit.panel(root, { Name = "Chamber", Size = UDim2.fromOffset(520, 92), Position = UDim2.new(0.5, 0, 0, 142), AnchorPoint = Vector2.new(0.5, 0), Color = "Panel", Transparency = 0.15 })
+	local chamber = Kit.panel(root, {
+		Name = "Chamber",
+		Size = UDim2.fromOffset(520, 92),
+		Position = UDim2.new(0.5, 0, 0, 142),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Color = "Panel",
+		Transparency = 0.15,
+	})
 	Kit.padding(chamber, 8, 14)
 	self.Chamber = chamber
-	local track = Kit.create("Frame", { Name = "Track", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), Parent = chamber }) :: Frame
+	local track = Kit.create(
+		"Frame",
+		{ Name = "Track", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), Parent = chamber }
+	) :: Frame
 	local trackLayout = Kit.list(track, "X", 4, "Center")
 	trackLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	self.Track = track
-	self.Counts = Kit.label(chamber, { Text = "", Font = "Mono", TextSize = "Label", XAlign = "Center", Size = UDim2.new(1, 0, 0, 16), Position = UDim2.fromOffset(0, 44), Rich = true })
-	self.Odds = Kit.label(chamber, { Text = "", Font = "Bold", TextSize = "Body", XAlign = "Center", Size = UDim2.new(1, 0, 0, 18), Position = UDim2.fromOffset(0, 60), Rich = true })
+	self.Counts = Kit.label(chamber, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Label",
+		XAlign = "Center",
+		Size = UDim2.new(1, 0, 0, 16),
+		Position = UDim2.fromOffset(0, 44),
+		Rich = true,
+	})
+	self.Odds = Kit.label(chamber, {
+		Text = "",
+		Font = "Bold",
+		TextSize = "Body",
+		XAlign = "Center",
+		Size = UDim2.new(1, 0, 0, 18),
+		Position = UDim2.fromOffset(0, 60),
+		Rich = true,
+	})
 
 	-- Callout (private reveals).
-	local callout = Kit.panel(root, { Name = "Callout", Size = UDim2.fromOffset(360, 70), Position = UDim2.new(0.5, 0, 0.5, -60), AnchorPoint = Vector2.new(0.5, 0.5), Visible = false, Color = "Bg", Transparency = 0.1 })
+	local callout = Kit.panel(root, {
+		Name = "Callout",
+		Size = UDim2.fromOffset(360, 70),
+		Position = UDim2.new(0.5, 0, 0.5, -60),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Visible = false,
+		Color = "Bg",
+		Transparency = 0.1,
+	})
 	Kit.stroke(callout, "Accent", 2, 0)
-	self.CalloutGlyph = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(48, 48), Position = UDim2.new(0, 12, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), Parent = callout }) :: Frame
-	self.CalloutTitle = Kit.label(callout, { Text = "", Font = "Mono", TextSize = "Label", Color = "Dim", Size = UDim2.new(1, -80, 0, 18), Position = UDim2.fromOffset(70, 12) })
-	self.CalloutText = Kit.label(callout, { Text = "", Font = "Display", TextSize = "Title", Color = "Text", Size = UDim2.new(1, -80, 0, 28), Position = UDim2.fromOffset(70, 30) })
+	self.CalloutGlyph = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(48, 48),
+		Position = UDim2.new(0, 12, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Parent = callout,
+	}) :: Frame
+	self.CalloutTitle = Kit.label(callout, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Label",
+		Color = "Dim",
+		Size = UDim2.new(1, -80, 0, 18),
+		Position = UDim2.fromOffset(70, 12),
+	})
+	self.CalloutText = Kit.label(callout, {
+		Text = "",
+		Font = "Display",
+		TextSize = "Title",
+		Color = "Text",
+		Size = UDim2.new(1, -80, 0, 28),
+		Position = UDim2.fromOffset(70, 30),
+	})
 	self.Callout = callout
 
 	-- Hint line.
-	self.Hint = Kit.label(root, { Text = "", Font = "Mono", TextSize = "Small", XAlign = "Center", Color = "Dim", Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 0, 1, -196), Rich = true })
+	self.Hint = Kit.label(root, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Small",
+		XAlign = "Center",
+		Color = "Dim",
+		Size = UDim2.new(1, 0, 0, 20),
+		Position = UDim2.new(0, 0, 1, -196),
+		Rich = true,
+	})
 
 	-- Action bar.
-	local actions = Kit.create("Frame", { Name = "Actions", BackgroundTransparency = 1, Size = UDim2.fromOffset(760, 52), Position = UDim2.new(0.5, 0, 1, -128), AnchorPoint = Vector2.new(0.5, 1), Parent = root }) :: Frame
+	local actions = Kit.create("Frame", {
+		Name = "Actions",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(760, 52),
+		Position = UDim2.new(0.5, 0, 1, -128),
+		AnchorPoint = Vector2.new(0.5, 1),
+		Parent = root,
+	}) :: Frame
 	self.Actions = actions
 	self.FireSelf = self:fireButton(actions, "FireSelf", "FIRE AT SELF", UDim2.fromOffset(0, 0))
 	self.FireOther = self:fireButton(actions, "FireOther", "FIRE AT OPPONENT", UDim2.new(1, -250, 0, 0))
-	local selector = Kit.create("Frame", { Name = "Target", BackgroundTransparency = 1, Size = UDim2.fromOffset(240, 52), Position = UDim2.new(0.5, 0, 0, 0), AnchorPoint = Vector2.new(0.5, 0), Parent = actions }) :: Frame
-	self.TargetName = Kit.label(selector, { Text = "", Font = "Mono", TextSize = "Label", XAlign = "Center", Size = UDim2.new(1, -80, 1, 0), Position = UDim2.fromOffset(40, 0) })
-	self.PrevTarget = Kit.button(selector, { Text = "<", Size = UDim2.fromOffset(34, 34), Position = UDim2.new(0, 0, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), Sound = "Tick", Tooltip = "Previous target", OnClick = function()
-		self:cycleTarget(-1)
-	end })
-	self.NextTarget = Kit.button(selector, { Text = ">", Size = UDim2.fromOffset(34, 34), Position = UDim2.new(1, 0, 0.5, 0), AnchorPoint = Vector2.new(1, 0.5), Sound = "Tick", Tooltip = "Next target", OnClick = function()
-		self:cycleTarget(1)
-	end })
+	local selector = Kit.create("Frame", {
+		Name = "Target",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(240, 52),
+		Position = UDim2.new(0.5, 0, 0, 0),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Parent = actions,
+	}) :: Frame
+	self.TargetName = Kit.label(selector, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Label",
+		XAlign = "Center",
+		Size = UDim2.new(1, -80, 1, 0),
+		Position = UDim2.fromOffset(40, 0),
+	})
+	self.PrevTarget = Kit.button(selector, {
+		Text = "<",
+		Size = UDim2.fromOffset(34, 34),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Sound = "Tick",
+		Tooltip = "Previous target",
+		OnClick = function()
+			self:cycleTarget(-1)
+		end,
+	})
+	self.NextTarget = Kit.button(selector, {
+		Text = ">",
+		Size = UDim2.fromOffset(34, 34),
+		Position = UDim2.new(1, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(1, 0.5),
+		Sound = "Tick",
+		Tooltip = "Next target",
+		OnClick = function()
+			self:cycleTarget(1)
+		end,
+	})
 	self.Selector = selector
 
 	-- Instrument bar.
-	local slots = Kit.create("Frame", { Name = "Slots", BackgroundTransparency = 1, Size = UDim2.fromOffset(760, 66), Position = UDim2.new(0.5, 0, 1, -40), AnchorPoint = Vector2.new(0.5, 1), Parent = root }) :: Frame
+	local slots = Kit.create("Frame", {
+		Name = "Slots",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(760, 66),
+		Position = UDim2.new(0.5, 0, 1, -40),
+		AnchorPoint = Vector2.new(0.5, 1),
+		Parent = root,
+	}) :: Frame
 	Kit.list(slots, "X", 6, "Center")
 	self.SlotsFrame = slots
 	self.Slots = {}
@@ -137,29 +283,77 @@ function MatchHUD.new(ui, controllers)
 	end
 
 	-- Log.
-	local log = Kit.panel(root, { Name = "Log", Size = UDim2.fromOffset(300, 260), Position = UDim2.new(1, -16, 0, 118), AnchorPoint = Vector2.new(1, 0), Color = "Panel", Transparency = 0.2, Visible = false })
+	local log = Kit.panel(root, {
+		Name = "Log",
+		Size = UDim2.fromOffset(300, 260),
+		Position = UDim2.new(1, -16, 0, 118),
+		AnchorPoint = Vector2.new(1, 0),
+		Color = "Panel",
+		Transparency = 0.2,
+		Visible = false,
+	})
 	Kit.padding(log, 8, 10)
 	Kit.header(log, "EVENT LOG", 0)
-	self.LogList = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -28), Position = UDim2.fromOffset(0, 28), Parent = log }) :: Frame
+	self.LogList = Kit.create(
+		"Frame",
+		{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -28), Position = UDim2.fromOffset(0, 28), Parent = log }
+	) :: Frame
 	Kit.list(self.LogList, "Y", 2)
 	self.Log = log
 
 	-- Corner buttons.
-	local corner = Kit.create("Frame", { Name = "Corner", BackgroundTransparency = 1, Size = UDim2.fromOffset(0, 34), AutomaticSize = Enum.AutomaticSize.X, Position = UDim2.new(1, -16, 1, -16), AnchorPoint = Vector2.new(1, 1), Parent = root }) :: Frame
+	local corner = Kit.create("Frame", {
+		Name = "Corner",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, 34),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Position = UDim2.new(1, -16, 1, -16),
+		AnchorPoint = Vector2.new(1, 1),
+		Parent = root,
+	}) :: Frame
 	Kit.list(corner, "X", 6, "Right")
-	Kit.button(corner, { Text = "LOG", Size = UDim2.fromOffset(64, 34), Style = "Ghost", LayoutOrder = 1, Hotkey = nil, Tooltip = "Event log", OnClick = function()
-		self:toggleLog()
-	end })
-	Kit.button(corner, { Text = "EMOTE", Size = UDim2.fromOffset(80, 34), Style = "Ghost", LayoutOrder = 2, Tooltip = "Table emote", OnClick = function()
-		self:emoteMenu()
-	end })
-	Kit.button(corner, { Text = "MENU", Size = UDim2.fromOffset(74, 34), Style = "Ghost", LayoutOrder = 3, Tooltip = "Settings, leave", OnClick = function()
-		self:menu()
-	end })
+	Kit.button(corner, {
+		Text = "LOG",
+		Size = UDim2.fromOffset(64, 34),
+		Style = "Ghost",
+		LayoutOrder = 1,
+		Hotkey = nil,
+		Tooltip = "Event log",
+		OnClick = function()
+			self:toggleLog()
+		end,
+	})
+	Kit.button(corner, {
+		Text = "EMOTE",
+		Size = UDim2.fromOffset(80, 34),
+		Style = "Ghost",
+		LayoutOrder = 2,
+		Tooltip = "Table emote",
+		OnClick = function()
+			self:emoteMenu()
+		end,
+	})
+	Kit.button(corner, {
+		Text = "MENU",
+		Size = UDim2.fromOffset(74, 34),
+		Style = "Ghost",
+		LayoutOrder = 3,
+		Tooltip = "Settings, leave",
+		OnClick = function()
+			self:menu()
+		end,
+	})
 	self.Corner = corner
 
 	-- Versus card (match start).
-	self.Versus = Kit.create("Frame", { Name = "Versus", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 40, Parent = root }) :: Frame
+	self.Versus = Kit.create("Frame", {
+		Name = "Versus",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		ZIndex = 40,
+		Parent = root,
+	}) :: Frame
 
 	self:wire()
 	return self
@@ -180,7 +374,14 @@ function MatchHUD:fireButton(parent: Frame, actionId: string, text: string, posi
 		TextSize = "Body",
 		Sound = "Confirm",
 	})
-	local fill = Kit.create("Frame", { Name = "HoldFill", BorderSizePixel = 0, BackgroundTransparency = 0.55, Size = UDim2.fromScale(0, 1), ZIndex = 2, Parent = button }) :: Frame
+	local fill = Kit.create("Frame", {
+		Name = "HoldFill",
+		BorderSizePixel = 0,
+		BackgroundTransparency = 0.55,
+		Size = UDim2.fromScale(0, 1),
+		ZIndex = 2,
+		Parent = button,
+	}) :: Frame
 	Theme.bind(fill, "BackgroundColor3", if actionId == "FireOther" then "Bad" else "Accent")
 	Kit.corner(fill, 3)
 	local cap = Kit.keycap(button, "", 0)
@@ -202,7 +403,11 @@ function MatchHUD:fireButton(parent: Frame, actionId: string, text: string, posi
 	end)
 	button.Activated:Connect(function(input)
 		-- Gamepad selection + A (a press with no duration to hold).
-		if input and input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
+		if
+			input
+			and input.UserInputType ~= Enum.UserInputType.MouseButton1
+			and input.UserInputType ~= Enum.UserInputType.Touch
+		then
 			self:pressFire(actionId, "Begin", true)
 		end
 	end)
@@ -221,14 +426,38 @@ function MatchHUD:slotButton(parent: Frame, index: number)
 		end,
 	})
 	button.Visible = false
-	local icon = Kit.create("Frame", { Name = "Icon", BackgroundTransparency = 1, Size = UDim2.fromOffset(30, 30), Position = UDim2.new(0.5, 0, 0, 6), AnchorPoint = Vector2.new(0.5, 0), ZIndex = 3, Parent = button }) :: Frame
-	local name = Kit.label(button, { Name = "Name", Text = "", Font = "Mono", TextSize = "Tiny", XAlign = "Center", Size = UDim2.new(1, -4, 0, 14), Position = UDim2.new(0, 2, 1, -18), ZIndex = 3 })
+	local icon = Kit.create("Frame", {
+		Name = "Icon",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(30, 30),
+		Position = UDim2.new(0.5, 0, 0, 6),
+		AnchorPoint = Vector2.new(0.5, 0),
+		ZIndex = 3,
+		Parent = button,
+	}) :: Frame
+	local name = Kit.label(button, {
+		Name = "Name",
+		Text = "",
+		Font = "Mono",
+		TextSize = "Tiny",
+		XAlign = "Center",
+		Size = UDim2.new(1, -4, 0, 14),
+		Position = UDim2.new(0, 2, 1, -18),
+		ZIndex = 3,
+	})
 	local cap = Kit.keycap(button, tostring(index), 0)
 	cap.Name = "Key"
 	cap.Position = UDim2.fromOffset(4, 4)
 	cap.ZIndex = 4
 	-- Rarity rim (separate from the button's own hover stroke).
-	local rim = Kit.create("Frame", { Name = "Rim", BackgroundTransparency = 1, Size = UDim2.new(1, -4, 1, -4), Position = UDim2.fromOffset(2, 2), ZIndex = 2, Parent = button }) :: Frame
+	local rim = Kit.create("Frame", {
+		Name = "Rim",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -4, 1, -4),
+		Position = UDim2.fromOffset(2, 2),
+		ZIndex = 2,
+		Parent = button,
+	}) :: Frame
 	Kit.corner(rim, 3)
 	local stroke = Kit.stroke(rim, "Line", 1, 0.2)
 	button.MouseEnter:Connect(function()
@@ -457,11 +686,15 @@ function MatchHUD:menu()
 		local tutorial = self.C.TutorialController:active()
 		local ranked = scene(self) and scene(self).Rules and scene(self).Rules.Ranked
 		local leaveText = if spectating then "STOP WATCHING" elseif tutorial then "QUIT LESSON" else "FORFEIT"
-		local choice = Kit.modal("MENU", if spectating then "You are watching a live Trial." else "The Trial keeps running while this is open.", {
-			{ Text = "SETTINGS", Style = "Default", Value = "Settings" },
-			{ Text = leaveText, Style = "Danger", Value = "Leave" },
-			{ Text = "RESUME", Style = "Primary", Value = "Resume" },
-		})
+		local choice = Kit.modal(
+			"MENU",
+			if spectating then "You are watching a live Trial." else "The Trial keeps running while this is open.",
+			{
+				{ Text = "SETTINGS", Style = "Default", Value = "Settings" },
+				{ Text = leaveText, Style = "Danger", Value = "Leave" },
+				{ Text = "RESUME", Style = "Primary", Value = "Resume" },
+			}
+		)
 		if choice == "Settings" then
 			self.UI:open("Settings")
 		elseif choice == "Leave" then
@@ -555,25 +788,81 @@ function MatchHUD:buildCards()
 	local width = if count > 2 then 250 else 320
 	for order, id in ids do
 		local info = sc.Subjects[id]
-		local card = Kit.panel(self.CardsFrame, { Name = "Card" .. id, Size = UDim2.fromOffset(width, 90), LayoutOrder = order, Color = "Panel", Transparency = 0.1 })
+		local card = Kit.panel(self.CardsFrame, {
+			Name = "Card" .. id,
+			Size = UDim2.fromOffset(width, 90),
+			LayoutOrder = order,
+			Color = "Panel",
+			Transparency = 0.1,
+		})
 		Kit.padding(card, 8, 12)
 		local stroke = card:FindFirstChildOfClass("UIStroke")
-		local name = Kit.label(card, { Text = string.upper(info.Name or "?"), Font = "Bold", TextSize = "Body", Size = UDim2.new(1, -60, 0, 20) })
+		local name = Kit.label(
+			card,
+			{ Text = string.upper(info.Name or "?"), Font = "Bold", TextSize = "Body", Size = UDim2.new(1, -60, 0, 20) }
+		)
 		local sub = info.Title or ""
 		if info.IsAI then
 			sub = string.format("%s  ·  %s", info.Title or "SURROGATE", string.upper(info.Difficulty or ""))
 		elseif info.Level then
 			sub = string.format("CLEARANCE %d%s", info.Level, if info.Division then "  ·  " .. info.Division else "")
 		end
-		Kit.label(card, { Text = sub, Font = "Mono", TextSize = "Tiny", Color = "Dim", Size = UDim2.new(1, -60, 0, 14), Position = UDim2.fromOffset(0, 20) })
-		local wins = Kit.label(card, { Text = "", Font = "Mono", TextSize = "Label", XAlign = "Right", Color = "Accent", Size = UDim2.fromOffset(60, 20), Position = UDim2.new(1, -60, 0, 0) })
+		Kit.label(card, {
+			Text = sub,
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = "Dim",
+			Size = UDim2.new(1, -60, 0, 14),
+			Position = UDim2.fromOffset(0, 20),
+		})
+		local wins = Kit.label(card, {
+			Text = "",
+			Font = "Mono",
+			TextSize = "Label",
+			XAlign = "Right",
+			Color = "Accent",
+			Size = UDim2.fromOffset(60, 20),
+			Position = UDim2.new(1, -60, 0, 0),
+		})
 		local pips = Kit.pips(card, 1, 1, Vector2.new(16, 20))
 		pips.Position = UDim2.fromOffset(0, 40)
-		local integrity = Kit.label(card, { Text = "", Font = "Mono", TextSize = "Label", Color = "Text", Size = UDim2.fromOffset(60, 20), Position = UDim2.new(1, -60, 0, 40), XAlign = "Right" })
-		local status = Kit.label(card, { Text = "", Font = "Mono", TextSize = "Tiny", Color = "Warn", Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromOffset(0, 64), Rich = true })
-		local turn = Kit.create("Frame", { Name = "Turn", BorderSizePixel = 0, Size = UDim2.new(1, 24, 0, 3), Position = UDim2.new(0, -12, 1, 5), Visible = false, Parent = card }) :: Frame
+		local integrity = Kit.label(card, {
+			Text = "",
+			Font = "Mono",
+			TextSize = "Label",
+			Color = "Text",
+			Size = UDim2.fromOffset(60, 20),
+			Position = UDim2.new(1, -60, 0, 40),
+			XAlign = "Right",
+		})
+		local status = Kit.label(card, {
+			Text = "",
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = "Warn",
+			Size = UDim2.new(1, 0, 0, 14),
+			Position = UDim2.fromOffset(0, 64),
+			Rich = true,
+		})
+		local turn = Kit.create("Frame", {
+			Name = "Turn",
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 24, 0, 3),
+			Position = UDim2.new(0, -12, 1, 5),
+			Visible = false,
+			Parent = card,
+		}) :: Frame
 		Theme.bind(turn, "BackgroundColor3", "Accent")
-		self.Cards[id] = { Frame = card, Name = name, Wins = wins, Pips = pips, Integrity = integrity, Status = status, Turn = turn, Stroke = stroke }
+		self.Cards[id] = {
+			Frame = card,
+			Name = name,
+			Wins = wins,
+			Pips = pips,
+			Integrity = integrity,
+			Status = status,
+			Turn = turn,
+			Stroke = stroke,
+		}
 	end
 end
 
@@ -599,7 +888,8 @@ function MatchHUD:renderCards()
 			end
 			card.Integrity.Text = string.format("%d/%d", value, max)
 			local toWin = state.TrialsToWin or 2
-			card.Wins.Text = string.rep("■", s.TrialWins or 0) .. string.rep("□", math.max(0, toWin - (s.TrialWins or 0)))
+			card.Wins.Text = string.rep("■", s.TrialWins or 0)
+				.. string.rep("□", math.max(0, toWin - (s.TrialWins or 0)))
 			local tags = {}
 			if s.Forfeited then
 				table.insert(tags, "FORFEITED")
@@ -656,14 +946,23 @@ function MatchHUD:renderChamber()
 			end
 		end
 	end
-	local divider = Kit.create("Frame", { BorderSizePixel = 0, Size = UDim2.fromOffset(2, 30), LayoutOrder = 100, Parent = track }) :: Frame
+	local divider = Kit.create(
+		"Frame",
+		{ BorderSizePixel = 0, Size = UDim2.fromOffset(2, 30), LayoutOrder = 100, Parent = track }
+	) :: Frame
 	Theme.bind(divider, "BackgroundColor3", "LineStrong")
 	for i, cell in belief.Track do
-		local holder = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(34, 38), LayoutOrder = 100 + i, Parent = track }) :: Frame
+		local holder = Kit.create(
+			"Frame",
+			{ BackgroundTransparency = 1, Size = UDim2.fromOffset(34, 38), LayoutOrder = 100 + i, Parent = track }
+		) :: Frame
 		local g = Kit.glyph(holder, glyphKind(cell), 30)
 		g.Position = UDim2.fromOffset(2, 0)
 		if i == 1 then
-			local bracket = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), Parent = holder }) :: Frame
+			local bracket = Kit.create(
+				"Frame",
+				{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), Parent = holder }
+			) :: Frame
 			Kit.stroke(bracket, "Accent", 2, 0)
 			Kit.corner(bracket, 3)
 			holder.Size = UDim2.fromOffset(38, 38)
@@ -686,7 +985,9 @@ function MatchHUD:renderChamber()
 	local p = Probability.current(belief)
 	if self.C.SettingsController:get("ProbabilityAssist") ~= false then
 		local certain = Probability.isCertain(p)
-		local label = if certain then (if p > 0.5 then "LOADED CELL IS CHARGED" else "LOADED CELL IS HOLLOW") else string.format("LOADED CELL :: %s CHARGED", Format.percent(p))
+		local label = if certain
+			then (if p > 0.5 then "LOADED CELL IS CHARGED" else "LOADED CELL IS HOLLOW")
+			else string.format("LOADED CELL :: %s CHARGED", Format.percent(p))
 		local color = if p > 0.5 then Theme.Colors.Charged else Theme.Colors.Hollow
 		self.Odds.Text = string.format('<font color="#%s">%s</font>', color:ToHex(), label)
 	else
@@ -711,8 +1012,16 @@ function MatchHUD:renderActions()
 	local target = self:target()
 	local targetInfo = client:info(target)
 	local targetName = targetInfo and string.upper(targetInfo.Name or "OPPONENT") or "OPPONENT"
-	Kit.setText(self.FireOther, if self.Armed and self.Armed.Action == "FireOther" then "CONFIRM: FIRE AT " .. targetName else "FIRE AT " .. targetName)
-	Kit.setText(self.FireSelf, if self.Armed and self.Armed.Action == "FireSelf" then "CONFIRM: FIRE AT SELF" else "FIRE AT SELF")
+	Kit.setText(
+		self.FireOther,
+		if self.Armed and self.Armed.Action == "FireOther"
+			then "CONFIRM: FIRE AT " .. targetName
+			else "FIRE AT " .. targetName
+	)
+	Kit.setText(
+		self.FireSelf,
+		if self.Armed and self.Armed.Action == "FireSelf" then "CONFIRM: FIRE AT SELF" else "FIRE AT SELF"
+	)
 	local input = self.C.InputController
 	for actionId, button in { FireSelf = self.FireSelf, FireOther = self.FireOther } do
 		local ok, reason = self:canFire(actionId)
@@ -731,7 +1040,10 @@ function MatchHUD:renderActions()
 			else "Fire at the selected opponent. Your turn passes either way (unless Overclocked)."
 		button:SetAttribute("Tooltip", tip)
 		local stroke = button:FindFirstChildOfClass("UIStroke")
-		if stroke and ((focus == "FireSelf" and actionId == "FireSelf") or (focus == "FireOther" and actionId == "FireOther")) then
+		if
+			stroke
+			and ((focus == "FireSelf" and actionId == "FireSelf") or (focus == "FireOther" and actionId == "FireOther"))
+		then
 			Theme.bind(stroke, "Color", "Focus")
 			stroke.Thickness = 3
 		elseif stroke then
@@ -767,10 +1079,22 @@ function MatchHUD:renderActions()
 			Kit.setEnabled(button, ok, reason)
 			button:SetAttribute(
 				"Tooltip",
-				string.format("<b>%s</b>  ·  %s\n%s\n<i>%s</i>", def.Name, string.upper(def.Rarity), def.Description, def.Visibility)
+				string.format(
+					"<b>%s</b>  ·  %s\n%s\n<i>%s</i>",
+					def.Name,
+					string.upper(def.Rarity),
+					def.Description,
+					def.Visibility
+				)
 			)
 			if slot.Stroke then
-				Theme.bind(slot.Stroke, "Color", if focus == "Slot:" .. id or focus == "Instruments" then "Focus" else (RARITY_STROKE[def.Rarity] or "Line"))
+				Theme.bind(
+					slot.Stroke,
+					"Color",
+					if focus == "Slot:" .. id or focus == "Instruments"
+						then "Focus"
+						else (RARITY_STROKE[def.Rarity] or "Line")
+				)
 			end
 		else
 			Kit.setEnabled(button, false, "Empty slot.")
@@ -794,9 +1118,15 @@ function MatchHUD:renderInfo()
 	end
 	local trial = state.Trial or 0
 	self.TrialLabel.Text = if trial > 0
-		then string.format("TRIAL %s  ·  LOAD %d%s", Format.roman(trial), state.LoadInTrial or 0, if state.SuddenDeath then "  ·  SUDDEN DEATH" else "")
+		then string.format(
+			"TRIAL %s  ·  LOAD %d%s",
+			Format.roman(trial),
+			state.LoadInTrial or 0,
+			if state.SuddenDeath then "  ·  SUDDEN DEATH" else ""
+		)
 		else "EVALUATION"
-	self.ModeLabel.Text = string.upper(sc.ModeName or sc.ModeId or "") .. (if sc.Rules and sc.Rules.Ranked then "  ·  RANKED" else "")
+	self.ModeLabel.Text = string.upper(sc.ModeName or sc.ModeId or "")
+		.. (if sc.Rules and sc.Rules.Ranked then "  ·  RANKED" else "")
 	for _, child in self.Chips:GetChildren() do
 		if not child:IsA("UIListLayout") then
 			child:Destroy()
@@ -805,7 +1135,14 @@ function MatchHUD:renderInfo()
 	for i, modId in state.Modifiers or {} do
 		local m = Modifiers.get(modId)
 		if m then
-			local chip = Kit.label(self.Chips, { Text = "◆ " .. m.Name, Font = "Mono", TextSize = "Tiny", Color = "Warn", LayoutOrder = i, Size = UDim2.new(1, 0, 0, 14) })
+			local chip = Kit.label(self.Chips, {
+				Text = "◆ " .. m.Name,
+				Font = "Mono",
+				TextSize = "Tiny",
+				Color = "Warn",
+				LayoutOrder = i,
+				Size = UDim2.new(1, 0, 0, 14),
+			})
 			Kit.tooltip(chip, m.Description or m.Name)
 		end
 	end
@@ -834,10 +1171,18 @@ function MatchHUD:renderHint()
 		if self.Armed then
 			text = "Press again to confirm."
 		elseif p and Probability.isCertain(p) then
-			text = if p > 0.5 then "You know the loaded cell is CHARGED." else "You know the loaded cell is HOLLOW. Firing at yourself keeps your turn."
+			text = if p > 0.5
+				then "You know the loaded cell is CHARGED."
+				else "You know the loaded cell is HOLLOW. Firing at yourself keeps your turn."
 		else
 			local mode = self.C.SettingsController:get("FireConfirm") or "Hold"
-			text = "YOUR TURN  ·  " .. (if mode == "Hold" then "hold a fire control to commit" elseif mode == "Confirm" then "press a fire control twice to commit" else "choose")
+			text = "YOUR TURN  ·  "
+				.. (
+					if mode == "Hold"
+						then "hold a fire control to commit"
+						elseif mode == "Confirm" then "press a fire control twice to commit"
+						else "choose"
+				)
 		end
 	elseif owner and state.Phase == "AwaitAction" then
 		local info = client:info(owner)
@@ -874,15 +1219,32 @@ function MatchHUD:renderLog()
 		local e = entries[i]
 		local text
 		if e.Kind == "Fire" then
-			text = string.format("%s → %s  %s%s", name(e.Actor), if e.Actor == e.Target then "SELF" else name(e.Target), if e.Charged then "CHARGED" else "HOLLOW", if e.Charged then " −" .. tostring(e.Damage) else "")
+			text = string.format(
+				"%s → %s  %s%s",
+				name(e.Actor),
+				if e.Actor == e.Target then "SELF" else name(e.Target),
+				if e.Charged then "CHARGED" else "HOLLOW",
+				if e.Charged then " −" .. tostring(e.Damage) else ""
+			)
 		elseif e.Kind == "Use" then
 			local def = Instruments.get(e.Id)
-			text = string.format("%s used %s%s", name(e.Actor), def and def.Name or e.Id, if e.Target then " on " .. name(e.Target) else "")
+			text = string.format(
+				"%s used %s%s",
+				name(e.Actor),
+				def and def.Name or e.Id,
+				if e.Target then " on " .. name(e.Target) else ""
+			)
 			if e.Id == "Ejector" and e.Outcome then
 				text ..= if e.Outcome.Charged then " (CHARGED out)" else " (HOLLOW out)"
 			end
 		elseif e.Kind == "Load" then
-			text = if e.Blind then string.format("LOAD  %d cells, mix withheld", e.Size or 0) else string.format("LOAD  %d CHARGED · %d HOLLOW", e.Charged or 0, (e.Size or 0) - (e.Charged or 0))
+			text = if e.Blind
+				then string.format("LOAD  %d cells, mix withheld", e.Size or 0)
+				else string.format(
+					"LOAD  %d CHARGED · %d HOLLOW",
+					e.Charged or 0,
+					(e.Size or 0) - (e.Charged or 0)
+				)
 		elseif e.Kind == "Eliminated" then
 			text = name(e.Subject) .. " lost all Integrity"
 		elseif e.Kind == "Trial" then
@@ -895,7 +1257,14 @@ function MatchHUD:renderLog()
 			text = name(e.Subject) .. " ran out of time"
 		end
 		if text then
-			Kit.label(list, { Text = text, Font = "Mono", TextSize = "Tiny", Color = if i == #entries then "Text" else "Dim", LayoutOrder = #entries - i, Size = UDim2.new(1, 0, 0, 16) })
+			Kit.label(list, {
+				Text = text,
+				Font = "Mono",
+				TextSize = "Tiny",
+				Color = if i == #entries then "Text" else "Dim",
+				LayoutOrder = #entries - i,
+				Size = UDim2.new(1, 0, 0, 16),
+			})
 		end
 	end
 end
@@ -952,15 +1321,32 @@ function MatchHUD:versusCard()
 		table.insert(ids, id)
 	end
 	table.sort(ids)
-	local row = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 160), Position = UDim2.fromScale(0, 0.5), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 41, Parent = frame }) :: Frame
+	local row = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 160),
+		Position = UDim2.fromScale(0, 0.5),
+		AnchorPoint = Vector2.new(0, 0.5),
+		ZIndex = 41,
+		Parent = frame,
+	}) :: Frame
 	local layout = Kit.list(row, "X", 24, "Center")
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	for i, id in ids do
 		local info = sc.Subjects[id]
 		if i > 1 then
-			Kit.label(row, { Text = "VS", Font = "Display", TextSize = "Heading", Color = "Accent", XAlign = "Center", Size = UDim2.fromOffset(60, 40), LayoutOrder = i * 2 - 1, ZIndex = 42 })
+			Kit.label(row, {
+				Text = "VS",
+				Font = "Display",
+				TextSize = "Heading",
+				Color = "Accent",
+				XAlign = "Center",
+				Size = UDim2.fromOffset(60, 40),
+				LayoutOrder = i * 2 - 1,
+				ZIndex = 42,
+			})
 		end
-		local card = Kit.panel(row, { Size = UDim2.fromOffset(260, 150), LayoutOrder = i * 2, Color = "Bg", ZIndex = 42 })
+		local card =
+			Kit.panel(row, { Size = UDim2.fromOffset(260, 150), LayoutOrder = i * 2, Color = "Bg", ZIndex = 42 })
 		Kit.padding(card, 12, 14)
 		local frameData = info.Card and info.Card.Frame
 		local stroke = card:FindFirstChildOfClass("UIStroke")
@@ -968,7 +1354,13 @@ function MatchHUD:versusCard()
 			stroke.Color = Color3.fromRGB(frameData.Stroke[1], frameData.Stroke[2], frameData.Stroke[3])
 			stroke.Thickness = 2
 		end
-		Kit.label(card, { Text = string.upper(info.Name or "?"), Font = "Display", TextSize = "Title", Size = UDim2.new(1, 0, 0, 30), ZIndex = 43 })
+		Kit.label(card, {
+			Text = string.upper(info.Name or "?"),
+			Font = "Display",
+			TextSize = "Title",
+			Size = UDim2.new(1, 0, 0, 30),
+			ZIndex = 43,
+		})
 		local lines = {}
 		if info.IsAI then
 			table.insert(lines, info.Title or "SURROGATE")
@@ -983,12 +1375,27 @@ function MatchHUD:versusCard()
 				table.insert(lines, '"' .. banner .. '"')
 			end
 		end
-		Kit.label(card, { Text = table.concat(lines, "\n"), Font = "Mono", TextSize = "Small", Color = "Dim", Wrap = true, Size = UDim2.new(1, 0, 0, 80), Position = UDim2.fromOffset(0, 36), YAlign = "Top", ZIndex = 43 })
+		Kit.label(card, {
+			Text = table.concat(lines, "\n"),
+			Font = "Mono",
+			TextSize = "Small",
+			Color = "Dim",
+			Wrap = true,
+			Size = UDim2.new(1, 0, 0, 80),
+			Position = UDim2.fromOffset(0, 36),
+			YAlign = "Top",
+			ZIndex = 43,
+		})
 	end
 	local preview = sc.RankedPreview
 	if preview then
 		Kit.label(frame, {
-			Text = string.format("RANKED  ·  WIN %s  ·  LOSS %s  ·  EXPECTED %s", Format.signed(preview.Win or 0), Format.signed(preview.Loss or 0), Format.percent(preview.Expected or 0.5)),
+			Text = string.format(
+				"RANKED  ·  WIN %s  ·  LOSS %s  ·  EXPECTED %s",
+				Format.signed(preview.Win or 0),
+				Format.signed(preview.Loss or 0),
+				Format.percent(preview.Expected or 0.5)
+			),
 			Font = "Mono",
 			TextSize = "Label",
 			XAlign = "Center",
@@ -1055,18 +1462,38 @@ function MatchHUD:wire()
 		elseif kind == "InstrumentUsed" and data.Actor == you and data.Reveal and data.Reveal[1] then
 			local r = data.Reveal[1]
 			if data.Id == "Lens" then
-				self:callout("LENS :: LOADED CELL", if r.Charged then "CHARGED" else "HOLLOW", if r.Charged then "C" else "H", 2.2)
+				self:callout(
+					"LENS :: LOADED CELL",
+					if r.Charged then "CHARGED" else "HOLLOW",
+					if r.Charged then "C" else "H",
+					2.2
+				)
 			elseif data.Id == "Sonar" then
-				self:callout(string.format("SONAR :: POSITION %d", r.Index), if r.Charged then "CHARGED" else "HOLLOW", if r.Charged then "C" else "H", 2.2)
+				self:callout(
+					string.format("SONAR :: POSITION %d", r.Index),
+					if r.Charged then "CHARGED" else "HOLLOW",
+					if r.Charged then "C" else "H",
+					2.2
+				)
 			end
 		elseif kind == "LoadStart" and data.Reveal and #data.Reveal > 0 then
 			local r = data.Reveal[1]
 			task.delay(1.2, function()
-				self:callout(string.format("PRECISION :: POSITION %d", r.Index), if r.Charged then "CHARGED" else "HOLLOW", if r.Charged then "C" else "H", 2.4)
+				self:callout(
+					string.format("PRECISION :: POSITION %d", r.Index),
+					if r.Charged then "CHARGED" else "HOLLOW",
+					if r.Charged then "C" else "H",
+					2.4
+				)
 			end)
 		elseif kind == "Echo" and data.Reveal and data.Reveal[1] then
 			local r = data.Reveal[1]
-			self:callout("ECHO :: NEXT CELL", if r.Charged then "CHARGED" else "HOLLOW", if r.Charged then "C" else "H", 2)
+			self:callout(
+				"ECHO :: NEXT CELL",
+				if r.Charged then "CHARGED" else "HOLLOW",
+				if r.Charged then "C" else "H",
+				2
+			)
 		end
 	end)
 	C.InputController.Action:Connect(function(action, phase)
@@ -1146,7 +1573,15 @@ function MatchHUD:wire()
 		-- Turn timer.
 		local turn = self.Turn
 		local state = st(self)
-		if turn and turn.EndsAt and turn.Duration and turn.Duration > 0 and state and state.Phase == "AwaitAction" and state.Turn.Owner == turn.Owner then
+		if
+			turn
+			and turn.EndsAt
+			and turn.Duration
+			and turn.Duration > 0
+			and state
+			and state.Phase == "AwaitAction"
+			and state.Turn.Owner == turn.Owner
+		then
 			local left = math.max(0, turn.EndsAt - workspace:GetServerTimeNow())
 			self.TimerBar.Visible = true
 			Kit.setBar(self.TimerBar, left / turn.Duration)

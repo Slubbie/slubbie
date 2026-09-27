@@ -45,7 +45,12 @@ function RankedService:checkSeason(player: Player)
 	end)
 	if rolled then
 		self.Services.CosmeticService:syncGrants(player)
-		self.Services.NetworkService:notify(player, "NEW SEASON", season().Name .. " has begun. Standing partially reset.", "Info")
+		self.Services.NetworkService:notify(
+			player,
+			"NEW SEASON",
+			season().Name .. " has begun. Standing partially reset.",
+			"Info"
+		)
 	end
 end
 
@@ -152,7 +157,8 @@ function RankedService:applyAbandon(player: Player, opponentRating: number)
 	local refund = nil
 	self.Services.DataService:update(player, function(data)
 		local r = data.Ranked
-		local before = { Rating = r.Rating, Strikes = r.Strikes, LockoutUntil = r.LockoutUntil, Clean = r.CleanSinceStrike }
+		local before =
+			{ Rating = r.Rating, Strikes = r.Strikes, LockoutUntil = r.LockoutUntil, Clean = r.CleanSinceStrike }
 		local newRating, delta = Rating.abandon(r.Rating, opponentRating, r.Games)
 		applyChange(data, newRating, delta, false)
 		r.Strikes += 1

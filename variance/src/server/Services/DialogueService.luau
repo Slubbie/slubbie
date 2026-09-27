@@ -164,7 +164,10 @@ function DialogueService:onEvents(match, events)
 							local spec = Dialogue.Triggers.Read
 							local key = aiId .. ":Read"
 							match.DialogueCooldowns = match.DialogueCooldowns or {}
-							if (match.DialogueCooldowns[key] or 0) <= os.clock() and rng:NextNumber() <= spec.Chance then
+							if
+								(match.DialogueCooldowns[key] or 0) <= os.clock()
+								and rng:NextNumber() <= spec.Chance
+							then
 								match.DialogueCooldowns[key] = os.clock() + spec.Cooldown
 								local text = Dialogue.fill(choice, values)
 								match.Dispatcher:broadcast("Dialogue", {
@@ -187,7 +190,12 @@ end
 function DialogueService:hesitation(match, humanId: number)
 	for aiId, participant in match.Participants do
 		if participant.Kind == "AI" then
-			self:say(match, aiId, "Hesitation", { name = match.Participants[humanId] and match.Participants[humanId].Name or "" })
+			self:say(
+				match,
+				aiId,
+				"Hesitation",
+				{ name = match.Participants[humanId] and match.Participants[humanId].Name or "" }
+			)
 		end
 	end
 end

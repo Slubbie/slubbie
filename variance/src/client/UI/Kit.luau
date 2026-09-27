@@ -182,7 +182,14 @@ function Kit.keycap(parent: Instance?, text: string, order: number?): Frame
 	Theme.bind(cap, "BackgroundColor3", "Raised")
 	Kit.corner(cap, 3)
 	Kit.stroke(cap, "LineStrong", 1, 0)
-	Kit.label(cap, { Text = text, Font = "Mono", TextSize = "Tiny", XAlign = "Center", Size = UDim2.fromScale(1, 1), Color = "Text" })
+	Kit.label(cap, {
+		Text = text,
+		Font = "Mono",
+		TextSize = "Tiny",
+		XAlign = "Center",
+		Size = UDim2.fromScale(1, 1),
+		Color = "Text",
+	})
 	return cap
 end
 
@@ -426,9 +433,21 @@ function Kit.setText(button: GuiButton, text: string)
 end
 
 -- On/off switch row.
-function Kit.toggle(parent: Instance?, props: { Label: string, Value: boolean, OnChanged: (boolean) -> (), LayoutOrder: number? })
-	local row = Kit.create("Frame", { Name = "Toggle", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 38), LayoutOrder = props.LayoutOrder or 0, Parent = parent }) :: Frame
-	Kit.label(row, { Text = props.Label, Font = "Mono", TextSize = "Label", Size = UDim2.new(1, -90, 1, 0), Color = "Dim" })
+function Kit.toggle(
+	parent: Instance?,
+	props: { Label: string, Value: boolean, OnChanged: (boolean) -> (), LayoutOrder: number? }
+)
+	local row = Kit.create("Frame", {
+		Name = "Toggle",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 38),
+		LayoutOrder = props.LayoutOrder or 0,
+		Parent = parent,
+	}) :: Frame
+	Kit.label(
+		row,
+		{ Text = props.Label, Font = "Mono", TextSize = "Label", Size = UDim2.new(1, -90, 1, 0), Color = "Dim" }
+	)
 	local value = props.Value
 	local button = Kit.button(row, {
 		Text = value and "ON" or "OFF",
@@ -449,24 +468,55 @@ function Kit.toggle(parent: Instance?, props: { Label: string, Value: boolean, O
 end
 
 -- Horizontal slider with drag, click, and -/+ steppers (keyboard/gamepad friendly).
-function Kit.slider(parent: Instance?, props: {
-	Label: string,
-	Min: number,
-	Max: number,
-	Step: number,
-	Value: number,
-	Format: ((number) -> string)?,
-	OnChanged: (number) -> (),
-	LayoutOrder: number?,
-})
-	local row = Kit.create("Frame", { Name = "Slider", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 44), LayoutOrder = props.LayoutOrder or 0, Parent = parent }) :: Frame
+function Kit.slider(
+	parent: Instance?,
+	props: {
+		Label: string,
+		Min: number,
+		Max: number,
+		Step: number,
+		Value: number,
+		Format: ((number) -> string)?,
+		OnChanged: (number) -> (),
+		LayoutOrder: number?,
+	}
+)
+	local row = Kit.create("Frame", {
+		Name = "Slider",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 44),
+		LayoutOrder = props.LayoutOrder or 0,
+		Parent = parent,
+	}) :: Frame
 	local fmt = props.Format or function(v)
 		return string.format("%d%%", math.floor(v * 100 + 0.5))
 	end
-	Kit.label(row, { Text = props.Label, Font = "Mono", TextSize = "Label", Size = UDim2.new(0.4, 0, 1, 0), Color = "Dim" })
-	local readout = Kit.label(row, { Text = fmt(props.Value), Font = "Mono", TextSize = "Label", XAlign = "Right", Size = UDim2.new(0, 60, 1, 0), Position = UDim2.new(1, -60, 0, 0) })
-	local minus = Kit.button(row, { Text = "-", Size = UDim2.fromOffset(28, 28), Position = UDim2.new(0.4, 0, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), Sound = "Tick" })
-	local plus = Kit.button(row, { Text = "+", Size = UDim2.fromOffset(28, 28), Position = UDim2.new(1, -66, 0.5, 0), AnchorPoint = Vector2.new(1, 0.5), Sound = "Tick" })
+	Kit.label(
+		row,
+		{ Text = props.Label, Font = "Mono", TextSize = "Label", Size = UDim2.new(0.4, 0, 1, 0), Color = "Dim" }
+	)
+	local readout = Kit.label(row, {
+		Text = fmt(props.Value),
+		Font = "Mono",
+		TextSize = "Label",
+		XAlign = "Right",
+		Size = UDim2.new(0, 60, 1, 0),
+		Position = UDim2.new(1, -60, 0, 0),
+	})
+	local minus = Kit.button(row, {
+		Text = "-",
+		Size = UDim2.fromOffset(28, 28),
+		Position = UDim2.new(0.4, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Sound = "Tick",
+	})
+	local plus = Kit.button(row, {
+		Text = "+",
+		Size = UDim2.fromOffset(28, 28),
+		Position = UDim2.new(1, -66, 0.5, 0),
+		AnchorPoint = Vector2.new(1, 0.5),
+		Sound = "Tick",
+	})
 	local track = Kit.create("TextButton", {
 		Name = "Track",
 		AutoButtonColor = false,
@@ -480,10 +530,20 @@ function Kit.slider(parent: Instance?, props: {
 	}) :: TextButton
 	Theme.bind(track, "BackgroundColor3", "Raised")
 	Kit.corner(track, 3)
-	local fill = Kit.create("Frame", { Name = "Fill", BorderSizePixel = 0, Size = UDim2.fromScale(0, 1), Parent = track }) :: Frame
+	local fill = Kit.create(
+		"Frame",
+		{ Name = "Fill", BorderSizePixel = 0, Size = UDim2.fromScale(0, 1), Parent = track }
+	) :: Frame
 	Theme.bind(fill, "BackgroundColor3", "Accent")
 	Kit.corner(fill, 3)
-	local knob = Kit.create("Frame", { Name = "Knob", BorderSizePixel = 0, Size = UDim2.fromOffset(12, 18), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0, 0.5), Parent = track }) :: Frame
+	local knob = Kit.create("Frame", {
+		Name = "Knob",
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(12, 18),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		Parent = track,
+	}) :: Frame
 	Theme.bind(knob, "BackgroundColor3", "Text")
 	Kit.corner(knob, 2)
 	local value = props.Value
@@ -513,18 +573,30 @@ function Kit.slider(parent: Instance?, props: {
 		set(props.Min + t * (props.Max - props.Min), true)
 	end
 	track.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
 			dragging = true
 			fromX(input.Position.X)
 		end
 	end)
 	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		if
+			dragging
+			and (
+				input.UserInputType == Enum.UserInputType.MouseMovement
+				or input.UserInputType == Enum.UserInputType.Touch
+			)
+		then
 			fromX(input.Position.X)
 		end
 	end)
 	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
 			dragging = false
 		end
 	end)
@@ -534,39 +606,80 @@ function Kit.slider(parent: Instance?, props: {
 end
 
 -- Left/right option cycler.
-function Kit.choice(parent: Instance?, props: {
-	Label: string,
-	Options: { string },
-	Value: string,
-	Display: ((string) -> string)?,
-	OnChanged: (string) -> (),
-	LayoutOrder: number?,
-})
-	local row = Kit.create("Frame", { Name = "Choice", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), LayoutOrder = props.LayoutOrder or 0, Parent = parent }) :: Frame
-	Kit.label(row, { Text = props.Label, Font = "Mono", TextSize = "Label", Size = UDim2.new(0.45, 0, 1, 0), Color = "Dim" })
+function Kit.choice(
+	parent: Instance?,
+	props: {
+		Label: string,
+		Options: { string },
+		Value: string,
+		Display: ((string) -> string)?,
+		OnChanged: (string) -> (),
+		LayoutOrder: number?,
+	}
+)
+	local row = Kit.create("Frame", {
+		Name = "Choice",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 40),
+		LayoutOrder = props.LayoutOrder or 0,
+		Parent = parent,
+	}) :: Frame
+	Kit.label(
+		row,
+		{ Text = props.Label, Font = "Mono", TextSize = "Label", Size = UDim2.new(0.45, 0, 1, 0), Color = "Dim" }
+	)
 	local index = math.max(1, table.find(props.Options, props.Value) or 1)
 	local display = props.Display or function(s)
 		return string.upper(s)
 	end
-	local current = Kit.label(row, { Text = display(props.Options[index]), Font = "Mono", TextSize = "Label", XAlign = "Center", Size = UDim2.new(0.55, -72, 1, 0), Position = UDim2.new(0.45, 36, 0, 0) })
+	local current = Kit.label(row, {
+		Text = display(props.Options[index]),
+		Font = "Mono",
+		TextSize = "Label",
+		XAlign = "Center",
+		Size = UDim2.new(0.55, -72, 1, 0),
+		Position = UDim2.new(0.45, 36, 0, 0),
+	})
 	local function step(delta: number)
 		index = ((index - 1 + delta) % #props.Options) + 1
 		current.Text = display(props.Options[index])
 		Motion.punch(current, 0.06)
 		props.OnChanged(props.Options[index])
 	end
-	Kit.button(row, { Text = "<", Size = UDim2.fromOffset(30, 30), Position = UDim2.new(0.45, 0, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), Sound = "Tick", OnClick = function()
-		step(-1)
-	end })
-	Kit.button(row, { Text = ">", Size = UDim2.fromOffset(30, 30), Position = UDim2.new(1, 0, 0.5, 0), AnchorPoint = Vector2.new(1, 0.5), Sound = "Tick", OnClick = function()
-		step(1)
-	end })
+	Kit.button(row, {
+		Text = "<",
+		Size = UDim2.fromOffset(30, 30),
+		Position = UDim2.new(0.45, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Sound = "Tick",
+		OnClick = function()
+			step(-1)
+		end,
+	})
+	Kit.button(row, {
+		Text = ">",
+		Size = UDim2.fromOffset(30, 30),
+		Position = UDim2.new(1, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(1, 0.5),
+		Sound = "Tick",
+		OnClick = function()
+			step(1)
+		end,
+	})
 	return row
 end
 
 -- Tab strip. Returns (frame, select(id)).
-function Kit.tabs(parent: Instance?, tabs: { { Id: string, Label: string } }, onChanged: (string) -> (), height: number?)
-	local strip = Kit.create("Frame", { Name = "Tabs", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, height or 36), Parent = parent }) :: Frame
+function Kit.tabs(
+	parent: Instance?,
+	tabs: { { Id: string, Label: string } },
+	onChanged: (string) -> (),
+	height: number?
+)
+	local strip = Kit.create(
+		"Frame",
+		{ Name = "Tabs", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, height or 36), Parent = parent }
+	) :: Frame
 	Kit.list(strip, "X", 4)
 	local buttons = {}
 	local function choose(id: string)
@@ -591,7 +704,10 @@ function Kit.tabs(parent: Instance?, tabs: { { Id: string, Label: string } }, on
 	return strip, choose
 end
 
-function Kit.scroll(parent: Instance?, props: { Size: UDim2?, Position: UDim2?, Padding: number?, Direction: string?, Name: string? }): ScrollingFrame
+function Kit.scroll(
+	parent: Instance?,
+	props: { Size: UDim2?, Position: UDim2?, Padding: number?, Direction: string?, Name: string? }
+): ScrollingFrame
 	local frame = Kit.create("ScrollingFrame", {
 		Name = props.Name or "Scroll",
 		BackgroundTransparency = 1,
@@ -612,7 +728,10 @@ function Kit.scroll(parent: Instance?, props: { Size: UDim2?, Position: UDim2?, 
 end
 
 -- Progress bar. Kit.setBar(bar, 0..1).
-function Kit.bar(parent: Instance?, props: { Size: UDim2?, Position: UDim2?, Color: string?, Value: number?, LayoutOrder: number? }): Frame
+function Kit.bar(
+	parent: Instance?,
+	props: { Size: UDim2?, Position: UDim2?, Color: string?, Value: number?, LayoutOrder: number? }
+): Frame
 	local bar = Kit.create("Frame", {
 		Name = "Bar",
 		BorderSizePixel = 0,
@@ -623,7 +742,12 @@ function Kit.bar(parent: Instance?, props: { Size: UDim2?, Position: UDim2?, Col
 	}) :: Frame
 	Theme.bind(bar, "BackgroundColor3", "Raised")
 	Kit.corner(bar, 2)
-	local fill = Kit.create("Frame", { Name = "Fill", BorderSizePixel = 0, Size = UDim2.fromScale(math.clamp(props.Value or 0, 0, 1), 1), Parent = bar }) :: Frame
+	local fill = Kit.create("Frame", {
+		Name = "Fill",
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(math.clamp(props.Value or 0, 0, 1), 1),
+		Parent = bar,
+	}) :: Frame
 	Theme.bind(fill, "BackgroundColor3", props.Color or "Accent")
 	Kit.corner(fill, 2)
 	return bar
@@ -688,7 +812,14 @@ function Kit.glyph(parent: Instance?, kind: string, size: number): Frame
 		Theme.bind(slot, "BackgroundColor3", "Faint")
 		Kit.corner(slot, 2)
 		if kind == "~" then
-			Kit.label(holder, { Text = "±", Font = "Mono", TextSize = "Small", XAlign = "Center", Size = UDim2.fromScale(1, 1), Color = "Text" })
+			Kit.label(holder, {
+				Text = "±",
+				Font = "Mono",
+				TextSize = "Small",
+				XAlign = "Center",
+				Size = UDim2.fromScale(1, 1),
+				Color = "Text",
+			})
 		end
 	end
 	return holder
@@ -696,7 +827,13 @@ end
 
 -- Integrity pips. Kit.setPips(frame, value, max).
 function Kit.pips(parent: Instance?, max: number, value: number, pipSize: Vector2?): Frame
-	local frame = Kit.create("Frame", { Name = "Pips", BackgroundTransparency = 1, Size = UDim2.fromOffset(0, 0), AutomaticSize = Enum.AutomaticSize.XY, Parent = parent }) :: Frame
+	local frame = Kit.create("Frame", {
+		Name = "Pips",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, 0),
+		AutomaticSize = Enum.AutomaticSize.XY,
+		Parent = parent,
+	}) :: Frame
 	Kit.list(frame, "X", 3)
 	frame:SetAttribute("PipW", (pipSize or Vector2.new(14, 22)).X)
 	frame:SetAttribute("PipH", (pipSize or Vector2.new(14, 22)).Y)
@@ -713,7 +850,10 @@ function Kit.setPips(frame: Frame, value: number, max: number)
 		end
 	end
 	for i = #existing + 1, max do
-		local pip = Kit.create("Frame", { Name = "Pip" .. i, BorderSizePixel = 0, Size = UDim2.fromOffset(w, h), LayoutOrder = i, Parent = frame }) :: Frame
+		local pip = Kit.create(
+			"Frame",
+			{ Name = "Pip" .. i, BorderSizePixel = 0, Size = UDim2.fromOffset(w, h), LayoutOrder = i, Parent = frame }
+		) :: Frame
 		Kit.corner(pip, 2)
 		table.insert(existing, pip)
 	end
@@ -731,7 +871,10 @@ end
 -- Subtle CRT scanlines over a container (static frames; cheap). `count` is the
 -- number of lines across the container's height.
 function Kit.scanlines(parent: Instance, count: number?, alpha: number?): Frame
-	local layer = Kit.create("Frame", { Name = "Scanlines", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 50, Parent = parent }) :: Frame
+	local layer = Kit.create(
+		"Frame",
+		{ Name = "Scanlines", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 50, Parent = parent }
+	) :: Frame
 	count = count or 90
 	for i = 0, count - 1 do
 		Kit.create("Frame", {
@@ -748,17 +891,42 @@ function Kit.scanlines(parent: Instance, count: number?, alpha: number?): Frame
 end
 
 function Kit.divider(parent: Instance?, order: number?): Frame
-	local line = Kit.create("Frame", { Name = "Divider", BorderSizePixel = 0, Size = UDim2.new(1, 0, 0, 1), LayoutOrder = order or 0, Parent = parent }) :: Frame
+	local line = Kit.create("Frame", {
+		Name = "Divider",
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, 1),
+		LayoutOrder = order or 0,
+		Parent = parent,
+	}) :: Frame
 	Theme.bind(line, "BackgroundColor3", "Line")
 	return line
 end
 
 -- A section header: small caps label with an accent tick.
 function Kit.header(parent: Instance?, text: string, order: number?): Frame
-	local row = Kit.create("Frame", { Name = "Header", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 24), LayoutOrder = order or 0, Parent = parent }) :: Frame
-	local tick = Kit.create("Frame", { BorderSizePixel = 0, Size = UDim2.fromOffset(3, 14), Position = UDim2.new(0, 0, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), Parent = row }) :: Frame
+	local row = Kit.create("Frame", {
+		Name = "Header",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 24),
+		LayoutOrder = order or 0,
+		Parent = parent,
+	}) :: Frame
+	local tick = Kit.create("Frame", {
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(3, 14),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Parent = row,
+	}) :: Frame
 	Theme.bind(tick, "BackgroundColor3", "Accent")
-	Kit.label(row, { Text = text, Font = "Mono", TextSize = "Label", Color = "Accent", Size = UDim2.new(1, -10, 1, 0), Position = UDim2.fromOffset(10, 0) })
+	Kit.label(row, {
+		Text = text,
+		Font = "Mono",
+		TextSize = "Label",
+		Color = "Accent",
+		Size = UDim2.new(1, -10, 1, 0),
+		Position = UDim2.fromOffset(10, 0),
+	})
 	return row
 end
 
@@ -794,9 +962,18 @@ function Kit.modal(title: string, body: string, buttons: { { Text: string, Style
 	panel.AutomaticSize = Enum.AutomaticSize.Y
 	Kit.padding(panel, 18)
 	Kit.list(panel, "Y", 10)
-	Kit.label(panel, { Text = title, Font = "Display", TextSize = "Title", Color = "Accent", ZIndex = 202, LayoutOrder = 1 })
-	Kit.label(panel, { Text = body, Font = "Body", TextSize = "Body", Wrap = true, AutoY = true, ZIndex = 202, LayoutOrder = 2 })
-	local row = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), LayoutOrder = 3, ZIndex = 202, Parent = panel }) :: Frame
+	Kit.label(
+		panel,
+		{ Text = title, Font = "Display", TextSize = "Title", Color = "Accent", ZIndex = 202, LayoutOrder = 1 }
+	)
+	Kit.label(
+		panel,
+		{ Text = body, Font = "Body", TextSize = "Body", Wrap = true, AutoY = true, ZIndex = 202, LayoutOrder = 2 }
+	)
+	local row = Kit.create(
+		"Frame",
+		{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), LayoutOrder = 3, ZIndex = 202, Parent = panel }
+	) :: Frame
 	Kit.list(row, "X", 8, "Right")
 	local result = nil
 	local done = false

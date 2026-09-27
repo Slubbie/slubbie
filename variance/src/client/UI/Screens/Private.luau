@@ -30,7 +30,10 @@ function Private.new(ui, controllers)
 	self.State = nil
 	self.BotPersona = "Ledger"
 	self.BotDifficulty = "Standard"
-	self.Window = Window.new(ui, { Name = "Private", Title = "PRIVATE TRIALS", Subtitle = "INVITE-ONLY EVALUATIONS", Width = 980, Height = 620 })
+	self.Window = Window.new(
+		ui,
+		{ Name = "Private", Title = "PRIVATE TRIALS", Subtitle = "INVITE-ONLY EVALUATIONS", Width = 980, Height = 620 }
+	)
 	self.Frame = self.Window.Frame
 	controllers.NetworkClient:onPush("Lobby", function(state)
 		self.State = state
@@ -63,7 +66,10 @@ function Private:renderOutside()
 	self.Window:setSubtitle("INVITE-ONLY EVALUATIONS")
 	local create = Kit.panel(body, { Size = UDim2.new(0.5, -8, 0, 220), Color = "PanelAlt" })
 	Kit.padding(create, 16, 18)
-	Kit.label(create, { Text = "HOST A TRIAL", Font = "Display", TextSize = "Title", Color = "Accent", Size = UDim2.new(1, 0, 0, 28) })
+	Kit.label(
+		create,
+		{ Text = "HOST A TRIAL", Font = "Display", TextSize = "Title", Color = "Accent", Size = UDim2.new(1, 0, 0, 28) }
+	)
 	Kit.label(create, {
 		Text = "Get an invite code, bring friends or surrogates, set every rule yourself, and play a single match or a bracket tournament.",
 		Font = "Body",
@@ -82,9 +88,16 @@ function Private:renderOutside()
 			request(self, "Lobby.Create")
 		end,
 	})
-	local join = Kit.panel(body, { Size = UDim2.new(0.5, -8, 0, 220), Position = UDim2.new(0.5, 8, 0, 0), Color = "PanelAlt" })
+	local join =
+		Kit.panel(body, { Size = UDim2.new(0.5, -8, 0, 220), Position = UDim2.new(0.5, 8, 0, 0), Color = "PanelAlt" })
 	Kit.padding(join, 16, 18)
-	Kit.label(join, { Text = "JOIN WITH A CODE", Font = "Display", TextSize = "Title", Color = "Accent", Size = UDim2.new(1, 0, 0, 28) })
+	Kit.label(join, {
+		Text = "JOIN WITH A CODE",
+		Font = "Display",
+		TextSize = "Title",
+		Color = "Accent",
+		Size = UDim2.new(1, 0, 0, 28),
+	})
 	local box = Kit.create("TextBox", {
 		Name = "Code",
 		Text = "",
@@ -146,13 +159,21 @@ function Private:renderLobby(state)
 	local body = self.Window.Body
 	local me = Players.LocalPlayer.UserId
 	local isHost = state.Host == me
-	self.Window:setSubtitle(if state.InMatch then "A TRIAL IS IN PROGRESS" else string.format("%d SUBJECT%s", state.Total or 1, (state.Total or 1) == 1 and "" or "S"))
+	self.Window:setSubtitle(
+		if state.InMatch
+			then "A TRIAL IS IN PROGRESS"
+			else string.format("%d SUBJECT%s", state.Total or 1, (state.Total or 1) == 1 and "" or "S")
+	)
 
 	-- Left column: code, members, surrogates, controls.
-	local left = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.44, -8, 1, 0), Parent = body }) :: Frame
+	local left =
+		Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.44, -8, 1, 0), Parent = body }) :: Frame
 	local codePanel = Kit.panel(left, { Size = UDim2.new(1, 0, 0, 74), Color = "Bg" })
 	Kit.padding(codePanel, 8, 14)
-	Kit.label(codePanel, { Text = "INVITE CODE", Font = "Mono", TextSize = "Tiny", Color = "Dim", Size = UDim2.new(1, 0, 0, 14) })
+	Kit.label(
+		codePanel,
+		{ Text = "INVITE CODE", Font = "Mono", TextSize = "Tiny", Color = "Dim", Size = UDim2.new(1, 0, 0, 14) }
+	)
 	local codeBox = Kit.create("TextBox", {
 		Text = state.Code,
 		TextEditable = false,
@@ -183,8 +204,21 @@ function Private:renderLobby(state)
 		local rowFrame = Kit.panel(list, { Size = UDim2.new(1, -8, 0, 38), LayoutOrder = i, Color = "PanelAlt" })
 		Kit.padding(rowFrame, 4, 10)
 		local tag = if member.Host then "HOST" elseif member.Ready then "READY" else "NOT READY"
-		Kit.label(rowFrame, { Text = string.upper(member.Name) .. "  ·  CL " .. tostring(member.Level or 1), Font = "Bold", TextSize = "Small", Size = UDim2.new(1, -150, 1, 0) })
-		Kit.label(rowFrame, { Text = tag, Font = "Mono", TextSize = "Tiny", Color = if member.Ready or member.Host then "Good" else "Warn", XAlign = "Right", Size = UDim2.new(0, 80, 1, 0), Position = UDim2.new(1, -140, 0, 0) })
+		Kit.label(rowFrame, {
+			Text = string.upper(member.Name) .. "  ·  CL " .. tostring(member.Level or 1),
+			Font = "Bold",
+			TextSize = "Small",
+			Size = UDim2.new(1, -150, 1, 0),
+		})
+		Kit.label(rowFrame, {
+			Text = tag,
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = if member.Ready or member.Host then "Good" else "Warn",
+			XAlign = "Right",
+			Size = UDim2.new(0, 80, 1, 0),
+			Position = UDim2.new(1, -140, 0, 0),
+		})
 		if isHost and member.UserId ~= me then
 			Kit.button(rowFrame, {
 				Text = "KICK",
@@ -194,7 +228,9 @@ function Private:renderLobby(state)
 				Style = "Danger",
 				TextSize = "Tiny",
 				OnClick = function()
-					if Kit.confirm("REMOVE SUBJECT", "Remove " .. member.Name .. " from the lobby?", "REMOVE", true) then
+					if
+						Kit.confirm("REMOVE SUBJECT", "Remove " .. member.Name .. " from the lobby?", "REMOVE", true)
+					then
 						request(self, "Lobby.Kick", member.UserId)
 					end
 				end,
@@ -204,8 +240,22 @@ function Private:renderLobby(state)
 	for i, bot in state.Bots or {} do
 		local rowFrame = Kit.panel(list, { Size = UDim2.new(1, -8, 0, 38), LayoutOrder = 100 + i, Color = "PanelAlt" })
 		Kit.padding(rowFrame, 4, 10)
-		Kit.label(rowFrame, { Text = string.upper(bot.Name or bot.Personality) .. "  ·  SURROGATE", Font = "Bold", TextSize = "Small", Color = "Dim", Size = UDim2.new(1, -150, 1, 0) })
-		Kit.label(rowFrame, { Text = string.upper(bot.Difficulty or ""), Font = "Mono", TextSize = "Tiny", Color = "Dim", XAlign = "Right", Size = UDim2.new(0, 80, 1, 0), Position = UDim2.new(1, -140, 0, 0) })
+		Kit.label(rowFrame, {
+			Text = string.upper(bot.Name or bot.Personality) .. "  ·  SURROGATE",
+			Font = "Bold",
+			TextSize = "Small",
+			Color = "Dim",
+			Size = UDim2.new(1, -150, 1, 0),
+		})
+		Kit.label(rowFrame, {
+			Text = string.upper(bot.Difficulty or ""),
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = "Dim",
+			XAlign = "Right",
+			Size = UDim2.new(0, 80, 1, 0),
+			Position = UDim2.new(1, -140, 0, 0),
+		})
 		if isHost then
 			Kit.button(rowFrame, {
 				Text = "X",
@@ -221,9 +271,15 @@ function Private:renderLobby(state)
 		end
 	end
 
-	local controls = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 96), Position = UDim2.new(0, 0, 1, -96), Parent = left }) :: Frame
+	local controls = Kit.create(
+		"Frame",
+		{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 96), Position = UDim2.new(0, 0, 1, -96), Parent = left }
+	) :: Frame
 	if isHost then
-		local addRow = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), Parent = controls }) :: Frame
+		local addRow = Kit.create(
+			"Frame",
+			{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), Parent = controls }
+		) :: Frame
 		Kit.button(addRow, {
 			Text = Personalities.get(self.BotPersona).Name,
 			Size = UDim2.new(0.34, -4, 1, 0),
@@ -302,9 +358,11 @@ function Private:renderLobby(state)
 	})
 
 	-- Right column: format and rules.
-	local right = Kit.panel(body, { Size = UDim2.new(0.56, -8, 1, 0), Position = UDim2.new(0.44, 8, 0, 0), Color = "PanelAlt" })
+	local right =
+		Kit.panel(body, { Size = UDim2.new(0.56, -8, 1, 0), Position = UDim2.new(0.44, 8, 0, 0), Color = "PanelAlt" })
 	Kit.padding(right, 12, 14)
-	local formatRow = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Parent = right }) :: Frame
+	local formatRow =
+		Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Parent = right }) :: Frame
 	for i, format in { "Match", "Tournament" } do
 		local b = Kit.button(formatRow, {
 			Text = if format == "Match" then "SINGLE TRIAL" else "TOURNAMENT",
@@ -312,7 +370,9 @@ function Private:renderLobby(state)
 			Position = UDim2.new((i - 1) * 0.5, (i - 1) * 4, 0, 0),
 			Style = "Ghost",
 			Sound = "Tab",
-			Tooltip = if format == "Tournament" then "Single-elimination bracket; surrogates fill empty seats." else "One match for everyone in the lobby (up to four subjects).",
+			Tooltip = if format == "Tournament"
+				then "Single-elimination bracket; surrogates fill empty seats."
+				else "One match for everyone in the lobby (up to four subjects).",
 			OnClick = function()
 				if isHost then
 					request(self, "Lobby.SetFormat", format)
@@ -334,7 +394,12 @@ function Private:renderLobby(state)
 		Size = UDim2.new(1, 0, 0, 34),
 		Position = UDim2.fromOffset(0, 40),
 	})
-	local editorHolder = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -84), Position = UDim2.fromOffset(0, 80), Parent = right }) :: Frame
+	local editorHolder = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 1, -84),
+		Position = UDim2.fromOffset(0, 80),
+		Parent = right,
+	}) :: Frame
 	if state.Tournament then
 		self:renderBracket(editorHolder, state.Tournament)
 		return
@@ -356,10 +421,23 @@ end
 function Private:renderBracket(parent: Frame, t)
 	local scroll = Kit.scroll(parent, { Padding = 6 })
 	local order = 1
-	Kit.header(scroll, if t.Champion then "CHAMPION :: " .. string.upper(t.Champion) else "BRACKET  ·  ROUND " .. tostring(t.Round or 1), order)
+	Kit.header(
+		scroll,
+		if t.Champion
+			then "CHAMPION :: " .. string.upper(t.Champion)
+			else "BRACKET  ·  ROUND " .. tostring(t.Round or 1),
+		order
+	)
 	for r, round in t.Rounds or {} do
 		order += 1
-		Kit.label(scroll, { Text = "ROUND " .. r, Font = "Mono", TextSize = "Label", Color = "Accent", LayoutOrder = order, Size = UDim2.new(1, 0, 0, 18) })
+		Kit.label(scroll, {
+			Text = "ROUND " .. r,
+			Font = "Mono",
+			TextSize = "Label",
+			Color = "Accent",
+			LayoutOrder = order,
+			Size = UDim2.new(1, 0, 0, 18),
+		})
 		for _, pair in round do
 			order += 1
 			local rowFrame = Kit.panel(scroll, { Size = UDim2.new(1, -8, 0, 34), LayoutOrder = order, Color = "Bg" })
@@ -368,7 +446,13 @@ function Private:renderBracket(parent: Frame, t)
 			if pair.Winner then
 				text ..= "   →   " .. string.upper(pair.Winner)
 			end
-			Kit.label(rowFrame, { Text = text, Font = "Mono", TextSize = "Tiny", Color = if pair.Winner then "Dim" else "Text", Size = UDim2.new(1, -90, 1, 0) })
+			Kit.label(rowFrame, {
+				Text = text,
+				Font = "Mono",
+				TextSize = "Tiny",
+				Color = if pair.Winner then "Dim" else "Text",
+				Size = UDim2.new(1, -90, 1, 0),
+			})
 			if pair.Live and pair.MatchId then
 				Kit.button(rowFrame, {
 					Text = "WATCH",

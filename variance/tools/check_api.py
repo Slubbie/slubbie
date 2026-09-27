@@ -43,7 +43,7 @@ def parse_classes(paths):
     for path in paths:
         with open(path, encoding="utf-8") as f:
             for line in f:
-                m = re.match(r"interface (\w+)(?: extends ([\w, ]+))? \{", line)
+                m = re.match(r"interface (\w+)(?:<.*?>)?(?: extends (\w+))?", line)
                 if m:
                     current = m.group(1)
                     classes.setdefault(current, set())

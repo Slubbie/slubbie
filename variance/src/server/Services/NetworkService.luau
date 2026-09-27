@@ -141,12 +141,12 @@ function NetworkService:_request(player: Player, endpoint: any, ...: any): (bool
 	end
 	local limits = Config.Net.Buckets.Request
 	if not self:take(player, "Request", limits.Rate, limits.Burst) then
-		flag(player, "request rate", "Low", endpoint)
+		flag(player, "request rate", "Minor", endpoint)
 		return false, "Slow down."
 	end
 	local specific = Config.Net.EndpointBuckets[endpoint]
 	if specific and not self:take(player, endpoint, specific.Rate, specific.Burst) then
-		flag(player, "endpoint rate", "Low", endpoint)
+		flag(player, "endpoint rate", "Minor", endpoint)
 		return false, "Slow down."
 	end
 	local schema = Net.Endpoints[endpoint]
@@ -207,7 +207,7 @@ function NetworkService:Start()
 	Net.Act.OnServerEvent:Connect(function(player, payload)
 		local limits = Config.Net.Buckets.Act
 		if not self:take(player, "Act", limits.Rate, limits.Burst) then
-			flag(player, "act rate", "Low")
+			flag(player, "act rate", "Minor")
 			return
 		end
 		if not checkArg("table", payload) then

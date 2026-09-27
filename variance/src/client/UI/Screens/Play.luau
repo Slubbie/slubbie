@@ -91,7 +91,8 @@ end
 
 function Play:queueTab()
 	local body = self.Window.Body
-	local grid = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = body }) :: Frame
+	local grid =
+		Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = body }) :: Frame
 	Kit.grid(grid, UDim2.new(1 / 3, -8, 0, 210), 10)
 	local order = { "Duel", "Rapid", "Chaos", "Precision", "Crossfire" }
 	for i, queueId in order do
@@ -99,7 +100,13 @@ function Play:queueTab()
 		local mode = Modes.get(def.Mode)
 		local card = Kit.panel(grid, { LayoutOrder = i, Color = "PanelAlt" })
 		Kit.padding(card, 12, 14)
-		Kit.label(card, { Text = mode and mode.Name or def.Name, Font = "Display", TextSize = "Body", Color = "Accent", Size = UDim2.new(1, 0, 0, 22) })
+		Kit.label(card, {
+			Text = mode and mode.Name or def.Name,
+			Font = "Display",
+			TextSize = "Body",
+			Color = "Accent",
+			Size = UDim2.new(1, 0, 0, 22),
+		})
 		Kit.label(card, {
 			Text = string.format("%s  ·  %d SUBJECTS", if def.Size > 2 then "FREE-FOR-ALL" else "1 V 1", def.Size),
 			Font = "Mono",
@@ -108,13 +115,23 @@ function Play:queueTab()
 			Size = UDim2.new(1, 0, 0, 14),
 			Position = UDim2.fromOffset(0, 24),
 		})
-		Kit.label(card, { Text = mode and mode.Description or "", Font = "Body", TextSize = "Small", Wrap = true, YAlign = "Top", Size = UDim2.new(1, 0, 0, 96), Position = UDim2.fromOffset(0, 44) })
+		Kit.label(card, {
+			Text = mode and mode.Description or "",
+			Font = "Body",
+			TextSize = "Small",
+			Wrap = true,
+			YAlign = "Top",
+			Size = UDim2.new(1, 0, 0, 96),
+			Position = UDim2.fromOffset(0, 44),
+		})
 		Kit.button(card, {
 			Text = "JOIN QUEUE",
 			Style = if i == 1 then "Primary" else "Default",
 			Size = UDim2.new(1, 0, 0, 36),
 			Position = UDim2.new(0, 0, 1, -36),
-			Tooltip = if def.BotAfter then string.format("If no subject is found within %ds, a surrogate takes the seat.", def.BotAfter) else nil,
+			Tooltip = if def.BotAfter
+				then string.format("If no subject is found within %ds, a surrogate takes the seat.", def.BotAfter)
+				else nil,
 			OnClick = function()
 				if request(self, "Queue.Join", queueId) then
 					self.UI:close("Play")
@@ -126,8 +143,22 @@ function Play:queueTab()
 	local endurance = Modes.get("Endurance")
 	local card = Kit.panel(grid, { LayoutOrder = 6, Color = "PanelAlt" })
 	Kit.padding(card, 12, 14)
-	Kit.label(card, { Text = endurance and endurance.Name or "ENDURANCE", Font = "Display", TextSize = "Body", Color = "Accent", Size = UDim2.new(1, 0, 0, 22) })
-	Kit.label(card, { Text = endurance and endurance.Description or "", Font = "Body", TextSize = "Small", Wrap = true, YAlign = "Top", Size = UDim2.new(1, 0, 0, 80), Position = UDim2.fromOffset(0, 28) })
+	Kit.label(card, {
+		Text = endurance and endurance.Name or "ENDURANCE",
+		Font = "Display",
+		TextSize = "Body",
+		Color = "Accent",
+		Size = UDim2.new(1, 0, 0, 22),
+	})
+	Kit.label(card, {
+		Text = endurance and endurance.Description or "",
+		Font = "Body",
+		TextSize = "Small",
+		Wrap = true,
+		YAlign = "Top",
+		Size = UDim2.new(1, 0, 0, 80),
+		Position = UDim2.fromOffset(0, 28),
+	})
 	Kit.button(card, {
 		Text = "BEGIN ENDURANCE",
 		Size = UDim2.new(0.5, -4, 0, 36),
@@ -158,9 +189,11 @@ function Play:soloTab()
 	local profile = self.C.ProfileController:get()
 	local unlocked = profile and profile.Flags and profile.Flags.ProctorUnlocked
 	local list = Personalities.selectable(true)
-	local left = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.42, -8, 1, 0), Parent = body }) :: Frame
+	local left =
+		Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.42, -8, 1, 0), Parent = body }) :: Frame
 	Kit.list(left, "Y", 6)
-	local right = Kit.panel(body, { Size = UDim2.new(0.58, -8, 1, 0), Position = UDim2.new(0.42, 8, 0, 0), Color = "PanelAlt" })
+	local right =
+		Kit.panel(body, { Size = UDim2.new(0.58, -8, 1, 0), Position = UDim2.new(0.42, 8, 0, 0), Color = "PanelAlt" })
 	Kit.padding(right, 14, 16)
 	local function detail()
 		for _, child in right:GetChildren() do
@@ -170,12 +203,35 @@ function Play:soloTab()
 		end
 		local persona = Personalities.get(self.Surrogate)
 		local look = Surrogates.get(persona.Id)
-		local portrait = Kit.create("Frame", { BorderSizePixel = 0, Size = UDim2.fromOffset(84, 84), Parent = right }) :: Frame
-		portrait.BackgroundColor3 = if look and look.Portrait then Color3.fromRGB(look.Portrait[1], look.Portrait[2], look.Portrait[3]) else Theme.Colors.Raised
+		local portrait =
+			Kit.create("Frame", { BorderSizePixel = 0, Size = UDim2.fromOffset(84, 84), Parent = right }) :: Frame
+		portrait.BackgroundColor3 = if look and look.Portrait
+			then Color3.fromRGB(look.Portrait[1], look.Portrait[2], look.Portrait[3])
+			else Theme.Colors.Raised
 		Kit.corner(portrait, 4)
-		Kit.label(portrait, { Text = string.sub(persona.Name, 1, 1), Font = "Display", TextSize = "Heading", XAlign = "Center", Size = UDim2.fromScale(1, 1) })
-		Kit.label(right, { Text = persona.Name, Font = "Display", TextSize = "Title", Color = "Accent", Size = UDim2.new(1, -100, 0, 28), Position = UDim2.fromOffset(100, 0) })
-		Kit.label(right, { Text = string.upper(persona.Epithet), Font = "Mono", TextSize = "Label", Color = "Dim", Size = UDim2.new(1, -100, 0, 18), Position = UDim2.fromOffset(100, 30) })
+		Kit.label(portrait, {
+			Text = string.sub(persona.Name, 1, 1),
+			Font = "Display",
+			TextSize = "Heading",
+			XAlign = "Center",
+			Size = UDim2.fromScale(1, 1),
+		})
+		Kit.label(right, {
+			Text = persona.Name,
+			Font = "Display",
+			TextSize = "Title",
+			Color = "Accent",
+			Size = UDim2.new(1, -100, 0, 28),
+			Position = UDim2.fromOffset(100, 0),
+		})
+		Kit.label(right, {
+			Text = string.upper(persona.Epithet),
+			Font = "Mono",
+			TextSize = "Label",
+			Color = "Dim",
+			Size = UDim2.new(1, -100, 0, 18),
+			Position = UDim2.fromOffset(100, 30),
+		})
 		local record = profile and profile.SurrogateWins and profile.SurrogateWins[persona.Id]
 		local recordText = "NO WINS RECORDED YET"
 		if type(record) == "table" then
@@ -197,13 +253,37 @@ function Play:soloTab()
 			Size = UDim2.new(1, -100, 0, 14),
 			Position = UDim2.fromOffset(100, 52),
 		})
-		Kit.label(right, { Text = persona.Bio .. "\n\n" .. persona.Style, Font = "Body", TextSize = "Small", Wrap = true, YAlign = "Top", Size = UDim2.new(1, 0, 0, 110), Position = UDim2.fromOffset(0, 96) })
+		Kit.label(right, {
+			Text = persona.Bio .. "\n\n" .. persona.Style,
+			Font = "Body",
+			TextSize = "Small",
+			Wrap = true,
+			YAlign = "Top",
+			Size = UDim2.new(1, 0, 0, 110),
+			Position = UDim2.fromOffset(0, 96),
+		})
 		Kit.header(right, "DIFFICULTY", 0).Position = UDim2.fromOffset(0, 212)
-		local row = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Position = UDim2.fromOffset(0, 240), Parent = right }) :: Frame
+		local row = Kit.create("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 34),
+			Position = UDim2.fromOffset(0, 240),
+			Parent = right,
+		}) :: Frame
 		Kit.list(row, "X", 6)
-		local descLabel = Kit.label(right, { Text = "", Font = "Body", TextSize = "Small", Color = "Dim", Wrap = true, YAlign = "Top", Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 280) })
+		local descLabel = Kit.label(right, {
+			Text = "",
+			Font = "Body",
+			TextSize = "Small",
+			Color = "Dim",
+			Wrap = true,
+			YAlign = "Top",
+			Size = UDim2.new(1, 0, 0, 44),
+			Position = UDim2.fromOffset(0, 280),
+		})
 		local function describe()
-			local tier = if self.Difficulty == "Adaptive" then Difficulty.Adaptive else Difficulty.Tiers[self.Difficulty]
+			local tier = if self.Difficulty == "Adaptive"
+				then Difficulty.Adaptive
+				else Difficulty.Tiers[self.Difficulty]
 			descLabel.Text = tier and tier.Description or ""
 		end
 		for i, id in DIFFICULTIES do
@@ -264,12 +344,14 @@ end
 
 function Play:practiceTab()
 	local body = self.Window.Body
-	local left = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.6, -8, 1, -52), Parent = body }) :: Frame
+	local left =
+		Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.6, -8, 1, -52), Parent = body }) :: Frame
 	local editor = RulesEditor.new(left, self.SandboxRules, function(value)
 		self.SandboxRules = value
 	end, false)
 	self.SandboxRules = editor:value()
-	local right = Kit.panel(body, { Size = UDim2.new(0.4, -8, 1, -52), Position = UDim2.new(0.6, 8, 0, 0), Color = "PanelAlt" })
+	local right =
+		Kit.panel(body, { Size = UDim2.new(0.4, -8, 1, -52), Position = UDim2.new(0.6, 8, 0, 0), Color = "PanelAlt" })
 	Kit.padding(right, 12, 14)
 	Kit.list(right, "Y", 6)
 	Kit.header(right, "OPPONENTS (UP TO 3)", 1)
@@ -277,7 +359,10 @@ function Play:practiceTab()
 		self:show("Practice")
 	end
 	for i, bot in self.SandboxBots do
-		local rowFrame = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), LayoutOrder = 1 + i, Parent = right }) :: Frame
+		local rowFrame = Kit.create(
+			"Frame",
+			{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), LayoutOrder = 1 + i, Parent = right }
+		) :: Frame
 		local persona = Personalities.get(bot.Personality)
 		Kit.button(rowFrame, {
 			Text = persona.Name,
@@ -376,8 +461,23 @@ function Play:trainingTab()
 		local card = Kit.panel(scroll, { Size = UDim2.new(1, -8, 0, 74), LayoutOrder = i, Color = "PanelAlt" })
 		Kit.padding(card, 10, 14)
 		local complete = done[lesson.Id] == true
-		Kit.label(card, { Text = lesson.Name .. (if complete then "  ·  COMPLETE" else ""), Font = "Display", TextSize = "Body", Color = if complete then "Good" else "Accent", Size = UDim2.new(1, -170, 0, 22) })
-		Kit.label(card, { Text = lesson.Description or "", Font = "Body", TextSize = "Small", Color = "Dim", Wrap = true, Size = UDim2.new(1, -170, 0, 32), Position = UDim2.fromOffset(0, 24), YAlign = "Top" })
+		Kit.label(card, {
+			Text = lesson.Name .. (if complete then "  ·  COMPLETE" else ""),
+			Font = "Display",
+			TextSize = "Body",
+			Color = if complete then "Good" else "Accent",
+			Size = UDim2.new(1, -170, 0, 22),
+		})
+		Kit.label(card, {
+			Text = lesson.Description or "",
+			Font = "Body",
+			TextSize = "Small",
+			Color = "Dim",
+			Wrap = true,
+			Size = UDim2.new(1, -170, 0, 32),
+			Position = UDim2.fromOffset(0, 24),
+			YAlign = "Top",
+		})
 		Kit.button(card, {
 			Text = if complete then "REPLAY" else "BEGIN",
 			Style = if i == 1 and not complete then "Primary" else "Default",
@@ -399,7 +499,13 @@ end
 
 function Play:watchTab()
 	local body = self.Window.Body
-	local status = Kit.label(body, { Text = "Looking for live Trials...", Font = "Mono", TextSize = "Small", Color = "Dim", Size = UDim2.new(1, -140, 0, 30) })
+	local status = Kit.label(body, {
+		Text = "Looking for live Trials...",
+		Font = "Mono",
+		TextSize = "Small",
+		Color = "Dim",
+		Size = UDim2.new(1, -140, 0, 30),
+	})
 	Kit.button(body, {
 		Text = "REFRESH",
 		Size = UDim2.fromOffset(130, 30),
@@ -410,21 +516,41 @@ function Play:watchTab()
 			self:show("Watch")
 		end,
 	})
-	local holder = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -40), Position = UDim2.fromOffset(0, 40), Parent = body }) :: Frame
+	local holder = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 1, -40),
+		Position = UDim2.fromOffset(0, 40),
+		Parent = body,
+	}) :: Frame
 	local scroll = Kit.scroll(holder, { Padding = 6 })
 	task.spawn(function()
 		local list = self.C.SpectatorController:list()
 		if self.Tab ~= "Watch" then
 			return
 		end
-		status.Text = if #list == 0 then "No live Trials right now. Check back soon." else string.format("%d LIVE TRIAL%s", #list, #list == 1 and "" or "S")
+		status.Text = if #list == 0
+			then "No live Trials right now. Check back soon."
+			else string.format("%d LIVE TRIAL%s", #list, #list == 1 and "" or "S")
 		for i, entry in list do
 			local card = Kit.panel(scroll, { Size = UDim2.new(1, -8, 0, 60), LayoutOrder = i, Color = "PanelAlt" })
 			Kit.padding(card, 8, 14)
 			local env = Environments.get(entry.Environment)
-			Kit.label(card, { Text = table.concat(entry.Names or {}, "  VS  "), Font = "Bold", TextSize = "Body", Size = UDim2.new(1, -160, 0, 20) })
 			Kit.label(card, {
-				Text = string.format("%s  ·  TRIAL %d  ·  %s  ·  %s  ·  %d WATCHING%s", entry.Mode or "", entry.Trial or 1, entry.Score or "", env and env.Name or "", entry.Spectators or 0, if entry.Competitive then "  ·  DELAYED" else ""),
+				Text = table.concat(entry.Names or {}, "  VS  "),
+				Font = "Bold",
+				TextSize = "Body",
+				Size = UDim2.new(1, -160, 0, 20),
+			})
+			Kit.label(card, {
+				Text = string.format(
+					"%s  ·  TRIAL %d  ·  %s  ·  %s  ·  %d WATCHING%s",
+					entry.Mode or "",
+					entry.Trial or 1,
+					entry.Score or "",
+					env and env.Name or "",
+					entry.Spectators or 0,
+					if entry.Competitive then "  ·  DELAYED" else ""
+				),
 				Font = "Mono",
 				TextSize = "Tiny",
 				Color = "Dim",

@@ -225,7 +225,8 @@ function LobbyService:join(player: Player, rawCode: string): (boolean, any)
 	local options = Instance.new("TeleportOptions")
 	options.ServerInstanceId = entry.JobId
 	options:SetTeleportData({ LobbyCode = code })
-	local sent, err = pcall(TeleportService.TeleportAsync, TeleportService, entry.PlaceId or game.PlaceId, { player }, options)
+	local sent, err =
+		pcall(TeleportService.TeleportAsync, TeleportService, entry.PlaceId or game.PlaceId, { player }, options)
 	if not sent then
 		return false, "Couldn't reach that lobby: " .. tostring(err)
 	end
@@ -307,7 +308,12 @@ function LobbyService:start(player: Player): (boolean, string?)
 		Custom = lobby.Rules,
 		Subjects = subjects,
 		Environment = lobby.Rules.Environment,
-		Info = { Private = true, LobbyCode = lobby.Code, RepeatFactor = repeatFactor(lobby.Members), Solo = #lobby.Members == 1 },
+		Info = {
+			Private = true,
+			LobbyCode = lobby.Code,
+			RepeatFactor = repeatFactor(lobby.Members),
+			Solo = #lobby.Members == 1,
+		},
 		OnEnd = function()
 			lobby.InMatch = false
 			for p in lobby.Ready do
@@ -469,7 +475,12 @@ function LobbyService:Start()
 			for code, lobby in lobbies do
 				if not lobby.InMatch and os.clock() - lobby.LastActive > Config.Lobby.IdleTimeout then
 					for _, p in table.clone(lobby.Members) do
-						self.Services.NetworkService:notify(p, "LOBBY CLOSED", "Closed after a long period of inactivity.", "Info")
+						self.Services.NetworkService:notify(
+							p,
+							"LOBBY CLOSED",
+							"Closed after a long period of inactivity.",
+							"Info"
+						)
 						self:leave(p)
 					end
 					lobbies[code] = nil

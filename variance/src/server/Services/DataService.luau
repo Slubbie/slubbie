@@ -233,7 +233,11 @@ local function sanitize(data)
 	-- Prune old ranked opponent records.
 	local now = os.time()
 	for key, record in ranked.Opponents do
-		if type(record) ~= "table" or type(record.Since) ~= "number" or now - record.Since > Config.Ranked.SameOpponentWindow then
+		if
+			type(record) ~= "table"
+			or type(record.Since) ~= "number"
+			or now - record.Since > Config.Ranked.SameOpponentWindow
+		then
 			ranked.Opponents[key] = nil
 		end
 	end
@@ -283,7 +287,9 @@ local function loadRecord(userId: number): ({ [string]: any }?, boolean)
 				loaded = nil
 				local record = type(old) == "table" and old or {}
 				local lock = record.Lock
-				local fresh = type(lock) == "table" and type(lock.Time) == "number" and os.time() - lock.Time < Config.Data.LockStaleAfter
+				local fresh = type(lock) == "table"
+					and type(lock.Time) == "number"
+					and os.time() - lock.Time < Config.Data.LockStaleAfter
 				if fresh and lock.JobId ~= game.JobId and attempt < Config.Data.LoadAttempts then
 					lockedElsewhere = true
 					return nil -- leave it alone and retry
@@ -339,7 +345,9 @@ local function writeRecord(profile: Profile, release: boolean): boolean
 		if ok then
 			if lockLost then
 				profile.LockLost = true
-				warn(string.format("[VARIANCE/Data] lock for %d was taken by another server; not saving", profile.UserId))
+				warn(
+					string.format("[VARIANCE/Data] lock for %d was taken by another server; not saving", profile.UserId)
+				)
 				return false
 			end
 			profile.LastSave = os.clock()
@@ -464,7 +472,12 @@ local function adoptLater(player: Player, profile: Profile)
 				profile.Dirty = true
 				DataService.Loaded:Fire(player, profile)
 				local network = DataService.Services.NetworkService
-				network:notify(player, "PROFILE RESTORED", "Your saved progress is back. Earnings from this session were added.", "Good")
+				network:notify(
+					player,
+					"PROFILE RESTORED",
+					"Your saved progress is back. Earnings from this session were added.",
+					"Good"
+				)
 				return
 			end
 		end
@@ -511,7 +524,8 @@ local function onPlayerAdded(player: Player)
 	DataService.Loaded:Fire(player, profile)
 	if guest then
 		local network = DataService.Services.NetworkService
-		local reason = storeUnavailable and RunService:IsStudio()
+		local reason = storeUnavailable
+				and RunService:IsStudio()
 				and "Studio has no DataStore access (Game Settings > Security). Progress won't save."
 			or "Saved progress couldn't be loaded. You're playing as a guest; we'll keep retrying."
 		task.delay(3, function()

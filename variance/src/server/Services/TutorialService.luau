@@ -56,7 +56,11 @@ local function complete(self, player: Player)
 	end
 	self.Services.AchievementService:evaluate(player, { Event = "Tutorial" })
 	self.Services.ProgressionService:changed(player)
-	self.Services.NetworkService:push(player, "TutorialComplete", { Lesson = lesson.Id, Name = lesson.Name, First = first })
+	self.Services.NetworkService:push(
+		player,
+		"TutorialComplete",
+		{ Lesson = lesson.Id, Name = lesson.Name, First = first }
+	)
 	-- Wrap up the lesson's match and send the player back to the lobby.
 	local match = session.Match
 	task.delay(2.5, function()

@@ -137,15 +137,29 @@ local function scan(model: Instance)
 					Material = d:IsA("BasePart") and d.Material or nil,
 				})
 			elseif kind == "Flicker" and d:IsA("BasePart") then
-				table.insert(fx.Flicker, { Part = d, Light = nil, Base = 0, Soft = true, Flick = 0, Transparency = d.Transparency })
+				table.insert(
+					fx.Flicker,
+					{ Part = d, Light = nil, Base = 0, Soft = true, Flick = 0, Transparency = d.Transparency }
+				)
 			end
 		elseif kind == "Warning" and d:IsA("BasePart") then
-			table.insert(fx.Warning, { Part = d, Light = d:FindFirstChildWhichIsA("Light"), Rest = d.CFrame, Angle = rng:NextNumber() * math.pi * 2 })
+			table.insert(fx.Warning, {
+				Part = d,
+				Light = d:FindFirstChildWhichIsA("Light"),
+				Rest = d.CFrame,
+				Angle = rng:NextNumber() * math.pi * 2,
+			})
 		elseif kind == "Monitor" then
 			local gui = d:FindFirstChild("Screen")
 			local label = gui and gui:FindFirstChild("Text")
 			if label then
-				table.insert(fx.Monitor, { Part = d, Label = label, Next = clock + rng:NextNumber(2, 8), Base = label.Text, Color = label.TextColor3 })
+				table.insert(fx.Monitor, {
+					Part = d,
+					Label = label,
+					Next = clock + rng:NextNumber(2, 8),
+					Base = label.Text,
+					Color = label.TextColor3,
+				})
 			end
 		elseif kind == "Spin" then
 			local pivot = d:GetAttribute("Pivot")
@@ -157,7 +171,13 @@ local function scan(model: Instance)
 						table.insert(parts, p)
 					end
 				end
-				table.insert(fx.Spin, { Pivot = pivot, Parts = parts, Speed = d:GetAttribute("Speed") or 1, Axis = d:GetAttribute("Axis") or "Z", Angle = 0 })
+				table.insert(fx.Spin, {
+					Pivot = pivot,
+					Parts = parts,
+					Speed = d:GetAttribute("Speed") or 1,
+					Axis = d:GetAttribute("Axis") or "Z",
+					Angle = 0,
+				})
 			end
 		elseif kind == "Camera" then
 			local pivot = d:GetAttribute("Pivot")
@@ -168,7 +188,14 @@ local function scan(model: Instance)
 						table.insert(parts, p)
 					end
 				end
-				table.insert(fx.Camera, { Pivot = pivot, Parts = parts, Track = d:GetAttribute("Track") == true, Yaw = 0, Pitch = 0, Phase = rng:NextNumber() * 10 })
+				table.insert(fx.Camera, {
+					Pivot = pivot,
+					Parts = parts,
+					Track = d:GetAttribute("Track") == true,
+					Yaw = 0,
+					Pitch = 0,
+					Phase = rng:NextNumber() * 10,
+				})
 			end
 		elseif kind == "Silhouette" then
 			local pivot = d:GetAttribute("Pivot")
@@ -180,7 +207,12 @@ local function scan(model: Instance)
 						table.insert(parts, p)
 					end
 				end
-				table.insert(fx.Silhouette, { Pivot = pivot, Parts = parts, Phase = rng:NextNumber() * 10, Drift = d:GetAttribute("Drift") == true })
+				table.insert(fx.Silhouette, {
+					Pivot = pivot,
+					Parts = parts,
+					Phase = rng:NextNumber() * 10,
+					Drift = d:GetAttribute("Drift") == true,
+				})
 			end
 		elseif kind == "Vent" then
 			local emitter = d:FindFirstChildWhichIsA("ParticleEmitter", true)

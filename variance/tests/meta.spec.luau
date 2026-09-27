@@ -59,7 +59,10 @@ return function(H)
 					end
 					if action == "wait" then
 						-- PROXY waits for the player to read on.
-						assert(beat.Advance == "Continue" or beat.Advance == "Quiz" or beat.Advance == "Finish", "proxy waiting forever at beat " .. director.index)
+						assert(
+							beat.Advance == "Continue" or beat.Advance == "Quiz" or beat.Advance == "Finish",
+							"proxy waiting forever at beat " .. director.index
+						)
 						if beat.Advance == "Quiz" then
 							director:answer(state, Engine, beat.Quiz.Answer)
 						else
@@ -176,7 +179,10 @@ return function(H)
 			H.truthy(not seen[item.Id], "duplicate cosmetic " .. item.Id)
 			seen[item.Id] = true
 			if item.Source.Kind == "Achievement" then
-				H.truthy(Achievements.get(item.Source.Value), item.Id .. " -> missing achievement " .. tostring(item.Source.Value))
+				H.truthy(
+					Achievements.get(item.Source.Value),
+					item.Id .. " -> missing achievement " .. tostring(item.Source.Value)
+				)
 			elseif item.Source.Kind == "Shop" then
 				H.truthy(type(item.Price) == "number" and item.Price > 0, item.Id .. " needs a price")
 			elseif item.Source.Kind == "Level" then

@@ -129,7 +129,10 @@ function LobbyController:Start()
 			if s.Model.Parent == nil then
 				table.remove(showcases, i)
 			else
-				local cf = s.Pivot * CFrame.new(0, math.sin(now * 0.9) * 0.12, 0) * CFrame.Angles(0, now * 0.45, 0) * CFrame.Angles(0.12, 0, 0)
+				local cf = s.Pivot
+					* CFrame.new(0, math.sin(now * 0.9) * 0.12, 0)
+					* CFrame.Angles(0, now * 0.45, 0)
+					* CFrame.Angles(0.12, 0, 0)
 				ArbiterModel.place(s.Model, cf, 0, math.sin(now * 0.6) * 0.6)
 			end
 		end

@@ -72,7 +72,11 @@ function CosmeticService:syncGrants(player: Player, collector: { any }?): { stri
 	for _, id in granted do
 		local item = Cosmetics.get(id)
 		if item and item.Source.Kind ~= "Default" then
-			self.Services.NetworkService:push(player, "Unlock", { Kind = "Cosmetic", Id = id, Name = item.Name, Category = item.Category })
+			self.Services.NetworkService:push(
+				player,
+				"Unlock",
+				{ Kind = "Cosmetic", Id = id, Name = item.Name, Category = item.Category }
+			)
 			if collector then
 				table.insert(collector, id)
 			end
@@ -162,7 +166,11 @@ function CosmeticService:buy(player: Player, id: string): (boolean, string?)
 	elseif result ~= "ok" then
 		return false, "Profile not ready."
 	end
-	self.Services.NetworkService:push(player, "Unlock", { Kind = "Cosmetic", Id = id, Name = item.Name, Category = item.Category, Reason = "Purchased" })
+	self.Services.NetworkService:push(
+		player,
+		"Unlock",
+		{ Kind = "Cosmetic", Id = id, Name = item.Name, Category = item.Category, Reason = "Purchased" }
+	)
 	self.Services.ProgressionService:changed(player)
 	self.Services.AchievementService:evaluate(player, { Event = "Cosmetic" })
 	return true

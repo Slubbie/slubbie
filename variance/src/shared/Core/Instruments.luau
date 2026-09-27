@@ -452,7 +452,12 @@ function Instruments.ids(): { string }
 end
 
 -- Weighted pick from the enabled pool. `allowRare` is false in early Trials.
-function Instruments.roll(rng: any, pool: { [string]: boolean }, rarityWeights: { [string]: number }, allowRare: boolean): string?
+function Instruments.roll(
+	rng: any,
+	pool: { [string]: boolean },
+	rarityWeights: { [string]: number },
+	allowRare: boolean
+): string?
 	local byRarity: { [string]: { string } } = {}
 	for _, def in list do
 		if pool[def.Id] and (allowRare or def.Rarity ~= "Rare") then

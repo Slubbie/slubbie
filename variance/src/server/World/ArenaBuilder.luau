@@ -51,19 +51,63 @@ local function buildShell(model: Model, origin: CFrame, env, colors)
 	local size = ArenaBuilder.RoomSize
 	local mats = env.Materials
 	local hx, hz = size.X / 2, size.Z / 2
-	Build.solid(shell, Vector3.new(size.X, 1, size.Z), origin * CFrame.new(0, -0.5, 0), colors.Floor, mats.Floor, "Floor")
-	Build.solid(shell, Vector3.new(size.X, 1, size.Z), origin * CFrame.new(0, size.Y + 0.5, 0), colors.Ceiling, mats.Ceiling, "Ceiling")
-	Build.solid(shell, Vector3.new(size.X, size.Y, 1), origin * CFrame.new(0, size.Y / 2, -hz - 0.5), colors.Wall, mats.Wall, "WallN")
-	Build.solid(shell, Vector3.new(size.X, size.Y, 1), origin * CFrame.new(0, size.Y / 2, hz + 0.5), colors.Wall, mats.Wall, "WallS")
-	Build.solid(shell, Vector3.new(1, size.Y, size.Z), origin * CFrame.new(hx + 0.5, size.Y / 2, 0), colors.Wall, mats.Wall, "WallE")
-	Build.solid(shell, Vector3.new(1, size.Y, size.Z), origin * CFrame.new(-hx - 0.5, size.Y / 2, 0), colors.Wall, mats.Wall, "WallW")
+	Build.solid(
+		shell,
+		Vector3.new(size.X, 1, size.Z),
+		origin * CFrame.new(0, -0.5, 0),
+		colors.Floor,
+		mats.Floor,
+		"Floor"
+	)
+	Build.solid(
+		shell,
+		Vector3.new(size.X, 1, size.Z),
+		origin * CFrame.new(0, size.Y + 0.5, 0),
+		colors.Ceiling,
+		mats.Ceiling,
+		"Ceiling"
+	)
+	Build.solid(
+		shell,
+		Vector3.new(size.X, size.Y, 1),
+		origin * CFrame.new(0, size.Y / 2, -hz - 0.5),
+		colors.Wall,
+		mats.Wall,
+		"WallN"
+	)
+	Build.solid(
+		shell,
+		Vector3.new(size.X, size.Y, 1),
+		origin * CFrame.new(0, size.Y / 2, hz + 0.5),
+		colors.Wall,
+		mats.Wall,
+		"WallS"
+	)
+	Build.solid(
+		shell,
+		Vector3.new(1, size.Y, size.Z),
+		origin * CFrame.new(hx + 0.5, size.Y / 2, 0),
+		colors.Wall,
+		mats.Wall,
+		"WallE"
+	)
+	Build.solid(
+		shell,
+		Vector3.new(1, size.Y, size.Z),
+		origin * CFrame.new(-hx - 0.5, size.Y / 2, 0),
+		colors.Wall,
+		mats.Wall,
+		"WallW"
+	)
 	-- Skirting and ceiling trim in the accent colour.
-	for _, spec in {
-		{ Vector3.new(size.X, 0.5, 0.2), CFrame.new(0, 0.25, -hz + 0.1) },
-		{ Vector3.new(size.X, 0.5, 0.2), CFrame.new(0, 0.25, hz - 0.1) },
-		{ Vector3.new(0.2, 0.5, size.Z), CFrame.new(hx - 0.1, 0.25, 0) },
-		{ Vector3.new(0.2, 0.5, size.Z), CFrame.new(-hx + 0.1, 0.25, 0) },
-	} do
+	for _, spec in
+		{
+			{ Vector3.new(size.X, 0.5, 0.2), CFrame.new(0, 0.25, -hz + 0.1) },
+			{ Vector3.new(size.X, 0.5, 0.2), CFrame.new(0, 0.25, hz - 0.1) },
+			{ Vector3.new(0.2, 0.5, size.Z), CFrame.new(hx - 0.1, 0.25, 0) },
+			{ Vector3.new(0.2, 0.5, size.Z), CFrame.new(-hx + 0.1, 0.25, 0) },
+		}
+	do
 		Build.box(shell, spec[1], origin * spec[2], colors.Trim, mats.Trim, "Skirting")
 	end
 	return shell
@@ -112,17 +156,51 @@ local function buildChair(parent: Instance, origin: CFrame, seat: number, colors
 	local base = origin * TableLayout.seatCFrame(seat) * CFrame.new(0, 0, 0.25)
 	local h = TableLayout.SeatHeight
 	Build.box(chair, Vector3.new(2.3, 0.25, 2.1), base * CFrame.new(0, h - 0.125, 0), colors.Prop, "Metal", "Pan")
-	Build.box(chair, Vector3.new(2.3, 3.4, 0.25), base * CFrame.new(0, h + 1.6, 1.05) * CFrame.Angles(math.rad(-6), 0, 0), colors.Prop, "Metal", "Back")
+	Build.box(
+		chair,
+		Vector3.new(2.3, 3.4, 0.25),
+		base * CFrame.new(0, h + 1.6, 1.05) * CFrame.Angles(math.rad(-6), 0, 0),
+		colors.Prop,
+		"Metal",
+		"Back"
+	)
 	for _, x in { -1, 1 } do
 		for _, z in { -0.9, 0.9 } do
-			Build.box(chair, Vector3.new(0.18, h - 0.25, 0.18), base * CFrame.new(x, (h - 0.25) / 2, z), Color3.fromRGB(40, 40, 42), "Metal", "Leg")
+			Build.box(
+				chair,
+				Vector3.new(0.18, h - 0.25, 0.18),
+				base * CFrame.new(x, (h - 0.25) / 2, z),
+				Color3.fromRGB(40, 40, 42),
+				"Metal",
+				"Leg"
+			)
 		end
 		-- Armrests with harness straps: the subject is wired to the Arbiter's circuit.
-		Build.box(chair, Vector3.new(0.3, 0.2, 1.8), base * CFrame.new(x * 1.2, h + 0.95, 0.05), colors.Prop, "Metal", "Arm")
-		Build.box(chair, Vector3.new(0.34, 0.24, 0.3), base * CFrame.new(x * 1.2, h + 1.0, -0.4), Color3.fromRGB(28, 28, 30), "Leather", "Strap")
+		Build.box(
+			chair,
+			Vector3.new(0.3, 0.2, 1.8),
+			base * CFrame.new(x * 1.2, h + 0.95, 0.05),
+			colors.Prop,
+			"Metal",
+			"Arm"
+		)
+		Build.box(
+			chair,
+			Vector3.new(0.34, 0.24, 0.3),
+			base * CFrame.new(x * 1.2, h + 1.0, -0.4),
+			Color3.fromRGB(28, 28, 30),
+			"Leather",
+			"Strap"
+		)
 	end
 	-- Harness cable from the chair back toward the table leg.
-	PropKit.pipe(chair, (base * CFrame.new(0.9, 0.5, 1.2)).Position, (origin * CFrame.new(TableLayout.direction(seat) * 3.6 + Vector3.new(0.6, 0.2, 0))).Position, 0.12, Color3.fromRGB(35, 35, 38))
+	PropKit.pipe(
+		chair,
+		(base * CFrame.new(0.9, 0.5, 1.2)).Position,
+		(origin * CFrame.new(TableLayout.direction(seat) * 3.6 + Vector3.new(0.6, 0.2, 0))).Position,
+		0.12,
+		Color3.fromRGB(35, 35, 38)
+	)
 	Build.ghost(chair)
 	return chair
 end
@@ -134,35 +212,86 @@ local function buildTable(model: Model, origin: CFrame, seats: { number }, color
 	local topColor = look and Build.rgb(look.Top, colors.Prop) or colors.Prop
 	local trimColor = look and Build.rgb(look.Trim, colors.Trim) or colors.Trim
 	local topMaterial = look and look.Material or "DiamondPlate"
-	local tableTop = Build.solid(tableModel, size, origin * CFrame.new(0, top - size.Y / 2, 0), topColor, topMaterial, "Top")
+	local tableTop =
+		Build.solid(tableModel, size, origin * CFrame.new(0, top - size.Y / 2, 0), topColor, topMaterial, "Top")
 	tableTop:SetAttribute("Paint", "TableTop")
 	for _, x in { -1, 1 } do
 		for _, z in { -1, 1 } do
-			Build.box(tableModel, Vector3.new(0.5, top - 0.3, 0.5), origin * CFrame.new(x * 3.8, (top - 0.3) / 2, z * 3.8), Color3.fromRGB(34, 34, 36), "Metal", "Leg")
+			Build.box(
+				tableModel,
+				Vector3.new(0.5, top - 0.3, 0.5),
+				origin * CFrame.new(x * 3.8, (top - 0.3) / 2, z * 3.8),
+				Color3.fromRGB(34, 34, 36),
+				"Metal",
+				"Leg"
+			)
 		end
 	end
 	local rim = 0.2
-	for _, spec in {
-		{ Vector3.new(size.X + rim * 2, 0.34, rim), CFrame.new(0, top - 0.15, size.Z / 2 + rim / 2) },
-		{ Vector3.new(size.X + rim * 2, 0.34, rim), CFrame.new(0, top - 0.15, -size.Z / 2 - rim / 2) },
-		{ Vector3.new(rim, 0.34, size.Z), CFrame.new(size.X / 2 + rim / 2, top - 0.15, 0) },
-		{ Vector3.new(rim, 0.34, size.Z), CFrame.new(-size.X / 2 - rim / 2, top - 0.15, 0) },
-	} do
+	for _, spec in
+		{
+			{ Vector3.new(size.X + rim * 2, 0.34, rim), CFrame.new(0, top - 0.15, size.Z / 2 + rim / 2) },
+			{ Vector3.new(size.X + rim * 2, 0.34, rim), CFrame.new(0, top - 0.15, -size.Z / 2 - rim / 2) },
+			{ Vector3.new(rim, 0.34, size.Z), CFrame.new(size.X / 2 + rim / 2, top - 0.15, 0) },
+			{ Vector3.new(rim, 0.34, size.Z), CFrame.new(-size.X / 2 - rim / 2, top - 0.15, 0) },
+		}
+	do
 		local p = Build.box(tableModel, spec[1], origin * spec[2], trimColor, "Metal", "Rim")
 		p:SetAttribute("Paint", "TableTrim")
 	end
 	-- Centre plate under the Arbiter.
-	Build.box(tableModel, Vector3.new(5.2, 0.04, 1.6), origin * CFrame.new(0.35, top + 0.02, 0), Color3.fromRGB(20, 20, 22), "Metal", "CentrePlate")
+	Build.box(
+		tableModel,
+		Vector3.new(5.2, 0.04, 1.6),
+		origin * CFrame.new(0.35, top + 0.02, 0),
+		Color3.fromRGB(20, 20, 22),
+		"Metal",
+		"CentrePlate"
+	)
 	-- Cell rack and spent-cell tray.
-	local rack = Build.box(tableModel, Vector3.new(3.1, 0.12, 0.62), origin * TableLayout.rackCFrame(), Color3.fromRGB(28, 29, 31), "Metal", "Rack")
-	Build.neon(tableModel, Vector3.new(3.1, 0.03, 0.05), origin * TableLayout.rackCFrame() * CFrame.new(0, 0.07, 0.28), trimColor, "RackStrip")
+	local rack = Build.box(
+		tableModel,
+		Vector3.new(3.1, 0.12, 0.62),
+		origin * TableLayout.rackCFrame(),
+		Color3.fromRGB(28, 29, 31),
+		"Metal",
+		"Rack"
+	)
+	Build.neon(
+		tableModel,
+		Vector3.new(3.1, 0.03, 0.05),
+		origin * TableLayout.rackCFrame() * CFrame.new(0, 0.07, 0.28),
+		trimColor,
+		"RackStrip"
+	)
 	rack:SetAttribute("Fx", "Rack")
-	Build.box(tableModel, Vector3.new(1.4, 0.1, 1.0), origin * TableLayout.spentCFrame(), Color3.fromRGB(24, 24, 26), "Metal", "Spent")
+	Build.box(
+		tableModel,
+		Vector3.new(1.4, 0.1, 1.0),
+		origin * TableLayout.spentCFrame(),
+		Color3.fromRGB(24, 24, 26),
+		"Metal",
+		"Spent"
+	)
 	for _, seat in seats do
-		local tray = Build.box(tableModel, Vector3.new(5.6, 0.05, 2.0), origin * TableLayout.trayCFrame(seat) * CFrame.new(0, 0.025, -0.05), Color3.fromRGB(22, 23, 25), "SmoothPlastic", "Tray_" .. seat)
+		local tray = Build.box(
+			tableModel,
+			Vector3.new(5.6, 0.05, 2.0),
+			origin * TableLayout.trayCFrame(seat) * CFrame.new(0, 0.025, -0.05),
+			Color3.fromRGB(22, 23, 25),
+			"SmoothPlastic",
+			"Tray_" .. seat
+		)
 		tray:SetAttribute("Seat", seat)
 		-- Integrity monitor: two screens, one facing the subject, one facing the table.
-		local monitor = Build.box(tableModel, Vector3.new(1.5, 0.95, 0.3), origin * TableLayout.monitorCFrame(seat), Color3.fromRGB(40, 41, 43), "Metal", "Monitor_" .. seat)
+		local monitor = Build.box(
+			tableModel,
+			Vector3.new(1.5, 0.95, 0.3),
+			origin * TableLayout.monitorCFrame(seat),
+			Color3.fromRGB(40, 41, 43),
+			"Metal",
+			"Monitor_" .. seat
+		)
 		Build.fx(monitor, "Integrity", { Seat = seat })
 		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
 			local gui = Instance.new("SurfaceGui")
@@ -174,7 +303,14 @@ local function buildTable(model: Model, origin: CFrame, seats: { number }, color
 			gui.Brightness = 1.6
 			gui.Parent = monitor
 		end
-		local stand = Build.box(tableModel, Vector3.new(0.3, 0.45, 0.3), origin * TableLayout.monitorCFrame(seat) * CFrame.new(0, -0.62, 0.1), Color3.fromRGB(34, 34, 36), "Metal", "MonitorStand")
+		local stand = Build.box(
+			tableModel,
+			Vector3.new(0.3, 0.45, 0.3),
+			origin * TableLayout.monitorCFrame(seat) * CFrame.new(0, -0.62, 0.1),
+			Color3.fromRGB(34, 34, 36),
+			"Metal",
+			"MonitorStand"
+		)
 		stand.CastShadow = false
 	end
 	return tableModel
@@ -182,7 +318,13 @@ end
 
 -- Builds a room. `seats` are physical seat indices (TableLayout.seatsFor).
 -- `look` is the table-theme cosmetic data (optional).
-function ArenaBuilder.build(slot: number, origin: CFrame, envId: string, seats: { number }, look: { [string]: any }?): Model
+function ArenaBuilder.build(
+	slot: number,
+	origin: CFrame,
+	envId: string,
+	seats: { number },
+	look: { [string]: any }?
+): Model
 	local env = Environments.get(envId)
 	local colors = palette(env)
 	local model = Instance.new("Model")
@@ -225,7 +367,15 @@ function ArenaBuilder.build(slot: number, origin: CFrame, envId: string, seats: 
 		CastShadow = false,
 		Parent = model,
 	})
-	local key = Build.spotLight(keyMount, Build.rgb(lighting.Key.Color), lighting.Key.Brightness, lighting.Key.Range + 4, 62, Enum.NormalId.Bottom, true)
+	local key = Build.spotLight(
+		keyMount,
+		Build.rgb(lighting.Key.Color),
+		lighting.Key.Brightness,
+		lighting.Key.Range + 4,
+		62,
+		Enum.NormalId.Bottom,
+		true
+	)
 	key.Name = "Light"
 	Build.fx(keyMount, "Key", { BaseBrightness = lighting.Key.Brightness })
 	for i, pos in { Vector3.new(14, 11, 14), Vector3.new(-14, 11, -14) } do
@@ -237,14 +387,22 @@ function ArenaBuilder.build(slot: number, origin: CFrame, envId: string, seats: 
 			CastShadow = false,
 			Parent = model,
 		})
-		local light = Build.pointLight(fill, Build.rgb(lighting.Fill.Color), lighting.Fill.Brightness, lighting.Fill.Range, false)
+		local light =
+			Build.pointLight(fill, Build.rgb(lighting.Fill.Color), lighting.Fill.Brightness, lighting.Fill.Range, false)
 		light.Name = "Light"
 		Build.fx(fill, "Fill", { BaseBrightness = lighting.Fill.Brightness })
 	end
 
 	local cameras = Build.folder("Cameras", model)
 	local function mark(name: string, cf: CFrame)
-		Build.part({ Name = name, Size = Vector3.one, CFrame = cf, Transparency = 1, CastShadow = false, Parent = cameras })
+		Build.part({
+			Name = name,
+			Size = Vector3.one,
+			CFrame = cf,
+			Transparency = 1,
+			CastShadow = false,
+			Parent = cameras,
+		})
 	end
 	local centre = (origin * CFrame.new(0, TableLayout.TableTop, 0)).Position
 	mark("Establish1", CFrame.lookAt((origin * CFrame.new(-17, 12, 17)).Position, centre))

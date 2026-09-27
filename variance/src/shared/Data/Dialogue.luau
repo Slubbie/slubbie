@@ -157,13 +157,15 @@ Dialogue.Announcer = {
 }
 
 function Dialogue.fill(line: string, values: { [string]: any }): string
-	return (string.gsub(line, "{(%w+)}", function(key)
-		local v = values[key]
-		if v == nil then
-			return ""
-		end
-		return tostring(v)
-	end))
+	return (
+		string.gsub(line, "{(%w+)}", function(key)
+			local v = values[key]
+			if v == nil then
+				return ""
+			end
+			return tostring(v)
+		end)
+	)
 end
 
 return Dialogue

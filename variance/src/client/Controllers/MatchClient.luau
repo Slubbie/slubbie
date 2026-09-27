@@ -125,7 +125,11 @@ function MatchClient:legal(kind: string, slot: number?, target: number?): { [str
 		return nil
 	end
 	for _, action in turn.Legal do
-		if action.Kind == kind and (slot == nil or action.Slot == slot) and (target == nil or action.Target == nil or action.Target == target) then
+		if
+			action.Kind == kind
+			and (slot == nil or action.Slot == slot)
+			and (target == nil or action.Target == nil or action.Target == target)
+		then
 			return action
 		end
 	end
@@ -250,7 +254,10 @@ local function apply(state, kind: string, data)
 	elseif kind == "FireResult" then
 		state.Firing = nil
 		table.insert(state.Spent, data.Charged and "C" or "H")
-		log(state, { Kind = "Fire", Actor = data.Actor, Target = data.Target, Charged = data.Charged, Damage = data.Damage })
+		log(
+			state,
+			{ Kind = "Fire", Actor = data.Actor, Target = data.Target, Charged = data.Charged, Damage = data.Damage }
+		)
 	elseif kind == "Damage" or kind == "Heal" then
 		local s = subjects[data.Subject]
 		if s then
@@ -486,8 +493,8 @@ function MatchClient:Start()
 		if scene and data and data.MatchId and data.MatchId ~= scene.MatchId then
 			return -- a stale end for a match we've already left (rematch handover)
 		end
-		MatchClient.Ended:Fire(data)
 		self:clear()
+		MatchClient.Ended:Fire(data)
 	end)
 end
 

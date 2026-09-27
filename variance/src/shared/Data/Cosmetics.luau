@@ -58,15 +58,32 @@ end
 
 -- Arbiter finishes ----------------------------------------------------------
 local function skin(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "DeviceSkin", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "DeviceSkin",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
-skin("skin_standard", "STANDARD ISSUE", "Institutional grey. Scuffed at the grip.", "Standard", { Kind = "Default" }, nil, {
-	Body = { 62, 66, 70 },
-	Metal = { 150, 150, 145 },
-	Material = "Metal",
-	Accent = { 225, 160, 60 },
-	Glow = { 255, 190, 110 },
-})
+skin(
+	"skin_standard",
+	"STANDARD ISSUE",
+	"Institutional grey. Scuffed at the grip.",
+	"Standard",
+	{ Kind = "Default" },
+	nil,
+	{
+		Body = { 62, 66, 70 },
+		Metal = { 150, 150, 145 },
+		Material = "Metal",
+		Accent = { 225, 160, 60 },
+		Glow = { 255, 190, 110 },
+	}
+)
 skin("skin_graphite", "GRAPHITE", "Matte black, anodized trim.", "Fine", { Kind = "Shop" }, 600, {
 	Body = { 28, 30, 33 },
 	Metal = { 80, 84, 90 },
@@ -88,13 +105,21 @@ skin("skin_bone", "BONE", "Pale enamel over steel. Unsettlingly clean.", "Fine",
 	Accent = { 170, 60, 50 },
 	Glow = { 255, 230, 200 },
 })
-skin("skin_green", "INSTITUTIONAL GREEN", "The colour of every Halden corridor since 1968.", "Standard", { Kind = "Level", Value = 4 }, nil, {
-	Body = { 70, 90, 72 },
-	Metal = { 140, 145, 130 },
-	Material = "Metal",
-	Accent = { 230, 220, 170 },
-	Glow = { 220, 255, 190 },
-})
+skin(
+	"skin_green",
+	"INSTITUTIONAL GREEN",
+	"The colour of every Halden corridor since 1968.",
+	"Standard",
+	{ Kind = "Level", Value = 4 },
+	nil,
+	{
+		Body = { 70, 90, 72 },
+		Metal = { 140, 145, 130 },
+		Material = "Metal",
+		Accent = { 230, 220, 170 },
+		Glow = { 220, 255, 190 },
+	}
+)
 skin("skin_hazard", "HAZARD", "Striped for visibility. Nobody needed reminding.", "Rare", { Kind = "Challenge" }, nil, {
 	Body = { 40, 40, 40 },
 	Metal = { 220, 175, 40 },
@@ -109,52 +134,109 @@ skin("skin_rust", "RUST", "Decommissioned in 1991. Recommissioned in 1992.", "St
 	Accent = { 210, 120, 70 },
 	Glow = { 255, 170, 120 },
 })
-skin("skin_gilded", "GILDED", "For the subject who has everything but certainty.", "Rare", { Kind = "Level", Value = 30 }, nil, {
-	Body = { 40, 32, 22 },
-	Metal = { 212, 170, 80 },
-	Material = "Foil",
-	Accent = { 255, 215, 120 },
-	Glow = { 255, 225, 150 },
-})
-skin("skin_obsidian", "OBSIDIAN GLASS", "Issued to Oracles. It reflects nothing.", "Prestige", { Kind = "Ranked", Value = "Oracle" }, nil, {
-	Body = { 12, 10, 16 },
-	Metal = { 60, 50, 80 },
-	Material = "Glass",
-	Accent = { 170, 120, 255 },
-	Glow = { 200, 160, 255 },
-})
-skin("skin_proctor", "PROCTOR WHITE", "The Administrator's own finish.", "Prestige", { Kind = "Achievement", Value = "ach_proctor" }, nil, {
-	Body = { 238, 238, 234 },
-	Metal = { 200, 200, 198 },
-	Material = "SmoothPlastic",
-	Accent = { 220, 40, 40 },
-	Glow = { 255, 80, 70 },
-})
-skin("skin_arbiter", "ARBITER BRASS", "Awarded for reaching Arbiter in ranked play.", "Rare", { Kind = "Ranked", Value = "Arbiter" }, nil, {
-	Body = { 50, 40, 30 },
-	Metal = { 190, 150, 90 },
-	Material = "Metal",
-	Accent = { 240, 190, 110 },
-	Glow = { 255, 210, 140 },
-})
-skin("skin_founder", "FOUNDER'S FINISH", "Walnut and nickel. Thank you for supporting the Institute.", "Rare", { Kind = "Premium", Value = "Founder" }, nil, {
-	Body = { 80, 52, 34 },
-	Metal = { 190, 190, 185 },
-	Material = "Wood",
-	Accent = { 235, 225, 200 },
-	Glow = { 255, 240, 210 },
-})
-skin("skin_champion", "CHAMPION'S CHROME", "Only tournament champions carry this.", "Prestige", { Kind = "Tournament" }, nil, {
-	Body = { 180, 185, 190 },
-	Metal = { 235, 238, 240 },
-	Material = "Foil",
-	Accent = { 90, 200, 255 },
-	Glow = { 170, 230, 255 },
-})
+skin(
+	"skin_gilded",
+	"GILDED",
+	"For the subject who has everything but certainty.",
+	"Rare",
+	{ Kind = "Level", Value = 30 },
+	nil,
+	{
+		Body = { 40, 32, 22 },
+		Metal = { 212, 170, 80 },
+		Material = "Foil",
+		Accent = { 255, 215, 120 },
+		Glow = { 255, 225, 150 },
+	}
+)
+skin(
+	"skin_obsidian",
+	"OBSIDIAN GLASS",
+	"Issued to Oracles. It reflects nothing.",
+	"Prestige",
+	{ Kind = "Ranked", Value = "Oracle" },
+	nil,
+	{
+		Body = { 12, 10, 16 },
+		Metal = { 60, 50, 80 },
+		Material = "Glass",
+		Accent = { 170, 120, 255 },
+		Glow = { 200, 160, 255 },
+	}
+)
+skin(
+	"skin_proctor",
+	"PROCTOR WHITE",
+	"The Administrator's own finish.",
+	"Prestige",
+	{ Kind = "Achievement", Value = "ach_proctor" },
+	nil,
+	{
+		Body = { 238, 238, 234 },
+		Metal = { 200, 200, 198 },
+		Material = "SmoothPlastic",
+		Accent = { 220, 40, 40 },
+		Glow = { 255, 80, 70 },
+	}
+)
+skin(
+	"skin_arbiter",
+	"ARBITER BRASS",
+	"Awarded for reaching Arbiter in ranked play.",
+	"Rare",
+	{ Kind = "Ranked", Value = "Arbiter" },
+	nil,
+	{
+		Body = { 50, 40, 30 },
+		Metal = { 190, 150, 90 },
+		Material = "Metal",
+		Accent = { 240, 190, 110 },
+		Glow = { 255, 210, 140 },
+	}
+)
+skin(
+	"skin_founder",
+	"FOUNDER'S FINISH",
+	"Walnut and nickel. Thank you for supporting the Institute.",
+	"Rare",
+	{ Kind = "Premium", Value = "Founder" },
+	nil,
+	{
+		Body = { 80, 52, 34 },
+		Metal = { 190, 190, 185 },
+		Material = "Wood",
+		Accent = { 235, 225, 200 },
+		Glow = { 255, 240, 210 },
+	}
+)
+skin(
+	"skin_champion",
+	"CHAMPION'S CHROME",
+	"Only tournament champions carry this.",
+	"Prestige",
+	{ Kind = "Tournament" },
+	nil,
+	{
+		Body = { 180, 185, 190 },
+		Metal = { 235, 238, 240 },
+		Material = "Foil",
+		Accent = { 90, 200, 255 },
+		Glow = { 170, 230, 255 },
+	}
+)
 
 -- Discharge effects -----------------------------------------------------------
 local function fx(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "CellFX", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "CellFX",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
 fx("fx_standard", "STANDARD ARC", "Amber-white discharge.", "Standard", { Kind = "Default" }, nil, {
 	Arc = { 255, 214, 150 },
@@ -176,22 +258,38 @@ fx("fx_emerald", "EMERALD", "Copper salts in the coil.", "Fine", { Kind = "Shop"
 	Spark = { 70, 220, 140 },
 	Glow = { 120, 255, 170 },
 })
-fx("fx_crimson", "CRIMSON", "Signal red, all the way through.", "Rare", { Kind = "Achievement", Value = "ach_ironnerve" }, nil, {
-	Arc = { 255, 150, 140 },
-	Spark = { 240, 60, 50 },
-	Glow = { 255, 90, 80 },
-})
+fx(
+	"fx_crimson",
+	"CRIMSON",
+	"Signal red, all the way through.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_ironnerve" },
+	nil,
+	{
+		Arc = { 255, 150, 140 },
+		Spark = { 240, 60, 50 },
+		Glow = { 255, 90, 80 },
+	}
+)
 fx("fx_void", "VOID", "Light that seems to go the wrong way.", "Rare", { Kind = "Level", Value = 45 }, nil, {
 	Arc = { 120, 90, 160 },
 	Spark = { 60, 30, 90 },
 	Glow = { 90, 60, 140 },
 })
-fx("fx_prism", "PRISM", "Every colour at once. Mastery only.", "Prestige", { Kind = "Achievement", Value = "ach_perfect" }, nil, {
-	Arc = { 255, 255, 255 },
-	Spark = { 255, 255, 255 },
-	Glow = { 255, 255, 255 },
-	Rainbow = true,
-})
+fx(
+	"fx_prism",
+	"PRISM",
+	"Every colour at once. Mastery only.",
+	"Prestige",
+	{ Kind = "Achievement", Value = "ach_perfect" },
+	nil,
+	{
+		Arc = { 255, 255, 255 },
+		Spark = { 255, 255, 255 },
+		Glow = { 255, 255, 255 },
+		Rainbow = true,
+	}
+)
 fx("fx_static", "STATIC SNOW", "Like a dead channel.", "Fine", { Kind = "Challenge" }, nil, {
 	Arc = { 230, 230, 230 },
 	Spark = { 200, 200, 200 },
@@ -205,7 +303,16 @@ fx("fx_oracle", "ORACLE FLARE", "Awarded to Oracles.", "Prestige", { Kind = "Ran
 
 -- Table themes ----------------------------------------------------------------
 local function tableTheme(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "TableTheme", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "TableTheme",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
 tableTheme("table_steel", "STEEL", "Bolted-down steel.", "Standard", { Kind = "Default" }, nil, {
 	Top = { 70, 72, 75 },
@@ -232,11 +339,19 @@ tableTheme("table_walnut", "WALNUT", "A boardroom table, relocated.", "Fine", { 
 	Material = "Wood",
 	Trim = { 40, 28, 18 },
 })
-tableTheme("table_scorched", "SCORCHED", "Burn marks in rings. Don't ask.", "Rare", { Kind = "Achievement", Value = "ach_volatile" }, nil, {
-	Top = { 36, 30, 28 },
-	Material = "Slate",
-	Trim = { 200, 90, 40 },
-})
+tableTheme(
+	"table_scorched",
+	"SCORCHED",
+	"Burn marks in rings. Don't ask.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_volatile" },
+	nil,
+	{
+		Top = { 36, 30, 28 },
+		Material = "Slate",
+		Trim = { 200, 90, 40 },
+	}
+)
 tableTheme("table_hazard", "HAZARD PLATE", "Yellow and black diamond plate.", "Rare", { Kind = "Challenge" }, nil, {
 	Top = { 45, 45, 45 },
 	Material = "DiamondPlate",
@@ -245,9 +360,26 @@ tableTheme("table_hazard", "HAZARD PLATE", "Yellow and black diamond plate.", "R
 
 -- Gloves ----------------------------------------------------------------------
 local function gloves(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "Gloves", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "Gloves",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
-gloves("gloves_none", "BARE HANDS", "Nothing between you and the grip.", "Standard", { Kind = "Default" }, nil, { None = true })
+gloves(
+	"gloves_none",
+	"BARE HANDS",
+	"Nothing between you and the grip.",
+	"Standard",
+	{ Kind = "Default" },
+	nil,
+	{ None = true }
+)
 gloves("gloves_nitrile", "LAB NITRILE", "Blue, powder-free.", "Standard", { Kind = "Level", Value = 3 }, nil, {
 	Color = { 70, 120, 200 },
 	Material = "SmoothPlastic",
@@ -256,18 +388,34 @@ gloves("gloves_leather", "LEATHER", "Softened by other people's sweat.", "Fine",
 	Color = { 70, 45, 30 },
 	Material = "Leather",
 })
-gloves("gloves_insulated", "INSULATED", "Rated to 10,000 volts. Technically.", "Fine", { Kind = "Level", Value = 16 }, nil, {
-	Color = { 220, 180, 40 },
-	Material = "Rubber",
-})
+gloves(
+	"gloves_insulated",
+	"INSULATED",
+	"Rated to 10,000 volts. Technically.",
+	"Fine",
+	{ Kind = "Level", Value = 16 },
+	nil,
+	{
+		Color = { 220, 180, 40 },
+		Material = "Rubber",
+	}
+)
 gloves("gloves_surgical", "SURGICAL WHITE", "Sterile. For now.", "Fine", { Kind = "Shop" }, 350, {
 	Color = { 235, 235, 230 },
 	Material = "SmoothPlastic",
 })
-gloves("gloves_tactical", "TACTICAL", "Black, knuckle-padded.", "Rare", { Kind = "Achievement", Value = "ach_wins50" }, nil, {
-	Color = { 25, 25, 28 },
-	Material = "Fabric",
-})
+gloves(
+	"gloves_tactical",
+	"TACTICAL",
+	"Black, knuckle-padded.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_wins50" },
+	nil,
+	{
+		Color = { 25, 25, 28 },
+		Material = "Fabric",
+	}
+)
 gloves("gloves_gold", "GOLD LEAF", "Absurd. Earned.", "Prestige", { Kind = "Level", Value = 60 }, nil, {
 	Color = { 212, 175, 90 },
 	Material = "Foil",
@@ -275,7 +423,16 @@ gloves("gloves_gold", "GOLD LEAF", "Absurd. Earned.", "Prestige", { Kind = "Leve
 
 -- Headwear --------------------------------------------------------------------
 local function accessory(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "Accessory", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "Accessory",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
 accessory("acc_none", "NONE", "Nothing on your head.", "Standard", { Kind = "Default" }, nil, { Kind = "None" })
 accessory("acc_headset", "HEADSET", "Mic muted. Always.", "Standard", { Kind = "Level", Value = 6 }, nil, {
@@ -286,10 +443,18 @@ accessory("acc_goggles", "LAB GOGGLES", "Scratched polycarbonate.", "Fine", { Ki
 	Kind = "Goggles",
 	Color = { 200, 220, 210 },
 })
-accessory("acc_visor", "ANALYST VISOR", "A green eyeshade for long nights of arithmetic.", "Fine", { Kind = "Achievement", Value = "ach_reads100" }, nil, {
-	Kind = "Visor",
-	Color = { 60, 140, 90 },
-})
+accessory(
+	"acc_visor",
+	"ANALYST VISOR",
+	"A green eyeshade for long nights of arithmetic.",
+	"Fine",
+	{ Kind = "Achievement", Value = "ach_reads100" },
+	nil,
+	{
+		Kind = "Visor",
+		Color = { 60, 140, 90 },
+	}
+)
 accessory("acc_fedora", "BACKROOM FEDORA", "Left behind in the Gilded Room.", "Fine", { Kind = "Shop" }, 550, {
 	Kind = "Fedora",
 	Color = { 45, 40, 38 },
@@ -298,14 +463,30 @@ accessory("acc_monocle", "MONOCLE", "One eye on the odds.", "Rare", { Kind = "Le
 	Kind = "Monocle",
 	Color = { 212, 175, 90 },
 })
-accessory("acc_mask", "SURROGATE MASK", "Proof you beat all four surrogates on Expert.", "Prestige", { Kind = "Achievement", Value = "ach_allexpert" }, nil, {
-	Kind = "Mask",
-	Color = { 230, 228, 220 },
-})
-accessory("acc_halo", "ORACLE RING", "A thin ring of light. Awarded to Oracles.", "Prestige", { Kind = "Ranked", Value = "Oracle" }, nil, {
-	Kind = "Halo",
-	Color = { 255, 150, 110 },
-})
+accessory(
+	"acc_mask",
+	"SURROGATE MASK",
+	"Proof you beat all four surrogates on Expert.",
+	"Prestige",
+	{ Kind = "Achievement", Value = "ach_allexpert" },
+	nil,
+	{
+		Kind = "Mask",
+		Color = { 230, 228, 220 },
+	}
+)
+accessory(
+	"acc_halo",
+	"ORACLE RING",
+	"A thin ring of light. Awarded to Oracles.",
+	"Prestige",
+	{ Kind = "Ranked", Value = "Oracle" },
+	nil,
+	{
+		Kind = "Halo",
+		Color = { 255, 150, 110 },
+	}
+)
 accessory("acc_earpiece", "OBSERVER EARPIECE", "Someone is always listening.", "Rare", { Kind = "Lore" }, nil, {
 	Kind = "Earpiece",
 	Color = { 30, 30, 32 },
@@ -313,20 +494,62 @@ accessory("acc_earpiece", "OBSERVER EARPIECE", "Someone is always listening.", "
 
 -- Victory poses ---------------------------------------------------------------
 local function victory(id, name, desc, rarity, source, price, pose)
-	add({ Id = id, Category = "Victory", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = { Pose = pose } })
+	add({
+		Id = id,
+		Category = "Victory",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = { Pose = pose },
+	})
 end
 victory("vic_nod", "QUIET NOD", "Nothing to prove.", "Standard", { Kind = "Default" }, nil, "Nod")
-victory("vic_lean", "LEAN BACK", "Chair tipped, arms behind the head.", "Fine", { Kind = "Level", Value = 7 }, nil, "LeanBack")
+victory(
+	"vic_lean",
+	"LEAN BACK",
+	"Chair tipped, arms behind the head.",
+	"Fine",
+	{ Kind = "Level", Value = 7 },
+	nil,
+	"LeanBack"
+)
 victory("vic_clap", "SLOW CLAP", "For your opponent. Mostly.", "Fine", { Kind = "Shop" }, 450, "SlowClap")
-victory("vic_temple", "TAP TEMPLE", "It was maths all along.", "Fine", { Kind = "Achievement", Value = "ach_reads100" }, nil, "TapTemple")
+victory(
+	"vic_temple",
+	"TAP TEMPLE",
+	"It was maths all along.",
+	"Fine",
+	{ Kind = "Achievement", Value = "ach_reads100" },
+	nil,
+	"TapTemple"
+)
 victory("vic_salute", "SALUTE", "Institutional respect.", "Standard", { Kind = "Shop" }, 300, "Salute")
 victory("vic_arms", "ARMS CROSSED", "Unimpressed.", "Fine", { Kind = "Level", Value = 26 }, nil, "ArmsCrossed")
 victory("vic_bow", "TABLE BOW", "A formal bow over the Arbiter.", "Rare", { Kind = "Level", Value = 40 }, nil, "Bow")
-victory("vic_raise", "RAISE THE ARBITER", "Held overhead. Champions only.", "Prestige", { Kind = "Tournament" }, nil, "Raise")
+victory(
+	"vic_raise",
+	"RAISE THE ARBITER",
+	"Held overhead. Champions only.",
+	"Prestige",
+	{ Kind = "Tournament" },
+	nil,
+	"Raise"
+)
 
 -- Table emotes ----------------------------------------------------------------
 local function emote(id, name, desc, rarity, source, price, anim)
-	add({ Id = id, Category = "Emote", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = { Anim = anim } })
+	add({
+		Id = id,
+		Category = "Emote",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = { Anim = anim },
+	})
 end
 emote("emote_nod", "NOD", "Acknowledge.", "Standard", { Kind = "Default" }, nil, "Nod")
 emote("emote_shrug", "SHRUG", "Who knows.", "Standard", { Kind = "Default" }, nil, "Shrug")
@@ -339,7 +562,16 @@ emote("emote_stretch", "STRETCH", "Knuckles cracked.", "Fine", { Kind = "Shop" }
 
 -- Card frames -----------------------------------------------------------------
 local function frame(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "CardFrame", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "CardFrame",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
 frame("frame_intake", "INTAKE", "The standard file folder.", "Standard", { Kind = "Default" }, nil, {
 	Stroke = { 90, 92, 95 },
@@ -356,30 +588,71 @@ frame("frame_circuit", "CIRCUIT", "Traces run around the edge.", "Fine", { Kind 
 	Accent = { 120, 230, 180 },
 	Style = "Notched",
 })
-frame("frame_redline", "REDLINE", "For those who live at one point.", "Rare", { Kind = "Achievement", Value = "ach_lastfilament" }, nil, {
-	Stroke = { 220, 60, 50 },
-	Accent = { 255, 120, 100 },
-	Style = "Glow",
-})
-frame("frame_oracle", "ORACLE", "Seasonal top division frame.", "Prestige", { Kind = "Ranked", Value = "Oracle" }, nil, {
-	Stroke = { 255, 130, 100 },
-	Accent = { 255, 200, 170 },
-	Style = "Glow",
-})
-frame("frame_strategist", "STRATEGIST", "Ranked division frame.", "Fine", { Kind = "Ranked", Value = "Strategist" }, nil, {
-	Stroke = { 120, 170, 190 },
-	Accent = { 190, 230, 240 },
-	Style = "Double",
-})
-frame("frame_s1", "SEASON ONE", "Played ranked in Season One.", "Rare", { Kind = "Season", Value = "S1:Analyst" }, nil, {
-	Stroke = { 200, 200, 190 },
-	Accent = { 225, 160, 60 },
-	Style = "Notched",
-})
+frame(
+	"frame_redline",
+	"REDLINE",
+	"For those who live at one point.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_lastfilament" },
+	nil,
+	{
+		Stroke = { 220, 60, 50 },
+		Accent = { 255, 120, 100 },
+		Style = "Glow",
+	}
+)
+frame(
+	"frame_oracle",
+	"ORACLE",
+	"Seasonal top division frame.",
+	"Prestige",
+	{ Kind = "Ranked", Value = "Oracle" },
+	nil,
+	{
+		Stroke = { 255, 130, 100 },
+		Accent = { 255, 200, 170 },
+		Style = "Glow",
+	}
+)
+frame(
+	"frame_strategist",
+	"STRATEGIST",
+	"Ranked division frame.",
+	"Fine",
+	{ Kind = "Ranked", Value = "Strategist" },
+	nil,
+	{
+		Stroke = { 120, 170, 190 },
+		Accent = { 190, 230, 240 },
+		Style = "Double",
+	}
+)
+frame(
+	"frame_s1",
+	"SEASON ONE",
+	"Played ranked in Season One.",
+	"Rare",
+	{ Kind = "Season", Value = "S1:Analyst" },
+	nil,
+	{
+		Stroke = { 200, 200, 190 },
+		Accent = { 225, 160, 60 },
+		Style = "Notched",
+	}
+)
 
 -- Banners ---------------------------------------------------------------------
 local function banner(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "Banner", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "Banner",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
 banner("banner_static", "DEAD CHANNEL", "Grey on grey.", "Standard", { Kind = "Default" }, nil, {
 	A = { 40, 42, 45 },
@@ -419,47 +692,221 @@ banner("banner_tv", "TEST CARD", "Please stand by.", "Rare", { Kind = "Challenge
 
 -- Badges ----------------------------------------------------------------------
 local function badge(id, name, desc, rarity, source, glyph, color)
-	add({ Id = id, Category = "Badge", Name = name, Description = desc, Rarity = rarity, Source = source, Data = { Glyph = glyph, Color = color } })
+	add({
+		Id = id,
+		Category = "Badge",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Data = { Glyph = glyph, Color = color },
+	})
 end
 badge("badge_none", "NONE", "No badge.", "Standard", { Kind = "Default" }, "", { 120, 120, 120 })
-badge("badge_first", "FIRST TRIAL", "Won your first match.", "Standard", { Kind = "Achievement", Value = "ach_first" }, "I", { 200, 200, 190 })
-badge("badge_survivor", "SURVIVOR", "Survived a mutual collapse.", "Rare", { Kind = "Achievement", Value = "ach_collapse" }, "S", { 240, 120, 90 })
-badge("badge_analyst", "ANALYST", "100 correct reads.", "Fine", { Kind = "Achievement", Value = "ach_reads100" }, "A", { 120, 200, 170 })
-badge("badge_endurance", "ENDURANCE", "Completed all five Endurance stages.", "Rare", { Kind = "Achievement", Value = "ach_endurance" }, "E", { 225, 165, 70 })
-badge("badge_proctor", "OBSERVED", "Defeated the Proctor.", "Prestige", { Kind = "Achievement", Value = "ach_proctor" }, "P", { 235, 70, 60 })
+badge(
+	"badge_first",
+	"FIRST TRIAL",
+	"Won your first match.",
+	"Standard",
+	{ Kind = "Achievement", Value = "ach_first" },
+	"I",
+	{ 200, 200, 190 }
+)
+badge(
+	"badge_survivor",
+	"SURVIVOR",
+	"Survived a mutual collapse.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_collapse" },
+	"S",
+	{ 240, 120, 90 }
+)
+badge(
+	"badge_analyst",
+	"ANALYST",
+	"100 correct reads.",
+	"Fine",
+	{ Kind = "Achievement", Value = "ach_reads100" },
+	"A",
+	{ 120, 200, 170 }
+)
+badge(
+	"badge_endurance",
+	"ENDURANCE",
+	"Completed all five Endurance stages.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_endurance" },
+	"E",
+	{ 225, 165, 70 }
+)
+badge(
+	"badge_proctor",
+	"OBSERVED",
+	"Defeated the Proctor.",
+	"Prestige",
+	{ Kind = "Achievement", Value = "ach_proctor" },
+	"P",
+	{ 235, 70, 60 }
+)
 badge("badge_champion", "CHAMPION", "Won a tournament.", "Prestige", { Kind = "Tournament" }, "C", { 120, 210, 255 })
 
 -- Titles ----------------------------------------------------------------------
 local function title(id, text, desc, rarity, source)
-	add({ Id = id, Category = "Title", Name = text, Description = desc, Rarity = rarity, Source = source, Data = { Text = text } })
+	add({
+		Id = id,
+		Category = "Title",
+		Name = text,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Data = { Text = text },
+	})
 end
 title("title_level", "CLEARANCE TITLE", "Your title from Clearance Level.", "Standard", { Kind = "Default" })
-title("title_ironnerve", "IRON NERVE", "Survived four dangerous self-shots in a row.", "Rare", { Kind = "Achievement", Value = "ach_ironnerve" })
-title("title_lastfilament", "LAST FILAMENT", "Won from a single point of Integrity.", "Rare", { Kind = "Achievement", Value = "ach_lastfilament" })
-title("title_bookkeeper", "BOOKKEEPER", "Won with perfect information tracking.", "Rare", { Kind = "Achievement", Value = "ach_perfect" })
-title("title_barehanded", "BARE-HANDED", "Won without instruments against Advanced or better.", "Rare", { Kind = "Achievement", Value = "ach_barehands" })
-title("title_witness", "WITNESS", "Saw the Proctor where it shouldn't be.", "Rare", { Kind = "Achievement", Value = "ach_witness" })
-title("title_administrator", "ADMINISTRATOR", "Beat the Proctor at its own game.", "Prestige", { Kind = "Achievement", Value = "ach_proctor" })
+title(
+	"title_ironnerve",
+	"IRON NERVE",
+	"Survived four dangerous self-shots in a row.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_ironnerve" }
+)
+title(
+	"title_lastfilament",
+	"LAST FILAMENT",
+	"Won from a single point of Integrity.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_lastfilament" }
+)
+title(
+	"title_bookkeeper",
+	"BOOKKEEPER",
+	"Won with perfect information tracking.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_perfect" }
+)
+title(
+	"title_barehanded",
+	"BARE-HANDED",
+	"Won without instruments against Advanced or better.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_barehands" }
+)
+title(
+	"title_witness",
+	"WITNESS",
+	"Saw the Proctor where it shouldn't be.",
+	"Rare",
+	{ Kind = "Achievement", Value = "ach_witness" }
+)
+title(
+	"title_administrator",
+	"ADMINISTRATOR",
+	"Beat the Proctor at its own game.",
+	"Prestige",
+	{ Kind = "Achievement", Value = "ach_proctor" }
+)
 title("title_archivist", "ARCHIVIST", "Read every file in the archive.", "Rare", { Kind = "Lore" })
 title("title_champion", "CHAMPION", "Won a tournament.", "Prestige", { Kind = "Tournament" })
 
 -- Sound packs -----------------------------------------------------------------
 local function soundPack(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "SoundPack", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "SoundPack",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
-soundPack("sound_standard", "STANDARD", "The Arbiter as issued.", "Standard", { Kind = "Default" }, nil, { Pitch = 1, Variant = "Standard" })
-soundPack("sound_heavy", "HEAVY INDUSTRIAL", "Lower, longer, more steel.", "Fine", { Kind = "Shop" }, 500, { Pitch = 0.82, Variant = "Heavy" })
-soundPack("sound_retro", "RETRO SYNTH", "Discharges from a 1983 test lab.", "Fine", { Kind = "Level", Value = 20 }, nil, { Pitch = 1.25, Variant = "Retro" })
-soundPack("sound_muted", "MUTED", "Everything wrapped in felt.", "Standard", { Kind = "Shop" }, 200, { Pitch = 0.95, Variant = "Muted" })
+soundPack(
+	"sound_standard",
+	"STANDARD",
+	"The Arbiter as issued.",
+	"Standard",
+	{ Kind = "Default" },
+	nil,
+	{ Pitch = 1, Variant = "Standard" }
+)
+soundPack(
+	"sound_heavy",
+	"HEAVY INDUSTRIAL",
+	"Lower, longer, more steel.",
+	"Fine",
+	{ Kind = "Shop" },
+	500,
+	{ Pitch = 0.82, Variant = "Heavy" }
+)
+soundPack(
+	"sound_retro",
+	"RETRO SYNTH",
+	"Discharges from a 1983 test lab.",
+	"Fine",
+	{ Kind = "Level", Value = 20 },
+	nil,
+	{ Pitch = 1.25, Variant = "Retro" }
+)
+soundPack(
+	"sound_muted",
+	"MUTED",
+	"Everything wrapped in felt.",
+	"Standard",
+	{ Kind = "Shop" },
+	200,
+	{ Pitch = 0.95, Variant = "Muted" }
+)
 
 -- Lobby nameplates ------------------------------------------------------------
 local function nameplate(id, name, desc, rarity, source, price, data)
-	add({ Id = id, Category = "Nameplate", Name = name, Description = desc, Rarity = rarity, Source = source, Price = price, Data = data })
+	add({
+		Id = id,
+		Category = "Nameplate",
+		Name = name,
+		Description = desc,
+		Rarity = rarity,
+		Source = source,
+		Price = price,
+		Data = data,
+	})
 end
-nameplate("plate_standard", "STANDARD", "Bone text on charcoal.", "Standard", { Kind = "Default" }, nil, { Color = { 230, 226, 214 }, Style = "Plain" })
-nameplate("plate_amber", "AMBER", "Warm institutional amber.", "Standard", { Kind = "Level", Value = 10 }, nil, { Color = { 232, 163, 61 }, Style = "Plain" })
-nameplate("plate_glitch", "GLITCH", "Your name never quite settles.", "Rare", { Kind = "Shop" }, 800, { Color = { 170, 220, 255 }, Style = "Glitch" })
-nameplate("plate_gold", "GOLD", "A plate for the long-serving.", "Prestige", { Kind = "Level", Value = 75 }, nil, { Color = { 240, 200, 110 }, Style = "Glow" })
+nameplate(
+	"plate_standard",
+	"STANDARD",
+	"Bone text on charcoal.",
+	"Standard",
+	{ Kind = "Default" },
+	nil,
+	{ Color = { 230, 226, 214 }, Style = "Plain" }
+)
+nameplate(
+	"plate_amber",
+	"AMBER",
+	"Warm institutional amber.",
+	"Standard",
+	{ Kind = "Level", Value = 10 },
+	nil,
+	{ Color = { 232, 163, 61 }, Style = "Plain" }
+)
+nameplate(
+	"plate_glitch",
+	"GLITCH",
+	"Your name never quite settles.",
+	"Rare",
+	{ Kind = "Shop" },
+	800,
+	{ Color = { 170, 220, 255 }, Style = "Glitch" }
+)
+nameplate(
+	"plate_gold",
+	"GOLD",
+	"A plate for the long-serving.",
+	"Prestige",
+	{ Kind = "Level", Value = 75 },
+	nil,
+	{ Color = { 240, 200, 110 }, Style = "Glow" }
+)
 
 Cosmetics.List = items
 Cosmetics.ById = {} :: { [string]: Item }

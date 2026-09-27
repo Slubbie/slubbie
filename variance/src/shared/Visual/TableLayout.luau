@@ -70,7 +70,9 @@ end
 
 -- The Arbiter at rest: lying on the table centre, muzzle toward seat 3 (east).
 function TableLayout.deviceRest(): CFrame
-	return CFrame.new(0, TableLayout.TableTop + 0.42, 0) * CFrame.Angles(0, -math.pi / 2, 0) * CFrame.Angles(0, 0, -math.pi / 2)
+	return CFrame.new(0, TableLayout.TableTop + 0.42, 0)
+		* CFrame.Angles(0, -math.pi / 2, 0)
+		* CFrame.Angles(0, 0, -math.pi / 2)
 end
 
 -- The rack where announced cells are displayed before loading (table centre, north-west).
@@ -88,7 +90,10 @@ end
 -- Integrity monitor beside each seat's tray (to the subject's right). Its Front
 -- face turns toward the subject, its Back face toward the rest of the table.
 function TableLayout.monitorCFrame(seat: number): CFrame
-	return TableLayout.trayCFrame(seat) * CFrame.new(2.75, 0.5, 0.25) * CFrame.Angles(0, math.pi, 0) * CFrame.Angles(math.rad(-18), 0, 0)
+	return TableLayout.trayCFrame(seat)
+		* CFrame.new(2.75, 0.5, 0.25)
+		* CFrame.Angles(0, math.pi, 0)
+		* CFrame.Angles(math.rad(-18), 0, 0)
 end
 
 -- Where spent cells land after ejection (a small tray to the side).

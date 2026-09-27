@@ -79,7 +79,11 @@ local function overridden(self, ai, state, subjectId: number)
 	elseif mode == "AlwaysOther" then
 		local fallback = self:fallback(state, subjectId)
 		for _, other in state.Subjects do
-			if other.Id ~= subjectId and not other.Eliminated and Engine.isOpponent(state, state.Subjects[subjectId], other) then
+			if
+				other.Id ~= subjectId
+				and not other.Eliminated
+				and Engine.isOpponent(state, state.Subjects[subjectId], other)
+			then
 				return { Kind = "Fire", Target = other.Id }
 			end
 		end

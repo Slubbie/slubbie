@@ -20,7 +20,8 @@ function ChallengesScreen.new(ui, controllers)
 	self.UI = ui
 	self.C = controllers
 	self.Main = true
-	self.Window = Window.new(ui, { Name = "Challenges", Title = "DIRECTIVES", Subtitle = "", Width = 900, Height = 600 })
+	self.Window =
+		Window.new(ui, { Name = "Challenges", Title = "DIRECTIVES", Subtitle = "", Width = 900, Height = 600 })
 	self.Frame = self.Window.Frame
 	self.Opened = 0
 	controllers.ProfileController.Changed:Connect(function()
@@ -32,11 +33,13 @@ function ChallengesScreen.new(ui, controllers)
 		if self.Window.Visible and self.Profile then
 			local c = self.Profile.Challenges
 			local elapsed = os.clock() - self.Opened
-			self.Window:setSubtitle(string.format(
-				"DAILY RESET IN %s  ·  WEEKLY RESET IN %s",
-				Format.clock(math.max(0, (c.DayEndsIn or 0) - elapsed)),
-				Format.clock(math.max(0, (c.WeekEndsIn or 0) - elapsed))
-			))
+			self.Window:setSubtitle(
+				string.format(
+					"DAILY RESET IN %s  ·  WEEKLY RESET IN %s",
+					Format.clock(math.max(0, (c.DayEndsIn or 0) - elapsed)),
+					Format.clock(math.max(0, (c.WeekEndsIn or 0) - elapsed))
+				)
+			)
 		end
 	end)
 	return self
@@ -64,13 +67,49 @@ function ChallengesScreen:section(parent: Instance, title: string, list, period:
 		local card = Kit.panel(parent, { Size = UDim2.new(1, -8, 0, 74), LayoutOrder = order, Color = "PanelAlt" })
 		order += 1
 		Kit.padding(card, 10, 14)
-		Kit.label(card, { Text = string.upper(entry.Tier or ""), Font = "Mono", TextSize = "Tiny", Color = TIER_COLOR[entry.Tier or ""] or "Dim", Size = UDim2.fromOffset(80, 14) })
-		Kit.label(card, { Text = entry.Text or "", Font = "Bold", TextSize = "Small", Wrap = true, Size = UDim2.new(1, -190, 0, 20), Position = UDim2.fromOffset(0, 16) })
-		Kit.bar(card, { Size = UDim2.new(1, -190, 0, 6), Position = UDim2.fromOffset(0, 44), Value = (entry.Progress or 0) / math.max(entry.Goal or 1, 1), Color = if entry.Done then "Good" else "Accent" })
-		Kit.label(card, { Text = string.format("%d / %d  ·  %s", math.min(entry.Progress or 0, entry.Goal or 1), entry.Goal or 1, rewardText(entry.Tier or "")), Font = "Mono", TextSize = "Tiny", Color = "Dim", Size = UDim2.new(1, -190, 0, 14), Position = UDim2.fromOffset(0, 52) })
+		Kit.label(card, {
+			Text = string.upper(entry.Tier or ""),
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = TIER_COLOR[entry.Tier or ""] or "Dim",
+			Size = UDim2.fromOffset(80, 14),
+		})
+		Kit.label(card, {
+			Text = entry.Text or "",
+			Font = "Bold",
+			TextSize = "Small",
+			Wrap = true,
+			Size = UDim2.new(1, -190, 0, 20),
+			Position = UDim2.fromOffset(0, 16),
+		})
+		Kit.bar(card, {
+			Size = UDim2.new(1, -190, 0, 6),
+			Position = UDim2.fromOffset(0, 44),
+			Value = (entry.Progress or 0) / math.max(entry.Goal or 1, 1),
+			Color = if entry.Done then "Good" else "Accent",
+		})
+		Kit.label(card, {
+			Text = string.format(
+				"%d / %d  ·  %s",
+				math.min(entry.Progress or 0, entry.Goal or 1),
+				entry.Goal or 1,
+				rewardText(entry.Tier or "")
+			),
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = "Dim",
+			Size = UDim2.new(1, -190, 0, 14),
+			Position = UDim2.fromOffset(0, 52),
+		})
 		local button
 		if entry.Claimed then
-			button = Kit.button(card, { Text = "CLAIMED", Size = UDim2.fromOffset(160, 40), Position = UDim2.new(1, 0, 0.5, 0), AnchorPoint = Vector2.new(1, 0.5), Style = "Ghost" })
+			button = Kit.button(card, {
+				Text = "CLAIMED",
+				Size = UDim2.fromOffset(160, 40),
+				Position = UDim2.new(1, 0, 0.5, 0),
+				AnchorPoint = Vector2.new(1, 0.5),
+				Style = "Ghost",
+			})
 			Kit.setEnabled(button, false, "Already claimed.")
 		elseif entry.Done then
 			button = Kit.button(card, {
@@ -88,7 +127,13 @@ function ChallengesScreen:section(parent: Instance, title: string, list, period:
 				end,
 			})
 		else
-			button = Kit.button(card, { Text = "IN PROGRESS", Size = UDim2.fromOffset(160, 40), Position = UDim2.new(1, 0, 0.5, 0), AnchorPoint = Vector2.new(1, 0.5), Style = "Ghost" })
+			button = Kit.button(card, {
+				Text = "IN PROGRESS",
+				Size = UDim2.fromOffset(160, 40),
+				Position = UDim2.new(1, 0, 0.5, 0),
+				AnchorPoint = Vector2.new(1, 0.5),
+				Style = "Ghost",
+			})
 			Kit.setEnabled(button, false, "Complete the directive first.")
 		end
 	end

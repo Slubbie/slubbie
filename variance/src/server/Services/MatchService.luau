@@ -189,7 +189,11 @@ function MatchService:create(spec)
 	local firstLook = humans[1] and services.CosmeticService:look(humans[1]) or nil
 	local arena = spec.Arena
 	if arena == nil then
-		arena = services.ArenaService:acquire(spec.Environment or rules.Environment, #spec.Subjects, firstLook and firstLook.TableTheme.Data)
+		arena = services.ArenaService:acquire(
+			spec.Environment or rules.Environment,
+			#spec.Subjects,
+			firstLook and firstLook.TableTheme.Data
+		)
 		if arena == nil then
 			return nil, "Every evaluation room is in use. Try again in a moment."
 		end
@@ -462,7 +466,10 @@ function MatchService:forfeit(player: Player, reason: string)
 		participant.Abandoned = true
 		participant.Refund = self.Services.RankedService:applyAbandon(player, self:opponentRating(match, subjectId))
 		local profile = self.Services.DataService:get(player)
-		participant.AbandonDelta = profile and profile.Data.Ranked.History[#profile.Data.Ranked.History] and profile.Data.Ranked.History[#profile.Data.Ranked.History].Delta or 0
+		participant.AbandonDelta = profile
+				and profile.Data.Ranked.History[#profile.Data.Ranked.History]
+				and profile.Data.Ranked.History[#profile.Data.Ranked.History].Delta
+			or 0
 	end
 	match.Runner:queueForfeit(subjectId, reason)
 	self:detach(match, subjectId)
@@ -509,7 +516,12 @@ function MatchService:onReleasing(player: Player)
 		return
 	end
 	for id, participant in match.Participants do
-		if participant.Kind == "Player" and participant.UserId == player.UserId and not participant.Abandoned and not participant.Detached then
+		if
+			participant.Kind == "Player"
+			and participant.UserId == player.UserId
+			and not participant.Abandoned
+			and not participant.Detached
+		then
 			participant.Abandoned = true
 			participant.Refund = self.Services.RankedService:applyAbandon(player, self:opponentRating(match, id))
 		end
@@ -534,7 +546,11 @@ function MatchService:onLeave(player: Player)
 	if match.Finished then
 		return
 	end
-	match.Dispatcher:broadcast("Presence", { Subject = subjectId, Connected = false, Grace = Config.Match.ReconnectGrace }, true)
+	match.Dispatcher:broadcast(
+		"Presence",
+		{ Subject = subjectId, Connected = false, Grace = Config.Match.ReconnectGrace },
+		true
+	)
 	-- Solo modes have nobody to wait for.
 	if not match.Info.PvP then
 		match.Runner:queueForfeit(subjectId, "Left")
@@ -582,7 +598,12 @@ function MatchService:onJoin(player: Player)
 		if not player.Parent or match.Finished then
 			return
 		end
-		self.Services.CharacterService:seat(player, match.Arena.Model, participant.Seat, self.Services.ArenaService:rootCFrame(match.Arena, participant.Seat))
+		self.Services.CharacterService:seat(
+			player,
+			match.Arena.Model,
+			participant.Seat,
+			self.Services.ArenaService:rootCFrame(match.Arena, participant.Seat)
+		)
 		self.Services.NetworkService:match(player, "Begin", self:beginPayload(match, subjectId))
 		match.Dispatcher:broadcast("Presence", { Subject = subjectId, Connected = true }, true)
 	end)
@@ -667,7 +688,13 @@ function MatchService:finish(match)
 				})
 			end
 		end
-		local ok, result = pcall(services.RankedService.rateMatch, services.RankedService, results, duration, state.EndReason == "Forfeit")
+		local ok, result = pcall(
+			services.RankedService.rateMatch,
+			services.RankedService,
+			results,
+			duration,
+			state.EndReason == "Forfeit"
+		)
 		if ok then
 			ratings = result
 		else
@@ -701,7 +728,13 @@ function MatchService:finish(match)
 			info.RatingDelta = ratings[p.UserId] and ratings[p.UserId].Delta or nil
 			local summary = nil
 			if not match.Aborted and not match.Info.Tutorial then
-				local ok, result = pcall(services.ProgressionService.matchCompleted, services.ProgressionService, p.Player, outcome, info)
+				local ok, result = pcall(
+					services.ProgressionService.matchCompleted,
+					services.ProgressionService,
+					p.Player,
+					outcome,
+					info
+				)
 				if ok then
 					summary = result
 				else
@@ -721,7 +754,11 @@ function MatchService:finish(match)
 		end
 	end
 	for spectator in match.Spectators do
-		services.NetworkService:match(spectator, "PostMatch", { MatchId = match.Id, Report = report, Spectating = true, Linger = 12 })
+		services.NetworkService:match(
+			spectator,
+			"PostMatch",
+			{ MatchId = match.Id, Report = report, Spectating = true, Linger = 12 }
+		)
 	end
 	services.LobbyWorldService:refreshLive()
 
@@ -732,6 +769,16 @@ function MatchService:finish(match)
 			self:close(match)
 		end)
 	end
+end
+
+-- Votes keyed by subject id as strings: a table like {[2] = true} is a sparse
+-- array, which Roblox's remote serializer would mangle.
+local function publicVotes(votes)
+	local out = {}
+	for id, v in votes do
+		out[tostring(id)] = v
+	end
+	return out
 end
 
 -- Rematch voting: every human still at the table must accept.
@@ -745,13 +792,15 @@ function MatchService:rematchWindow(match)
 		end
 	end
 	local deadline = os.clock() + Config.Match.RematchWindow
-	match.Dispatcher:broadcast("Rematch", { Votes = votes, Needed = (function()
-		local n = 0
-		for _ in humans do
-			n += 1
-		end
-		return n
-	end)(), EndsIn = Config.Match.RematchWindow }, true)
+	local needed = 0
+	for _ in humans do
+		needed += 1
+	end
+	match.Dispatcher:broadcast(
+		"Rematch",
+		{ Votes = publicVotes(votes), Needed = needed, EndsIn = Config.Match.RematchWindow },
+		true
+	)
 	task.spawn(function()
 		while os.clock() < deadline and not match.Closed do
 			local allYes, anyNo, present = true, false, 0
@@ -777,7 +826,7 @@ function MatchService:rematchWindow(match)
 			task.wait(0.25)
 		end
 		-- No rematch (declined, left, or time ran out). Ties count as "no".
-		match.Dispatcher:broadcast("Rematch", { Votes = votes, Closed = true }, true)
+		match.Dispatcher:broadcast("Rematch", { Votes = publicVotes(votes), Closed = true }, true)
 		task.delay(3, function()
 			self:close(match)
 		end)
@@ -794,7 +843,7 @@ function MatchService:vote(player: Player, accept: boolean)
 		return false, "Not in this match."
 	end
 	match.Rematch[subjectId] = accept
-	match.Dispatcher:broadcast("Rematch", { Votes = match.Rematch }, true)
+	match.Dispatcher:broadcast("Rematch", { Votes = publicVotes(match.Rematch) }, true)
 	if not accept then
 		self:detach(match, subjectId)
 	end
@@ -831,11 +880,37 @@ function MatchService:startRematch(match)
 		match.KeepArena = false
 		for _, p in match.Participants do
 			if p.Player then
-				self.Services.NetworkService:notify(p.Player, "REMATCH FAILED", err or "Try again from the lobby.", "Warn")
+				self.Services.NetworkService:notify(
+					p.Player,
+					"REMATCH FAILED",
+					err or "Try again from the lobby.",
+					"Warn"
+				)
 			end
 		end
 		self:close(match)
 	end
+end
+
+-- Frees a player still sitting in a finished match (on its results screen)
+-- so they can be seated elsewhere, e.g. the next tournament round. Returns
+-- false if they are in a match that is still being played.
+function MatchService:releaseFinished(player: Player): boolean
+	local match = byPlayer[player]
+	if match == nil then
+		return true
+	end
+	if not match.Finished then
+		return false
+	end
+	local subjectId = self:subjectOf(match, player)
+	if subjectId then
+		if match.Rematch then
+			match.Rematch[subjectId] = false
+		end
+		self:detach(match, subjectId)
+	end
+	return true
 end
 
 -- Returns everyone to the lobby and frees the room.
@@ -929,11 +1004,21 @@ function MatchService:startEndurance(player: Player)
 			if won and stage < #stages and player.Parent then
 				local nextIntegrity = me.Integrity + Config.Endurance.RecoveryBetweenStages
 				local tools = Config.Endurance.CarryInstruments and table.clone(me.Instruments) or nil
-				self.Services.NetworkService:push(player, "Endurance", { Stage = stage, Next = stage + 1, Total = #stages, Integrity = nextIntegrity })
+				self.Services.NetworkService:push(
+					player,
+					"Endurance",
+					{ Stage = stage, Next = stage + 1, Total = #stages, Integrity = nextIntegrity }
+				)
 				-- Record this stage's progression before moving on.
 				local outcome = Report.outcome(state, me)
 				local info = self:matchInfoFor(match, 1)
-				pcall(self.Services.ProgressionService.matchCompleted, self.Services.ProgressionService, player, outcome, info)
+				pcall(
+					self.Services.ProgressionService.matchCompleted,
+					self.Services.ProgressionService,
+					player,
+					outcome,
+					info
+				)
 				task.delay(4, function()
 					if not player.Parent then
 						self:close(match)
@@ -950,7 +1035,11 @@ function MatchService:startEndurance(player: Player)
 				end)
 				return true
 			end
-			self.Services.NetworkService:push(player, "Endurance", { Stage = stage, Total = #stages, Finished = true, Reached = match.Info.EnduranceReached })
+			self.Services.NetworkService:push(
+				player,
+				"Endurance",
+				{ Stage = stage, Total = #stages, Finished = true, Reached = match.Info.EnduranceReached }
+			)
 			return false
 		end
 	end

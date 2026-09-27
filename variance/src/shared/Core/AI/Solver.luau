@@ -93,7 +93,15 @@ function Solver:F(a: number, b: number, s: number): number
 end
 
 -- The two options for whoever holds the turn, as values for "me".
-function Solver:options(c: number, h: number, a: number, b: number, t: number, s: number, tether: boolean): (number, number, number)
+function Solver:options(
+	c: number,
+	h: number,
+	a: number,
+	b: number,
+	t: number,
+	s: number,
+	tether: boolean
+): (number, number, number)
 	local n = c + h
 	local p = c / n
 	local last = n == 1

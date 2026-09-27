@@ -23,7 +23,14 @@ function TutorialOverlay.new(ui, controllers)
 	self.C = controllers
 	self.Main = false
 	self.Visible = false
-	local panel = Kit.panel(ui.Hud, { Name = "Coach", Size = UDim2.fromOffset(380, 0), Position = UDim2.new(0, 16, 0.5, -40), AnchorPoint = Vector2.new(0, 0.5), Color = "Bg", Visible = false })
+	local panel = Kit.panel(ui.Hud, {
+		Name = "Coach",
+		Size = UDim2.fromOffset(380, 0),
+		Position = UDim2.new(0, 16, 0.5, -40),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Color = "Bg",
+		Visible = false,
+	})
 	panel.AutomaticSize = Enum.AutomaticSize.Y
 	Kit.stroke(panel, "Accent", 1, 0)
 	Kit.padding(panel, 14, 16)
@@ -32,12 +39,46 @@ function TutorialOverlay.new(ui, controllers)
 	self.Header = Kit.label(panel, { Text = "", Font = "Mono", TextSize = "Tiny", Color = "Accent", LayoutOrder = 1 })
 	self.Progress = Kit.bar(panel, { Size = UDim2.new(1, 0, 0, 3), LayoutOrder = 2, Value = 0 })
 	self.Title = Kit.label(panel, { Text = "", Font = "Display", TextSize = "Body", LayoutOrder = 3 })
-	self.Say = Kit.label(panel, { Text = "", Font = "Body", TextSize = "Body", Wrap = true, AutoY = true, LayoutOrder = 4, Size = UDim2.new(1, 0, 0, 0) })
-	self.Next = Kit.label(panel, { Text = "", Font = "Mono", TextSize = "Small", Color = "Dim", Wrap = true, AutoY = true, LayoutOrder = 5, Size = UDim2.new(1, 0, 0, 0) })
-	self.Options = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 6, Parent = panel }) :: Frame
+	self.Say = Kit.label(panel, {
+		Text = "",
+		Font = "Body",
+		TextSize = "Body",
+		Wrap = true,
+		AutoY = true,
+		LayoutOrder = 4,
+		Size = UDim2.new(1, 0, 0, 0),
+	})
+	self.Next = Kit.label(panel, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Small",
+		Color = "Dim",
+		Wrap = true,
+		AutoY = true,
+		LayoutOrder = 5,
+		Size = UDim2.new(1, 0, 0, 0),
+	})
+	self.Options = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 6,
+		Parent = panel,
+	}) :: Frame
 	Kit.list(self.Options, "Y", 6)
-	self.Feedback = Kit.label(panel, { Text = "", Font = "Body", TextSize = "Small", Wrap = true, AutoY = true, LayoutOrder = 7, Size = UDim2.new(1, 0, 0, 0) })
-	local row = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 38), LayoutOrder = 8, Parent = panel }) :: Frame
+	self.Feedback = Kit.label(panel, {
+		Text = "",
+		Font = "Body",
+		TextSize = "Small",
+		Wrap = true,
+		AutoY = true,
+		LayoutOrder = 7,
+		Size = UDim2.new(1, 0, 0, 0),
+	})
+	local row = Kit.create(
+		"Frame",
+		{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 38), LayoutOrder = 8, Parent = panel }
+	) :: Frame
 	self.ContinueButton = Kit.button(row, {
 		Text = "CONTINUE",
 		Style = "Primary",
@@ -82,7 +123,12 @@ function TutorialOverlay:Open(status)
 	local beat = status.Beat
 	local changed = self.LastIndex ~= status.Index or self.LastLesson ~= status.Lesson
 	self.LastIndex, self.LastLesson = status.Index, status.Lesson
-	self.Header.Text = string.format("%s  ·  %d / %d", status.Name or "TRAINING", math.min(status.Index or 1, status.Count or 1), status.Count or 1)
+	self.Header.Text = string.format(
+		"%s  ·  %d / %d",
+		status.Name or "TRAINING",
+		math.min(status.Index or 1, status.Count or 1),
+		status.Count or 1
+	)
 	Kit.setBar(self.Progress, (status.Index or 1) / math.max(status.Count or 1, 1), true)
 	if status.Done then
 		self.Title.Text = "LESSON COMPLETE"
@@ -142,7 +188,8 @@ function TutorialOverlay:Open(status)
 					task.spawn(function()
 						local ok, result = self.C.TutorialController:answer(i)
 						if ok and type(result) == "table" then
-							self.Feedback.Text = (if result.Correct then "CORRECT. " else "NOT QUITE. ") .. (result.Explain or "")
+							self.Feedback.Text = (if result.Correct then "CORRECT. " else "NOT QUITE. ")
+								.. (result.Explain or "")
 							Theme.bind(self.Feedback, "TextColor3", if result.Correct then "Good" else "Warn")
 						end
 					end)
@@ -151,7 +198,8 @@ function TutorialOverlay:Open(status)
 		end
 	end
 	if status.LastAnswer then
-		self.Feedback.Text = (if status.LastAnswer.Correct then "CORRECT. " else "NOT QUITE. ") .. (status.LastAnswer.Explain or "")
+		self.Feedback.Text = (if status.LastAnswer.Correct then "CORRECT. " else "NOT QUITE. ")
+			.. (status.LastAnswer.Explain or "")
 		Theme.bind(self.Feedback, "TextColor3", if status.LastAnswer.Correct then "Good" else "Warn")
 	end
 	if self.ContinueButton.Visible then

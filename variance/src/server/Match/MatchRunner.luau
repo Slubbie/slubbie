@@ -83,7 +83,11 @@ function MatchRunner:observe(events)
 			if entry and entry.Kind == "Fire" then
 				for aiId, participant in match.Participants do
 					if participant.Kind == "AI" and participant.AI and aiId ~= entry.Actor then
-						participant.AI.Brain.tendencies:recordFire(entry.PublicP, entry.Actor == entry.Target, entry.Used)
+						participant.AI.Brain.tendencies:recordFire(
+							entry.PublicP,
+							entry.Actor == entry.Target,
+							entry.Used
+						)
 					end
 				end
 			end
@@ -265,7 +269,11 @@ function MatchRunner:awaitAction()
 				local events = Engine.timeout(state)
 				self.afk[owner] = (self.afk[owner] or 0) + 1
 				self:present(events)
-				if participant.Kind == "Player" and match.Info.PvP and self.afk[owner] >= Config.Match.AfkTimeoutsToForfeit then
+				if
+					participant.Kind == "Player"
+					and match.Info.PvP
+					and self.afk[owner] >= Config.Match.AfkTimeoutsToForfeit
+				then
 					self:queueForfeit(owner, "AFK")
 				end
 				return

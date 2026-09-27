@@ -82,9 +82,25 @@ function RulesEditor:render()
 			else
 				text = tostring(v[field.Key])
 			end
-			rowFrame = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 26), LayoutOrder = order, Parent = scroll }) :: Frame
-			Kit.label(rowFrame, { Text = field.Label, Font = "Mono", TextSize = "Label", Color = "Dim", Size = UDim2.new(0.55, 0, 1, 0) })
-			Kit.label(rowFrame, { Text = text, Font = "Mono", TextSize = "Label", XAlign = "Right", Size = UDim2.new(0.45, 0, 1, 0), Position = UDim2.fromScale(0.55, 0) })
+			rowFrame = Kit.create(
+				"Frame",
+				{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 26), LayoutOrder = order, Parent = scroll }
+			) :: Frame
+			Kit.label(rowFrame, {
+				Text = field.Label,
+				Font = "Mono",
+				TextSize = "Label",
+				Color = "Dim",
+				Size = UDim2.new(0.55, 0, 1, 0),
+			})
+			Kit.label(rowFrame, {
+				Text = text,
+				Font = "Mono",
+				TextSize = "Label",
+				XAlign = "Right",
+				Size = UDim2.new(0.45, 0, 1, 0),
+				Position = UDim2.fromScale(0.55, 0),
+			})
 		elseif field.Type == "int" then
 			rowFrame = Kit.slider(scroll, {
 				Label = field.Label,
@@ -138,14 +154,32 @@ end
 
 -- A set field: a grid of chips that toggle membership.
 function RulesEditor:setField(parent: Instance, field, order: number): Frame
-	local block = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = order, Parent = parent }) :: Frame
+	local block = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = order,
+		Parent = parent,
+	}) :: Frame
 	Kit.list(block, "Y", 4)
 	local selected = {}
 	for _, id in self.Value[field.Key] or {} do
 		selected[id] = true
 	end
-	Kit.label(block, { Text = field.Label .. (field.MaxCount and string.format("  (UP TO %d)", field.MaxCount) or ""), Font = "Mono", TextSize = "Label", Color = "Dim", LayoutOrder = 1 })
-	local grid = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2, Parent = block }) :: Frame
+	Kit.label(block, {
+		Text = field.Label .. (field.MaxCount and string.format("  (UP TO %d)", field.MaxCount) or ""),
+		Font = "Mono",
+		TextSize = "Label",
+		Color = "Dim",
+		LayoutOrder = 1,
+	})
+	local grid = Kit.create("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 2,
+		Parent = block,
+	}) :: Frame
 	Kit.grid(grid, UDim2.fromOffset(150, 32), 6)
 	for i, id in field.Of do
 		local label = id
@@ -188,10 +222,24 @@ function RulesEditor:setField(parent: Instance, field, order: number): Frame
 		})
 		chip:SetAttribute("Active", selected[id] == true)
 		if field.Key == "Enabled" then
-			local holder = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(18, 18), Position = UDim2.new(0, 6, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 3, Parent = chip }) :: Frame
+			local holder = Kit.create("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.fromOffset(18, 18),
+				Position = UDim2.new(0, 6, 0.5, 0),
+				AnchorPoint = Vector2.new(0, 0.5),
+				ZIndex = 3,
+				Parent = chip,
+			}) :: Frame
 			Icons.instrument(id, holder, 18)
 		end
-		local mark = Kit.create("Frame", { BorderSizePixel = 0, Size = UDim2.fromOffset(6, 6), Position = UDim2.new(1, -10, 0, 4), Visible = selected[id] == true, ZIndex = 3, Parent = chip }) :: Frame
+		local mark = Kit.create("Frame", {
+			BorderSizePixel = 0,
+			Size = UDim2.fromOffset(6, 6),
+			Position = UDim2.new(1, -10, 0, 4),
+			Visible = selected[id] == true,
+			ZIndex = 3,
+			Parent = chip,
+		}) :: Frame
 		Theme.bind(mark, "BackgroundColor3", "Accent")
 	end
 	return block

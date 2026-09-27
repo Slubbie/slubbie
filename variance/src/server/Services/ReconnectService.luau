@@ -40,7 +40,11 @@ function ReconnectService:track(match)
 		if p.Kind == "Player" and p.UserId then
 			task.spawn(function()
 				pcall(function()
-					map:SetAsync(key(p.UserId), { JobId = game.JobId, PlaceId = game.PlaceId, MatchId = match.Id }, 3600)
+					map:SetAsync(
+						key(p.UserId),
+						{ JobId = game.JobId, PlaceId = game.PlaceId, MatchId = match.Id },
+						3600
+					)
 				end)
 			end)
 		end
@@ -69,13 +73,23 @@ local function check(self, player: Player)
 	local ok, entry = pcall(function()
 		return map:GetAsync(key(player.UserId))
 	end)
-	if not ok or type(entry) ~= "table" or entry.JobId == game.JobId or type(entry.JobId) ~= "string" or entry.JobId == "" then
+	if
+		not ok
+		or type(entry) ~= "table"
+		or entry.JobId == game.JobId
+		or type(entry.JobId) ~= "string"
+		or entry.JobId == ""
+	then
 		return
 	end
 	offers[player] = { JobId = entry.JobId, PlaceId = entry.PlaceId or game.PlaceId }
 	self.Services.DataService:waitFor(player, 20)
 	if player.Parent then
-		self.Services.NetworkService:push(player, "Reconnect", { MatchId = entry.MatchId, Grace = Config.Match.ReconnectGrace })
+		self.Services.NetworkService:push(
+			player,
+			"Reconnect",
+			{ MatchId = entry.MatchId, Grace = Config.Match.ReconnectGrace }
+		)
 	end
 end
 

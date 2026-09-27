@@ -183,15 +183,17 @@ return function(H)
 		advanceUntilInput(state)
 		local owner = state.Turn.Owner
 		local token = state.Turn.Token
-		for _, bad in {
-			"fire",
-			{ Kind = "Fire", Target = 99 },
-			{ Kind = "Fire", Target = "1" },
-			{ Kind = "Use", Slot = 1 },
-			{ Kind = "Use", Slot = 1.5 },
-			{ Kind = "Use", Slot = -1 },
-			{ Kind = "Dance" },
-		} do
+		for _, bad in
+			{
+				"fire",
+				{ Kind = "Fire", Target = 99 },
+				{ Kind = "Fire", Target = "1" },
+				{ Kind = "Use", Slot = 1 },
+				{ Kind = "Use", Slot = 1.5 },
+				{ Kind = "Use", Slot = -1 },
+				{ Kind = "Dance" },
+			}
+		do
 			local ok = Engine.act(state, owner, bad, token)
 			H.eq(ok, false)
 		end
@@ -405,7 +407,12 @@ return function(H)
 
 	H.test("engine: teammates cannot be targeted in team games", function()
 		local state = newMatch("Crossfire", {
-			Subjects = { { Name = "A", TeamId = 1 }, { Name = "B", TeamId = 2 }, { Name = "C", TeamId = 1 }, { Name = "D", TeamId = 2 } },
+			Subjects = {
+				{ Name = "A", TeamId = 1 },
+				{ Name = "B", TeamId = 2 },
+				{ Name = "C", TeamId = 1 },
+				{ Name = "D", TeamId = 2 },
+			},
 		})
 		advanceUntilInput(state)
 		local owner = state.Subjects[state.Turn.Owner]

@@ -290,7 +290,11 @@ Tutorials.Seminars = {
 			TrialsToWin = 1,
 			TurnTimer = 0,
 			FixedIntegrity = 3,
-			Forced = { Loads = { "CHH" }, Starters = { 1 }, Draws = { [1] = { [1] = { "Lens", "Inverter" }, [2] = {} } } },
+			Forced = {
+				Loads = { "CHH" },
+				Starters = { 1 },
+				Draws = { [1] = { [1] = { "Lens", "Inverter" }, [2] = {} } },
+			},
 		},
 		Beats = {
 			{
@@ -402,7 +406,11 @@ Tutorials.Seminars = {
 			TrialsToWin = 1,
 			TurnTimer = 0,
 			FixedIntegrity = 4,
-			Forced = { Loads = { "CHC" }, Starters = { 1 }, Draws = { [1] = { [1] = { "Capacitor", "Lens" }, [2] = {} } } },
+			Forced = {
+				Loads = { "CHC" },
+				Starters = { 1 },
+				Draws = { [1] = { [1] = { "Capacitor", "Lens" }, [2] = {} } },
+			},
 		},
 		Beats = {
 			{

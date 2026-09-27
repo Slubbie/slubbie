@@ -91,12 +91,18 @@ function StatisticsService:record(player: Player, outcome, info)
 			if sweep and not data.Flags.ProctorUnlocked then
 				data.Flags.ProctorUnlocked = true
 				task.defer(function()
-					self.Services.NetworkService:notify(player, "NEW OPPONENT", "THE PROCTOR has asked to evaluate you personally.", "Good")
+					self.Services.NetworkService:notify(
+						player,
+						"NEW OPPONENT",
+						"THE PROCTOR has asked to evaluate you personally.",
+						"Good"
+					)
 				end)
 			end
 		end
 		if info.Solo and info.Difficulty == "Adaptive" and not info.EnduranceStage then
-			data.AdaptiveSkill = Difficulty.updateSkill(data.AdaptiveSkill, outcome.Won, outcome.TrialsWon / math.max(outcome.Trials, 1))
+			data.AdaptiveSkill =
+				Difficulty.updateSkill(data.AdaptiveSkill, outcome.Won, outcome.TrialsWon / math.max(outcome.Trials, 1))
 		end
 		table.insert(data.History, {
 			Time = os.time(),

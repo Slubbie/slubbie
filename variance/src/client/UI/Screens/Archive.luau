@@ -27,7 +27,13 @@ function Archive.new(ui, controllers)
 	self.UI = ui
 	self.C = controllers
 	self.Main = true
-	self.Window = Window.new(ui, { Name = "Archive", Title = "THE ARCHIVE", Subtitle = "HALDEN DECISION SCIENCES  ·  RECORDS DIVISION", Width = 1000, Height = 640 })
+	self.Window = Window.new(ui, {
+		Name = "Archive",
+		Title = "THE ARCHIVE",
+		Subtitle = "HALDEN DECISION SCIENCES  ·  RECORDS DIVISION",
+		Width = 1000,
+		Height = 640,
+	})
 	self.Frame = self.Window.Frame
 	controllers.ProfileController.Changed:Connect(function()
 		if self.Window.Visible then
@@ -54,7 +60,9 @@ function Archive:renderList()
 		if open then
 			have += 1
 		end
-		local label = if open then string.format("%s  %s%s", file.Id, file.Title, if read[file.Id] then "" else "  •") else file.Id .. "  ████████"
+		local label = if open
+			then string.format("%s  %s%s", file.Id, file.Title, if read[file.Id] then "" else "  •")
+			else file.Id .. "  ████████"
 		local hint = HINTS[file.Unlock.Kind] or ""
 		if string.find(hint, "%%s") then
 			hint = string.format(hint, tostring(file.Unlock.Value))
@@ -91,7 +99,13 @@ function Archive:openFile(id: string)
 			child:Destroy()
 		end
 	end
-	local status = Kit.label(reader, { Text = "RETRIEVING " .. id .. "...", Font = "Type", TextSize = "Body", Color = "Dim", Size = UDim2.new(1, 0, 0, 24) })
+	local status = Kit.label(reader, {
+		Text = "RETRIEVING " .. id .. "...",
+		Font = "Type",
+		TextSize = "Body",
+		Color = "Dim",
+		Size = UDim2.new(1, 0, 0, 24),
+	})
 	task.spawn(function()
 		local ok, file = self.C.NetworkClient:request("Lore.Read", id)
 		if not ok or type(file) ~= "table" then
@@ -100,11 +114,40 @@ function Archive:openFile(id: string)
 		end
 		status:Destroy()
 		local scroll = Kit.scroll(reader, { Padding = 6 })
-		Kit.label(scroll, { Text = string.format("%s  ·  %s", file.Id, file.Class or ""), Font = "Mono", TextSize = "Tiny", Color = "Accent", LayoutOrder = 1 })
-		Kit.label(scroll, { Text = file.Title, Font = "Type", TextSize = "Title", Wrap = true, AutoY = true, LayoutOrder = 2, Size = UDim2.new(1, -8, 0, 0) })
-		Kit.label(scroll, { Text = string.format("%s  ·  %s", file.Date or "", file.Author or ""), Font = "Mono", TextSize = "Tiny", Color = "Dim", LayoutOrder = 3 })
+		Kit.label(scroll, {
+			Text = string.format("%s  ·  %s", file.Id, file.Class or ""),
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = "Accent",
+			LayoutOrder = 1,
+		})
+		Kit.label(scroll, {
+			Text = file.Title,
+			Font = "Type",
+			TextSize = "Title",
+			Wrap = true,
+			AutoY = true,
+			LayoutOrder = 2,
+			Size = UDim2.new(1, -8, 0, 0),
+		})
+		Kit.label(scroll, {
+			Text = string.format("%s  ·  %s", file.Date or "", file.Author or ""),
+			Font = "Mono",
+			TextSize = "Tiny",
+			Color = "Dim",
+			LayoutOrder = 3,
+		})
 		Kit.divider(scroll, 4)
-		local body = Kit.label(scroll, { Text = "", Font = "Type", TextSize = "Body", Wrap = true, AutoY = true, YAlign = "Top", LayoutOrder = 5, Size = UDim2.new(1, -8, 0, 0) })
+		local body = Kit.label(scroll, {
+			Text = "",
+			Font = "Type",
+			TextSize = "Body",
+			Wrap = true,
+			AutoY = true,
+			YAlign = "Top",
+			LayoutOrder = 5,
+			Size = UDim2.new(1, -8, 0, 0),
+		})
 		-- Typewriter reveal (skippable by reopening).
 		local text = file.Body or ""
 		local reduced = self.C.SettingsController:get("ReducedMotion")
@@ -133,12 +176,20 @@ function Archive:Open()
 	self.Window:open()
 	local body = self.Window.Body
 	Window.clear(body)
-	local listHolder = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.38, -8, 1, 0), Parent = body }) :: Frame
+	local listHolder =
+		Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.38, -8, 1, 0), Parent = body }) :: Frame
 	self.List = Kit.scroll(listHolder, { Padding = 4 })
-	local reader = Kit.panel(body, { Size = UDim2.new(0.62, -8, 1, 0), Position = UDim2.new(0.38, 8, 0, 0), Color = "Bg" })
+	local reader =
+		Kit.panel(body, { Size = UDim2.new(0.62, -8, 1, 0), Position = UDim2.new(0.38, 8, 0, 0), Color = "Bg" })
 	Kit.padding(reader, 16, 20)
 	self.Reader = reader
-	Kit.label(reader, { Text = "Select a declassified file.", Font = "Type", TextSize = "Body", Color = "Dim", Size = UDim2.new(1, 0, 0, 24) })
+	Kit.label(reader, {
+		Text = "Select a declassified file.",
+		Font = "Type",
+		TextSize = "Body",
+		Color = "Dim",
+		Size = UDim2.new(1, 0, 0, 24),
+	})
 	self:renderList()
 end
 

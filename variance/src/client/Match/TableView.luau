@@ -379,13 +379,22 @@ function TableView:bindMonitors()
 end
 
 -- Redraws one subject's monitors.
-function TableView:updateMonitor(subjectId: number, subject: { [string]: any }, name: string, wins: number, trialsToWin: number)
+function TableView:updateMonitor(
+	subjectId: number,
+	subject: { [string]: any },
+	name: string,
+	wins: number,
+	trialsToWin: number
+)
 	local entry = self.Monitors[subjectId]
 	if entry == nil then
 		return
 	end
 	for _, view in entry.Views do
-		view.Name.Text = string.upper(name) .. "  " .. string.rep("■", wins) .. string.rep("□", math.max(0, trialsToWin - wins))
+		view.Name.Text = string.upper(name)
+			.. "  "
+			.. string.rep("■", wins)
+			.. string.rep("□", math.max(0, trialsToWin - wins))
 		local max = subject.MaxIntegrity or 0
 		local value = subject.Integrity or 0
 		local existing = view.Pips:GetChildren()

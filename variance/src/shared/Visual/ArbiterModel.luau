@@ -35,7 +35,8 @@ function ArbiterModel.build(at: CFrame?): Model
 		return tag(p, paint, root)
 	end
 	local function cyl(name, length, dia, offset, paint, mat)
-		local p = Build.cylinder(model, length, dia, root * offset, DEFAULT[paint] or DEFAULT.Metal, mat or "Metal", name)
+		local p =
+			Build.cylinder(model, length, dia, root * offset, DEFAULT[paint] or DEFAULT.Metal, mat or "Metal", name)
 		return tag(p, paint, root)
 	end
 	local alongZ = CFrame.Angles(0, math.pi / 2, 0) -- cylinder axis (X) -> Z
@@ -51,12 +52,19 @@ function ArbiterModel.build(at: CFrame?): Model
 		ring.CastShadow = false
 	end
 	cyl("Muzzle", 0.18, 0.44, CFrame.new(0, 0.2, -2.42) * alongZ, "Metal")
-	box("Grip", Vector3.new(0.3, 0.78, 0.36), CFrame.new(0, -0.36, 0.58) * CFrame.Angles(-0.35, 0, 0), "Body", "SmoothPlastic")
+	box(
+		"Grip",
+		Vector3.new(0.3, 0.78, 0.36),
+		CFrame.new(0, -0.36, 0.58) * CFrame.Angles(-0.35, 0, 0),
+		"Body",
+		"SmoothPlastic"
+	)
 	box("Foregrip", Vector3.new(0.28, 0.42, 0.3), CFrame.new(0, -0.26, -0.78), "Body", "SmoothPlastic")
 	box("Stock", Vector3.new(0.46, 0.56, 0.95), CFrame.new(0, 0.04, 1.3), "Body")
 	box("StockPlate", Vector3.new(0.5, 0.62, 0.08), CFrame.new(0, 0.04, 1.8), "Metal")
 	for _, side in { -1, 1 } do
-		local strip = box("Strip", Vector3.new(0.02, 0.05, 1.25), CFrame.new(0.29 * side, 0.28, -0.25), "Accent", "Neon")
+		local strip =
+			box("Strip", Vector3.new(0.02, 0.05, 1.25), CFrame.new(0.29 * side, 0.28, -0.25), "Accent", "Neon")
 		strip.CastShadow = false
 	end
 	cyl("Bolt", 0.42, 0.12, CFrame.new(0.47, 0.28, 0.58), "Metal")

@@ -33,24 +33,90 @@ function LobbyHUD.new(ui, controllers)
 	self.C = controllers
 	self.Main = false
 	self.Visible = false
-	local root = Kit.create("Frame", { Name = "LobbyHUD", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, Parent = ui.Hud }) :: Frame
+	local root = Kit.create("Frame", {
+		Name = "LobbyHUD",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = ui.Hud,
+	}) :: Frame
 	self.Frame = root
 
 	-- File card.
-	local card = Kit.panel(root, { Name = "Card", Size = UDim2.fromOffset(300, 108), Position = UDim2.fromOffset(16, 16), Color = "Panel" })
+	local card = Kit.panel(
+		root,
+		{ Name = "Card", Size = UDim2.fromOffset(300, 108), Position = UDim2.fromOffset(16, 16), Color = "Panel" }
+	)
 	Kit.padding(card, 12, 14)
-	self.Name = Kit.label(card, { Text = Players.LocalPlayer.DisplayName, Font = "Bold", TextSize = "Body", Size = UDim2.new(1, -70, 0, 20) })
-	self.Clearance = Kit.label(card, { Text = "CLEARANCE 1", Font = "Mono", TextSize = "Label", Color = "Accent", Size = UDim2.new(1, 0, 0, 16), Position = UDim2.fromOffset(0, 24) })
+	self.Name = Kit.label(
+		card,
+		{ Text = Players.LocalPlayer.DisplayName, Font = "Bold", TextSize = "Body", Size = UDim2.new(1, -70, 0, 20) }
+	)
+	self.Clearance = Kit.label(card, {
+		Text = "CLEARANCE 1",
+		Font = "Mono",
+		TextSize = "Label",
+		Color = "Accent",
+		Size = UDim2.new(1, 0, 0, 16),
+		Position = UDim2.fromOffset(0, 24),
+	})
 	self.XPBar = Kit.bar(card, { Size = UDim2.new(1, 0, 0, 5), Position = UDim2.fromOffset(0, 46), Value = 0 })
-	self.XPText = Kit.label(card, { Text = "", Font = "Mono", TextSize = "Tiny", Color = "Dim", Size = UDim2.new(0.6, 0, 0, 14), Position = UDim2.fromOffset(0, 54) })
-	self.Marks = Kit.label(card, { Text = "0 MARKS", Font = "Mono", TextSize = "Label", XAlign = "Right", Color = "Text", Size = UDim2.new(0.4, 0, 0, 14), Position = UDim2.new(0.6, 0, 0, 54) })
-	self.Standing = Kit.label(card, { Text = "", Font = "Mono", TextSize = "Tiny", Color = "Dim", Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromOffset(0, 72) })
-	self.Guest = Kit.label(card, { Text = "OFFLINE FILE :: PROGRESS WILL SYNC WHEN RECORDS RETURN", Font = "Mono", TextSize = "Tiny", Color = "Warn", Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromOffset(0, 72), Visible = false })
-	local level = Kit.label(card, { Name = "Level", Text = "1", Font = "Display", TextSize = "Heading", XAlign = "Right", Color = "Accent", Size = UDim2.fromOffset(70, 34), Position = UDim2.new(1, -70, 0, -4) })
+	self.XPText = Kit.label(card, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Tiny",
+		Color = "Dim",
+		Size = UDim2.new(0.6, 0, 0, 14),
+		Position = UDim2.fromOffset(0, 54),
+	})
+	self.Marks = Kit.label(card, {
+		Text = "0 MARKS",
+		Font = "Mono",
+		TextSize = "Label",
+		XAlign = "Right",
+		Color = "Text",
+		Size = UDim2.new(0.4, 0, 0, 14),
+		Position = UDim2.new(0.6, 0, 0, 54),
+	})
+	self.Standing = Kit.label(card, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Tiny",
+		Color = "Dim",
+		Size = UDim2.new(1, 0, 0, 14),
+		Position = UDim2.fromOffset(0, 72),
+	})
+	self.Guest = Kit.label(card, {
+		Text = "OFFLINE FILE :: PROGRESS WILL SYNC WHEN RECORDS RETURN",
+		Font = "Mono",
+		TextSize = "Tiny",
+		Color = "Warn",
+		Size = UDim2.new(1, 0, 0, 14),
+		Position = UDim2.fromOffset(0, 72),
+		Visible = false,
+	})
+	local level = Kit.label(card, {
+		Name = "Level",
+		Text = "1",
+		Font = "Display",
+		TextSize = "Heading",
+		XAlign = "Right",
+		Color = "Accent",
+		Size = UDim2.fromOffset(70, 34),
+		Position = UDim2.new(1, -70, 0, -4),
+	})
 	self.Level = level
 
 	-- Terminal menu.
-	local menu = Kit.create("Frame", { Name = "Menu", BackgroundTransparency = 1, Size = UDim2.fromOffset(210, 0), AutomaticSize = Enum.AutomaticSize.Y, Position = UDim2.new(1, -16, 0, 16), AnchorPoint = Vector2.new(1, 0), Parent = root }) :: Frame
+	local menu = Kit.create("Frame", {
+		Name = "Menu",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(210, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Position = UDim2.new(1, -16, 0, 16),
+		AnchorPoint = Vector2.new(1, 0),
+		Parent = root,
+	}) :: Frame
 	Kit.list(menu, "Y", 6)
 	self.Badges = {}
 	for i, entry in MENU do
@@ -65,13 +131,37 @@ function LobbyHUD.new(ui, controllers)
 			end,
 		})
 		if entry.Icon then
-			local holder = Kit.create("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(16, 16), Position = UDim2.new(0, 12, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 3, Parent = button }) :: Frame
+			local holder = Kit.create("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.fromOffset(16, 16),
+				Position = UDim2.new(0, 12, 0.5, 0),
+				AnchorPoint = Vector2.new(0, 0.5),
+				ZIndex = 3,
+				Parent = button,
+			}) :: Frame
 			Icons.symbol(entry.Icon, holder, 16)
 		end
-		local badge = Kit.create("Frame", { Name = "Badge", BorderSizePixel = 0, Size = UDim2.fromOffset(20, 18), Position = UDim2.new(0, -8, 0, -6), Visible = false, ZIndex = 5, Parent = button }) :: Frame
+		local badge = Kit.create("Frame", {
+			Name = "Badge",
+			BorderSizePixel = 0,
+			Size = UDim2.fromOffset(20, 18),
+			Position = UDim2.new(0, -8, 0, -6),
+			Visible = false,
+			ZIndex = 5,
+			Parent = button,
+		}) :: Frame
 		Theme.bind(badge, "BackgroundColor3", "Bad")
 		Kit.corner(badge, 9)
-		Kit.label(badge, { Name = "Count", Text = "", Font = "Bold", TextSize = "Tiny", XAlign = "Center", Size = UDim2.fromScale(1, 1), Color = "Text", ZIndex = 6 })
+		Kit.label(badge, {
+			Name = "Count",
+			Text = "",
+			Font = "Bold",
+			TextSize = "Tiny",
+			XAlign = "Center",
+			Size = UDim2.fromScale(1, 1),
+			Color = "Text",
+			ZIndex = 6,
+		})
 		self.Badges[entry.Id] = badge
 		if i == 1 then
 			self.PlayButton = button
@@ -79,13 +169,31 @@ function LobbyHUD.new(ui, controllers)
 	end
 
 	-- Queue bar.
-	local queue = Kit.panel(root, { Name = "Queue", Size = UDim2.fromOffset(520, 52), Position = UDim2.new(0.5, 0, 1, -20), AnchorPoint = Vector2.new(0.5, 1), Visible = false })
+	local queue = Kit.panel(root, {
+		Name = "Queue",
+		Size = UDim2.fromOffset(520, 52),
+		Position = UDim2.new(0.5, 0, 1, -20),
+		AnchorPoint = Vector2.new(0.5, 1),
+		Visible = false,
+	})
 	Kit.padding(queue, 8, 14)
-	local pulse = Kit.create("Frame", { BorderSizePixel = 0, Size = UDim2.fromOffset(10, 10), Position = UDim2.new(0, 0, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), Parent = queue }) :: Frame
+	local pulse = Kit.create("Frame", {
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(10, 10),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Parent = queue,
+	}) :: Frame
 	Theme.bind(pulse, "BackgroundColor3", "Accent")
 	Kit.corner(pulse, 5)
 	self.QueuePulse = pulse
-	self.QueueText = Kit.label(queue, { Text = "", Font = "Mono", TextSize = "Label", Size = UDim2.new(1, -150, 1, 0), Position = UDim2.fromOffset(20, 0) })
+	self.QueueText = Kit.label(queue, {
+		Text = "",
+		Font = "Mono",
+		TextSize = "Label",
+		Size = UDim2.new(1, -150, 1, 0),
+		Position = UDim2.fromOffset(20, 0),
+	})
 	Kit.button(queue, {
 		Text = "CANCEL",
 		Size = UDim2.fromOffset(110, 34),
@@ -157,7 +265,12 @@ function LobbyHUD.new(ui, controllers)
 		if self.Visible and self.QueueState and self.QueueState.Queue then
 			local elapsed = workspace:GetServerTimeNow() - (self.QueueState.Joined or workspace:GetServerTimeNow())
 			local def = Config.Matchmaking.Queues[self.QueueState.Queue]
-			local text = string.format("SEARCHING :: %s  ·  %s  ·  %d WAITING", self.QueueState.Name or "", Format.clock(elapsed), self.QueueState.Waiting or 1)
+			local text = string.format(
+				"SEARCHING :: %s  ·  %s  ·  %d WAITING",
+				self.QueueState.Name or "",
+				Format.clock(elapsed),
+				self.QueueState.Waiting or 1
+			)
 			if def and def.BotAfter and elapsed < def.BotAfter then
 				text ..= string.format("  ·  SURROGATE IN %s", Format.clock(def.BotAfter - elapsed))
 			end
@@ -178,19 +291,29 @@ function LobbyHUD:refreshProfile(profile)
 	self.Level.Text = tostring(profile.Level)
 	self.Clearance.Text = string.format("CLEARANCE %d  ·  %s", profile.Level, profile.Title or "")
 	Kit.setBar(self.XPBar, (profile.LevelInto or 0) / math.max(profile.LevelNeed or 1, 1), true)
-	self.XPText.Text = string.format("%s / %s XP", Format.thousands(profile.LevelInto or 0), Format.thousands(profile.LevelNeed or 0))
+	self.XPText.Text =
+		string.format("%s / %s XP", Format.thousands(profile.LevelInto or 0), Format.thousands(profile.LevelNeed or 0))
 	self.Marks.Text = Format.thousands(profile.Marks or 0) .. " MARKS"
 	local ranked = profile.Ranked
 	if ranked then
 		self.Standing.Text = if ranked.Placed
 			then string.format("STANDING %d  ·  %s", ranked.Rating, ranked.Division and ranked.Division.Label or "")
-			else string.format("STANDING :: %d PLACEMENT%s LEFT", ranked.PlacementsLeft or 0, (ranked.PlacementsLeft or 0) == 1 and "" or "S")
+			else string.format(
+				"STANDING :: %d PLACEMENT%s LEFT",
+				ranked.PlacementsLeft or 0,
+				(ranked.PlacementsLeft or 0) == 1 and "" or "S"
+			)
 	end
 	self.Guest.Visible = profile.Guest == true
 	self.Standing.Visible = profile.Guest ~= true
 	-- Badges: claimable directives, unread files.
 	local claimable = 0
-	for _, list in { profile.Challenges and profile.Challenges.Daily or {}, profile.Challenges and profile.Challenges.Weekly or {} } do
+	for _, list in
+		{
+			profile.Challenges and profile.Challenges.Daily or {},
+			profile.Challenges and profile.Challenges.Weekly or {},
+		}
+	do
 		for _, c in list do
 			if c.Done and not c.Claimed then
 				claimable += 1
@@ -227,7 +350,12 @@ function LobbyHUD:setQueue(data)
 		Kit.setText(self.PlayButton, "EVALUATION")
 		if data and data.Matched then
 			self.C.AudioController:play("Unlock")
-			self.UI:banner("SUBJECT FOUND", if data.Backfill then "A SURROGATE TAKES THE EMPTY SEAT" else "PROCEED TO YOUR TABLE", "Accent", 1.6)
+			self.UI:banner(
+				"SUBJECT FOUND",
+				if data.Backfill then "A SURROGATE TAKES THE EMPTY SEAT" else "PROCEED TO YOUR TABLE",
+				"Accent",
+				1.6
+			)
 		end
 	end
 end
@@ -236,7 +364,15 @@ function LobbyHUD:setLobby(data)
 	self.LobbyState = data
 	if data then
 		self.Chip.Visible = self.Visible
-		Kit.setText(self.Chip, string.format("PRIVATE TRIAL :: %s  ·  %d/%d", data.Code, data.Total or 1, if data.Format == "Tournament" then 8 else 4))
+		Kit.setText(
+			self.Chip,
+			string.format(
+				"PRIVATE TRIAL :: %s  ·  %d/%d",
+				data.Code,
+				data.Total or 1,
+				if data.Format == "Tournament" then 8 else 4
+			)
+		)
 	else
 		self.Chip.Visible = false
 	end

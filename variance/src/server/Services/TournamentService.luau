@@ -61,8 +61,16 @@ local function simulate(a, b, custom)
 		Subjects = { { Name = a.Name, IsAI = true }, { Name = b.Name, IsAI = true } },
 	})
 	local brains = {
-		Brain.new({ Personality = a.Personality, Difficulty = Difficulty.get(a.Difficulty == "Adaptive" and "Advanced" or a.Difficulty), Rng = Random.new() }),
-		Brain.new({ Personality = b.Personality, Difficulty = Difficulty.get(b.Difficulty == "Adaptive" and "Advanced" or b.Difficulty), Rng = Random.new() }),
+		Brain.new({
+			Personality = a.Personality,
+			Difficulty = Difficulty.get(a.Difficulty == "Adaptive" and "Advanced" or a.Difficulty),
+			Rng = Random.new(),
+		}),
+		Brain.new({
+			Personality = b.Personality,
+			Difficulty = Difficulty.get(b.Difficulty == "Adaptive" and "Advanced" or b.Difficulty),
+			Rng = Random.new(),
+		}),
 	}
 	local guard = 0
 	while state.Phase ~= "Ended" and guard < 5000 do
@@ -166,6 +174,12 @@ function TournamentService:runRound(t)
 			if aGone or bGone then
 				self:finishPair(t, pair, aGone and pair.B or pair.A)
 			else
+				-- Winners of the last round may still be on their results screen.
+				for _, e in { pair.A, pair.B } do
+					if e.Player then
+						self.Services.MatchService:releaseFinished(e.Player)
+					end
+				end
 				local subjects = {}
 				for _, e in { pair.A, pair.B } do
 					if e.Player then
@@ -180,7 +194,12 @@ function TournamentService:runRound(t)
 					Overrides = { SpectatorDelay = Config.Spectate.CompetitiveDelay },
 					Subjects = subjects,
 					Environment = t.Lobby.Rules.Environment,
-					Info = { Private = true, Tournament = true, TournamentId = t.Id, Solo = pair.A.Player == nil or pair.B.Player == nil },
+					Info = {
+						Private = true,
+						Tournament = true,
+						TournamentId = t.Id,
+						Solo = pair.A.Player == nil or pair.B.Player == nil,
+					},
 					NoRematch = true,
 					OnEnd = function(m)
 						local state = m.State

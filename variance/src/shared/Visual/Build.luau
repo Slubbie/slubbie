@@ -86,7 +86,15 @@ function Build.solid(parent: Instance, size: Vector3, cf: CFrame, color: Color3,
 end
 
 -- Cylinder whose axis runs along the CFrame's X axis (Roblox convention).
-function Build.cylinder(parent: Instance, length: number, diameter: number, cf: CFrame, color: Color3, mat: any?, name: string?): BasePart
+function Build.cylinder(
+	parent: Instance,
+	length: number,
+	diameter: number,
+	cf: CFrame,
+	color: Color3,
+	mat: any?,
+	name: string?
+): BasePart
 	return Build.part({
 		Name = name,
 		Shape = Enum.PartType.Cylinder,
@@ -99,7 +107,15 @@ function Build.cylinder(parent: Instance, length: number, diameter: number, cf: 
 end
 
 -- Cylinder standing upright (axis along world Y at the given position).
-function Build.column(parent: Instance, height: number, diameter: number, at: CFrame, color: Color3, mat: any?, name: string?): BasePart
+function Build.column(
+	parent: Instance,
+	height: number,
+	diameter: number,
+	at: CFrame,
+	color: Color3,
+	mat: any?,
+	name: string?
+): BasePart
 	return Build.cylinder(parent, height, diameter, at * CFrame.Angles(0, 0, math.pi / 2), color, mat, name)
 end
 
@@ -133,7 +149,14 @@ function Build.wedge(parent: Instance, size: Vector3, cf: CFrame, color: Color3,
 end
 
 function Build.neon(parent: Instance, size: Vector3, cf: CFrame, color: Color3, name: string?): BasePart
-	local p = Build.part({ Name = name or "Neon", Size = size, CFrame = cf, Color = color, Material = "Neon", Parent = parent })
+	local p = Build.part({
+		Name = name or "Neon",
+		Size = size,
+		CFrame = cf,
+		Color = color,
+		Material = "Neon",
+		Parent = parent,
+	})
 	p.CastShadow = false
 	return p
 end
@@ -165,7 +188,13 @@ function Build.weld(part: BasePart, to: BasePart): WeldConstraint
 	return w
 end
 
-function Build.pointLight(parent: Instance, color: Color3, brightness: number, range: number, shadows: boolean?): PointLight
+function Build.pointLight(
+	parent: Instance,
+	color: Color3,
+	brightness: number,
+	range: number,
+	shadows: boolean?
+): PointLight
 	local l = Instance.new("PointLight")
 	l.Color = color
 	l.Brightness = brightness
@@ -175,7 +204,15 @@ function Build.pointLight(parent: Instance, color: Color3, brightness: number, r
 	return l
 end
 
-function Build.spotLight(parent: Instance, color: Color3, brightness: number, range: number, angle: number, face: Enum.NormalId?, shadows: boolean?): SpotLight
+function Build.spotLight(
+	parent: Instance,
+	color: Color3,
+	brightness: number,
+	range: number,
+	angle: number,
+	face: Enum.NormalId?,
+	shadows: boolean?
+): SpotLight
 	local l = Instance.new("SpotLight")
 	l.Color = color
 	l.Brightness = brightness
@@ -188,7 +225,13 @@ function Build.spotLight(parent: Instance, color: Color3, brightness: number, ra
 end
 
 -- A SurfaceGui with a single label (signs, monitors, plaques).
-function Build.label(part: BasePart, face: Enum.NormalId, text: string, color: Color3, props: { [string]: any }?): TextLabel
+function Build.label(
+	part: BasePart,
+	face: Enum.NormalId,
+	text: string,
+	color: Color3,
+	props: { [string]: any }?
+): TextLabel
 	local gui = Instance.new("SurfaceGui")
 	gui.Face = face
 	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud

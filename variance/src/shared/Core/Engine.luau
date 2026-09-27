@@ -689,6 +689,15 @@ local function deal(state, subjects, count: number, source: string, forced)
 		lost[subject.Id] = dropped
 		inventories[subject.Id] = table.clone(subject.Instruments)
 	end
+	-- Every subject gets an entry (empty if not dealt to) so the maps stay
+	-- dense arrays keyed 1..n, which survive remote serialization intact.
+	for _, subject in state.Subjects do
+		if draws[subject.Id] == nil then
+			draws[subject.Id] = {}
+			lost[subject.Id] = {}
+			inventories[subject.Id] = table.clone(subject.Instruments)
+		end
+	end
 	emit(state, "Dealt", { Draws = draws, Lost = lost, Inventories = inventories, Source = source })
 end
 
@@ -836,7 +845,10 @@ function Engine.legal(state, subjectId: number)
 			for _, other in state.Subjects do
 				if not other.Eliminated and isOpponent(state, subject, other) then
 					local ok, reason = checkUse(state, subject, slot, other)
-					table.insert(actions, { Kind = "Use", Slot = slot, Id = id, Target = other.Id, Ok = ok, Reason = reason })
+					table.insert(
+						actions,
+						{ Kind = "Use", Slot = slot, Id = id, Target = other.Id, Ok = ok, Reason = reason }
+					)
 				end
 			end
 		else
@@ -907,7 +919,9 @@ local function beginTrial(state)
 			if carry then
 				subject.Integrity = math.clamp(carry, 1, maxIntegrity)
 			end
-			local carriedTools = state.Trial == 1 and state.Rules.StartInstruments and state.Rules.StartInstruments[subject.Id]
+			local carriedTools = state.Trial == 1
+				and state.Rules.StartInstruments
+				and state.Rules.StartInstruments[subject.Id]
 			if carriedTools then
 				for _, id in carriedTools do
 					if Instruments.isValid(id) then
