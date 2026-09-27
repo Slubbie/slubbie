@@ -419,7 +419,9 @@ function UIController:Start()
 			network:request(back and "Reconnect.Accept" or "Reconnect.Decline")
 		end)
 	end)
-	-- Persistent lobby HUD.
+	-- Persistent HUDs: the lobby one is shown now; the table one wires itself
+	-- to the match client and appears when a Trial begins.
+	self:screen("MatchHUD")
 	self:open("LobbyHUD")
 end
 
