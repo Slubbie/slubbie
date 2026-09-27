@@ -9,6 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 local Grapple = require(script.Parent.Grapple)
+local Settings = require(script.Parent.Settings)
 local UI = require(script.Parent.UI)
 
 local Damp = MathUtil.Damp
@@ -71,7 +72,7 @@ function HUD.Start(Movement)
 		TextStrokeTransparency = 0.55,
 		Text = "0",
 	})
-	UI.label(screen, {
+	local unitLabel = UI.label(screen, {
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -42),
 		Size = UDim2.fromOffset(220, 16),
@@ -79,6 +80,40 @@ function HUD.Start(Movement)
 		TextTransparency = 0.35,
 		Text = "STUDS / SEC",
 	})
+	Settings.Watch("ShowSpeedometer", function(show)
+		speedLabel.Visible = show
+		unitLabel.Visible = show
+	end)
+
+	-- Grapple target: outline on the part, and a marker pinned to the hook point.
+	local highlight = Instance.new("Highlight")
+	highlight.FillTransparency = 0.85
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+	highlight.Enabled = false
+	local markerAnchor = Instance.new("Attachment")
+	markerAnchor.Parent = workspace.Terrain
+	local marker = UI.new("BillboardGui", {
+		Size = UDim2.fromOffset(28, 28),
+		AlwaysOnTop = true,
+		Adornee = markerAnchor,
+		Enabled = false,
+	}, screen)
+	local markerRing = UI.new("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.7, 0.7),
+		BackgroundTransparency = 1,
+	}, marker)
+	UI.corner(markerRing)
+	local markerStroke = UI.stroke(markerRing, IDLE, 2)
+	local markerDot = UI.new("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(5, 5),
+		BorderSizePixel = 0,
+	}, marker)
+	UI.corner(markerDot)
 
 	-- Dash charges ----------------------------------------------------------------
 	local pipRow = UI.new("Frame", {
@@ -125,8 +160,8 @@ function HUD.Start(Movement)
 
 	-- Controls hint ---------------------------------------------------------------
 	local hintText = if UserInputService.TouchEnabled
-		then "HOOK to grapple  ·  JUMP off walls  ·  SLIDE at speed  ·  DASH in the air"
-		else "HOLD LMB grapple  ·  HOLD SPACE reel in  ·  SPACE wall-jump  ·  CTRL slide  ·  Q dash  ·  M menu"
+		then "HOOK to grapple  ·  SPRINT  ·  JUMP off walls  ·  SLIDE at speed  ·  DASH in the air"
+		else "HOLD LMB grapple  ·  SHIFT sprint  ·  HOLD SPACE reel in  ·  CTRL slide  ·  Q dash  ·  M menu"
 	local hint = UI.label(screen, {
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -118),
@@ -166,6 +201,25 @@ function HUD.Start(Movement)
 			distanceLabel.Text = string.format("%d", math.floor((target.Position - info.Root.Position).Magnitude))
 		else
 			distanceLabel.Text = ""
+		end
+
+		-- Target highlight and hook-point marker.
+		local targetPart = target and target.Instance
+		local hookable = targetPart and not targetPart:IsA("Terrain") and Grapple.GetHookPosition() == nil
+		highlight.Enabled = hookable == true
+		if hookable then
+			highlight.Adornee = targetPart
+			highlight.Parent = workspace.CurrentCamera
+			highlight.OutlineColor = accent
+			highlight.FillColor = accent
+		end
+		marker.Enabled = target ~= nil and Grapple.GetHookPosition() == nil
+		if target then
+			markerAnchor.WorldPosition = if marker.Enabled and markerAnchor.WorldPosition.Magnitude > 0
+				then markerAnchor.WorldPosition:Lerp(target.Position, math.min(dt * 25, 1))
+				else target.Position
+			markerStroke.Color = accent
+			markerDot.BackgroundColor3 = accent
 		end
 
 		shownSpeed = Damp(shownSpeed, info.Speed, 12, dt)

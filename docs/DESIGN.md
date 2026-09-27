@@ -34,7 +34,10 @@ Every number is in `src/shared/Config.luau`.
 - **Time trials**: three generated ring courses (Warm-Up, Sky Loop, Summit Rush). Timing is validated by the server, best times are saved, and global leaderboards show in the menu and on a board at spawn.
 - **Shop**: 7 rope/trail colours, including an animated rainbow. Cosmetic only.
 - **Saving**: shards, owned colours, and best times.
-- **Title screen**: orbiting camera, PLAY / TIME TRIALS / SHOP.
+- **Title screen**: orbiting camera, PLAY / TIME TRIALS / SHOP / SETTINGS.
+- **Sprint** on Shift (hold or toggle). Sprint speed is enough to slide straight from a run.
+- **Settings** (saved per player): graphics quality (Low → Ultra), time of day (Sunrise, Golden Hour, Sunset, Night), FOV, mouse sensitivity, camera shake, speed lines, sprint mode, effects and wind volume, speedometer.
+- **Graphics**: Future lighting, per-player time of day with smooth transitions, quality-scaled post-processing, a speed vignette, a star-filled night sky, flocks of birds, and a target highlight with a lock-on marker for grapple points.
 
 ## Core loop
 

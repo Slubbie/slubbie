@@ -20,6 +20,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Grapple = require(script.Parent.Grapple)
+local Settings = require(script.Parent.Settings)
 
 local M = Config.Movement
 local W = Config.WallRun
@@ -52,6 +53,7 @@ Movement.Info = {
 	WallNormal = nil :: Vector3?,
 	LastWallJumpNormal = nil :: Vector3?,
 	DashCharges = D.Charges,
+	Sprinting = false,
 }
 
 -- Fired for every notable move: "Dash", "WallJump", "WallRun", "Launch",
@@ -83,6 +85,9 @@ local lastDash = -math.huge
 local lastLaunch = -math.huge
 local lastLandTime = -math.huge
 local lastLandSpeed = 0
+
+local sprintHeld = false
+local sprintToggled = false
 
 local jumpPressedAt = -math.huge
 local jumpHeld = false
@@ -132,6 +137,13 @@ local function setState(newState: State)
 	end
 end
 
+-- Current running speed: sprint while Shift is held (or toggled on).
+local function runSpeed(): number
+	local sprinting = (sprintHeld or sprintToggled) and Movement.Enabled
+	Movement.Info.Sprinting = sprinting
+	return if sprinting then M.SprintSpeed else M.WalkSpeed
+end
+
 local function refillDash()
 	dashCharges = D.Charges
 end
@@ -140,7 +152,7 @@ local function enterAir()
 	local h = humanoid :: Humanoid
 	local speed = Flat((root :: BasePart).AssemblyLinearVelocity).Magnitude
 	airSpeed = speed
-	h.WalkSpeed = M.WalkSpeed
+	h.WalkSpeed = runSpeed()
 	if
 		state == "Ground"
 		and os.clock() - lastLandTime < COMBO.BunnyHopWindow
@@ -329,8 +341,13 @@ local function stepGround(dt: number, v: Vector3)
 	local h = humanoid :: Humanoid
 	-- Landing speed carries into your run, then bleeds off. Jump right as you
 	-- land (bunny-hop) to keep it.
-	local friction = if h.MoveDirection.Magnitude > 0.1 then M.GroundFriction else M.IdleFriction
-	groundSpeed = M.WalkSpeed + (groundSpeed - M.WalkSpeed) * math.exp(-friction * dt)
+	local moving = h.MoveDirection.Magnitude > 0.1
+	if not moving then
+		sprintToggled = false
+	end
+	local target = runSpeed()
+	local rate = if groundSpeed < target then M.SprintAccel elseif moving then M.GroundFriction else M.IdleFriction
+	groundSpeed = target + (groundSpeed - target) * math.exp(-rate * dt)
 	h.WalkSpeed = groundSpeed
 	if slideHeld then
 		tryStartSlide(v)
@@ -346,10 +363,11 @@ local function stepAir(dt: number, v: Vector3)
 		return
 	end
 
-	if airSpeed > M.WalkSpeed and actual < airSpeed * M.CollisionSpeedLoss then
+	local base = runSpeed()
+	if airSpeed > base and actual < airSpeed * M.CollisionSpeedLoss then
 		airSpeed = actual -- we hit something; respect it
 	end
-	if airSpeed <= M.WalkSpeed + 0.5 then
+	if airSpeed <= base + 0.5 then
 		-- Slow enough that the Humanoid's own air control feels right.
 		airSpeed = actual
 		return
@@ -622,6 +640,20 @@ local function handleDash(_, inputState: Enum.UserInputState)
 	return Enum.ContextActionResult.Sink
 end
 
+local function handleSprint(_, inputState: Enum.UserInputState, input: InputObject)
+	-- Touch buttons always toggle: holding one while steering isn't comfortable.
+	if Settings.Get("SprintMode") == "Toggle" or input.UserInputType == Enum.UserInputType.Touch then
+		if inputState == Enum.UserInputState.Begin then
+			sprintToggled = not sprintToggled
+		end
+		sprintHeld = false
+	else
+		sprintHeld = inputState == Enum.UserInputState.Begin
+		sprintToggled = false
+	end
+	return Enum.ContextActionResult.Sink
+end
+
 local function handleJump(_, inputState: Enum.UserInputState)
 	if inputState == Enum.UserInputState.Begin then
 		jumpPressedAt = os.clock()
@@ -669,14 +701,24 @@ function Movement.Start()
 		handleDash,
 		true,
 		Enum.KeyCode.Q,
-		Enum.KeyCode.LeftShift,
+		Enum.KeyCode.E,
 		Enum.KeyCode.ButtonX
+	)
+	ContextActionService:BindAction(
+		"SkyboundSprint",
+		handleSprint,
+		true,
+		Enum.KeyCode.LeftShift,
+		Enum.KeyCode.RightShift,
+		Enum.KeyCode.ButtonL3
 	)
 	ContextActionService:BindAction("SkyboundJump", handleJump, false, Enum.KeyCode.Space, Enum.KeyCode.ButtonA)
 
 	ContextActionService:SetTitle("SkyboundGrapple", "Hook")
 	ContextActionService:SetTitle("SkyboundSlide", "Slide")
 	ContextActionService:SetTitle("SkyboundDash", "Dash")
+	ContextActionService:SetTitle("SkyboundSprint", "Sprint")
+	ContextActionService:SetPosition("SkyboundSprint", UDim2.new(1, -290, 1, -125))
 	ContextActionService:SetPosition("SkyboundGrapple", UDim2.new(1, -150, 1, -150))
 	ContextActionService:SetPosition("SkyboundSlide", UDim2.new(1, -220, 1, -90))
 	ContextActionService:SetPosition("SkyboundDash", UDim2.new(1, -220, 1, -160))

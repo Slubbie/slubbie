@@ -6,6 +6,10 @@ local Config = {}
 
 Config.Movement = {
 	WalkSpeed = 22,
+	-- Holding sprint (Shift) runs at this speed. Fast enough to slide from.
+	SprintSpeed = 34,
+	-- How quickly you reach sprint speed from a walk.
+	SprintAccel = 6,
 	JumpPower = 55,
 	-- Hard cap on horizontal speed from any source.
 	MaxSpeed = 170,
@@ -216,5 +220,32 @@ Config.Sounds = {
 }
 
 Config.RespawnTime = 2
+
+-- Player settings and their defaults. Saved per player.
+Config.Settings = {
+	Defaults = {
+		Quality = "High", -- Low | Medium | High | Ultra
+		TimeOfDay = "Golden Hour", -- Sunrise | Golden Hour | Sunset | Night
+		FieldOfView = 70,
+		MouseSensitivity = 1,
+		CameraShake = true,
+		SpeedLines = true,
+		SprintMode = "Hold", -- Hold | Toggle
+		ShowSpeedometer = true,
+		EffectsVolume = 0.8,
+		WindVolume = 0.8,
+	},
+	Choices = {
+		Quality = { "Low", "Medium", "High", "Ultra" },
+		TimeOfDay = { "Sunrise", "Golden Hour", "Sunset", "Night" },
+		SprintMode = { "Hold", "Toggle" },
+	},
+	Ranges = {
+		FieldOfView = { 60, 95 },
+		MouseSensitivity = { 0.2, 2.5 },
+		EffectsVolume = { 0, 1 },
+		WindVolume = { 0, 1 },
+	},
+}
 
 return Config

@@ -120,6 +120,146 @@ function UI.button(parent: Instance, text: string, props: { [string]: any }?): T
 	return button
 end
 
+-- A settings row: label on the left, control on the right. Returns the control slot.
+function UI.row(parent: Instance, label: string, order: number): Frame
+	local row = UI.new("Frame", {
+		Size = UDim2.new(1, -8, 0, 44),
+		BackgroundColor3 = UI.Colors.PanelLight,
+		BackgroundTransparency = 0.3,
+		LayoutOrder = order,
+	}, parent)
+	UI.corner(row, 10)
+	UI.label(row, {
+		Position = UDim2.fromOffset(14, 0),
+		Size = UDim2.new(0.5, -14, 1, 0),
+		TextSize = 17,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = label,
+	})
+	return UI.new("Frame", {
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -10, 0.5, 0),
+		Size = UDim2.new(0.5, -10, 0, 32),
+		BackgroundTransparency = 1,
+	}, row)
+end
+
+function UI.header(parent: Instance, text: string, order: number)
+	return UI.label(parent, {
+		Size = UDim2.new(1, -8, 0, 26),
+		Font = UI.Fonts.Title,
+		TextSize = 14,
+		TextColor3 = UI.Colors.Accent,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		LayoutOrder = order,
+		Text = text,
+	})
+end
+
+-- Button that shows the current value; clicking it calls `onClick`.
+function UI.valueButton(slot: Instance, onClick: () -> ()): TextButton
+	local button = UI.button(slot, "", {
+		Size = UDim2.fromScale(1, 1),
+		TextSize = 16,
+		BackgroundColor3 = UI.Colors.Panel,
+	})
+	button.Activated:Connect(onClick)
+	return button
+end
+
+-- Horizontal slider. Returns a setter to update it from outside.
+function UI.slider(
+	slot: Instance,
+	min: number,
+	max: number,
+	step: number,
+	format: (number) -> string,
+	onChange: (number) -> ()
+): (number) -> ()
+	local UserInputService = game:GetService("UserInputService")
+	local valueLabel = UI.label(slot, {
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.fromScale(1, 0.5),
+		Size = UDim2.fromOffset(52, 24),
+		TextSize = 15,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = "",
+	})
+	local hitbox = UI.new("TextButton", {
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		Size = UDim2.new(1, -62, 0, 28),
+		BackgroundTransparency = 1,
+		Text = "",
+		AutoButtonColor = false,
+	}, slot)
+	local track = UI.new("Frame", {
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		Size = UDim2.new(1, 0, 0, 6),
+		BackgroundColor3 = UI.Colors.Panel,
+		BorderSizePixel = 0,
+	}, hitbox)
+	UI.corner(track)
+	local fill = UI.new(
+		"Frame",
+		{ Size = UDim2.fromScale(0, 1), BackgroundColor3 = UI.Colors.Accent, BorderSizePixel = 0 },
+		track
+	)
+	UI.corner(fill)
+	local knob = UI.new("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		Size = UDim2.fromOffset(16, 16),
+		BackgroundColor3 = UI.Colors.Text,
+	}, track)
+	UI.corner(knob)
+
+	local function show(value: number)
+		local alpha = (value - min) / (max - min)
+		fill.Size = UDim2.fromScale(alpha, 1)
+		knob.Position = UDim2.fromScale(alpha, 0.5)
+		valueLabel.Text = format(value)
+	end
+	local function setFromX(x: number)
+		local alpha = math.clamp((x - track.AbsolutePosition.X) / math.max(track.AbsoluteSize.X, 1), 0, 1)
+		local value = math.clamp(math.floor((min + alpha * (max - min)) / step + 0.5) * step, min, max)
+		show(value)
+		onChange(value)
+	end
+
+	local dragging = false
+	hitbox.InputBegan:Connect(function(input)
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
+			dragging = true
+			setFromX(input.Position.X)
+		end
+	end)
+	UserInputService.InputChanged:Connect(function(input)
+		if
+			dragging
+			and (
+				input.UserInputType == Enum.UserInputType.MouseMovement
+				or input.UserInputType == Enum.UserInputType.Touch
+			)
+		then
+			setFromX(input.Position.X)
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
+			dragging = false
+		end
+	end)
+	return show
+end
+
 function UI.formatTime(seconds: number): string
 	return string.format("%d:%05.2f", math.floor(seconds / 60), seconds % 60)
 end

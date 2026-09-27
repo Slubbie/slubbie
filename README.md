@@ -2,7 +2,7 @@
 
 A momentum movement game for Roblox (R6 only): grapple-swing between floating sky islands, wall-run, slide and air-dash without touching the ground.
 
-**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen.
+**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
 
 See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 
@@ -13,9 +13,10 @@ See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 | Grapple (hold) | Left mouse | R2 | Hook button |
 | Jump / wall-jump | Space | A | Jump |
 | Fast reel-in (while grappling) | Hold Space | Hold A | |
+| Sprint (hold or toggle) | Shift | L3 | Sprint button |
 | Slide (hold, at speed) | Ctrl or C | B | Slide button |
-| Air dash | Q or Shift | X | Dash button |
-| Menu (shop, trials) | M | Select | MENU button |
+| Air dash | Q or E | X | Dash button |
+| Menu (shop, trials, settings) | M | Select | MENU button |
 | Cancel time trial | R | | |
 
 ## Running it
@@ -52,7 +53,9 @@ src/
     HUD.luau           crosshair lock-on, speedometer, dash pips, shards
     Combo.luau         style combo meter + banking
     Trials.luau        ring detection, timer, results
-    Menu.luau          title screen, shop, trials browser
+    Menu.luau          title screen, shop, trials browser, settings
+    Settings.luau      saved player settings
+    Graphics.luau      quality presets, time of day, vignette
     UI.luau            shared UI style + toasts
     WorldFX.luau       spinning shards, other players' ropes
   server/            → ServerScriptService.Server

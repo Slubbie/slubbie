@@ -1,11 +1,12 @@
 -- Client-side world visuals: spinning shards with a pickup burst, spinning
--- beacon rings and crystals, drifting light motes in the air, and other
+-- beacon rings and crystals, drifting light motes, flocks of birds, and other
 -- players' grapple ropes (from their relayed GrapplePoint attribute).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
+local Graphics = require(script.Parent.Graphics)
 local VFX = require(script.Parent.VFX)
 
 local WorldFX = {}
@@ -50,6 +51,75 @@ local function createMotes()
 	})
 	motes.Parent = box
 	return box
+end
+
+-- Little flocks of birds circling the islands.
+type Bird = {
+	Body: Part,
+	Left: Part,
+	Right: Part,
+	Center: Vector3,
+	Radius: number,
+	Speed: number,
+	Phase: number,
+	Offset: Vector3,
+}
+
+local function createBirds(): (Folder, { Bird })
+	local folder = Instance.new("Folder")
+	folder.Name = "Birds"
+	local birds = {}
+	local rng = Random.new(7)
+	local function birdPart(size: Vector3): Part
+		local p = Instance.new("Part")
+		p.Anchored = true
+		p.CanCollide = false
+		p.CanQuery = false
+		p.CanTouch = false
+		p.CastShadow = false
+		p.Material = Enum.Material.SmoothPlastic
+		p.Color = Color3.fromRGB(245, 245, 250)
+		p.Size = size
+		p.Parent = folder
+		return p
+	end
+	for _ = 1, 7 do
+		local center = Vector3.new(rng:NextNumber(-700, 700), rng:NextNumber(150, 320), rng:NextNumber(-700, 700))
+		local radius = rng:NextNumber(60, 140)
+		local speed = rng:NextNumber(0.12, 0.25) * (if rng:NextNumber() < 0.5 then -1 else 1)
+		for _ = 1, rng:NextInteger(4, 7) do
+			table.insert(birds, {
+				Body = birdPart(Vector3.new(0.5, 0.4, 1.4)),
+				Left = birdPart(Vector3.new(1.8, 0.1, 0.7)),
+				Right = birdPart(Vector3.new(1.8, 0.1, 0.7)),
+				Center = center,
+				Radius = radius,
+				Speed = speed,
+				Phase = rng:NextNumber(0, math.pi * 2),
+				Offset = Vector3.new(rng:NextNumber(-9, 9), rng:NextNumber(-4, 4), rng:NextNumber(-9, 9)),
+			})
+		end
+	end
+	return folder, birds
+end
+
+local function updateBirds(birds: { Bird }, t: number)
+	for _, bird in birds do
+		local angle = t * bird.Speed + bird.Offset.X * 0.01
+		local position = bird.Center
+			+ Vector3.new(
+				math.cos(angle) * bird.Radius,
+				math.sin(t * 0.5 + bird.Phase) * 3,
+				math.sin(angle) * bird.Radius
+			)
+			+ bird.Offset
+		local heading = Vector3.new(-math.sin(angle), 0, math.cos(angle)) * math.sign(bird.Speed)
+		local frame = CFrame.lookAt(position, position + heading)
+		local flap = math.sin(t * 9 + bird.Phase) * 0.6
+		bird.Body.CFrame = frame
+		bird.Left.CFrame = frame * CFrame.new(-0.25, 0, 0) * CFrame.Angles(0, 0, flap) * CFrame.new(-0.9, 0, 0)
+		bird.Right.CFrame = frame * CFrame.new(0.25, 0, 0) * CFrame.Angles(0, 0, -flap) * CFrame.new(0.9, 0, 0)
+	end
 end
 
 local function addShard(part: Instance)
@@ -128,6 +198,15 @@ function WorldFX.Start()
 		spinners[instance] = nil
 	end)
 	local motes = createMotes()
+	local birdFolder, birds = createBirds()
+	local showBirds = true
+	local function applyProfile(profile)
+		(motes:FindFirstChildOfClass("ParticleEmitter") :: ParticleEmitter).Rate = profile.Motes
+		showBirds = profile.Birds
+		birdFolder.Parent = if showBirds then workspace.CurrentCamera else nil
+	end
+	applyProfile(Graphics.Profile())
+	Graphics.ProfileChanged.Event:Connect(applyProfile)
 	Players.PlayerRemoving:Connect(clearRope)
 
 	RunService.RenderStepped:Connect(function()
@@ -149,6 +228,10 @@ function WorldFX.Start()
 		local camera = workspace.CurrentCamera
 		motes.Parent = camera
 		motes.Position = camera.CFrame.Position
+		if showBirds then
+			birdFolder.Parent = camera
+			updateBirds(birds, t)
+		end
 		for _, player in Players:GetPlayers() do
 			if player ~= Players.LocalPlayer then
 				updateRope(player)

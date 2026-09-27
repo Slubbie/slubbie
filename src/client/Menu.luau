@@ -11,6 +11,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Settings = require(script.Parent.Settings)
 local Sounds = require(script.Parent.Sounds)
 local UI = require(script.Parent.UI)
 
@@ -93,13 +94,14 @@ function Menu.Start(Movement, HUD)
 
 	local buttons = UI.new("Frame", {
 		Position = UDim2.fromOffset(0, 150),
-		Size = UDim2.fromOffset(260, 240),
+		Size = UDim2.fromOffset(260, 300),
 		BackgroundTransparency = 1,
 	}, left)
 	UI.new("UIListLayout", { Padding = UDim.new(0, 12) }, buttons)
 	local playButton = UI.button(buttons, "PLAY", { BackgroundColor3 = UI.Colors.Accent, TextColor3 = UI.Colors.Panel })
 	local trialsButton = UI.button(buttons, "TIME TRIALS")
 	local shopButton = UI.button(buttons, "SHOP")
+	local settingsButton = UI.button(buttons, "SETTINGS")
 
 	-- Right column: content panel --------------------------------------------------
 	local panel = UI.new("Frame", {
@@ -303,6 +305,81 @@ function Menu.Start(Movement, HUD)
 		end
 	end
 
+	-- Settings tab -----------------------------------------------------------------
+	local function showSettings()
+		currentTab = "Settings"
+		panel.Visible = true
+		panelTitle.Text = "SETTINGS"
+		clearContent()
+		UI.new("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, content)
+		local order = 0
+		local function nextOrder(): number
+			order += 1
+			return order
+		end
+
+		local function cycler(label: string, key: string)
+			local button
+			button = UI.valueButton(UI.row(content, label, nextOrder()), function()
+				click()
+				Settings.Cycle(key)
+				button.Text = string.upper(Settings.Get(key))
+			end)
+			button.Text = string.upper(Settings.Get(key))
+		end
+		local function toggle(label: string, key: string)
+			local button
+			local function refresh()
+				local on = Settings.Get(key)
+				button.Text = if on then "ON" else "OFF"
+				button.TextColor3 = if on then UI.Colors.Good else UI.Colors.Muted
+			end
+			button = UI.valueButton(UI.row(content, label, nextOrder()), function()
+				click()
+				Settings.Set(key, not Settings.Get(key))
+				refresh()
+			end)
+			refresh()
+		end
+		local function slider(label: string, key: string, step: number, format: (number) -> string)
+			local range = Config.Settings.Ranges[key]
+			local show = UI.slider(
+				UI.row(content, label, nextOrder()),
+				range[1],
+				range[2],
+				step,
+				format,
+				function(value)
+					Settings.Set(key, value)
+				end
+			)
+			show(Settings.Get(key))
+		end
+		local function percent(value: number): string
+			return math.floor(value * 100 + 0.5) .. "%"
+		end
+
+		UI.header(content, "GRAPHICS", nextOrder())
+		cycler("Quality", "Quality")
+		cycler("Time of day", "TimeOfDay")
+		UI.header(content, "CAMERA", nextOrder())
+		slider("Field of view", "FieldOfView", 1, function(value)
+			return tostring(math.floor(value))
+		end)
+		slider("Mouse sensitivity", "MouseSensitivity", 0.05, function(value)
+			return string.format("%.2f", value)
+		end)
+		toggle("Camera shake", "CameraShake")
+		toggle("Speed lines", "SpeedLines")
+		UI.header(content, "CONTROLS", nextOrder())
+		cycler("Sprint (Shift)", "SprintMode")
+		UI.header(content, "AUDIO", nextOrder())
+		slider("Effects volume", "EffectsVolume", 0.05, percent)
+		slider("Wind volume", "WindVolume", 0.05, percent)
+		UI.header(content, "HUD", nextOrder())
+		toggle("Speedometer", "ShowSpeedometer")
+	end
+
 	-- Open / close -----------------------------------------------------------------
 	local orbiting = false
 	local orbitAngle = 0
@@ -339,6 +416,15 @@ function Menu.Start(Movement, HUD)
 	playButton.Activated:Connect(function()
 		click()
 		Menu.Close()
+	end)
+	settingsButton.Activated:Connect(function()
+		click()
+		if currentTab == "Settings" then
+			panel.Visible = false
+			currentTab = nil
+		else
+			showSettings()
+		end
 	end)
 	trialsButton.Activated:Connect(function()
 		click()

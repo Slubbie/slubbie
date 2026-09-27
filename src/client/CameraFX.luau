@@ -9,6 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 local Grapple = require(script.Parent.Grapple)
+local Settings = require(script.Parent.Settings)
 
 local C = Config.Camera
 local M = Config.Movement
@@ -23,6 +24,9 @@ local roll = 0
 local offset = Vector3.zero
 
 function CameraFX.Shake(amount: number)
+	if not Settings.Get("CameraShake") then
+		return
+	end
 	trauma = math.min(trauma + amount, 1)
 end
 
@@ -80,6 +84,9 @@ end
 
 function CameraFX.Start(Movement)
 	local updateSpeedLines = createSpeedLines()
+	Settings.Watch("MouseSensitivity", function(value)
+		UserInputService.MouseDeltaSensitivity = value
+	end)
 	-- Mouse users get a locked, over-the-shoulder camera; touch keeps the default.
 	local shoulderCam = UserInputService.MouseEnabled and not UserInputService.TouchEnabled
 
@@ -128,7 +135,8 @@ function CameraFX.Start(Movement)
 		local speed = info.Velocity.Magnitude
 		local speedAlpha = math.clamp((speed - C.FOVSpeedMin) / (C.FOVSpeedMax - C.FOVSpeedMin), 0, 1)
 		fovKick = Damp(fovKick, 0, 5, dt)
-		fov = Damp(fov, C.BaseFOV + (C.MaxFOV - C.BaseFOV) * speedAlpha + fovKick, 6, dt)
+		local baseFov = Settings.Get("FieldOfView")
+		fov = Damp(fov, baseFov + (C.MaxFOV - C.BaseFOV) * speedAlpha + fovKick, 6, dt)
 		camera.FieldOfView = fov
 
 		-- Roll away from walls, lean into swings.
@@ -159,7 +167,10 @@ function CameraFX.Start(Movement)
 		camera.CFrame = camera.CFrame * CFrame.new(offset) * CFrame.Angles(0, 0, roll) * shakeRotation
 
 		local lineStart, lineFull = C.SpeedLinesStart, C.SpeedLinesFull
-		updateSpeedLines(dt, math.clamp((speed - lineStart) / (lineFull - lineStart), 0, 1))
+		local lines = if Settings.Get("SpeedLines")
+			then math.clamp((speed - lineStart) / (lineFull - lineStart), 0, 1)
+			else 0
+		updateSpeedLines(dt, lines)
 	end)
 end
 

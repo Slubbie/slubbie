@@ -12,6 +12,7 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Net = require(ReplicatedStorage.Shared.Net)
 
 local STORE_NAME = "SkyboundPlayers_v1"
 local AUTOSAVE_INTERVAL = 90
@@ -21,6 +22,7 @@ type Data = {
 	Owned: { [string]: boolean },
 	Equipped: string,
 	Best: { [string]: number },
+	Settings: { [string]: any },
 }
 
 local PlayerData = {}
@@ -48,6 +50,7 @@ local function defaults(): Data
 		Owned = { [Config.Shop.Default] = true },
 		Equipped = Config.Shop.Default,
 		Best = {},
+		Settings = {},
 	}
 end
 
@@ -119,6 +122,9 @@ local function load(player: Player)
 					data.Best[courseId] = tonumber(time)
 				end
 			end
+			if type(saved.Settings) == "table" then
+				data.Settings = saved.Settings
+			end
 		end
 	end
 	if not player.Parent then
@@ -162,7 +168,45 @@ function PlayerData.Update(player: Player, change: (Data) -> ())
 	end
 end
 
+-- Only keep known settings with the right type, clamped to their ranges.
+local function sanitizeSettings(incoming: any): { [string]: any }
+	local clean = {}
+	if type(incoming) ~= "table" then
+		return clean
+	end
+	local S = Config.Settings
+	for name, default in S.Defaults do
+		local value = incoming[name]
+		if type(value) == type(default) then
+			if type(value) == "number" and S.Ranges[name] then
+				value = math.clamp(value, S.Ranges[name][1], S.Ranges[name][2])
+			elseif type(value) == "string" and S.Choices[name] and not table.find(S.Choices[name], value) then
+				value = nil
+			end
+			clean[name] = value
+		end
+	end
+	return clean
+end
+
 function PlayerData.Start()
+	Net.Event("SaveSettings").OnServerEvent:Connect(function(player, incoming)
+		local data = profiles[player]
+		if data then
+			data.Settings = sanitizeSettings(incoming)
+		end
+	end)
+	Net.Function("GetSettings").OnServerInvoke = function(player)
+		-- Data may still be loading when the client asks.
+		for _ = 1, 40 do
+			local data = profiles[player]
+			if data then
+				return data.Settings
+			end
+			task.wait(0.25)
+		end
+		return nil
+	end
 	Players.PlayerAdded:Connect(load)
 	for _, player in Players:GetPlayers() do
 		task.spawn(load, player)

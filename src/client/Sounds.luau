@@ -9,14 +9,24 @@ local SoundService = game:GetService("SoundService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local MathUtil = require(ReplicatedStorage.Shared.MathUtil)
 local Grapple = require(script.Parent.Grapple)
+local Settings = require(script.Parent.Settings)
 
 local SOUNDS = Config.Sounds
 
 local Sounds = {}
 
+-- Volume groups so the settings sliders control everything at once.
+local effectsGroup = Instance.new("SoundGroup")
+effectsGroup.Name = "Effects"
+effectsGroup.Parent = SoundService
+local windGroup = Instance.new("SoundGroup")
+windGroup.Name = "Wind"
+windGroup.Parent = SoundService
+
 local function makeSound(id: string, props: { [string]: any }?): Sound
 	local sound = Instance.new("Sound")
 	sound.SoundId = id
+	sound.SoundGroup = effectsGroup
 	for key, value in props or {} do
 		(sound :: any)[key] = value
 	end
@@ -43,7 +53,13 @@ local function jitter(pitch: number): number
 end
 
 function Sounds.Start(Movement)
-	local wind = makeSound(SOUNDS.Wind, { Looped = true, Volume = 0 })
+	local wind = makeSound(SOUNDS.Wind, { Looped = true, Volume = 0, SoundGroup = windGroup })
+	Settings.Watch("EffectsVolume", function(value)
+		effectsGroup.Volume = value
+	end)
+	Settings.Watch("WindVolume", function(value)
+		windGroup.Volume = value
+	end)
 	local steps = makeSound(SOUNDS.Footsteps, { Looped = true, Volume = 0, PlaybackSpeed = 1.6 })
 	wind:Play()
 	steps:Play()

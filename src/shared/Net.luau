@@ -14,6 +14,8 @@ local EVENTS = {
 	"TrialCheckpoint",
 	-- server → client: (kind, data)
 	"TrialEvent",
+	-- client → server: (settings table)
+	"SaveSettings",
 }
 
 local FUNCTIONS = {
@@ -23,6 +25,8 @@ local FUNCTIONS = {
 	"GetLeaderboards",
 	-- (courseId) → ok ; teleports you to a course start
 	"GoToTrial",
+	-- () → saved settings table (or nil)
+	"GetSettings",
 }
 
 local Net = {}
