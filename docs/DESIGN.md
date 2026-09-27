@@ -36,6 +36,8 @@ Every number is in `src/shared/Config.luau`.
 - **Saving**: shards, owned colours, and best times.
 - **Title screen**: orbiting camera, PLAY / TIME TRIALS / SHOP / SETTINGS.
 - **Controls**: Ctrl dashes, C slides.
+- **Bigger world**: ~90 islands across 4000 studs, plus three landmark islands (Sky Temple, Frost Peak, Crystal Garden), each with a sky beacon visible from anywhere.
+- **Music**: a generative pentatonic soundtrack built from pitched engine sounds (bass, arpeggios, melody, drums at speed, minor key at night), or a crossfading playlist of Creator Store tracks set in `Config.Music`.
 - **Levels & XP**: earned from tricks, shards, combos, trials and quests. Level-ups grant shards and new titles (Drifter → Sky Legend), shown on nametags above every player.
 - **Daily quests**: three per day (easy/medium/hard, the same for everyone, reset at midnight UTC), tracked on the HUD and paying shards and XP.
 - **Ghost replays**: your best run on each course is recorded and saved; next time a ghost races you, and each ring shows a green/red split against it.

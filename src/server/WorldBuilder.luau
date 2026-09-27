@@ -106,7 +106,7 @@ end
 
 -- Height of the terrain surface under (x, z), or nil over water / empty sky.
 local function groundAt(x: number, z: number, fromY: number): Vector3?
-	local hit = workspace:Raycast(Vector3.new(x, fromY + 60, z), Vector3.new(0, -120, 0), groundParams)
+	local hit = workspace:Raycast(Vector3.new(x, fromY + 150, z), Vector3.new(0, -300, 0), groundParams)
 	if not hit or hit.Material == M.Water or hit.Material == M.Rock or hit.Material == M.Slate then
 		return nil
 	end
@@ -516,12 +516,12 @@ local function decorate(parent: Instance, center: Vector3, radius: number, biome
 end
 
 -- Floating glowing crystals: the obvious "hook me" targets between islands.
-local function anchor(parent: Instance, position: Vector3, rng: Random)
+local function anchor(parent: Instance, position: Vector3, rng: Random, tint: Color3?)
 	Terrain:FillBall(position, 5, M.Rock)
 	Terrain:FillBall(position - Vector3.new(0, 4, 0), 3, M.Rock)
 	local model = Instance.new("Model")
 	model.Name = "SkyAnchor"
-	local color = Config.Grapple.RopeColor
+	local color = tint or Config.Grapple.RopeColor
 	local core = part({
 		Name = "Crystal",
 		Size = Vector3.new(3, 10, 3),
@@ -797,6 +797,140 @@ local function buildPlaza(parent: Instance, center: Vector3, radius: number, rng
 	waterfall(parent, center, radius, rng)
 end
 
+-- Landmarks -------------------------------------------------------------------------
+
+-- Three giant islands far out, each with a sky beacon you can see from anywhere.
+local LANDMARKS = {
+	{
+		Name = "Sky Temple",
+		Position = Vector3.new(0, 212, -1450),
+		Radius = 95,
+		Biome = "Ruins" :: Biome,
+		Color = Color3.fromRGB(255, 205, 110),
+	},
+	{
+		Name = "Frost Peak",
+		Position = Vector3.new(1350, 360, 650),
+		Radius = 80,
+		Biome = "Alpine" :: Biome,
+		Color = Color3.fromRGB(170, 220, 255),
+	},
+	{
+		Name = "Crystal Garden",
+		Position = Vector3.new(-1300, 188, 850),
+		Radius = 85,
+		Biome = "Blossom" :: Biome,
+		Color = Color3.fromRGB(200, 130, 255),
+	},
+}
+
+local function beacon(parent: Instance, base: Vector3, color: Color3, name: string)
+	local pillar = decor({
+		Name = "Beacon",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(900, 3, 3),
+		CFrame = CFrame.new(base + Vector3.new(0, 450, 0)) * CFrame.Angles(0, 0, math.pi / 2),
+		Material = Enum.Material.Neon,
+		Color = color,
+		Transparency = 0.55,
+		CastShadow = false,
+	}, parent)
+	local label = Instance.new("BillboardGui")
+	label.Size = UDim2.fromOffset(320, 50)
+	label.StudsOffsetWorldSpace = Vector3.new(0, -420, 0)
+	label.MaxDistance = 5000
+	label.LightInfluence = 0
+	label.Parent = pillar
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.fromScale(1, 1)
+	text.BackgroundTransparency = 1
+	text.Font = Enum.Font.GothamBlack
+	text.TextScaled = true
+	text.TextColor3 = color
+	text.TextStrokeTransparency = 0.3
+	text.Text = string.upper(name)
+	text.Parent = label
+end
+
+local function buildLandmark(parent: Instance, landmark, rng: Random)
+	local center, radius = landmark.Position, landmark.Radius
+	local surface = center.Y + 2
+	local model = Instance.new("Model")
+	model.Name = landmark.Name
+
+	if landmark.Name == "Sky Temple" then
+		-- A colonnade around a paved court with a floating relic.
+		Terrain:FillCylinder(CFrame.new(center.X, surface - 0.5, center.Z), 1.2, radius * 0.4, M.Pavement)
+		for i = 1, 12 do
+			local angle = i / 12 * math.pi * 2
+			local base =
+				groundAt(center.X + math.cos(angle) * radius * 0.6, center.Z + math.sin(angle) * radius * 0.6, surface)
+			if base then
+				column(model, base, rng:NextNumber(20, 30), rng)
+			end
+		end
+		for tier = 0, 2 do
+			part({
+				Name = "Altar",
+				Size = Vector3.new(18 - tier * 5, 3, 18 - tier * 5),
+				Position = Vector3.new(center.X, surface + 1.5 + tier * 3, center.Z),
+				Material = Enum.Material.Marble,
+				Color = STONE,
+			}, model)
+		end
+		local relic = part({
+			Name = "Relic",
+			Size = Vector3.new(6, 6, 6),
+			CFrame = CFrame.new(center.X, surface + 22, center.Z) * CFrame.Angles(math.rad(45), 0, math.rad(45)),
+			Material = Enum.Material.Neon,
+			Color = landmark.Color,
+			CanCollide = false,
+			CastShadow = false,
+		}, model)
+		CollectionService:AddTag(relic, "Spinner")
+		relic:SetAttribute("SpinSpeed", 0.6)
+		spinnerRing(model, relic.Position, 9, CFrame.Angles(0.4, 0, 0), 0.9, landmark.Color)
+	elseif landmark.Name == "Frost Peak" then
+		-- A towering snowy spire to climb and swing around.
+		for i = 0, 10 do
+			local jitter = Vector3.new(rng:NextNumber(-3, 3), 0, rng:NextNumber(-3, 3))
+			Terrain:FillBall(
+				Vector3.new(center.X, surface + 4 + i * 9, center.Z) + jitter,
+				radius * 0.45 * (1 - i / 12),
+				if i > 5 then M.Snow else M.Slate
+			)
+		end
+		for i = 1, 5 do
+			local angle = i / 5 * math.pi * 2
+			anchor(
+				model,
+				Vector3.new(center.X + math.cos(angle) * 30, surface + 40 + i * 12, center.Z + math.sin(angle) * 30),
+				rng,
+				landmark.Color
+			)
+		end
+	else
+		-- A garden of glowing crystal clusters among blossom trees.
+		for _ = 1, 14 do
+			local x, z = randomSpot(center, radius * 0.1, radius * 0.8, rng)
+			local base = groundAt(x, z, surface)
+			if base then
+				anchor(model, base + Vector3.new(0, 1, 0), rng, vary(landmark.Color, rng, 0.1))
+			end
+		end
+	end
+
+	for _ = 1, 10 do
+		local x, z = randomSpot(center, 0, radius * 0.7, rng)
+		local base = groundAt(x, z, surface)
+		if base then
+			shard(model, base + Vector3.new(0, 3, 0))
+		end
+	end
+	beacon(model, Vector3.new(center.X, surface, center.Z), landmark.Color, landmark.Name)
+	model.Parent = parent
+end
+
 -- Sky ------------------------------------------------------------------------------
 
 local function cloud(parent: Instance, center: Vector3, size: number, rng: Random)
@@ -917,14 +1051,17 @@ function WorldBuilder.Build()
 	-- Place islands; they climb higher the further out you go.
 	local spawnIsland = { Position = Vector3.new(0, 100, 0), Radius = 70, Biome = "Plaza" :: Biome }
 	local islands = { spawnIsland }
+	for _, landmark in LANDMARKS do
+		table.insert(islands, { Position = landmark.Position, Radius = landmark.Radius, Biome = landmark.Biome })
+	end
 	local attempts = 0
-	while #islands < WORLD.IslandCount and attempts < 4000 do
+	while #islands < WORLD.IslandCount and attempts < 10000 do
 		attempts += 1
 		local angle = rng:NextNumber(0, math.pi * 2)
 		local dist = math.sqrt(rng:NextNumber()) * WORLD.WorldRadius
 		local radius = rng:NextNumber(20, 50)
 		-- Snap heights to the terrain grid so surfaces are crisp.
-		local height = math.floor((90 + dist * 0.18 + rng:NextNumber(-40, 40)) / 4 + 0.5) * 4
+		local height = math.floor((90 + dist * WORLD.HeightPerStud + rng:NextNumber(-40, 40)) / 4 + 0.5) * 4
 		local pos = Vector3.new(math.cos(angle) * dist, height, math.sin(angle) * dist)
 		local fits = true
 		for _, other in islands do
@@ -952,6 +1089,9 @@ function WorldBuilder.Build()
 	for i = 2, #islands do
 		local island = islands[i]
 		decorate(map, island.Position, island.Radius, island.Biome, rng)
+	end
+	for _, landmark in LANDMARKS do
+		buildLandmark(map, landmark, rng)
 	end
 
 	-- Link each island to its two nearest neighbours: bridge, corridor or anchor.
@@ -994,7 +1134,8 @@ function WorldBuilder.Build()
 	local sky = Instance.new("Folder")
 	sky.Name = "Clouds"
 	sky.Parent = map
-	for _ = 1, 70 do
+	local scale = WORLD.WorldRadius / 1000
+	for _ = 1, math.floor(70 * scale) do
 		local angle = rng:NextNumber(0, math.pi * 2)
 		local dist = math.sqrt(rng:NextNumber()) * (WORLD.WorldRadius + 300)
 		cloud(
@@ -1004,7 +1145,7 @@ function WorldBuilder.Build()
 			rng
 		)
 	end
-	for _ = 1, 30 do
+	for _ = 1, math.floor(30 * scale) do
 		local pos = Vector3.new(
 			rng:NextNumber(-WORLD.WorldRadius, WORLD.WorldRadius),
 			rng:NextNumber(30, 320),

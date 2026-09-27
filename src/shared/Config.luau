@@ -116,8 +116,10 @@ Config.Camera = {
 
 Config.World = {
 	Seed = 1337,
-	IslandCount = 42,
-	WorldRadius = 1000,
+	IslandCount = 90,
+	WorldRadius = 2000,
+	-- How much higher islands get per stud from the centre.
+	HeightPerStud = 0.13,
 	ShardRespawnTime = 25,
 	-- Fall below this and you respawn. Set as Workspace.FallenPartsDestroyHeight
 	-- in default.project.json (scripts can't change it at runtime).
@@ -219,6 +221,21 @@ Config.Sounds = {
 	Ping = "rbxasset://sounds/electronicpingshort.wav",
 }
 
+-- Music. Leave Playlist empty for the built-in generative soundtrack, or add
+-- tracks from the Creator Store (Toolbox → Audio → Music), e.g.
+--   { Id = "rbxassetid://1234567890", Name = "Track name", Volume = 0.6 },
+Config.Music = {
+	Playlist = {},
+	-- Generative soundtrack voices (built-in engine sounds, pitched).
+	Tone = "rbxasset://sounds/electronicpingshort.wav",
+	Kick = "rbxasset://sounds/action_jump_land.mp3",
+	Hat = "rbxasset://sounds/swoosh.wav",
+	-- Semitone offset of the whole song, beats per minute, and extra BPM at full speed.
+	Key = 0,
+	BaseTempo = 78,
+	TempoBoost = 42,
+}
+
 Config.RespawnTime = 2
 -- Respawn where you last landed instead of back at the spawn plaza.
 Config.RespawnAtLastLanding = true
@@ -305,6 +322,8 @@ Config.Settings = {
 		ShowSpeedometer = true,
 		EffectsVolume = 0.8,
 		WindVolume = 0.8,
+		MusicEnabled = true,
+		MusicVolume = 0.5,
 	},
 	Choices = {
 		Quality = { "Low", "Medium", "High", "Ultra" },
@@ -316,6 +335,7 @@ Config.Settings = {
 		MouseSensitivity = { 0.2, 2.5 },
 		EffectsVolume = { 0, 1 },
 		WindVolume = { 0, 1 },
+		MusicVolume = { 0, 1 },
 	},
 }
 

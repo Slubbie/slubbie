@@ -2,7 +2,7 @@
 
 A momentum movement game for Roblox (R6 only): grapple-swing between floating sky islands, wall-run, slide and air-dash without touching the ground.
 
-**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · levels, titles & nametags · daily quests · ghost replays of your best trial runs · emotes · interactive tutorial · respawn where you last landed · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
+**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · levels, titles & nametags · daily quests · ghost replays of your best trial runs · emotes · interactive tutorial · respawn where you last landed · music (generative soundtrack that reacts to your speed, or your own playlist) · a 4000-stud world with ~90 islands and three landmark islands · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
 
 See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 
@@ -51,6 +51,7 @@ src/
     R6Animator.luau    procedural R6 animation for every character
     VFX.luau           trails, afterimages, dust, sparks, shockwaves
     Sounds.luau        wind, footsteps, move sounds
+    Music.luau         generative soundtrack / playlist player
     CameraFX.luau      shoulder cam, FOV, roll, shake, speed lines
     HUD.luau           crosshair lock-on, speedometer, dash pips, shards
     Combo.luau         style combo meter + banking
@@ -78,6 +79,19 @@ src/
 ## Checking the code
 
 - `stylua src/` formats, `selene src/` lints (run `selene generate-roblox-std` once first).
+
+## Music
+
+Out of the box the game composes its own music live from built-in sounds (it
+speeds up as you go faster and turns minor at night). To use real tracks, open
+Studio's Toolbox → Audio → Music, copy the IDs of tracks you like, and add them to
+`Config.Music.Playlist`:
+
+```lua
+Playlist = {
+	{ Id = "rbxassetid://1234567890", Name = "Track name", Volume = 0.6 },
+},
+```
 
 ## Tuning tips
 

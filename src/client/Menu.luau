@@ -377,6 +377,8 @@ function Menu.Start(Movement, HUD)
 		UI.header(content, "AUDIO", nextOrder())
 		slider("Effects volume", "EffectsVolume", 0.05, percent)
 		slider("Wind volume", "WindVolume", 0.05, percent)
+		toggle("Music", "MusicEnabled")
+		slider("Music volume", "MusicVolume", 0.05, percent)
 		UI.header(content, "HUD", nextOrder())
 		toggle("Speedometer", "ShowSpeedometer")
 	end

@@ -83,8 +83,8 @@ local function createBirds(): (Folder, { Bird })
 		p.Parent = folder
 		return p
 	end
-	for _ = 1, 7 do
-		local center = Vector3.new(rng:NextNumber(-700, 700), rng:NextNumber(150, 320), rng:NextNumber(-700, 700))
+	for _ = 1, 14 do
+		local center = Vector3.new(rng:NextNumber(-1500, 1500), rng:NextNumber(150, 380), rng:NextNumber(-1500, 1500))
 		local radius = rng:NextNumber(60, 140)
 		local speed = rng:NextNumber(0.12, 0.25) * (if rng:NextNumber() < 0.5 then -1 else 1)
 		for _ = 1, rng:NextInteger(4, 7) do
