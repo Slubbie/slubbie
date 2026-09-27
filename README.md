@@ -106,3 +106,14 @@ Playlist = {
 - Swings feel floaty → raise `Grapple.PullAccel` or `Grapple.ReelSpeed`.
 - Too easy to keep speed → raise `Movement.AirDrag` or lower `Grapple.ReleaseBoost`.
 - Wall-runs too short → raise `WallRun.MaxDuration` or lower `WallRun.Gravity`.
+
+---
+
+## Also in this repository: VARIANCE
+
+[`variance/`](variance/README.md) is a separate, self-contained Roblox game: a
+tense, systems-driven game of risk at an evaluation table (surrogate AI
+opponents, PvP and ranked play, private trials and tournaments, fourteen
+instruments, six rooms, full progression). It has its own Rojo project:
+`rojo serve variance/default.project.json`. See
+[variance/README.md](variance/README.md).
