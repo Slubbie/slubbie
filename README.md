@@ -2,7 +2,7 @@
 
 A momentum movement game for Roblox (R6 only): grapple-swing between floating sky islands, wall-run, slide and air-dash without touching the ground.
 
-**Features:** smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · levels, titles & nametags · daily quests · ghost replays of your best trial runs · 16 smooth spline-animated emotes with blending, sync dancing and an emote wheel · head tracking · 14 achievements · photo mode · interactive tutorial · respawn where you last landed · music (generative soundtrack that reacts to your speed, or your own playlist) · a 4000-stud world with ~90 islands and three landmark islands · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
+**Features:** three realms (Sky Islands, Neon City, Ember Isles) linked by portals · daily login rewards · 10 trails · daily + weekly quests · smooth physics-rope grappling · sculpted terrain sky islands (meadow, blossom, ruins, alpine) with waterfalls, bridges and a beacon plaza · Future lighting · custom procedural R6 animation for every move (visible to everyone) · flips, rolls & superman dives · speed trails, dash afterimages, sparks, dust & shockwaves · wind and move sounds · style combos that pay out shards · time-trial ring courses with global leaderboards · rope/trail colour shop · saved progress · title screen · levels, titles & nametags · daily quests · ghost replays of your best trial runs · 16 smooth spline-animated emotes with blending, sync dancing and an emote wheel · head tracking · 14 achievements · photo mode · interactive tutorial · respawn where you last landed · music (generative soundtrack that reacts to your speed, or your own playlist) · a 4000-stud world with ~90 islands and three landmark islands · settings menu (graphics quality, time of day, FOV, sensitivity, audio, sprint mode).
 
 See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 
@@ -53,6 +53,8 @@ src/
     R6Animator.luau    procedural R6 animation for every character
     VFX.luau           trails, afterimages, dust, sparks, shockwaves
     Sounds.luau        wind, footsteps, move sounds
+    RealmClient.luau   realm detection, arrival banners, per-realm look and music
+    Daily.luau         daily reward calendar popup
     Music.luau         generative soundtrack (song sections, mixing chain) / playlist player
     CameraFX.luau      shoulder cam, FOV, roll, shake, speed lines
     HUD.luau           crosshair lock-on, speedometer, dash pips, shards
@@ -77,7 +79,9 @@ src/
     Economy.luau       shop purchases + combo rewards
     StateRelay.luau    shares movement state/actions with other players
     Shards.luau        collectibles
-    Progression.luau   XP, levels, daily quests, nametags, tutorial reward
+    Progression.luau   XP, levels, daily + weekly quests, achievements, nametags
+    Realms.luau        Neon City + Ember Isles, portals
+    DailyRewards.luau  7-day login streak rewards
 ```
 
 ## Checking the code

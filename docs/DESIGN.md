@@ -35,6 +35,11 @@ Every number is in `src/shared/Config.luau`.
 - **Shop**: 7 rope/trail colours, including an animated rainbow. Cosmetic only.
 - **Saving**: shards, owned colours, and best times.
 - **Title screen**: orbiting camera, PLAY / TIME TRIALS / SHOP / SETTINGS.
+- **Realms**: portals at the spawn plaza lead to **Neon City** (Lv 3: floating skyscrapers with glowing trim, billboards, rooftop launch pads, a synthwave grid and sun) and **Ember Isles** (Lv 6: basalt islands, lava pools and lavafalls, obsidian spires, an erupting volcano, a lava sea with rising embers). Each realm has its own lighting and music mood, and an arrival banner.
+- **Daily rewards**: a 7-day login streak calendar (shards, XP, and an exclusive Golden trail on day 7) that pops up on join.
+- **Trails**: 10 styles in a Trails shop tab: gradients (Sunset, Aurora, Neon Pulse), Rainbow, Shadow, and particle trails (Ember fire, Stardust, Cloud Puff, Golden).
+- **Quests**: more daily quest types (emotes, wall-runs, top speed, portals) plus 3 weekly quests with big rewards.
+- **Achievements**: now 17, including Globetrotter (visit every realm), Dedicated (7-day streak) and Trendsetter (own 5 trails).
 - **Controls**: Ctrl dashes, C slides.
 - **Head movement**: heads look where you aim, at grapple targets, at nearby players (and at the camera if it's in front of you), and along your path while flying. It eases in ahead of the body and is shared with other players.
 - **Emotes**: 16 emotes (Wave, Groove, Floss, Cheer, Clap, Salute, Bow, Laugh, Flex, Spin, Air Guitar, Shrug, Stretch, Sit, Sleep, Push-ups) with sounds and particles (music notes, confetti, sparkles, sleepy puffs), picked from an emote wheel (G) or keys 1–9/0.

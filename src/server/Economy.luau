@@ -12,7 +12,51 @@ local Economy = {}
 
 local lastBank: { [Player]: number } = {}
 
-local function handleShop(player: Player, action: any, itemId: any): (boolean, string)
+-- Trails: bought with shards; exclusive ones only come from rewards.
+local function handleTrail(player: Player, action: any, itemId: any): (boolean, string)
+	local trail = Config.GetTrail(if type(itemId) == "string" then itemId else nil)
+	local data = PlayerData.Get(player)
+	if not trail or not data then
+		return false, "Not available"
+	end
+	if action == "Buy" then
+		if data.OwnedTrails[trail.Id] then
+			return false, "Already owned"
+		end
+		if trail.Exclusive then
+			return false, "Unlock with a " .. trail.Exclusive
+		end
+		if data.Shards < trail.Price then
+			return false, "Not enough shards"
+		end
+		PlayerData.Update(player, function(d)
+			d.Shards -= trail.Price
+			d.OwnedTrails[trail.Id] = true
+			d.EquippedTrail = trail.Id
+		end)
+		local owned = 0
+		for _ in data.OwnedTrails do
+			owned += 1
+		end
+		Progression.Record(player, "TrailsOwned", owned)
+		task.spawn(PlayerData.Save, player)
+		return true, "Unlocked the " .. trail.Name .. " trail!"
+	elseif action == "Equip" then
+		if not data.OwnedTrails[trail.Id] then
+			return false, "Not owned"
+		end
+		PlayerData.Update(player, function(d)
+			d.EquippedTrail = trail.Id
+		end)
+		return true, "Equipped " .. trail.Name
+	end
+	return false, "Unknown action"
+end
+
+local function handleShop(player: Player, action: any, itemId: any, category: any): (boolean, string)
+	if category == "Trail" then
+		return handleTrail(player, action, itemId)
+	end
 	local item = Config.GetShopItem(if type(itemId) == "string" then itemId else nil)
 	local data = PlayerData.Get(player)
 	if not item or not data then

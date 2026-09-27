@@ -28,6 +28,12 @@ local BARS_PER_SECTION = 8
 
 local Music = {}
 
+local realmMood: string? = nil
+
+local function moodName(): string
+	return realmMood or Settings.Get("TimeOfDay")
+end
+
 local group = Instance.new("SoundGroup")
 group.Name = "Music"
 group.Parent = SoundService
@@ -97,6 +103,15 @@ local MOODS: { [string]: Mood } = {
 	},
 	Sunset = { Scale = MAJOR, Minor = false, Key = -2, Tempo = 74, Progressions = { { -3, 5, 0, 7 }, { 5, 7, -3, 0 } } },
 	Night = { Scale = MINOR, Minor = true, Key = -3, Tempo = 66, Progressions = { { 0, -4, 3, -2 }, { -4, -2, 0, 0 } } },
+	-- Realm moods: driving synthwave in Neon City, slow and heavy in Ember Isles.
+	neon = {
+		Scale = MINOR,
+		Minor = true,
+		Key = 2,
+		Tempo = 100,
+		Progressions = { { 0, -4, -2, -5 }, { -4, -2, 0, -5 } },
+	},
+	ember = { Scale = MINOR, Minor = true, Key = -5, Tempo = 70, Progressions = { { 0, 1, 0, -2 }, { 0, -4, 1, -2 } } },
 }
 
 -- Section plan: which layers play in each part of the song.
@@ -163,7 +178,10 @@ local function playGenerative(Movement)
 		voice:Play()
 	end
 
-	local mood = MOODS[Settings.Get("TimeOfDay")] or MOODS["Golden Hour"]
+	local mood = MOODS[moodName()] or MOODS["Golden Hour"]
+	Music.MoodChanged = function()
+		mood = MOODS[moodName()] or mood
+	end
 	local step, bar, sectionIndex = 0, 0, 1
 	local clock = 0
 	local intensity, excitement = 0, 0
@@ -238,7 +256,8 @@ local function playGenerative(Movement)
 		end
 
 		-- Drums come in with the chorus, or when you're really moving.
-		local drums = math.max(section.Drums, energy)
+		-- Realms always have a beat.
+		local drums = math.max(section.Drums, energy, if realmMood then 0.5 else 0)
 		if Movement.Enabled and drums > 0.35 then
 			if step == 0 or step == 4 or (drums > 0.8 and step == 5) then
 				note(MUSIC.Kick, -8, 0.35 * drums)
@@ -257,7 +276,7 @@ local function playGenerative(Movement)
 			if bar % BARS_PER_SECTION == 0 then
 				sectionIndex = sectionIndex % #SECTIONS + 1
 				-- Pick up time-of-day changes between sections.
-				mood = MOODS[Settings.Get("TimeOfDay")] or mood
+				mood = MOODS[moodName()] or mood
 				newMotif(SECTIONS[sectionIndex].Melody)
 			end
 		end
@@ -291,6 +310,15 @@ local function playGenerative(Movement)
 			playStep()
 		end
 	end)
+end
+
+-- Realms other than the Sky Islands have their own mood; "sky" goes back to
+-- the time-of-day one.
+function Music.SetRealm(realmId: string)
+	realmMood = if realmId == "sky" then nil else realmId
+	if Music.MoodChanged then
+		Music.MoodChanged()
+	end
 end
 
 function Music.Start(Movement)

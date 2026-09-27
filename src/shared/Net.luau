@@ -39,6 +39,10 @@ local FUNCTIONS = {
 	"GetGhost",
 	-- () → teleports you back to the spawn plaza
 	"ReturnToSpawn",
+	-- () → { Available, Streak, Day, Rewards } for the daily reward calendar
+	"GetDaily",
+	-- () → (ok, reward) claims today's daily reward
+	"ClaimDaily",
 }
 
 local Net = {}

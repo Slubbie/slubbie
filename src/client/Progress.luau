@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Settings = require(script.Parent.Settings)
 local Sounds = require(script.Parent.Sounds)
 local UI = require(script.Parent.UI)
 local VFX = require(script.Parent.VFX)
@@ -61,33 +62,48 @@ function Progress.Start(Movement)
 	player:GetAttributeChangedSignal("Level"):Connect(refreshLevel)
 	refreshLevel()
 
-	-- Daily quests ---------------------------------------------------------------
-	UI.label(panel, {
+	-- Daily and weekly quests -----------------------------------------------------
+	local questArea = UI.new("Frame", {
 		Position = UDim2.fromOffset(0, 50),
-		Size = UDim2.new(1, 0, 0, 18),
-		Font = UI.Fonts.Title,
-		TextSize = 13,
-		TextColor3 = UI.Colors.Accent,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextStrokeTransparency = 0.6,
-		Text = "DAILY QUESTS",
-	})
-	local questList = UI.new("Frame", {
-		Position = UDim2.fromOffset(0, 72),
-		Size = UDim2.new(1, 0, 0, 200),
+		Size = UDim2.new(1, 0, 0, 420),
 		BackgroundTransparency = 1,
 	}, panel)
-	UI.new("UIListLayout", { Padding = UDim.new(0, 6) }, questList)
+	UI.new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, questArea)
+	Settings.Watch("ShowQuests", function(show)
+		questArea.Visible = show
+	end)
 
-	local function refreshQuests()
-		for _, child in questList:GetChildren() do
+	local function section(title: string, order: number): Frame
+		UI.label(questArea, {
+			Size = UDim2.new(1, 0, 0, 18),
+			Font = UI.Fonts.Title,
+			TextSize = 13,
+			TextColor3 = UI.Colors.Accent,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextStrokeTransparency = 0.6,
+			LayoutOrder = order,
+			Text = title,
+		})
+		local list = UI.new("Frame", {
+			Size = UDim2.fromScale(1, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			LayoutOrder = order + 1,
+		}, questArea)
+		UI.new("UIListLayout", { Padding = UDim.new(0, 6) }, list)
+		return list
+	end
+	local dailyList = section("DAILY QUESTS", 1)
+	local weeklyList = section("WEEKLY QUESTS", 3)
+
+	local function render(list: Frame, attribute: string, accent: Color3)
+		for _, child in list:GetChildren() do
 			if child:IsA("Frame") then
 				child:Destroy()
 			end
 		end
-		local raw = player:GetAttribute("Quests")
 		local ok, quests = pcall(function()
-			return HttpService:JSONDecode(raw)
+			return HttpService:JSONDecode(player:GetAttribute(attribute))
 		end)
 		if not ok or type(quests) ~= "table" then
 			return
@@ -97,7 +113,7 @@ function Progress.Start(Movement)
 				Size = UDim2.new(1, 0, 0, 38),
 				BackgroundColor3 = UI.Colors.Panel,
 				BackgroundTransparency = 0.35,
-			}, questList)
+			}, list)
 			UI.corner(row, 8)
 			UI.label(row, {
 				Position = UDim2.fromOffset(10, 3),
@@ -125,12 +141,17 @@ function Progress.Start(Movement)
 			UI.corner(track)
 			local fill = UI.new("Frame", {
 				Size = UDim2.fromScale(math.clamp(quest.Progress / quest.Goal, 0, 1), 1),
-				BackgroundColor3 = if quest.Done then UI.Colors.Good else UI.Colors.Accent,
+				BackgroundColor3 = if quest.Done then UI.Colors.Good else accent,
 			}, track)
 			UI.corner(fill)
 		end
 	end
+	local function refreshQuests()
+		render(dailyList, "Quests", UI.Colors.Accent)
+		render(weeklyList, "WeeklyQuests", UI.Colors.Gold)
+	end
 	player:GetAttributeChangedSignal("Quests"):Connect(refreshQuests)
+	player:GetAttributeChangedSignal("WeeklyQuests"):Connect(refreshQuests)
 	refreshQuests()
 
 	-- Level-up banner --------------------------------------------------------------

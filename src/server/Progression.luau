@@ -70,31 +70,52 @@ local function bumpStat(player: Player, stat: string, value: number, best: boole
 	publishAchievements(player)
 end
 
-local BEST_STATS = { TopSpeed = true, ComboScore = true, Landmarks = true, Level = true }
+local BEST_STATS = {
+	TopSpeed = true,
+	ComboScore = true,
+	Landmarks = true,
+	Level = true,
+	Realms = true,
+	LoginStreak = true,
+	TrailsOwned = true,
+}
 
 local function today(): string
 	local date = os.date("!*t")
 	return string.format("%d-%d-%d", date.year, date.month, date.day)
 end
 
--- Today's quests: a shuffled pick from the pool, easy → medium → hard.
-local function questsFor(day: string)
+-- Weeks start on Monday (UTC). Day 0 of the Unix epoch was a Thursday.
+local function thisWeek(): string
+	return "week-" .. math.floor((math.floor(os.time() / 86400) + 3) / 7)
+end
+
+-- A shuffled pick from the pool, easy → medium → hard. Weekly quests use
+-- bigger goals and skip "best single value" quests.
+local function questsFor(period: string, weekly: boolean)
 	local seed = 0
-	for i = 1, #day do
-		seed = (seed * 31 + string.byte(day, i)) % 2147483647
+	for i = 1, #period do
+		seed = (seed * 31 + string.byte(period, i)) % 2147483647
 	end
 	local rng = Random.new(seed)
-	local pool = table.clone(Q.Pool)
+	local pool = {}
+	for _, entry in Q.Pool do
+		if not (weekly and entry.Best) then
+			table.insert(pool, entry)
+		end
+	end
 	for i = #pool, 2, -1 do
 		local j = rng:NextInteger(1, i)
 		pool[i], pool[j] = pool[j], pool[i]
 	end
+	local count = if weekly then Q.Weekly.PerWeek else Q.PerDay
 	local list = {}
-	for i = 1, math.min(Q.PerDay, #pool) do
-		local template = pool[i]
+	for i = 1, math.min(count, #pool) do
+		local entry = pool[i]
+		local goal = entry.Goals[math.min(i, #entry.Goals)]
 		table.insert(list, {
-			Id = template.Id,
-			Goal = template.Goals[math.min(i, #template.Goals)],
+			Id = entry.Id,
+			Goal = if weekly then goal * Q.Weekly.GoalScale else goal,
 			Progress = 0,
 			Done = false,
 			Tier = i,
@@ -112,25 +133,42 @@ local function template(id: string)
 	return nil
 end
 
+type QuestSet = { Field: string, Attribute: string, Weekly: boolean, Shards: { number }, XP: { number } }
+local QUEST_SETS: { QuestSet } = {
+	{ Field = "Quests", Attribute = "Quests", Weekly = false, Shards = Q.RewardShards, XP = Q.RewardXP },
+	{
+		Field = "WeeklyQuests",
+		Attribute = "WeeklyQuests",
+		Weekly = true,
+		Shards = Q.Weekly.RewardShards,
+		XP = Q.Weekly.RewardXP,
+	},
+}
+
 local function publish(player: Player)
 	local data = PlayerData.Get(player)
-	if not data or type(data.Quests.List) ~= "table" then
+	if not data then
 		return
 	end
-	local view = {}
-	for _, quest in data.Quests.List do
-		local entry = template(quest.Id)
-		if entry then
-			table.insert(view, {
-				Text = string.format(entry.Text, quest.Goal),
-				Progress = math.min(quest.Progress, quest.Goal),
-				Goal = quest.Goal,
-				Done = quest.Done,
-				Reward = Q.RewardShards[quest.Tier] or 0,
-			})
+	for _, set in QUEST_SETS do
+		local quests = (data :: any)[set.Field]
+		if type(quests.List) == "table" then
+			local view = {}
+			for _, quest in quests.List do
+				local entry = template(quest.Id)
+				if entry then
+					table.insert(view, {
+						Text = string.format(entry.Text, quest.Goal),
+						Progress = math.min(quest.Progress, quest.Goal),
+						Goal = quest.Goal,
+						Done = quest.Done,
+						Reward = set.Shards[quest.Tier] or 0,
+					})
+				end
+			end
+			player:SetAttribute(set.Attribute, HttpService:JSONEncode(view))
 		end
 	end
-	player:SetAttribute("Quests", HttpService:JSONEncode(view))
 end
 
 local function ensureQuests(player: Player)
@@ -138,9 +176,17 @@ local function ensureQuests(player: Player)
 	if not data then
 		return
 	end
-	local day = today()
-	if data.Quests.Day ~= day or type(data.Quests.List) ~= "table" then
-		data.Quests = { Day = day, List = questsFor(day) }
+	local changed = false
+	for _, set in QUEST_SETS do
+		local period = if set.Weekly then thisWeek() else today()
+		local fields = data :: any
+		local quests = fields[set.Field]
+		if quests.Period ~= period or type(quests.List) ~= "table" then
+			fields[set.Field] = { Period = period, List = questsFor(period, set.Weekly) }
+			changed = true
+		end
+	end
+	if changed then
 		publish(player)
 	end
 end
@@ -192,22 +238,25 @@ function Progression.Record(player: Player, stat: string, amount: number?)
 		return
 	end
 	local changed = false
-	for _, quest in data.Quests.List do
-		local entry = template(quest.Id)
-		if entry and entry.Stat == stat and not quest.Done then
-			quest.Progress = if entry.Best then math.max(quest.Progress, value) else quest.Progress + value
-			changed = true
-			if quest.Progress >= quest.Goal then
-				quest.Done = true
-				local shards = Q.RewardShards[quest.Tier] or 0
-				local xp = Q.RewardXP[quest.Tier] or 0
-				PlayerData.AddShards(player, shards)
-				Progression.AddXP(player, xp)
-				notify:FireClient(player, "QuestComplete", {
-					Text = string.format(entry.Text, quest.Goal),
-					Shards = shards,
-					XP = xp,
-				})
+	for _, set in QUEST_SETS do
+		for _, quest in (data :: any)[set.Field].List do
+			local entry = template(quest.Id)
+			if entry and entry.Stat == stat and not quest.Done then
+				local before = quest.Progress
+				quest.Progress = if entry.Best then math.max(quest.Progress, value) else quest.Progress + value
+				changed = changed or quest.Progress ~= before
+				if quest.Progress >= quest.Goal then
+					quest.Done = true
+					local shards = set.Shards[quest.Tier] or 0
+					local xp = set.XP[quest.Tier] or 0
+					PlayerData.AddShards(player, shards)
+					Progression.AddXP(player, xp)
+					notify:FireClient(player, "QuestComplete", {
+						Text = (if set.Weekly then "WEEKLY: " else "") .. string.format(entry.Text, quest.Goal),
+						Shards = shards,
+						XP = xp,
+					})
+				end
 			end
 		end
 	end
@@ -299,8 +348,17 @@ function Progression.Start()
 				local data = PlayerData.Get(player)
 				if root and data then
 					local speed = math.floor(root.AssemblyLinearVelocity.Magnitude)
-					if speed > (data.Stats.TopSpeed or 0) and speed <= Config.Movement.MaxSpeed * 1.3 then
-						bumpStat(player, "TopSpeed", speed, true)
+					if speed > 100 and speed <= Config.Movement.MaxSpeed * 1.3 then
+						local best = (data.Stats.TopSpeed or 0)
+						local questBest = 0
+						for _, quest in data.Quests.List or {} do
+							if quest.Id == "speed" then
+								questBest = quest.Progress
+							end
+						end
+						if speed > best or speed > questBest then
+							Progression.Record(player, "TopSpeed", speed)
+						end
 					end
 					for _, landmark in landmarks do
 						if

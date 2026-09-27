@@ -21,6 +21,7 @@ local localPlayer = Players.LocalPlayer
 
 local Menu = {}
 Menu.Opened = Instance.new("BindableEvent") -- (isOpen: boolean)
+Menu.DailyRequested = Instance.new("BindableEvent")
 
 local isOpen = false
 
@@ -68,7 +69,7 @@ function Menu.Start(Movement, HUD)
 
 	-- Left column: title + buttons ------------------------------------------------
 	local left = UI.new("Frame", {
-		Position = UDim2.new(0, 70, 0.5, -270),
+		Position = UDim2.new(0, 70, 0.5, -300),
 		Size = UDim2.fromOffset(460, 420),
 		BackgroundTransparency = 1,
 	}, gui)
@@ -95,13 +96,14 @@ function Menu.Start(Movement, HUD)
 
 	local buttons = UI.new("Frame", {
 		Position = UDim2.fromOffset(0, 150),
-		Size = UDim2.fromOffset(260, 410),
+		Size = UDim2.fromOffset(260, 470),
 		BackgroundTransparency = 1,
 	}, left)
 	UI.new("UIListLayout", { Padding = UDim.new(0, 12) }, buttons)
 	local playButton = UI.button(buttons, "PLAY", { BackgroundColor3 = UI.Colors.Accent, TextColor3 = UI.Colors.Panel })
 	local trialsButton = UI.button(buttons, "TIME TRIALS")
 	local shopButton = UI.button(buttons, "SHOP")
+	local dailyButton = UI.button(buttons, "DAILY REWARD", { TextSize = 20 })
 	local achievementsButton = UI.button(buttons, "ACHIEVEMENTS")
 	local settingsButton = UI.button(buttons, "SETTINGS")
 	local spawnButton = UI.button(buttons, "RETURN TO SPAWN", { TextSize = 18 })
@@ -149,9 +151,13 @@ function Menu.Start(Movement, HUD)
 		CanvasSize = UDim2.new(),
 	}, panel)
 
+	local layoutContent
 	local function clearContent()
 		for _, child in content:GetChildren() do
 			child:Destroy()
+		end
+		if layoutContent then
+			layoutContent(48, false)
 		end
 	end
 
@@ -164,67 +170,166 @@ function Menu.Start(Movement, HUD)
 	-- Shop tab ---------------------------------------------------------------------
 	local currentTab: string? = nil
 
-	local function showShop()
+	-- Shop tab ---------------------------------------------------------------------
+	local shopCategory = "Rope"
+	local showShop
+
+	local function ownsTrail(id: string): boolean
+		local owned = localPlayer:GetAttribute("OwnedTrails")
+		if type(owned) ~= "string" then
+			return id == "classic"
+		end
+		return table.find(string.split(owned, ","), id) ~= nil
+	end
+
+	local function swatchFor(parent: Instance, colors: { Color3 }?, rainbow: boolean?, fallback: Color3)
+		local swatch = UI.new("Frame", {
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 14),
+			Size = UDim2.fromOffset(56, 56),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+		}, parent)
+		UI.corner(swatch)
+		local keypoints = {}
+		if rainbow then
+			for k = 0, 6 do
+				table.insert(keypoints, ColorSequenceKeypoint.new(k / 6, Color3.fromHSV(k / 6, 0.7, 1)))
+			end
+		elseif colors and #colors > 1 then
+			for i, color in colors do
+				table.insert(keypoints, ColorSequenceKeypoint.new((i - 1) / (#colors - 1), color))
+			end
+		else
+			swatch.BackgroundColor3 = if colors then colors[1] else fallback
+		end
+		if #keypoints > 0 then
+			UI.new("UIGradient", { Color = ColorSequence.new(keypoints), Rotation = 45 }, swatch)
+		end
+	end
+
+	local function shopCard(
+		order: number,
+		name: string,
+		equippedNow: boolean,
+		owned: boolean,
+		priceText: string,
+		accent: Color3
+	)
+		local card = UI.new("Frame", { BackgroundColor3 = UI.Colors.PanelLight, LayoutOrder = order }, content)
+		UI.corner(card, 14)
+		if equippedNow then
+			UI.stroke(card, accent, 3)
+		end
+		UI.label(card, {
+			Position = UDim2.fromOffset(0, 76),
+			Size = UDim2.new(1, 0, 0, 22),
+			Font = UI.Fonts.Title,
+			TextScaled = true,
+			Text = string.upper(name),
+		})
+		local buttonText = if equippedNow then "EQUIPPED" elseif owned then "EQUIP" else priceText
+		local action = UI.button(card, buttonText, {
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 1, -10),
+			Size = UDim2.new(1, -20, 0, 34),
+			TextSize = if #buttonText > 10 then 12 else 16,
+			BackgroundColor3 = if owned then UI.Colors.Panel else UI.Colors.Gold,
+			TextColor3 = if owned then UI.Colors.Text else UI.Colors.Panel,
+		})
+		return card, action
+	end
+
+	function showShop()
 		currentTab = "Shop"
 		panel.Visible = true
-		panelTitle.Text = "ROPE & TRAIL COLOURS"
+		panelTitle.Text = "SHOP"
 		clearContent()
+		layoutContent(92, true)
 		UI.new("UIGridLayout", {
 			CellSize = UDim2.fromOffset(150, 150),
 			CellPadding = UDim2.fromOffset(12, 12),
+			SortOrder = Enum.SortOrder.LayoutOrder,
 		}, content)
-		local equipped = localPlayer:GetAttribute("Equipped") or Config.Shop.Default
-		for i, item in Config.Shop.Items do
-			local card = UI.new("Frame", {
-				BackgroundColor3 = UI.Colors.PanelLight,
-				LayoutOrder = i,
-			}, content)
-			UI.corner(card, 14)
-			if item.Id == equipped then
-				UI.stroke(card, item.Color, 3)
+
+		local function afterAction(ok: boolean, message: string)
+			UI.toast(message, if ok then UI.Colors.Good else UI.Colors.Bad)
+			if currentTab == "Shop" then
+				showShop()
 			end
-			local swatch = UI.new("Frame", {
-				AnchorPoint = Vector2.new(0.5, 0),
-				Position = UDim2.new(0.5, 0, 0, 14),
-				Size = UDim2.fromOffset(56, 56),
-				BackgroundColor3 = item.Color,
-			}, card)
-			UI.corner(swatch)
-			if item.Rainbow then
-				local keypoints = {}
-				for k = 0, 6 do
-					table.insert(keypoints, ColorSequenceKeypoint.new(k / 6, Color3.fromHSV(k / 6, 0.7, 1)))
-				end
-				UI.new("UIGradient", { Color = ColorSequence.new(keypoints) }, swatch)
-			end
-			UI.label(card, {
-				Position = UDim2.fromOffset(0, 76),
-				Size = UDim2.new(1, 0, 0, 22),
-				Font = UI.Fonts.Title,
-				Text = string.upper(item.Name),
-			})
-			local owned = owns(item.Id)
-			local buttonText = if item.Id == equipped then "EQUIPPED" elseif owned then "EQUIP" else "◆ " .. item.Price
-			local action = UI.button(card, buttonText, {
-				AnchorPoint = Vector2.new(0.5, 1),
-				Position = UDim2.new(0.5, 0, 1, -10),
-				Size = UDim2.new(1, -20, 0, 34),
-				TextSize = 16,
-				BackgroundColor3 = if owned then UI.Colors.Panel else UI.Colors.Gold,
-				TextColor3 = if owned then UI.Colors.Text else UI.Colors.Panel,
-			})
-			action.Activated:Connect(function()
-				if item.Id == equipped then
-					return
-				end
-				click()
-				local ok, message = shopRemote:InvokeServer(if owned then "Equip" else "Buy", item.Id)
-				UI.toast(message, if ok then UI.Colors.Good else UI.Colors.Bad)
-				if currentTab == "Shop" then
-					showShop()
-				end
-			end)
 		end
+
+		if shopCategory == "Rope" then
+			local equipped = localPlayer:GetAttribute("Equipped") or Config.Shop.Default
+			for i, item in Config.Shop.Items do
+				local owned = owns(item.Id)
+				local card, action =
+					shopCard(i, item.Name, item.Id == equipped, owned, "◆ " .. item.Price, item.Color)
+				swatchFor(card, { item.Color }, item.Rainbow, item.Color)
+				action.Activated:Connect(function()
+					if item.Id == equipped then
+						return
+					end
+					click()
+					afterAction(shopRemote:InvokeServer(if owned then "Equip" else "Buy", item.Id, "Rope"))
+				end)
+			end
+		else
+			local equipped = localPlayer:GetAttribute("Trail") or "classic"
+			for i, trail in Config.Trails do
+				local owned = ownsTrail(trail.Id)
+				local price = if trail.Exclusive
+					then "🔒 " .. string.upper(trail.Exclusive)
+					else "◆ " .. trail.Price
+				local accent = if trail.Colors then trail.Colors[1] else UI.Colors.Accent
+				local card, action = shopCard(i, trail.Name, trail.Id == equipped, owned, price, accent)
+				local ropeColor = localPlayer:GetAttribute("RopeColor")
+				swatchFor(
+					card,
+					trail.Colors,
+					trail.Rainbow,
+					if typeof(ropeColor) == "Color3" then ropeColor else UI.Colors.Accent
+				)
+				if trail.Particles then
+					UI.label(card, {
+						Position = UDim2.fromOffset(8, 6),
+						Size = UDim2.fromOffset(24, 24),
+						TextSize = 18,
+						Text = "✨",
+					})
+				end
+				action.Activated:Connect(function()
+					if trail.Id == equipped then
+						return
+					end
+					click()
+					afterAction(shopRemote:InvokeServer(if owned then "Equip" else "Buy", trail.Id, "Trail"))
+				end)
+			end
+		end
+	end
+
+	local shopTabs = UI.new("Frame", {
+		Position = UDim2.fromOffset(0, 46),
+		Size = UDim2.new(1, 0, 0, 36),
+		BackgroundTransparency = 1,
+		Visible = false,
+	}, panel)
+	UI.new("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8) }, shopTabs)
+	for _, category in { "Rope", "Trail" } do
+		local tab = UI.button(shopTabs, if category == "Rope" then "ROPES" else "TRAILS", {
+			Size = UDim2.fromOffset(130, 34),
+			TextSize = 16,
+		})
+		tab.Activated:Connect(function()
+			click()
+			shopCategory = category
+			showShop()
+		end)
+	end
+	function layoutContent(top: number, tabs: boolean)
+		content.Position = UDim2.fromOffset(0, top)
+		content.Size = UDim2.new(1, 0, 1, -top)
+		shopTabs.Visible = tabs
 	end
 
 	-- Trials tab -------------------------------------------------------------------
@@ -465,6 +570,7 @@ function Menu.Start(Movement, HUD)
 		slider("Music volume", "MusicVolume", 0.05, percent)
 		UI.header(content, "HUD", nextOrder())
 		toggle("Speedometer", "ShowSpeedometer")
+		toggle("Quest tracker", "ShowQuests")
 	end
 
 	-- Open / close -----------------------------------------------------------------
@@ -512,6 +618,19 @@ function Menu.Start(Movement, HUD)
 			UI.toast("Can't return right now", UI.Colors.Bad)
 		end
 	end)
+	dailyButton.Activated:Connect(function()
+		click()
+		Menu.DailyRequested:Fire()
+	end)
+	-- A gold glow on the button when today's reward is waiting.
+	local function refreshDaily()
+		local waiting = localPlayer:GetAttribute("DailyAvailable") == true
+		dailyButton.BackgroundColor3 = if waiting then UI.Colors.Gold else UI.Colors.PanelLight
+		dailyButton.TextColor3 = if waiting then UI.Colors.Panel else UI.Colors.Text
+		dailyButton.Text = if waiting then "DAILY REWARD!" else "DAILY REWARD"
+	end
+	localPlayer:GetAttributeChangedSignal("DailyAvailable"):Connect(refreshDaily)
+	refreshDaily()
 	achievementsButton.Activated:Connect(function()
 		click()
 		if currentTab == "Achievements" then
@@ -548,11 +667,13 @@ function Menu.Start(Movement, HUD)
 			showShop()
 		end
 	end)
-	localPlayer:GetAttributeChangedSignal("Equipped"):Connect(function()
-		if currentTab == "Shop" then
-			showShop()
-		end
-	end)
+	for _, attribute in { "Equipped", "Trail", "OwnedTrails" } do
+		localPlayer:GetAttributeChangedSignal(attribute):Connect(function()
+			if currentTab == "Shop" then
+				showShop()
+			end
+		end)
+	end
 
 	ContextActionService:BindAction("SkyboundMenu", function(_, inputState)
 		if inputState == Enum.UserInputState.Begin then

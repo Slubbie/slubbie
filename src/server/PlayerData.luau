@@ -34,6 +34,12 @@ type Data = {
 	Stats: { [string]: number },
 	Achievements: { [string]: boolean },
 	Visited: { [string]: boolean },
+	WeeklyQuests: { [string]: any },
+	-- Daily login streak: last claimed day number (UTC) and streak length.
+	Daily: { Last: number, Streak: number },
+	OwnedTrails: { [string]: boolean },
+	EquippedTrail: string,
+	RealmsVisited: { [string]: boolean },
 }
 
 local PlayerData = {}
@@ -69,6 +75,11 @@ local function defaults(): Data
 		Stats = {},
 		Achievements = {},
 		Visited = {},
+		WeeklyQuests = {},
+		Daily = { Last = 0, Streak = 0 },
+		OwnedTrails = { classic = true },
+		EquippedTrail = "classic",
+		RealmsVisited = {},
 	}
 end
 
@@ -87,6 +98,13 @@ local function mirror(player: Player)
 	player:SetAttribute("Level", level)
 	player:SetAttribute("Title", Config.TitleForLevel(level))
 	player:SetAttribute("TutorialDone", data.TutorialDone)
+	player:SetAttribute("Trail", data.EquippedTrail)
+	local trails = {}
+	for id in data.OwnedTrails do
+		table.insert(trails, id)
+	end
+	player:SetAttribute("OwnedTrails", table.concat(trails, ","))
+	player:SetAttribute("DailyAvailable", data.Daily.Last < math.floor(os.time() / 86400))
 	player:SetAttribute("Equipped", data.Equipped)
 	local owned = {}
 	for id in data.Owned do
@@ -160,7 +178,16 @@ local function load(player: Player)
 				end
 			end
 			data.TutorialDone = saved.TutorialDone == true
-			for _, field in { "Stats", "Achievements", "Visited" } do
+			if type(saved.WeeklyQuests) == "table" then
+				data.WeeklyQuests = saved.WeeklyQuests
+			end
+			if type(saved.Daily) == "table" then
+				data.Daily = { Last = tonumber(saved.Daily.Last) or 0, Streak = tonumber(saved.Daily.Streak) or 0 }
+			end
+			if type(saved.EquippedTrail) == "string" then
+				data.EquippedTrail = saved.EquippedTrail
+			end
+			for _, field in { "Stats", "Achievements", "Visited", "OwnedTrails", "RealmsVisited" } do
 				if type(saved[field]) == "table" then
 					for name, value in saved[field] do
 						if type(name) == "string" then

@@ -31,10 +31,13 @@ type CharacterFX = {
 	Root: BasePart,
 	Trail: Trail,
 	Sparks: ParticleEmitter,
+	TrailParticles: ParticleEmitter,
+	StyleId: string?,
 	Dust: ParticleEmitter,
 	LastGrapplePoint: Vector3?,
 }
 local tracked: { [Model]: CharacterFX } = {}
+local applyTrailStyle
 
 local function folder(): Instance
 	local camera = workspace.CurrentCamera
@@ -242,6 +245,10 @@ local function track(player: Player, character: Model)
 	dust.Enabled = false
 	dust.Parent = feetAttachment
 
+	local trailParticles = Instance.new("ParticleEmitter")
+	trailParticles.Enabled = false
+	trailParticles.Parent = top
+
 	tracked[character] = {
 		Player = player,
 		Character = character,
@@ -249,11 +256,88 @@ local function track(player: Player, character: Model)
 		Trail = trail,
 		Sparks = sparks,
 		Dust = dust,
+		TrailParticles = trailParticles,
+		StyleId = nil,
 		LastGrapplePoint = nil,
 	}
 	character.Destroying:Connect(function()
 		tracked[character] = nil
 	end)
+end
+
+-- Trail styles ------------------------------------------------------------------------
+
+local PARTICLE_TEXTURES = {
+	Fire = "rbxasset://textures/particles/fire_main.dds",
+	Sparkle = SPARKLE,
+	Smoke = SMOKE,
+}
+
+local function gradient(colors: { Color3 }): ColorSequence
+	if #colors == 1 then
+		return ColorSequence.new(colors[1])
+	end
+	local keypoints = {}
+	for i, color in colors do
+		table.insert(keypoints, ColorSequenceKeypoint.new((i - 1) / (#colors - 1), color))
+	end
+	return ColorSequence.new(keypoints)
+end
+
+-- Colour, shape and particles for the player's equipped trail.
+function applyTrailStyle(fx: CharacterFX, ropeColor: Color3, moving: boolean)
+	local style = Config.GetTrail(fx.Player:GetAttribute("Trail")) or Config.Trails[1]
+	local now = os.clock()
+	if style.Id ~= fx.StyleId then
+		fx.StyleId = style.Id
+		local trail = fx.Trail
+		trail.Lifetime = style.Lifetime or 0.35
+		trail.LightEmission = if style.Dark then 0 else 0.8
+		trail.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, if style.Dark then 0.1 else 0.3),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		trail.WidthScale = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 0.2) })
+		if style.Colors then
+			trail.Color = gradient(style.Colors)
+		end
+		local particles = fx.TrailParticles
+		if style.Particles then
+			particles.Texture = PARTICLE_TEXTURES[style.Particles] or SPARKLE
+			particles.Color = gradient(style.Colors or { ropeColor })
+			particles.LightEmission = if style.Particles == "Smoke" then 0 else 1
+			particles.Rate = if style.Particles == "Smoke" then 12 else 22
+			particles.Lifetime = NumberRange.new(0.4, 0.8)
+			particles.Speed = NumberRange.new(1, 3)
+			particles.SpreadAngle = Vector2.new(180, 180)
+			particles.Drag = 3
+			particles.Size = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, if style.Particles == "Smoke" then 1.5 else 0.7),
+				NumberSequenceKeypoint.new(1, if style.Particles == "Smoke" then 3 else 0),
+			})
+			particles.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, if style.Particles == "Smoke" then 0.4 else 0),
+				NumberSequenceKeypoint.new(1, 1),
+			})
+		end
+	end
+
+	if style.Rainbow then
+		local hue = now * 0.4 % 1
+		fx.Trail.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromHSV(hue, 0.8, 1)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromHSV((hue + 0.33) % 1, 0.8, 1)),
+			ColorSequenceKeypoint.new(1, Color3.fromHSV((hue + 0.66) % 1, 0.8, 1)),
+		})
+	elseif not style.Colors then
+		fx.Trail.Color = ColorSequence.new(ropeColor)
+	end
+	if style.Pulse and moving then
+		local pulse = 1 + math.sin(now * 12) * 0.45
+		fx.Trail.WidthScale =
+			NumberSequence.new({ NumberSequenceKeypoint.new(0, pulse), NumberSequenceKeypoint.new(1, 0.2) })
+	end
+	fx.TrailParticles.Enabled = moving and style.Particles ~= nil
 end
 
 local function watchPlayer(player: Player)
@@ -277,8 +361,9 @@ local function update()
 		local speed = MathUtil.Flat(fx.Root.AssemblyLinearVelocity).Magnitude
 		local color = VFX.PlayerColor(fx.Player)
 
-		fx.Trail.Enabled = speed > TRAIL_SPEED
-		fx.Trail.Color = ColorSequence.new(color)
+		local moving = speed > TRAIL_SPEED
+		fx.Trail.Enabled = moving
+		applyTrailStyle(fx, color, moving)
 		fx.Sparks.Color = ColorSequence.new(color)
 		fx.Sparks.Enabled = state == "WallRun"
 		fx.Dust.Enabled = state == "Slide"

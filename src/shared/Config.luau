@@ -304,8 +304,152 @@ Config.Quests = {
 		{ Id = "shards", Stat = "Shard", Goals = { 25, 50, 90 }, Text = "Collect %d shards" },
 		{ Id = "combo", Stat = "ComboScore", Goals = { 15, 30, 50 }, Text = "Bank a %d style combo", Best = true },
 		{ Id = "trial", Stat = "TrialFinish", Goals = { 1, 2, 3 }, Text = "Finish %d time trials" },
+		{ Id = "emote", Stat = "Emote", Goals = { 5, 10, 20 }, Text = "Emote %d times" },
+		{ Id = "wallrun", Stat = "WallRun", Goals = { 20, 40, 70 }, Text = "Wall-run %d times" },
+		{ Id = "speed", Stat = "TopSpeed", Goals = { 110, 130, 150 }, Text = "Reach %d speed", Best = true },
+		{ Id = "portal", Stat = "RealmVisit", Goals = { 1, 3, 5 }, Text = "Travel through %d portals" },
+	},
+	-- Weekly quests: three bigger goals (pool goals x GoalScale), reset Monday UTC.
+	Weekly = {
+		PerWeek = 3,
+		GoalScale = 8,
+		RewardShards = { 120, 180, 260 },
+		RewardXP = { 400, 650, 900 },
 	},
 }
+
+-- Realms: the Sky Islands plus two more worlds reached through portals at spawn.
+-- Each realm is built around its Origin; you're "in" the nearest realm within Radius.
+Config.Realms = {
+	{
+		Id = "sky",
+		Name = "Sky Islands",
+		Origin = Vector3.new(0, 0, 0),
+		Radius = 2600,
+		Level = 1,
+		Color = Color3.fromRGB(120, 230, 255),
+	},
+	{
+		Id = "neon",
+		Name = "Neon City",
+		Origin = Vector3.new(9000, 0, 0),
+		Radius = 1400,
+		Level = 3,
+		Color = Color3.fromRGB(255, 70, 220),
+	},
+	{
+		Id = "ember",
+		Name = "Ember Isles",
+		Origin = Vector3.new(-9000, 0, 0),
+		Radius = 1400,
+		Level = 6,
+		Color = Color3.fromRGB(255, 120, 40),
+	},
+}
+
+function Config.GetRealm(id: string?)
+	for _, realm in Config.Realms do
+		if realm.Id == id then
+			return realm
+		end
+	end
+	return nil
+end
+
+function Config.RealmAt(position: Vector3)
+	for _, realm in Config.Realms do
+		local offset = position - realm.Origin
+		if Vector3.new(offset.X, 0, offset.Z).Magnitude < realm.Radius then
+			return realm
+		end
+	end
+	return Config.Realms[1]
+end
+
+-- Daily login rewards: a 7-day streak that loops. Miss a day and it restarts.
+Config.DailyRewards = {
+	{ Shards = 20 },
+	{ Shards = 30 },
+	{ Shards = 40, XP = 100 },
+	{ Shards = 50 },
+	{ Shards = 75 },
+	{ Shards = 100, XP = 250 },
+	{ Shards = 150, Trail = "golden" },
+}
+
+-- Trails: speed trails you leave behind. "classic" follows your rope colour.
+-- Particles: "Sparkle", "Fire" or "Smoke". Exclusive trails can't be bought.
+Config.Trails = {
+	{ Id = "classic", Name = "Classic", Price = 0 },
+	{
+		Id = "sunset",
+		Name = "Sunset",
+		Price = 80,
+		Colors = { Color3.fromRGB(255, 170, 60), Color3.fromRGB(255, 90, 140), Color3.fromRGB(140, 70, 220) },
+	},
+	{
+		Id = "aurora",
+		Name = "Aurora",
+		Price = 150,
+		Lifetime = 0.7,
+		Colors = { Color3.fromRGB(80, 255, 160), Color3.fromRGB(70, 200, 255), Color3.fromRGB(170, 90, 255) },
+	},
+	{
+		Id = "ember",
+		Name = "Ember",
+		Price = 200,
+		Particles = "Fire",
+		Colors = { Color3.fromRGB(255, 220, 90), Color3.fromRGB(255, 110, 30), Color3.fromRGB(180, 30, 20) },
+	},
+	{
+		Id = "stardust",
+		Name = "Stardust",
+		Price = 250,
+		Particles = "Sparkle",
+		Colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(190, 210, 255) },
+	},
+	{
+		Id = "cloud",
+		Name = "Cloud Puff",
+		Price = 120,
+		Particles = "Smoke",
+		Lifetime = 0.5,
+		Colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(220, 230, 250) },
+	},
+	{
+		Id = "shadow",
+		Name = "Shadow",
+		Price = 300,
+		Lifetime = 0.6,
+		Colors = { Color3.fromRGB(40, 30, 60), Color3.fromRGB(10, 10, 20) },
+		Dark = true,
+	},
+	{
+		Id = "neon",
+		Name = "Neon Pulse",
+		Price = 350,
+		Pulse = true,
+		Colors = { Color3.fromRGB(60, 255, 255), Color3.fromRGB(255, 60, 230) },
+	},
+	{ Id = "rainbow", Name = "Rainbow", Price = 600, Rainbow = true, Lifetime = 0.6 },
+	{
+		Id = "golden",
+		Name = "Golden",
+		Price = 0,
+		Exclusive = "7-day login streak",
+		Particles = "Sparkle",
+		Colors = { Color3.fromRGB(255, 240, 150), Color3.fromRGB(255, 190, 40) },
+	},
+}
+
+function Config.GetTrail(id: string?)
+	for _, trail in Config.Trails do
+		if trail.Id == id then
+			return trail
+		end
+	end
+	return nil
+end
 
 -- Emotes, in emote-wheel order. Keys 1-9 and 0 play the first ten.
 -- Animations live in client/EmoteLibrary.
@@ -412,6 +556,33 @@ Config.Achievements = {
 		Reward = 250,
 		Best = true,
 	},
+	{
+		Id = "globetrotter",
+		Name = "Globetrotter",
+		Desc = "Visit every realm",
+		Stat = "Realms",
+		Goal = 3,
+		Reward = 200,
+		Best = true,
+	},
+	{
+		Id = "dedicated",
+		Name = "Dedicated",
+		Desc = "Reach a 7-day login streak",
+		Stat = "LoginStreak",
+		Goal = 7,
+		Reward = 150,
+		Best = true,
+	},
+	{
+		Id = "trendsetter",
+		Name = "Trendsetter",
+		Desc = "Own 5 trails",
+		Stat = "TrailsOwned",
+		Goal = 5,
+		Reward = 100,
+		Best = true,
+	},
 }
 
 -- Player settings and their defaults. Saved per player.
@@ -425,6 +596,7 @@ Config.Settings = {
 		SpeedLines = true,
 		SprintMode = "Hold", -- Hold | Toggle
 		ShowSpeedometer = true,
+		ShowQuests = true,
 		EffectsVolume = 0.8,
 		WindVolume = 0.8,
 		MusicEnabled = true,

@@ -71,6 +71,34 @@ local function rgb(r: number, g: number, b: number): Color3
 end
 
 -- Each time of day sets Lighting, Atmosphere, colour grading and bloom.
+-- Other realms have their own fixed look instead of the time-of-day setting.
+local REALM_LOOKS = {
+	neon = {
+		Lighting = {
+			ClockTime = 0.5,
+			Brightness = 1.4,
+			Ambient = rgb(60, 40, 90),
+			OutdoorAmbient = rgb(110, 70, 150),
+			ExposureCompensation = 0.45,
+		},
+		Atmosphere = { Density = 0.36, Color = rgb(150, 70, 190), Decay = rgb(40, 10, 70), Haze = 1.4, Glare = 0.2 },
+		Grade = { TintColor = rgb(235, 215, 255), Saturation = 0.3 },
+		Bloom = 1.5,
+	},
+	ember = {
+		Lighting = {
+			ClockTime = 17.9,
+			Brightness = 1.8,
+			Ambient = rgb(90, 45, 35),
+			OutdoorAmbient = rgb(170, 90, 70),
+			ExposureCompensation = 0.3,
+		},
+		Atmosphere = { Density = 0.42, Color = rgb(255, 130, 80), Decay = rgb(120, 30, 20), Haze = 2.8, Glare = 0.8 },
+		Grade = { TintColor = rgb(255, 225, 205), Saturation = 0.25 },
+		Bloom = 1.2,
+	},
+}
+
 local TIMES = {
 	Sunrise = {
 		Lighting = {
@@ -150,8 +178,10 @@ local function tweenTo(target: Instance, props: { [string]: any }, time: number)
 	end
 end
 
+local currentRealm = "sky"
+
 local function applyTimeOfDay(name: string, time: number)
-	local preset = TIMES[name] or TIMES["Golden Hour"]
+	local preset = REALM_LOOKS[currentRealm] or TIMES[name] or TIMES["Golden Hour"]
 	tweenTo(Lighting, preset.Lighting, time)
 	tweenTo(effect("Atmosphere"), preset.Atmosphere, time)
 	tweenTo(effect("ColorCorrectionEffect"), preset.Grade, time)
@@ -200,6 +230,15 @@ local function createVignette()
 				gradient.Transparency = sequence
 			end
 		end
+end
+
+-- Switch to a realm's look (or back to the time-of-day setting in the Sky Islands).
+function Graphics.SetRealm(realmId: string)
+	if realmId == currentRealm then
+		return
+	end
+	currentRealm = realmId
+	applyTimeOfDay(Settings.Get("TimeOfDay"), 2)
 end
 
 function Graphics.Start(Movement)

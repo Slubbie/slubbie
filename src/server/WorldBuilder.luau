@@ -23,7 +23,7 @@ local Flat = MathUtil.Flat
 local Terrain = workspace.Terrain
 local M = Enum.Material
 
-type Biome = "Meadow" | "Blossom" | "Ruins" | "Alpine" | "Plaza"
+type Biome = "Meadow" | "Blossom" | "Ruins" | "Alpine" | "Plaza" | "Volcanic"
 
 local TOP_MATERIAL: { [Biome]: Enum.Material } = {
 	Meadow = M.Grass,
@@ -31,6 +31,7 @@ local TOP_MATERIAL: { [Biome]: Enum.Material } = {
 	Ruins = M.Grass,
 	Alpine = M.Snow,
 	Plaza = M.Grass,
+	Volcanic = M.Basalt,
 }
 local LEAVES = {
 	Meadow = { Color3.fromRGB(88, 168, 84), Color3.fromRGB(110, 186, 90), Color3.fromRGB(70, 150, 90) },
@@ -379,7 +380,8 @@ end
 
 local function sculptIsland(center: Vector3, radius: number, biome: Biome, rng: Random)
 	local top = TOP_MATERIAL[biome]
-	local rock = if biome == "Alpine" then M.Slate else M.Rock
+	local rock = if biome == "Alpine" then M.Slate elseif biome == "Volcanic" then M.Basalt else M.Rock
+	local soil = if biome == "Volcanic" then M.Basalt else M.Ground
 
 	-- Rocky underside: layers of boulders, each narrower than the one above,
 	-- tapering to a point. Built first so the grass cap can cover its top.
@@ -410,7 +412,7 @@ local function sculptIsland(center: Vector3, radius: number, biome: Biome, rng: 
 
 	-- Grass cap over a band of soil.
 	Terrain:FillCylinder(CFrame.new(center - Vector3.new(0, 1, 0)), 6, radius, top)
-	Terrain:FillCylinder(CFrame.new(center - Vector3.new(0, 6, 0)), 5, radius * 0.97, M.Ground)
+	Terrain:FillCylinder(CFrame.new(center - Vector3.new(0, 6, 0)), 5, radius * 0.97, soil)
 
 	-- Rolling hills on top.
 	if biome ~= "Plaza" then
@@ -1159,5 +1161,24 @@ function WorldBuilder.Build()
 
 	return islands
 end
+
+-- Building blocks shared with the other realms (see Realms.luau).
+WorldBuilder.Kit = {
+	Part = part,
+	Decor = decor,
+	Cylinder = cylinder,
+	Vary = vary,
+	GroundAt = groundAt,
+	RandomSpot = randomSpot,
+	Emitter = emitter,
+	Lantern = lantern,
+	SculptIsland = sculptIsland,
+	Shard = shard,
+	Anchor = anchor,
+	LaunchPad = launchPad,
+	SpinnerRing = spinnerRing,
+	Cloud = cloud,
+	FloatingDebris = floatingDebris,
+}
 
 return WorldBuilder
