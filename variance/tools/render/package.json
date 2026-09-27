@@ -1,0 +1,15 @@
+{
+  "name": "variance-render",
+  "private": true,
+  "description": "Renders tests/snapshot.luau frames to PNG (three.js in headless Chromium)",
+  "type": "module",
+  "dependencies": {
+    "@fontsource/michroma": "^5.3.0",
+    "@fontsource/montserrat": "^5.3.0",
+    "@fontsource/roboto-mono": "^5.3.0",
+    "@fontsource/source-sans-3": "^5.3.0",
+    "@fontsource/special-elite": "^5.3.0",
+    "playwright-core": "^1.63.0",
+    "three": "0.169.0"
+  }
+}

@@ -36,8 +36,8 @@ function ChallengesScreen.new(ui, controllers)
 			self.Window:setSubtitle(
 				string.format(
 					"DAILY RESET IN %s  ·  WEEKLY RESET IN %s",
-					Format.clock(math.max(0, (c.DayEndsIn or 0) - elapsed)),
-					Format.clock(math.max(0, (c.WeekEndsIn or 0) - elapsed))
+					Format.duration(math.max(0, (c.DayEndsIn or 0) - elapsed)),
+					Format.duration(math.max(0, (c.WeekEndsIn or 0) - elapsed))
 				)
 			)
 		end

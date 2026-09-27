@@ -26,6 +26,10 @@ local toastList: Frame
 local subtitleFrame: Frame
 local bannerFrame: Frame
 local scale: UIScale
+local curtain: Frame
+local curtainTitle: TextLabel
+local curtainSub: TextLabel
+local curtainToken = 0
 
 function UIController:Init(controllers)
 	self.Controllers = controllers
@@ -69,11 +73,12 @@ function UIController:Init(controllers)
 	local toastLayout = Kit.list(toastList, "Y", 8, "Right")
 	toastLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
+	-- Above the table HUD's odds panel and fire controls.
 	subtitleFrame = Kit.create("Frame", {
 		Name = "Subtitles",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -196),
+		Position = UDim2.new(0.5, 0, 1, -304),
 		Size = UDim2.fromOffset(760, 120),
 		ZIndex = 110,
 		Parent = self.Overlay,
@@ -88,6 +93,103 @@ function UIController:Init(controllers)
 		ZIndex = 130,
 		Parent = self.Overlay,
 	}) :: Frame
+
+	-- The curtain hides trips between the lobby and a table (its own layer,
+	-- above everything, so the HUD never flashes through a fade).
+	local curtainGui = Instance.new("ScreenGui")
+	curtainGui.Name = "VarianceCurtain"
+	curtainGui.IgnoreGuiInset = true
+	curtainGui.ResetOnSpawn = false
+	curtainGui.DisplayOrder = 50
+	curtainGui.Parent = gui.Parent
+	curtain = Kit.create("Frame", {
+		Name = "Curtain",
+		BackgroundColor3 = Color3.fromRGB(4, 4, 5),
+		BorderSizePixel = 0,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = curtainGui,
+	}) :: Frame
+	curtainTitle = Kit.label(curtain, {
+		Name = "Title",
+		Text = "",
+		Font = "Display",
+		TextSize = "Title",
+		XAlign = "Center",
+		Color = "Text",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(800, 34),
+		Transparency = 1,
+	})
+	curtainSub = Kit.label(curtain, {
+		Name = "Sub",
+		Text = "",
+		Font = "Mono",
+		TextSize = "Small",
+		XAlign = "Center",
+		Color = "Dim",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, 30),
+		Size = UDim2.fromOffset(800, 20),
+		Transparency = 1,
+	})
+end
+
+-- Fades the screen to black (on) or back (off). opts: Fade (seconds), Title,
+-- Sub. A lowered curtain always lifts itself after `Failsafe` seconds.
+function UIController:curtain(on: boolean, opts: { [string]: any }?)
+	local o = opts or {}
+	curtainToken += 1
+	local token = curtainToken
+	local fade = o.Fade or (if on then 0.25 else 0.5)
+	if o.Title ~= nil then
+		curtainTitle.Text = o.Title
+	end
+	if o.Sub ~= nil then
+		curtainSub.Text = o.Sub
+	end
+	if on then
+		curtain.Visible = true
+		Motion.tween(curtain, fade, { BackgroundTransparency = 0 })
+		local textAlpha = if curtainTitle.Text ~= "" then 0 else 1
+		Motion.tween(curtainTitle, fade + 0.2, { TextTransparency = textAlpha })
+		Motion.tween(curtainSub, fade + 0.3, { TextTransparency = textAlpha })
+		task.delay(o.Failsafe or 12, function()
+			if curtainToken == token then
+				self:curtain(false)
+			end
+		end)
+	else
+		if not curtain.Visible then
+			return
+		end
+		Motion.tween(curtainTitle, fade * 0.5, { TextTransparency = 1 })
+		Motion.tween(curtainSub, fade * 0.5, { TextTransparency = 1 })
+		Motion.tween(curtain, fade, { BackgroundTransparency = 1 })
+		task.delay(fade, function()
+			if curtainToken == token then
+				curtain.Visible = false
+				curtainTitle.Text = ""
+				curtainSub.Text = ""
+			end
+		end)
+	end
+end
+
+-- Sets the caption on a lowered curtain (e.g. the room being entered).
+function UIController:curtainText(title: string?, sub: string?)
+	curtainTitle.Text = title or ""
+	curtainSub.Text = sub or ""
+	if curtain.Visible then
+		Motion.tween(curtainTitle, 0.3, { TextTransparency = if title and title ~= "" then 0 else 1 })
+		Motion.tween(curtainSub, 0.4, { TextTransparency = if sub and sub ~= "" then 0 else 1 })
+	end
+end
+
+function UIController:curtainDown(): boolean
+	return curtain.Visible and curtain.BackgroundTransparency < 0.5
 end
 
 function UIController:updateScale()
@@ -483,7 +585,16 @@ function UIController:Start()
 	network:onPush("TutorialComplete", function(data)
 		self:toast("LESSON COMPLETE", (data.Name or "") .. (data.First and " - rewards granted." or ""), "Good")
 	end)
+	network:onPush("Curtain", function(data)
+		if type(data) == "table" and data.On then
+			self:curtain(true, { Title = "", Sub = "" })
+			controllers.CameraController:hold()
+		end
+	end)
 	network:onPush("OfferTutorial", function()
+		if controllers.MatchClient:active() then
+			return -- already at a table; the offer stays in the Play screen
+		end
 		task.spawn(function()
 			local begin = Kit.modal(
 				"WELCOME, CANDIDATE",
@@ -491,7 +602,8 @@ function UIController:Start()
 				{
 					{ Text = "LATER", Style = "Ghost", Value = false },
 					{ Text = "BEGIN ORIENTATION", Style = "Primary", Value = true },
-				}
+				},
+				{ Tag = "Offer" }
 			)
 			if begin then
 				local ok, err = network:request("Tutorial.Start", "Basic")

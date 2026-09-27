@@ -29,14 +29,7 @@ function Ranked.new(ui, controllers)
 	return self
 end
 
-local function duration(seconds: number): string
-	if seconds >= 86400 then
-		return string.format("%dd %dh", seconds // 86400, (seconds % 86400) // 3600)
-	elseif seconds >= 3600 then
-		return string.format("%dh %dm", seconds // 3600, (seconds % 3600) // 60)
-	end
-	return Format.clock(seconds)
-end
+local duration = Format.duration
 
 function Ranked:render()
 	local body = self.Window.Body

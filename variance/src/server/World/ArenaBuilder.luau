@@ -153,7 +153,7 @@ end
 
 local function buildChair(parent: Instance, origin: CFrame, seat: number, colors)
 	local chair = Build.model("Chair_" .. seat, parent)
-	local base = origin * TableLayout.seatCFrame(seat) * CFrame.new(0, 0, 0.25)
+	local base = origin * TableLayout.chairCFrame(seat)
 	local h = TableLayout.SeatHeight
 	Build.box(chair, Vector3.new(2.3, 0.25, 2.1), base * CFrame.new(0, h - 0.125, 0), colors.Prop, "Metal", "Pan")
 	Build.box(
@@ -175,19 +175,28 @@ local function buildChair(parent: Instance, origin: CFrame, seat: number, colors
 				"Leg"
 			)
 		end
-		-- Armrests with harness straps: the subject is wired to the Arbiter's circuit.
+		-- Armrests with harness straps: the subject is wired to the Arbiter's
+		-- circuit. Low enough to slide under the table when the chair is in.
 		Build.box(
 			chair,
-			Vector3.new(0.3, 0.2, 1.8),
-			base * CFrame.new(x * 1.2, h + 0.95, 0.05),
+			Vector3.new(0.3, 0.2, 1.7),
+			base * CFrame.new(x * 1.25, h + 0.85, 0.2),
 			colors.Prop,
 			"Metal",
 			"Arm"
 		)
 		Build.box(
 			chair,
+			Vector3.new(0.16, 0.75, 0.16),
+			base * CFrame.new(x * 1.25, h + 0.375, 0.85),
+			Color3.fromRGB(40, 40, 42),
+			"Metal",
+			"Post"
+		)
+		Build.box(
+			chair,
 			Vector3.new(0.34, 0.24, 0.3),
-			base * CFrame.new(x * 1.2, h + 1.0, -0.4),
+			base * CFrame.new(x * 1.25, h + 0.87, -0.15),
 			Color3.fromRGB(28, 28, 30),
 			"Leather",
 			"Strap"
@@ -219,8 +228,8 @@ local function buildTable(model: Model, origin: CFrame, seats: { number }, color
 		for _, z in { -1, 1 } do
 			Build.box(
 				tableModel,
-				Vector3.new(0.5, top - 0.3, 0.5),
-				origin * CFrame.new(x * 3.8, (top - 0.3) / 2, z * 3.8),
+				Vector3.new(0.5, top - size.Y, 0.5),
+				origin * CFrame.new(x * 3.8, (top - size.Y) / 2, z * 3.8),
 				Color3.fromRGB(34, 34, 36),
 				"Metal",
 				"Leg"
@@ -228,12 +237,14 @@ local function buildTable(model: Model, origin: CFrame, seats: { number }, color
 		end
 	end
 	local rim = 0.2
+	local rh = TableLayout.RimHeight
+	local ry = top + 0.02 - rh / 2
 	for _, spec in
 		{
-			{ Vector3.new(size.X + rim * 2, 0.34, rim), CFrame.new(0, top - 0.15, size.Z / 2 + rim / 2) },
-			{ Vector3.new(size.X + rim * 2, 0.34, rim), CFrame.new(0, top - 0.15, -size.Z / 2 - rim / 2) },
-			{ Vector3.new(rim, 0.34, size.Z), CFrame.new(size.X / 2 + rim / 2, top - 0.15, 0) },
-			{ Vector3.new(rim, 0.34, size.Z), CFrame.new(-size.X / 2 - rim / 2, top - 0.15, 0) },
+			{ Vector3.new(size.X + rim * 2, rh, rim), CFrame.new(0, ry, size.Z / 2 + rim / 2) },
+			{ Vector3.new(size.X + rim * 2, rh, rim), CFrame.new(0, ry, -size.Z / 2 - rim / 2) },
+			{ Vector3.new(rim, rh, size.Z), CFrame.new(size.X / 2 + rim / 2, ry, 0) },
+			{ Vector3.new(rim, rh, size.Z), CFrame.new(-size.X / 2 - rim / 2, ry, 0) },
 		}
 	do
 		local p = Build.box(tableModel, spec[1], origin * spec[2], trimColor, "Metal", "Rim")
@@ -405,7 +416,8 @@ function ArenaBuilder.build(
 		})
 	end
 	local centre = (origin * CFrame.new(0, TableLayout.TableTop, 0)).Position
-	mark("Establish1", CFrame.lookAt((origin * CFrame.new(-17, 12, 17)).Position, centre))
+	-- Establish1 frames the walk-in (subjects enter from the +X side).
+	mark("Establish1", CFrame.lookAt((origin * CFrame.new(-12, 7.5, 13)).Position, centre + Vector3.new(1.5, 0, 0)))
 	mark("Establish2", CFrame.lookAt((origin * CFrame.new(12, 4.2, -6)).Position, centre + Vector3.new(0, 0.5, 0)))
 	mark("Overhead", CFrame.lookAt((origin * CFrame.new(0, 15, 0.01)).Position, centre))
 	mark("Gallery", CFrame.lookAt((origin * CFrame.new(-19, 9, 0)).Position, centre))

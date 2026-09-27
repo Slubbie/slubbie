@@ -67,6 +67,7 @@ Config.Match = {
 	ArenaOrigin = { 3000, 0, 0 }, -- first arena slot (studs); far from the lobby
 	ArenaSpacing = 800,
 	ReconnectGrace = 45, -- seconds a disconnected subject's seat is held
+	ReadyTimeout = 8, -- longest wait for clients to stream the room in before the intro
 	AfkTimeoutsToForfeit = 2, -- consecutive turn timeouts before an AFK forfeit (PvP)
 	RematchWindow = 15,
 	PostMatchLinger = 30, -- seconds on the summary screen before returning to the lobby

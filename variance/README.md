@@ -27,8 +27,9 @@ six evaluation rooms, the lobby, the story files and the progression.
 - **Progression**: 100 clearance levels with titles, Marks (earned-only
   cosmetic currency), 99 cosmetics in 13 categories, 40 achievements (11
   hidden), daily and weekly directives, 22 story files, lifetime statistics.
-- **Presentation**: procedural R6 animation (reach, grip, aim, recoil, flinch,
-  slump, emotes, victory poses), a fully choreographed Arbiter (sliding
+- **Presentation**: procedural R6 animation (walking in and sitting down,
+  reach, grip, aim, recoil, flinch, slump, emotes, victory poses), seamless
+  fades between the lobby and the table, a fully choreographed Arbiter (sliding
   delivery, bolt, cells loaded through the port, spent casings), escalating
   lighting, generative score and heartbeat, cinematic camera, six themed rooms
   with ambient events.

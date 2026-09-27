@@ -1107,6 +1107,11 @@ special.Humanoid = {
 	},
 	methods = {
 		MoveTo = function() end,
+		Move = function(_, direction)
+			if Types.typeof(direction) ~= "Vector3" then
+				error("Unable to cast to Vector3", 2)
+			end
+		end,
 		ChangeState = function() end,
 		GetState = function()
 			return Instances.Enum.HumanoidStateType.Running

@@ -398,13 +398,35 @@ profile = ctl(adaCtx, "ProfileController"):get()
 check("orientation recorded", profile and profile.Tutorial and profile.Tutorial.Basic == true)
 
 print("== solo")
+local curtainsBefore = count(ada, "Curtain")
 ok, err = request(adaCtx, "Solo.Start", "Volta", "Standard")
 check("solo starts", ok == true, tostring(err))
+check("screen fades out before the move to the table", count(ada, "Curtain") > curtainsBefore)
+check("curtain is down", ctl(adaCtx, "UIController"):curtainDown())
 waitFor(function()
 	return inMatch(adaCtx)
 end, 20)
 check("solo scene begins", inMatch(adaCtx) and matchOf(adaCtx).Subjects[2].IsAI == true)
-Scheduler.run(3)
+check("fresh match flagged for the intro", matchOf(adaCtx).Fresh == true)
+local anim = ctl(adaCtx, "AnimationController")
+waitFor(function()
+	return anim:arriving(anim:rigOf(1))
+end, 12)
+check("player walks in and sits down", anim:arriving(anim:rigOf(1)))
+check("surrogate walks in too", anim:arriving(anim:rigOf(2)))
+local soloMatch = serverModule("Services.MatchService"):matchOf(ada)
+check("client reported its room ready", soloMatch ~= nil and soloMatch.Ready[1] == true)
+check("curtain lifts for the intro", not ctl(adaCtx, "UIController"):curtainDown())
+local chair = world.Workspace.Arenas:FindFirstChild(matchOf(adaCtx).Arena).Seats.Chair_1
+local anchor = world.Workspace.Arenas:FindFirstChild(matchOf(adaCtx).Arena).Seats.Anchor_1
+local pulled = chair:GetPivot().Position
+Scheduler.run(5)
+local home = chair:GetPivot().Position
+check("chair pulled out for the walk-in, then pushed in", (pulled - home).Magnitude > 1.8)
+check("seated once the intro is over", not anim:arriving(anim:rigOf(1)) and not anim:arriving(anim:rigOf(2)))
+local root = ada.Character.HumanoidRootPart
+check("body anchored at the seat", root.Anchored and (root.Position - anchor.Position).Magnitude < 0.01)
+check("own head hidden in first person", ada.Character.Head.LocalTransparencyModifier == 1)
 local presenter = ctl(adaCtx, "MatchPresenter")
 check("arena bound on the client", presenter:arena() ~= nil)
 check(
@@ -473,6 +495,8 @@ waitFor(function()
 end, 900)
 check("duel finishes for both", count(ada, "PostMatch") > adaBefore and count(bex, "PostMatch") > bexBefore)
 Scheduler.run(2)
+local rematchCurtains = count(ada, "Curtain")
+local seatBefore = matchOf(adaCtx).Subjects[matchOf(adaCtx).You].Seat
 request(adaCtx, "Match.Rematch", true)
 request(bexCtx, "Match.Rematch", true)
 local matchBefore = matchOf(adaCtx) and matchOf(adaCtx).MatchId
@@ -481,6 +505,14 @@ waitFor(function()
 	return s ~= nil and s.MatchId ~= matchBefore
 end, 30)
 check("rematch starts", matchOf(adaCtx) ~= nil and matchOf(adaCtx).MatchId ~= matchBefore)
+Scheduler.run(3)
+local adaAnim = ctl(adaCtx, "AnimationController")
+check(
+	"a rematch keeps everyone in their chairs",
+	not adaAnim:arriving(adaAnim:rigOf(1)) and not adaAnim:arriving(adaAnim:rigOf(2))
+)
+check("rematch swaps seats behind the curtain", count(ada, "Curtain") > rematchCurtains)
+check("swapped to the other side of the table", matchOf(adaCtx).Subjects[matchOf(adaCtx).You].Seat ~= seatBefore)
 
 print("== disconnect and reconnect")
 Scheduler.run(15)

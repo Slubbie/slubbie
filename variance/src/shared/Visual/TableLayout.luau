@@ -5,10 +5,19 @@
 
 local TableLayout = {}
 
-TableLayout.TableTop = 2.5 -- height of the table surface
-TableLayout.TableSize = Vector3.new(9, 0.3, 9)
+-- R6 bodies are rigid: seated, the thighs lie flat at hip height, so the
+-- torso centre sits 1.55 above the chair pan and the table has to clear the
+-- top of the thighs (hip + 0.5). The table top sits at mid-torso, like a desk.
+TableLayout.TableTop = 2.8 -- height of the table surface
+TableLayout.TableSize = Vector3.new(9, 0.2, 9)
+TableLayout.RimHeight = 0.2
 TableLayout.SeatDistance = 5.35 -- table centre to the seated subject's root
 TableLayout.SeatHeight = 1.5 -- chair seat surface
+TableLayout.TorsoHeight = TableLayout.SeatHeight + 1.55 -- seated torso centre
+-- The chair's pivot sits behind the seat point so its back meets the torso.
+TableLayout.ChairOffset = -0.38
+-- How far a chair starts pulled out before its subject sits (client-side).
+TableLayout.ChairPull = 1.9
 TableLayout.TrayDistance = 3.1 -- table centre to the tray row
 TableLayout.SlotSpacing = 0.82
 
@@ -40,14 +49,21 @@ function TableLayout.seatCFrame(seat: number): CFrame
 	return CFrame.lookAt(pos, Vector3.zero)
 end
 
--- Where a seated rig's HumanoidRootPart goes (R6: torso centre).
+-- Where a seated rig's HumanoidRootPart goes: the seated torso centre. It is
+-- also exactly standing height (feet on the floor), so a body that has not
+-- been posed yet stands beside the table instead of sinking into it.
 function TableLayout.rootCFrame(seat: number): CFrame
-	return TableLayout.seatCFrame(seat) + Vector3.new(0, TableLayout.SeatHeight + 1.05, 0)
+	return TableLayout.seatCFrame(seat) + Vector3.new(0, TableLayout.TorsoHeight, 0)
 end
 
--- Eye point for the first-person seat camera.
+-- Eye point for the first-person seat camera (head centre + 0.12, 0.3 forward).
 function TableLayout.eyeCFrame(seat: number): CFrame
-	return TableLayout.rootCFrame(seat) * CFrame.new(0, 1.55, -0.25)
+	return TableLayout.rootCFrame(seat) * CFrame.new(0, 1.62, -0.3)
+end
+
+-- The chair's frame on the floor (pulled out by `pull` studs).
+function TableLayout.chairCFrame(seat: number, pull: number?): CFrame
+	return TableLayout.seatCFrame(seat) * CFrame.new(0, 0, TableLayout.ChairOffset + (pull or 0))
 end
 
 function TableLayout.trayCFrame(seat: number): CFrame

@@ -2,8 +2,12 @@
 -- nameplates, and seating subjects at an evaluation table.
 --
 -- At the table the HumanoidRootPart is anchored at the seat and movement is
--- disabled; the client's RigAnimator poses every seated rig (players and
--- surrogates alike) each frame, overriding the default Animate tracks.
+-- disabled; the client's AnimationController poses every seated rig (players
+-- and surrogates alike) each frame, overriding the default Animate tracks.
+--
+-- Going to a table is hidden behind a curtain: the player's screen fades out
+-- first, then the body is moved, so nobody watches their character pop across
+-- the map, stand inside a chair or wait for the room to stream in.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,7 +18,10 @@ local Levels = require(ReplicatedStorage.Variance.Data.Levels)
 local CharacterService = {}
 
 local descriptions: { [Player]: HumanoidDescription } = {}
-local seated: { [Player]: { Arena: Model, Seat: number, Cosmetics: { Instance } } } = {}
+local seated: { [Player]: { Arena: Model, Seat: number, Cosmetics: { Instance }, Token: number } } = {}
+local seatTokens: { [Player]: number } = {}
+
+local CURTAIN_LEAD = 0.3 -- seconds the screen has to fade out before the move
 
 function CharacterService:Init(services)
 	self.Services = services
@@ -270,19 +277,19 @@ local function dressForMatch(self, player: Player, character: Model): { Instance
 	return added
 end
 
--- Seats a player at a table. `rootCFrame` is the world CFrame for the root.
-function CharacterService:seat(player: Player, arena: Model, seat: number, rootCFrame: CFrame)
+-- Moves the (frozen) body to its seat and dresses it for the table.
+local function placeAtSeat(self, player: Player, arena: Model, seat: number, rootCFrame: CFrame, token: number)
 	local character, root, humanoid = characterParts(player)
 	if character == nil or root == nil then
 		character = self:spawn(player, rootCFrame)
 		if character == nil then
-			return false
+			return
 		end
 		root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		humanoid = character:FindFirstChildOfClass("Humanoid")
 	end
-	if root == nil then
-		return false
+	if root == nil or seatTokens[player] ~= token then
+		return
 	end
 	if humanoid then
 		humanoid.WalkSpeed = 0
@@ -299,24 +306,84 @@ function CharacterService:seat(player: Player, arena: Model, seat: number, rootC
 	if plate then
 		plate.Enabled = false
 	end
+	local info = seated[player]
+	if info and info.Token == token then
+		for _, item in info.Cosmetics do
+			item:Destroy()
+		end
+		info.Cosmetics = dressForMatch(self, player, character)
+	end
+end
+
+-- Seats a player at a table. `rootCFrame` is the world CFrame for the root.
+-- The player is frozen at once and moved after their screen has faded out
+-- (immediately if they are already sitting at this seat, e.g. a rematch).
+function CharacterService:seat(player: Player, arena: Model, seat: number, rootCFrame: CFrame)
+	local token = (seatTokens[player] or 0) + 1
+	seatTokens[player] = token
 	local previous = seated[player]
+	local same = previous ~= nil and previous.Arena == arena and previous.Seat == seat
 	if previous then
 		for _, item in previous.Cosmetics do
 			item:Destroy()
 		end
 	end
-	seated[player] = { Arena = arena, Seat = seat, Cosmetics = dressForMatch(self, player, character) }
-	-- Stream the room around the seat before the intro plays.
+	seated[player] = { Arena = arena, Seat = seat, Cosmetics = {}, Token = token }
+	local _, root, humanoid = characterParts(player)
+	if humanoid then
+		humanoid.WalkSpeed = 0
+		humanoid.JumpPower = 0
+		humanoid:Move(Vector3.zero)
+	end
+	if root and not same then
+		root.AssemblyLinearVelocity = Vector3.zero
+	end
+	-- Stream the room around the seat while the screen fades.
 	task.spawn(function()
 		pcall(player.RequestStreamAroundAsync, player, rootCFrame.Position, 5)
+	end)
+	if same then
+		placeAtSeat(self, player, arena, seat, rootCFrame, token)
+		return true
+	end
+	self.Services.NetworkService:push(player, "Curtain", { On = true })
+	task.delay(CURTAIN_LEAD, function()
+		if player.Parent and seatTokens[player] == token and seated[player] and seated[player].Token == token then
+			placeAtSeat(self, player, arena, seat, rootCFrame, token)
+		end
 	end)
 	return true
 end
 
--- Returns a player from a table to the lobby.
+-- Returns a player from a table to the lobby (behind the curtain).
 function CharacterService:unseat(player: Player)
 	local info = seated[player]
 	seated[player] = nil
+	local token = (seatTokens[player] or 0) + 1
+	seatTokens[player] = token
+	local spawnAt = lobbySpawn()
+	if info == nil then
+		-- Not at a table as far as we know; only fix up a body left frozen.
+		local character, root = characterParts(player)
+		if character == nil or (root and root.Anchored) then
+			self:_release(player, nil, spawnAt)
+		end
+		return
+	end
+	self.Services.NetworkService:push(player, "Curtain", { On = true })
+	-- Stream the lobby in while the screen fades.
+	task.spawn(function()
+		pcall(player.RequestStreamAroundAsync, player, spawnAt.Position, 5)
+	end)
+	task.delay(CURTAIN_LEAD, function()
+		-- Seated somewhere else in the meantime (queue popped): stay there.
+		if player.Parent and seatTokens[player] == token then
+			self:_release(player, info, spawnAt)
+		end
+	end)
+end
+
+function CharacterService:_release(player: Player, info, spawnAt: CFrame)
 	if info then
 		for _, item in info.Cosmetics do
 			if item.Parent then
@@ -339,14 +406,13 @@ function CharacterService:unseat(player: Player)
 		humanoid.WalkSpeed = 14
 		humanoid.AutoRotate = true
 	end
-	character:PivotTo(lobbySpawn())
+	character:PivotTo(spawnAt)
+	-- Anchoring handed the body to the server; give the player their physics back.
+	pcall(root.SetNetworkOwner, root, player)
 	local plate = character:FindFirstChild("Head") and character.Head:FindFirstChild("Nameplate")
 	if plate then
 		plate.Enabled = true
 	end
-	task.spawn(function()
-		pcall(player.RequestStreamAroundAsync, player, lobbySpawn().Position, 5)
-	end)
 end
 
 function CharacterService:isSeated(player: Player): boolean
@@ -365,6 +431,7 @@ function CharacterService:Start()
 	Players.PlayerRemoving:Connect(function(player)
 		descriptions[player] = nil
 		seated[player] = nil
+		seatTokens[player] = nil
 	end)
 	self.Services.DataService.Loaded:Connect(function(player)
 		self:refreshNameplate(player)

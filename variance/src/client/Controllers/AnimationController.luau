@@ -48,8 +48,9 @@ local HAND_OFFSET = { RArm = Vector3.new(0.5, -1.4, 0), LArm = Vector3.new(-0.5,
 local ARM_REACH = HAND_OFFSET.RArm.Magnitude
 local NECK_PIVOT = CFrame.new(0, 1, 0)
 local HEAD_OFFSET = CFrame.new(0, 0.5, 0)
-local SEAT_RAISE = 0.3 -- keeps horizontal legs above the chair pan
-local LEG_ANGLE = 1.45
+-- Seated, the thighs lie flat on the chair pan (the root is already at the
+-- seated torso height, see TableLayout.rootCFrame).
+local LEG_ANGLE = 1.55
 
 local defaultIdle = { Sway = 0.2, Fidget = 0, Tempo = 1, HeadTilt = 0 }
 
@@ -117,6 +118,15 @@ end
 
 local function noise(t: number, seed: number): number
 	return math.sin(t * 1.7 + seed) * 0.5 + math.sin(t * 2.9 + seed * 2.3) * 0.3 + math.sin(t * 5.3 + seed * 0.7) * 0.2
+end
+
+local function lerp(a: number, b: number, t: number): number
+	return a + (b - a) * t
+end
+
+-- 0..1 progress of `t` through [a, b].
+local function span(t: number, a: number, b: number): number
+	return math.clamp((t - a) / (b - a), 0, 1)
 end
 
 ---------------------------------------------------------------------------
@@ -515,6 +525,164 @@ local function sampleKeys(clip: Clip, t: number, joint: string, base: CFrame, ad
 end
 
 ---------------------------------------------------------------------------
+-- Arrival: walking in and sitting down
+---------------------------------------------------------------------------
+-- Every chair starts pulled out (TableLayout.ChairPull). The subject walks in
+-- beside it, turns to the table, side-steps into the gap between the chair
+-- and the table edge, sits back onto the chair, then scoots in with it. All
+-- of it is in root space (the root is anchored at the final seated torso), so
+-- the pose ends exactly on the seated base pose. Times at speed 1.
+
+local ARRIVE = {
+	WalkEnd = 1.0, -- walk along the table edge, facing along it
+	TurnEnd = 1.3, -- turn to face the table
+	StepEnd = 2.05, -- side-step in front of the chair
+	SitEnd = 2.95, -- sit back onto the pulled-out chair
+	ScootEnd = 3.65, -- pull the chair in
+}
+AnimationController.ArriveDuration = ARRIVE.ScootEnd
+local WALK_FROM, STEP_FROM, WALK_LANE = 4.3, 2.1, 0.4
+
+local function walkLegs(P, phase: number, amount: number)
+	local s = math.sin(phase) * amount
+	P.RLeg = R(0.55 * s)
+	P.LLeg = R(-0.55 * s)
+	P.RArm = R(-0.42 * s + 0.06, 0, 0.08)
+	P.LArm = R(0.42 * s + 0.06, 0, -0.08)
+end
+
+-- Pose while arriving (nil when finished). Returns (P, lean, chairPull).
+local function arrivalPose(rig: Rig, now: number): ({ [string]: CFrame }?, number, number)
+	local a = rig.Arrival
+	local t = (now - a.Start) * a.Speed
+	if t >= ARRIVE.ScootEnd then
+		return nil, 0, 0
+	end
+	local side = a.Side
+	local pull = TableLayout.ChairPull
+	local P = {}
+	local x, z, yaw, bob, lean = 0, 0, 0, 0, 0
+	local chair = pull
+	P.Neck = R(-0.04)
+	if t < ARRIVE.WalkEnd then
+		-- Walk in along the lane beside the chair, facing the direction of travel.
+		local k = smooth(t / ARRIVE.WalkEnd * 0.85 + 0.15) -- already moving at t = 0
+		x = side * lerp(WALK_FROM, STEP_FROM, k)
+		z = WALK_LANE
+		yaw = side * math.pi / 2
+		local travelled = math.abs(x - side * WALK_FROM)
+		local phase = travelled / 1.1 * math.pi
+		local amount = 1 - span(t, ARRIVE.WalkEnd - 0.25, ARRIVE.WalkEnd)
+		walkLegs(P, phase, amount)
+		bob = math.abs(math.sin(phase)) * 0.07 * amount
+	elseif t < ARRIVE.TurnEnd then
+		-- Turn to face the table while stepping off the lane.
+		local k = smooth(span(t, ARRIVE.WalkEnd, ARRIVE.TurnEnd))
+		x = side * STEP_FROM
+		z = WALK_LANE * (1 - k)
+		yaw = side * math.pi / 2 * (1 - k)
+		local step = math.sin(k * math.pi)
+		P.RLeg = R(0.18 * step)
+		P.LLeg = R(-0.12 * step)
+		P.RArm = R(0.06, 0, 0.08)
+		P.LArm = R(0.06, 0, -0.08)
+	elseif t < ARRIVE.StepEnd then
+		-- Two side-steps into the gap between the chair and the table.
+		local k = span(t, ARRIVE.TurnEnd, ARRIVE.StepEnd)
+		x = side * STEP_FROM * (1 - smooth(k))
+		local stepPhase = k * 2 * math.pi
+		local open = math.max(0, math.sin(stepPhase)) * 0.3
+		-- The leading leg (toward the chair) opens, then the trailing one follows.
+		local lead = if side > 0 then "LLeg" else "RLeg"
+		local trail = if side > 0 then "RLeg" else "LLeg"
+		P[lead] = R(0, 0, -side * open)
+		P[trail] = R(0, 0, side * math.max(0, -math.sin(stepPhase)) * 0.18)
+		bob = math.abs(math.sin(stepPhase)) * 0.04
+		P.RArm = R(0.08, 0, 0.1 + 0.06 * math.sin(stepPhase))
+		P.LArm = R(0.08, 0, -0.1 - 0.06 * math.sin(stepPhase))
+		P.Neck = R(-0.12)
+	elseif t < ARRIVE.SitEnd then
+		-- Sit back: hips travel onto the pulled-out chair while the thighs swing
+		-- up, the body leaning forward to balance, hands reaching for the armrests.
+		local k = span(t, ARRIVE.StepEnd, ARRIVE.SitEnd)
+		local e = smooth(k)
+		z = pull * e
+		local legs = smooth(span(k, 0.1, 0.9))
+		lean = -0.32 * math.sin(e * math.pi) + -0.06 * e
+		bob = -0.12 * math.sin(e * math.pi)
+		P.RLeg = R((LEG_ANGLE - lean) * legs, 0, 0.07 * legs)
+		P.LLeg = R((LEG_ANGLE - lean) * legs, 0, -0.07 * legs)
+		local reach = math.sin(e * math.pi)
+		P.RArm = R(-0.35 * reach + 0.9 * legs * legs, 0, 0.18 * reach)
+		P.LArm = R(-0.35 * reach + 0.9 * legs * legs, 0, -0.18 * reach)
+		P.Neck = R(-0.18 + 0.14 * e)
+	else
+		-- Scoot in: the chair and the subject slide to the table together.
+		local k = span(t, ARRIVE.SitEnd, ARRIVE.ScootEnd)
+		local e = smooth(k)
+		z = pull * (1 - e)
+		chair = z
+		lean = -0.06 - 0.1 * math.sin(k * math.pi)
+		P.RLeg = R(LEG_ANGLE - lean, 0, 0.07)
+		P.LLeg = R(LEG_ANGLE - lean, 0, -0.07)
+		-- Hands take the table edge as it arrives.
+		P.RArm = R(0.9 + 0.35 * e, 0, -0.05)
+		P.LArm = R(0.9 + 0.35 * e, 0, 0.05)
+		P.Neck = R(-0.04 - 0.05 * math.sin(k * math.pi))
+	end
+	P.Root = CFrame.new(x, bob, z) * Angles(0, yaw, 0) * hip(lean)
+	return P, lean, chair
+end
+
+local function placeChair(rig: Rig, pull: number)
+	local a = rig.Arrival
+	if a and a.Chair and a.Chair.Parent then
+		a.Chair:PivotTo(CFrame.new(a.Back * pull) * a.ChairBase)
+	end
+end
+
+-- Starts the walk-in for a seated rig. `speed` scales the choreography.
+function AnimationController:arrive(rig: Rig?, speed: number?, startAt: number?)
+	if rig == nil or rig.Kind ~= "Seated" or rig.Origin == nil or rig.Seat == nil then
+		return
+	end
+	local seats = rig.Origin and self.Arena and self.Arena:FindFirstChild("Seats")
+	local chair = seats and seats:FindFirstChild("Chair_" .. rig.Seat)
+	if chair == nil or not chair:IsA("Model") then
+		return -- not streamed in: sit straight down rather than walk through it
+	end
+	local seatCF = rig.Origin * TableLayout.seatCFrame(rig.Seat)
+	local base = if rig.Arrival then rig.Arrival.ChairBase else chair:GetPivot()
+	rig.Arrival = {
+		Start = startAt or os.clock(),
+		Speed = speed or 1,
+		Side = if rig.Seat % 2 == 1 then 1 else -1,
+		Chair = chair,
+		ChairBase = base,
+		Back = seatCF.ZVector,
+	}
+	placeChair(rig, TableLayout.ChairPull)
+	rig.Snap = true
+end
+
+function AnimationController:arriving(rig: Rig?): boolean
+	return rig ~= nil and rig.Arrival ~= nil
+end
+
+-- Ends an arrival now (the chair goes home, the rig sits).
+function AnimationController:settle(rig: Rig?)
+	if rig and rig.Arrival then
+		placeChair(rig, 0)
+		rig.Arrival = nil
+	end
+end
+
+-- The arena whose chairs arrivals move (set by the presenter).
+function AnimationController:setArena(arena: Instance?)
+	self.Arena = arena
+end
+
+---------------------------------------------------------------------------
 -- Registration
 ---------------------------------------------------------------------------
 
@@ -599,6 +767,7 @@ function AnimationController:unregister(model: Model)
 		return
 	end
 	rigs[model] = nil
+	self:settle(rig)
 	if rig.Subject and bySubject[rig.Subject] == rig then
 		bySubject[rig.Subject] = nil
 	end
@@ -750,8 +919,16 @@ local function basePose(rig: Rig, now: number, dt: number): ({ [string]: CFrame 
 	local sway = (idle.Sway or 0.2) * 0.035
 	local P = {}
 	if rig.Kind == "Seated" then
+		if rig.Arrival then
+			local arriving, arrivingLean, chair = arrivalPose(rig, now)
+			if arriving then
+				placeChair(rig, chair)
+				return arriving, arrivingLean
+			end
+			AnimationController:settle(rig)
+		end
 		local lean = -0.06 + 0.012 * b
-		P.Root = CFrame.new(0, SEAT_RAISE + 0.015 * b, 0) * hip(lean, sway * noise(t * 0.4, rig.Seed))
+		P.Root = CFrame.new(0, 0.015 * b, 0) * hip(lean, sway * noise(t * 0.4, rig.Seed))
 		P.RLeg = R(LEG_ANGLE - lean, 0, 0.07)
 		P.LLeg = R(LEG_ANGLE - lean, 0, -0.07)
 		P.Neck = R(-0.04 - 0.012 * b, 0, (idle.HeadTilt or 0))
@@ -842,10 +1019,12 @@ local function evaluate(rig: Rig, now: number, dt: number): { [string]: CFrame }
 		W[key] += (target - W[key]) * (1 - math.exp(-rate * dt))
 	end
 
+	local arriving = rig.Arrival ~= nil
+
 	-- Hands resting on the table in front of a seated subject.
 	if rig.Kind == "Seated" and P.RArm == nil then
-		local right = seatSpace(rig, Vector3.new(0.78, TableLayout.TableTop + 0.08, -1.4))
-		local left = seatSpace(rig, Vector3.new(-0.78, TableLayout.TableTop + 0.08, -1.4))
+		local right = seatSpace(rig, Vector3.new(0.78, TableLayout.TableTop + 0.08, -1.35))
+		local left = seatSpace(rig, Vector3.new(-0.78, TableLayout.TableTop + 0.08, -1.35))
 		if right and left then
 			P.RArm = reach("RArm", toTorso(rig, P.Root, right))
 			P.LArm = reach("LArm", toTorso(rig, P.Root, left))
@@ -856,7 +1035,7 @@ local function evaluate(rig: Rig, now: number, dt: number): { [string]: CFrame }
 	end
 
 	-- Clamped: wrists together on the table.
-	if W.Clamped > 0.01 and rig.Kind == "Seated" then
+	if W.Clamped > 0.01 and rig.Kind == "Seated" and not arriving then
 		local centre = seatSpace(rig, Vector3.new(0, TableLayout.TableTop + 0.12, -1.55))
 		if centre then
 			local q = toTorso(rig, P.Root, centre)
@@ -865,10 +1044,19 @@ local function evaluate(rig: Rig, now: number, dt: number): { [string]: CFrame }
 		end
 	end
 
-	applyIntent(rig, P, lean)
+	if not arriving then
+		applyIntent(rig, P, lean)
+	end
 
 	-- Personality fidgets for surrogates (never while holding anything).
-	if rig.Personality and rig.Intent == nil and #rig.Clips == 0 and now >= rig.NextFidget and W.Slumped < 0.1 then
+	if
+		rig.Personality
+		and not arriving
+		and rig.Intent == nil
+		and #rig.Clips == 0
+		and now >= rig.NextFidget
+		and W.Slumped < 0.1
+	then
 		local fidget = rig.Idle.Fidget or 0
 		rig.NextFidget = now + (6 - fidget * 4) + math.random() * 5
 		if fidget > 0 and math.random() < 0.35 + fidget * 0.6 then
@@ -963,14 +1151,14 @@ local function evaluate(rig: Rig, now: number, dt: number): { [string]: CFrame }
 	local lookWeight = 1 - W.Slumped
 	P.Neck = Angles(0, rig.LookYaw * lookWeight, 0) * Angles(rig.LookPitch * lookWeight, 0, 0) * P.Neck
 
-	-- Eliminated: the whole body sags forward, arms limp.
+	-- Eliminated: the whole body sags forward onto the table, arms limp on it.
 	local slump = W.Slumped
 	if slump > 0.01 then
 		local twitch = math.sin(now * 37 + rig.Seed) * 0.03 * math.max(0, math.sin(now * 0.7 + rig.Seed))
 		P.Root = P.Root:Lerp(P.Root * hip(-0.58), slump)
 		P.Neck = P.Neck:Lerp(R(-0.62 + twitch, 0, 0.18), slump)
-		P.RArm = P.RArm:Lerp(R(0.25, 0, 0.06), slump)
-		P.LArm = P.LArm:Lerp(R(0.25, 0, -0.06), slump)
+		P.RArm = P.RArm:Lerp(R(0.95, 0, 0.1), slump)
+		P.LArm = P.LArm:Lerp(R(0.95, 0, -0.1), slump)
 		if rig.Kind == "Seated" then
 			P.RLeg = P.RLeg:Lerp(R(LEG_ANGLE + 0.5, 0, 0.12), slump)
 			P.LLeg = P.LLeg:Lerp(R(LEG_ANGLE + 0.5, 0, -0.12), slump)

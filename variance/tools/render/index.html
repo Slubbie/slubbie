@@ -1,0 +1,29 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+@font-face{font-family:"Michroma";font-weight:400;src:url(node_modules/@fontsource/michroma/files/michroma-latin-400-normal.woff2) format("woff2");}
+@font-face{font-family:"Roboto Mono";font-weight:400;src:url(node_modules/@fontsource/roboto-mono/files/roboto-mono-latin-400-normal.woff2) format("woff2");}
+@font-face{font-family:"Roboto Mono";font-weight:700;src:url(node_modules/@fontsource/roboto-mono/files/roboto-mono-latin-700-normal.woff2) format("woff2");}
+@font-face{font-family:"Special Elite";font-weight:400;src:url(node_modules/@fontsource/special-elite/files/special-elite-latin-400-normal.woff2) format("woff2");}
+@font-face{font-family:"Source Sans 3";font-weight:400;src:url(node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-400-normal.woff2) format("woff2");}
+@font-face{font-family:"Source Sans 3";font-weight:600;src:url(node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-600-normal.woff2) format("woff2");}
+@font-face{font-family:"Source Sans 3";font-weight:700;src:url(node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-700-normal.woff2) format("woff2");}
+@font-face{font-family:"Montserrat";font-weight:400;src:url(node_modules/@fontsource/montserrat/files/montserrat-latin-400-normal.woff2) format("woff2");}
+@font-face{font-family:"Montserrat";font-weight:500;src:url(node_modules/@fontsource/montserrat/files/montserrat-latin-500-normal.woff2) format("woff2");}
+@font-face{font-family:"Montserrat";font-weight:600;src:url(node_modules/@fontsource/montserrat/files/montserrat-latin-600-normal.woff2) format("woff2");}
+@font-face{font-family:"Montserrat";font-weight:700;src:url(node_modules/@fontsource/montserrat/files/montserrat-latin-700-normal.woff2) format("woff2");}
+@font-face{font-family:"Montserrat";font-weight:800;src:url(node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2) format("woff2");}
+@font-face{font-family:"Montserrat";font-weight:900;src:url(node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2) format("woff2");}
+html,body{margin:0;padding:0;background:#000;width:1280px;height:720px;overflow:hidden}
+#view,#gui,#tint{position:absolute;left:0;top:0;width:1280px;height:720px}
+#tint{mix-blend-mode:multiply;display:none;pointer-events:none}
+#gui{pointer-events:none}
+</style>
+<script type="importmap">{"imports":{"three":"/three.module.js"}}</script>
+</head><body>
+<div id="view"></div><div id="tint"></div><div id="gui"></div>
+<script type="module" src="/scene.js"></script>
+<script src="/gui.js"></script>
+<script>
+Promise.all([...document.fonts].map((f) => f.load().catch(() => null))).then(() => { window.fontsReady = true; });
+</script>
+</body></html>

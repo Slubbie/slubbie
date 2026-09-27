@@ -129,14 +129,15 @@ function MatchHUD.new(ui, controllers)
 		{ Text = "", Font = "Mono", TextSize = "Tiny", Color = "Warn", LayoutOrder = 4, Wrap = true, AutoY = true }
 	)
 
-	-- Chamber panel.
+	-- Chamber panel: low over the table, right above the fire controls, so the
+	-- odds sit where you decide and your opponent's face stays in view.
 	local chamber = Kit.panel(root, {
 		Name = "Chamber",
-		Size = UDim2.fromOffset(520, 92),
-		Position = UDim2.new(0.5, 0, 0, 142),
-		AnchorPoint = Vector2.new(0.5, 0),
+		Size = UDim2.fromOffset(480, 88),
+		Position = UDim2.new(0.5, 0, 1, -208),
+		AnchorPoint = Vector2.new(0.5, 1),
 		Color = "Panel",
-		Transparency = 0.15,
+		Transparency = 0.2,
 	})
 	Kit.padding(chamber, 8, 14)
 	self.Chamber = chamber
@@ -1321,14 +1322,18 @@ function MatchHUD:versusCard()
 		table.insert(ids, id)
 	end
 	table.sort(ids)
+	-- A lower-third strip: the intro shots (everyone walking in and sitting
+	-- down) keep the middle of the screen.
 	local row = Kit.create("Frame", {
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 160),
-		Position = UDim2.fromScale(0, 0.5),
-		AnchorPoint = Vector2.new(0, 0.5),
+		Size = UDim2.new(1, 0, 0, 84),
+		Position = UDim2.new(0, 0, 1, 100),
+		AnchorPoint = Vector2.new(0, 1),
 		ZIndex = 41,
 		Parent = frame,
 	}) :: Frame
+	-- (between the subtitles and the instrument tray)
+	local shown = UDim2.new(0, 0, 1, -104)
 	local layout = Kit.list(row, "X", 24, "Center")
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	for i, id in ids do
@@ -1346,8 +1351,8 @@ function MatchHUD:versusCard()
 			})
 		end
 		local card =
-			Kit.panel(row, { Size = UDim2.fromOffset(260, 150), LayoutOrder = i * 2, Color = "Bg", ZIndex = 42 })
-		Kit.padding(card, 12, 14)
+			Kit.panel(row, { Size = UDim2.fromOffset(300, 78), LayoutOrder = i * 2, Color = "Bg", ZIndex = 42 })
+		Kit.padding(card, 10, 14)
 		local frameData = info.Card and info.Card.Frame
 		local stroke = card:FindFirstChildOfClass("UIStroke")
 		if stroke and frameData and frameData.Stroke then
@@ -1422,17 +1427,18 @@ function MatchHUD:versusCard()
 			end
 		end
 		Kit.label(card, {
-			Text = table.concat(lines, "\n"),
+			Text = table.concat(lines, "  ·  "),
 			Font = "Mono",
-			TextSize = "Small",
+			TextSize = "Tiny",
 			Color = "Dim",
 			Wrap = true,
-			Size = UDim2.new(1, 0, 0, 80),
-			Position = UDim2.fromOffset(0, 36),
+			Size = UDim2.new(1, 0, 0, 26),
+			Position = UDim2.fromOffset(0, 32),
 			YAlign = "Top",
 			ZIndex = 43,
 		})
 	end
+	Motion.tween(row, 0.45, { Position = shown }, "slide")
 	local preview = sc.RankedPreview
 	if preview then
 		Kit.label(frame, {
@@ -1447,12 +1453,22 @@ function MatchHUD:versusCard()
 			XAlign = "Center",
 			Color = "Accent",
 			Size = UDim2.new(1, 0, 0, 20),
-			Position = UDim2.new(0, 0, 0.5, 100),
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.new(0, 0, 1, -192),
 			ZIndex = 42,
 		})
 	end
-	task.delay(4.2, function()
-		frame.Visible = false
+	local token = (self.VersusToken or 0) + 1
+	self.VersusToken = token
+	task.delay(3.4, function()
+		if self.VersusToken ~= token then
+			return
+		end
+		Motion.tween(row, 0.35, { Position = UDim2.new(0, 0, 1, 100) }, "accel")
+		task.wait(0.4)
+		if self.VersusToken == token then
+			frame.Visible = false
+		end
 	end)
 end
 

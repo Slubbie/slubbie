@@ -22,6 +22,17 @@ function Format.clock(seconds: number): string
 	return string.format("%d:%02d", seconds // 60, seconds % 60)
 end
 
+-- Long spans read as days/hours/minutes: "6d 9h", "9h 46m", "4:05".
+function Format.duration(seconds: number): string
+	seconds = math.max(0, math.floor(seconds + 0.5))
+	if seconds >= 86400 then
+		return string.format("%dd %dh", seconds // 86400, (seconds % 86400) // 3600)
+	elseif seconds >= 3600 then
+		return string.format("%dh %dm", seconds // 3600, (seconds % 3600) // 60)
+	end
+	return Format.clock(seconds)
+end
+
 -- 1234567 -> "1,234,567"
 function Format.thousands(n: number): string
 	local s = tostring(math.floor(n))

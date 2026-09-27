@@ -925,6 +925,18 @@ function World:buildR6()
 		parts[spec[1]] = p
 	end
 	parts.HumanoidRootPart.Transparency = 1
+	-- Roblox's default avatar colours and the rounded head mesh.
+	local skin = Types.Color3.fromRGB(245, 205, 48)
+	parts.Head.Color = skin
+	parts["Left Arm"].Color = skin
+	parts["Right Arm"].Color = skin
+	parts.Torso.Color = Types.Color3.fromRGB(13, 105, 172)
+	parts["Left Leg"].Color = Types.Color3.fromRGB(164, 189, 71)
+	parts["Right Leg"].Color = Types.Color3.fromRGB(164, 189, 71)
+	local headMesh = new("SpecialMesh")
+	headMesh.MeshType = Enum.MeshType.Head
+	headMesh.Scale = Types.Vector3.new(1.25, 1.25, 1.25)
+	headMesh.Parent = parts.Head
 	local face = new("Decal")
 	face.Name = "face"
 	face.Parent = parts.Head

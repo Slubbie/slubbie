@@ -132,6 +132,8 @@ function MatchService:beginPayload(match, subjectId: number?)
 		},
 		Snapshot = match.Dispatcher:snapshot(subjectId),
 		Spectating = subjectId == nil,
+		-- The intro has not played yet (players walk in and sit down).
+		Fresh = match.Phase ~= "Playing",
 	}
 	if subjectId and rules.Ranked then
 		local p = match.Participants[subjectId]
@@ -232,6 +234,7 @@ function MatchService:create(spec)
 		Arena = arena,
 		Participants = {},
 		Spectators = {},
+		Ready = {}, -- [subjectId] = true once that client has the room bound
 		Info = table.clone(spec.Info or {}),
 		Hooks = hooks,
 		OnEnd = spec.OnEnd,
@@ -344,7 +347,26 @@ function MatchService:create(spec)
 	services.LobbyWorldService:refreshLive()
 
 	match.Runner = MatchRunner.new(match, services)
-	task.delay(0.9, function()
+	task.spawn(function()
+		-- Start once every player's client has the room streamed in and their
+		-- rig bound (Match.Ready), so nobody misses the intro; never wait long.
+		local started = os.clock()
+		task.wait(0.9)
+		while os.clock() - started < Config.Match.ReadyTimeout and not match.Closed do
+			local waiting = false
+			for sid, p in match.Participants do
+				if p.Kind == "Player" and p.Connected and p.Player and p.Player.Parent and not match.Ready[sid] then
+					waiting = true
+				end
+			end
+			if not waiting then
+				break
+			end
+			task.wait(0.1)
+		end
+		if match.Closed then
+			return
+		end
 		match.Phase = "Playing"
 		match.Runner:run()
 	end)
@@ -1105,6 +1127,14 @@ function MatchService:Start()
 			return false, "Not in a match."
 		end
 		return true, self:beginPayload(match, self:subjectOf(match, player))
+	end)
+	network:handle("Match.Ready", function(player)
+		local match = byPlayer[player]
+		local subjectId = match and self:subjectOf(match, player)
+		if subjectId then
+			match.Ready[subjectId] = true
+		end
+		return true
 	end)
 	network:handle("Match.Forfeit", function(player)
 		if byPlayer[player] == nil then

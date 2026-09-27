@@ -2,11 +2,14 @@
 --
 -- Modes:
 --   Lobby     Roblox's default follow camera.
+--   Hold      frozen where it is (behind the curtain while going to a table).
 --   Seat      first person from the subject's own head at the table. Look
 --             input (right mouse drag, right stick, drag) turns the head within
 --             a natural range; the head direction is replicated so opponents see
---             where you look. Your own head and hats are hidden; your arms and
---             hands stay visible, so you watch yourself pick up the Arbiter.
+--             where you look. Your own head and hats are hidden only while the
+--             view is really first person (never in the intro shots, where you
+--             watch yourself sit down); your arms and hands stay visible, so
+--             you watch yourself pick up the Arbiter.
 --   Shot      scripted cinematic moves (match intro, trial cards, results),
 --             then back to the seat. The Cinematic Camera setting shortens or
 --             skips them.
@@ -47,6 +50,8 @@ local shot: { [string]: any }? = nil
 local orbit = { Centre = Vector3.zero, Angle = 0, Radius = 16, Height = 9, Speed = 0.08 }
 local spectateSeat: number? = nil
 local hidden: { [BasePart]: boolean } = {}
+local headHidden = false
+local headFade = 0
 local blur: BlurEffect? = nil
 local grade: ColorCorrectionEffect? = nil
 local noiseSeed = math.random() * 100
@@ -79,19 +84,22 @@ end
 -- Own-head visibility in first person
 ---------------------------------------------------------------------------
 
-local function setHeadHidden(hide: boolean)
+-- Fades your own head, face and headwear out (1) or back in (0).
+local function setHeadFade(alpha: number)
+	headHidden = alpha > 0
+	headFade = alpha
 	local character = Players.LocalPlayer.Character
-	if hide and character then
+	if alpha > 0 and character then
 		for _, d in character:GetDescendants() do
 			if d:IsA("BasePart") then
 				local accessory = d:FindFirstAncestorOfClass("Accessory")
 				local isHead = d.Name == "Head" or d.Name == "VarianceHeadwear" or accessory ~= nil
 				if isHead then
-					d.LocalTransparencyModifier = 1
+					d.LocalTransparencyModifier = alpha
 					hidden[d] = true
 				end
 			elseif d:IsA("Decal") and d.Parent and d.Parent.Name == "Head" then
-				d.Transparency = 1
+				d.Transparency = alpha
 			end
 		end
 	else
@@ -114,12 +122,26 @@ local function setHeadHidden(hide: boolean)
 	end
 end
 
+local function setHeadHidden(hide: boolean)
+	setHeadFade(if hide then 1 else 0)
+end
+
 ---------------------------------------------------------------------------
 -- Mode switching
 ---------------------------------------------------------------------------
 
 function CameraController:mode(): string
 	return mode
+end
+
+-- Freezes the camera where it is (the curtain is coming down).
+function CameraController:hold()
+	if mode == "Lobby" then
+		mode = "Hold"
+		shot = nil
+		table.clear(shotQueue)
+		camera.CameraType = Enum.CameraType.Scriptable
+	end
 end
 
 function CameraController:toLobby()
@@ -148,7 +170,6 @@ function CameraController:toSeat(origin: CFrame, seat: number)
 	slumpTarget, slump = 0, 0
 	mode = "Seat"
 	camera.CameraType = Enum.CameraType.Scriptable
-	setHeadHidden(true)
 end
 
 function CameraController:toSpectate(origin: CFrame)
@@ -274,6 +295,39 @@ local function noise(t: number, s: number): number
 	return math.sin(t * 13.1 + s) * 0.5 + math.sin(t * 23.7 + s * 1.7) * 0.3 + math.sin(t * 41.3 + s * 0.3) * 0.2
 end
 
+-- Own head hidden only in real first person. Re-asserted every frame: Roblox's
+-- camera scripts reset LocalTransparencyModifier when the character changes.
+local lastHeadScan = 0
+local function updateHeadVisibility()
+	-- Your own head fades out as the camera reaches it: fully hidden in the
+	-- seat view, fading during the push-in at the end of the intro, visible in
+	-- the wide shots where you watch yourself sit down.
+	local want = 0
+	if mode == "Seat" then
+		local rig = CameraController.Controllers.AnimationController:rigFor(Players.LocalPlayer.Character)
+		local head = rig and rig.Head
+		if head then
+			local distance = (camera.CFrame.Position - head.Position).Magnitude
+			want = math.clamp((3.4 - distance) / 1.2, 0, 1)
+		elseif shot == nil and #shotQueue == 0 then
+			want = 1
+		end
+	end
+	local now = os.clock()
+	-- (the periodic rescan catches headwear added after sitting down, and
+	-- re-asserts it over Roblox's camera scripts)
+	if math.abs(want - headFade) > 0.02 or (want > 0 and now - lastHeadScan > 0.5) or (want == 0 and headHidden) then
+		lastHeadScan = now
+		setHeadFade(want)
+	elseif want > 0 then
+		for part in hidden do
+			if part.Parent and part.LocalTransparencyModifier ~= want then
+				part.LocalTransparencyModifier = want
+			end
+		end
+	end
+end
+
 local function frame(dt: number)
 	local self = CameraController
 	if mode == "Lobby" then
@@ -281,6 +335,10 @@ local function frame(dt: number)
 		fovPunch *= math.exp(-6 * dt)
 		return
 	end
+	if mode == "Hold" then
+		return
+	end
+	updateHeadVisibility()
 	local now = os.clock()
 	local input = self.Controllers.InputController
 	local s = settings()
@@ -326,6 +384,7 @@ local function frame(dt: number)
 		local cf = shot.From:Lerp(shot.To or shot.From, a)
 		camera.CFrame = cf * shakeRot
 		camera.FieldOfView = (shot.Fov or 50) + fovPunch
+		camera.Focus = cf * CFrame.new(0, 0, -8)
 		if t >= 1 then
 			shot = nil
 		end
@@ -361,6 +420,7 @@ local function frame(dt: number)
 			* CFrame.Angles(finalPitch, 0, slump * 0.25)
 			* CFrame.new(0, -slump * 0.4, pullBack * 0.9)
 		camera.CFrame = cf * shakeRot
+		camera.Focus = cf * CFrame.new(0, 0, -8)
 		camera.FieldOfView = fov() + fovPunch - pullBack * 6
 		if mode == "Seat" then
 			self.Controllers.NetworkClient:look(yaw + focusYaw, pitch + focusPitch)
@@ -383,6 +443,7 @@ local function frame(dt: number)
 		target = orbit.Centre:Lerp(focus.Point, 0.5 * focus.Strength)
 	end
 	camera.CFrame = CFrame.lookAt(pos, target) * shakeRot
+	camera.Focus = CFrame.new(target)
 	camera.FieldOfView = 50 + fovPunch
 end
 
@@ -400,7 +461,7 @@ function CameraController:Start()
 			task.defer(function()
 				self:toLobby()
 			end)
-		elseif mode == "Seat" then
+		elseif headHidden then
 			task.defer(setHeadHidden, true)
 		end
 	end)

@@ -43,6 +43,7 @@ Net.Endpoints = {
 	["Lobby.AddBot"] = { "string", "string" },
 	["Lobby.RemoveBot"] = { "number" },
 	["Match.Sync"] = {},
+	["Match.Ready"] = {},
 	["Match.Forfeit"] = {},
 	["Match.Rematch"] = { "boolean" },
 	["Match.Emote"] = { "string" },

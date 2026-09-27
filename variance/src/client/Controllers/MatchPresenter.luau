@@ -21,7 +21,10 @@ local Surrogates = require(ReplicatedStorage.Variance.Data.Surrogates)
 local InstrumentProps = require(ReplicatedStorage.Variance.Visual.InstrumentProps)
 local TableLayout = require(ReplicatedStorage.Variance.Visual.TableLayout)
 local Format = require(ReplicatedStorage.Variance.Util.Format)
+local Config = require(ReplicatedStorage.Variance.Config)
+local Environments = require(ReplicatedStorage.Variance.Data.Environments)
 local Theme = require(script.Parent.Parent.UI.Theme)
+local Kit = require(script.Parent.Parent.UI.Kit)
 local TableView = require(script.Parent.Parent.Match.TableView)
 
 local MatchPresenter = {}
@@ -36,6 +39,10 @@ local handles = { Bubbles = {}, Cuffs = {}, Links = {} }
 local bindToken = 0
 local stepConnection: RBXScriptConnection? = nil
 local lastIntensity = 0
+-- The walk-in: when the intro began and which bodies were already seated here
+-- (a rematch or the next Endurance stage keeps everyone in their chairs).
+local arrival: { Start: number, Speed: number }? = nil
+local keepSeated: { [Model]: boolean } = {}
 
 local EFFECT_DELAY_ON = { Clamped = 0.8, Dampener = 0.7, Capacitor = 0.65, Overclock = 0.65 }
 
@@ -379,6 +386,27 @@ local function modelFor(id: number): Model?
 	return player and player.Character or nil
 end
 
+-- Starts a rig's walk-in if the intro is still playing.
+local function startArrival(id: number, r)
+	if arrival == nil or r == nil or C.AnimationController:arriving(r) or keepSeated[r.Model] then
+		return
+	end
+	local speed = arrival.Speed
+	if os.clock() - arrival.Start > C.AnimationController.ArriveDuration / speed - 0.3 then
+		return -- joined too late to watch it; just sit
+	end
+	if isMe(id) then
+		local settings = C.SettingsController
+		local cinematics = settings:get("Cinematics") or "Full"
+		if cinematics == "Minimal" or settings:get("ReducedMotion") then
+			return
+		elseif cinematics == "Reduced" then
+			speed *= 1.4
+		end
+	end
+	C.AnimationController:arrive(r, speed, arrival.Start)
+end
+
 -- Registers every subject's rig, retrying while they stream in, and keeps
 -- watching for the rest of the match (respawns, re-streams).
 local function bindRigs(token: number)
@@ -410,6 +438,7 @@ local function bindRigs(token: number)
 							C.AnimationController:setState(r, "Slumped", if s.Eliminated then 1 else 0)
 							C.AnimationController:setState(r, "Clamped", if s.Effects.Clamped then 1 else 0)
 						end
+						startArrival(id, r)
 					else
 						missing = true
 					end
@@ -455,12 +484,14 @@ function MatchPresenter:teardown()
 	bindToken += 1
 	clearHandles()
 	firing = nil
+	arrival = nil
 	if view then
 		view:destroy()
 		view = nil
 	end
 	C.WeaponController:detach()
 	C.AnimationController:clearSeated()
+	C.AnimationController:setArena(nil)
 	table.clear(bound)
 	arena = nil
 	if stepConnection then
@@ -470,8 +501,24 @@ function MatchPresenter:teardown()
 end
 
 function MatchPresenter:onBegan(sc)
+	-- Bodies already sitting at this table stay seated (no second walk-in).
+	table.clear(keepSeated)
+	if arena and arena.Name == sc.Arena then
+		for _, model in bound do
+			keepSeated[model] = true
+		end
+	end
 	self:teardown()
 	local token = bindToken
+	local env = Environments.get(sc.Environment)
+	if next(keepSeated) ~= nil and not sc.Spectating then
+		C.UIController:curtainText("REMATCH", "SEATS SWAPPED")
+	else
+		C.UIController:curtainText(
+			env and string.upper(env.Name) or "EVALUATION ROOM",
+			if sc.Spectating then "OBSERVATION GALLERY" else string.upper(sc.ModeName or "TRIAL")
+		)
+	end
 	task.spawn(function()
 		-- Wait for the room to stream in.
 		local found = nil
@@ -492,6 +539,7 @@ function MatchPresenter:onBegan(sc)
 			return
 		end
 		arena = found
+		C.AnimationController:setArena(found)
 		origin = sc.Origin or found:GetAttribute("Origin") or CFrame.identity
 		local seats = {}
 		for id, info in sc.Subjects do
@@ -514,6 +562,20 @@ function MatchPresenter:onBegan(sc)
 		end
 		C.AudioController:setMusic("Match", 0.1)
 		restoreScene()
+		-- Tell the server this room is ready; a fresh match starts its intro
+		-- (and lifts the curtain) once everyone is. Otherwise lift it now.
+		task.spawn(function()
+			C.NetworkClient:request("Match.Ready")
+		end)
+		if sc.Fresh and not sc.Spectating then
+			task.delay(Config.Match.ReadyTimeout + 3, function()
+				if token == bindToken then
+					C.UIController:curtain(false)
+				end
+			end)
+		else
+			C.UIController:curtain(false, { Fade = 0.45 })
+		end
 	end)
 end
 
@@ -777,6 +839,12 @@ handlers.MatchStart = function()
 	if sc == nil or arena == nil then
 		return
 	end
+	-- Everyone walks in and sits down while the establishing shots play.
+	arrival = { Start = os.clock(), Speed = 1 / scale() }
+	for id in sc.Subjects do
+		startArrival(id, rig(id))
+	end
+	C.UIController:curtain(false, { Fade = 0.6 })
 	C.AudioController:play("Stinger")
 	announce("MatchStart", { mode = sc.ModeName or "Standard" })
 	local cams = arena:FindFirstChild("Cameras")
@@ -802,10 +870,14 @@ handlers.MatchStart = function()
 		local eye = origin * TableLayout.eyeCFrame(seat)
 		local facing = (origin * TableLayout.seatCFrame(seat)).Rotation
 		local final = CFrame.new(eye.Position) * facing * CFrame.Angles(-0.3, 0, 0)
-		table.insert(
-			shots,
-			{ From = final * CFrame.new(0, 1.4, 3.5), To = final, Duration = 1.0 * scale(), Fov = 68, Essential = true }
-		)
+		-- Push in over your right shoulder; your head fades as the camera arrives.
+		table.insert(shots, {
+			From = final * CFrame.new(1.8, 1.1, 3.1) * CFrame.Angles(-0.1, 0.3, 0),
+			To = final,
+			Duration = 1.1 * scale(),
+			Fov = 68,
+			Essential = true,
+		})
 	end
 	C.CameraController:shots(shots, true)
 	-- Surrogates take a look at who they are up against.
@@ -828,8 +900,14 @@ handlers.MatchStart = function()
 					end
 				end
 			end
-			C.AnimationController:lookAt(r, headPos(target))
-			after(2.5, function()
+			-- Once seated, a long look at the opposition and a nod.
+			local seatedAt = if C.AnimationController:arriving(r)
+				then C.AnimationController.ArriveDuration * scale()
+				else 0
+			after(seatedAt + 0.2, function()
+				C.AnimationController:lookAt(r, headPos(target))
+			end)
+			after(seatedAt + 1.4, function()
 				C.AnimationController:play(r, "Nod")
 			end)
 		end
@@ -1133,11 +1211,19 @@ handlers.FireCommit = function(data)
 		C.AudioController:duck(0.35 + tension * 0.65, 0.35)
 		C.EnvironmentController:setIntensity(math.min(1, lastIntensity + 0.15 * tension))
 		if isMe(actorId) and reverse then
-			C.CameraController:setPullBack(0.55)
+			C.CameraController:setPullBack(0.8)
 		end
 		C.AudioController:play("Breath", { At = headPos(actorId) })
 	end)
-	if isMe(targetId) and not reverse then
+	if isMe(actorId) and reverse then
+		-- Look down the barrel: the view tilts to the muzzle turned on you.
+		after(0.55, function()
+			if firing and firing.Actor == actorId then
+				C.CameraController:focus(C.WeaponController:muzzleCF().Position, 0.72, 2.6)
+				C.CameraController:setPullBack(0.35)
+			end
+		end)
+	elseif isMe(targetId) and not reverse then
 		after(0.8, function()
 			C.CameraController:focus(C.WeaponController:muzzleCF().Position, 0.65, 1.8)
 			C.CameraController:punch(-4)
@@ -1516,6 +1602,7 @@ end
 function MatchPresenter:Start()
 	local client = C.MatchClient
 	client.Began:Connect(function(sc)
+		Kit.dismiss("Offer")
 		self:onBegan(sc)
 	end)
 	client.Event:Connect(function(kind, data)
@@ -1544,6 +1631,13 @@ function MatchPresenter:Start()
 	end)
 	client.Ended:Connect(function()
 		self:teardown()
+		table.clear(keepSeated)
+		-- The server moves the body behind the curtain; lift it once it has.
+		task.delay(0.6, function()
+			if not C.MatchClient:active() then
+				C.UIController:curtain(false, { Fade = 0.5 })
+			end
+		end)
 		C.CameraController:toLobby()
 		C.EnvironmentController:enterLobby()
 		C.AudioController:setMusic("Lobby", 0)

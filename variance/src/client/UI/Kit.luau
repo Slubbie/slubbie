@@ -934,8 +934,14 @@ end
 -- Modal dialogs
 ---------------------------------------------------------------------------
 
--- Shows a modal and yields until a button is chosen. Returns that button's Value.
-function Kit.modal(title: string, body: string, buttons: { { Text: string, Style: string?, Value: any } }): any
+-- Shows a modal and yields until a button is chosen. Returns that button's
+-- Value (nil if it was dismissed). opts.Tag lets Kit.dismiss close it.
+function Kit.modal(
+	title: string,
+	body: string,
+	buttons: { { Text: string, Style: string?, Value: any } },
+	opts: { Tag: string? }?
+): any
 	local root = Kit.root
 	if root == nil then
 		return nil
@@ -951,6 +957,9 @@ function Kit.modal(title: string, body: string, buttons: { { Text: string, Style
 		Selectable = false,
 		Parent = root,
 	}) :: TextButton
+	if opts and opts.Tag then
+		shade:SetAttribute("ModalTag", opts.Tag)
+	end
 	Motion.tween(shade, 0.2, { BackgroundTransparency = 0.45 })
 	local panel = Kit.panel(shade, {
 		Name = "Modal",
@@ -1004,6 +1013,19 @@ function Kit.modal(title: string, body: string, buttons: { { Text: string, Style
 	end
 	shade:Destroy()
 	return result
+end
+
+-- Closes open modals with this tag (their Kit.modal call returns nil).
+function Kit.dismiss(tag: string)
+	local root = Kit.root
+	if root == nil then
+		return
+	end
+	for _, child in root:GetChildren() do
+		if child.Name == "ModalShade" and child:GetAttribute("ModalTag") == tag then
+			child:Destroy()
+		end
+	end
 end
 
 function Kit.confirm(title: string, body: string, confirmText: string?, danger: boolean?): boolean

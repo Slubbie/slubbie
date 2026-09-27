@@ -7,3 +7,5 @@ sourcemap.json
 *.zip
 roblox.yml
 __pycache__/
+node_modules/
+target/

@@ -136,7 +136,20 @@ order (no yielding), then `Start()` on each in its own thread.
 
 1. `MatchService:create(spec)` builds rules, acquires an arena, seats players
    (and surrogate puppets), sends each participant `Begin` (scene + their own
-   snapshot) and starts a `MatchRunner`.
+   snapshot) and starts a `MatchRunner` once every player's client has sent
+   `Match.Ready` (room streamed in, rigs bound) or `Config.Match.ReadyTimeout`
+   passes, so nobody misses the intro.
+
+   Seating is hidden behind a curtain: `CharacterService:seat` freezes the
+   player, pushes `Curtain` (the client fades to black and holds its camera),
+   and only then anchors and moves the body. Leaving works the same way in
+   reverse. A player already at that seat (Endurance) is not moved at all.
+   When the intro plays (`MatchStart`), every subject walks in and sits down
+   client-side: chairs start pulled out, the rig walks along the table edge,
+   side-steps in, sits back and scoots in with the chair
+   (`AnimationController:arrive`), all in root space so it ends exactly on
+   the seated pose. Rematches (same table) skip it; spectators and players
+   who reconnect mid-match see everyone already seated.
 2. `MatchRunner:run()` loops: apply queued forfeits, `Engine.advance`, or wait
    for the acting subject. Each batch of events is sent through the
    `Dispatcher` and paced with `Timeline.after`.
@@ -221,12 +234,12 @@ Reconnect.Accept/Decline · Shop.Prompt · Debug.Command`.
 | ProfileController | the client's read-only copy of its profile |
 | InputController | one action map for keyboard (rebindable), gamepad and touch; look input |
 | AudioController | mixer groups, pooled one-shots with fallbacks, positional sounds, ducking, room beds, generative score, heartbeat |
-| UIController | layers (HUD, screens, overlay), screens, toasts, banners, subtitles |
+| UIController | layers (HUD, screens, overlay), screens, toasts, banners, subtitles, the transition curtain |
 | EnvironmentController | room lighting/atmosphere, escalation, flicker, monitors, ambient events, quality levels |
 | VFXController | pooled flashes, sparks, smoke, arcs, rings, shields, tethers, cuffs, screen flashes |
-| AnimationController | procedural R6 posing for seated subjects and display surrogates |
+| AnimationController | procedural R6 posing for seated subjects and display surrogates; the walk-in and sit-down |
 | WeaponController | the Arbiter: slides, grip and aim, recoil, bolt, cells on the rack, loading, ejection |
-| CameraController | lobby, seat POV, cinematic shots, spectator orbit/seat views, shake/kick/FOV |
+| CameraController | lobby, hold, seat POV (own head fades out as the camera reaches it), cinematic shots, spectator orbit/seat views, shake/kick/FOV |
 | MatchClient | the match store: scene, state, turn, sequence checks, resync, acting |
 | MatchPresenter | turns each engine event into a staged moment within its Timeline window |
 | LobbyController | terminals (proximity prompts), locker showcase, display surrogates |

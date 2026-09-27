@@ -2,6 +2,7 @@
 //!
 //! Globals provided to the script:
 //!   __readfile(path) -> string?           read a UTF-8 file
+//!   __writefile(path, text) -> boolean    write (replace) a file
 //!   __listdir(path)  -> {{Name, Dir}}?    directory entries, sorted by name
 //!   __compile(source, chunkname, env)     compile a chunk with its own environment
 //!   __clock()        -> number            wall-clock seconds
@@ -21,6 +22,12 @@ fn main() -> LuaResult<()> {
     globals.set(
         "__readfile",
         lua.create_function(|_, path: String| Ok(fs::read_to_string(&path).ok()))?,
+    )?;
+    globals.set(
+        "__writefile",
+        lua.create_function(|_, (path, text): (String, LuaString)| {
+            Ok(fs::write(&path, text.as_bytes()).is_ok())
+        })?,
     )?;
     globals.set(
         "__listdir",

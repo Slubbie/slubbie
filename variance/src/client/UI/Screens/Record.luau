@@ -78,7 +78,7 @@ function Record:show(tab: string)
 			"CLEARANCE %d  ·  %s  ·  %s PLAYED",
 			profile.Level,
 			profile.Title or "",
-			Format.clock((profile.Stats and profile.Stats.PlayTime) or 0)
+			Format.duration((profile.Stats and profile.Stats.PlayTime) or 0)
 		)
 	)
 	if tab == "Stats" then

@@ -336,6 +336,7 @@ function MatchClient:begin(payload)
 		Rules = payload.Rules,
 		Info = payload.Info or {},
 		Spectating = payload.Spectating == true,
+		Fresh = payload.Fresh == true,
 		RankedPreview = payload.RankedPreview,
 	}
 	MatchClient.State = fromSnapshot(payload.Snapshot)

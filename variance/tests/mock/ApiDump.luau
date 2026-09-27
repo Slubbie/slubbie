@@ -382,6 +382,7 @@ return {
 				"ServerRestartScheduled",
 			},
 		},
+		DataModelMesh = { S = "Instance", P = { Offset = "V3", Scale = "V3", VertexColor = "V3" }, M = {}, E = {} },
 		DataStore = {
 			S = "GlobalDataStore",
 			P = {},
@@ -459,6 +460,12 @@ return {
 		Feature = {
 			S = "Instance",
 			P = { FaceId = "E:NormalId", InOut = "E:InOut", LeftRight = "E:LeftRight", TopBottom = "E:TopBottom" },
+			M = {},
+			E = {},
+		},
+		FileMesh = {
+			S = "DataModelMesh",
+			P = { MeshContent = "?", MeshId = "?", TextureContent = "?", TextureId = "?" },
 			M = {},
 			E = {},
 		},
@@ -1829,6 +1836,7 @@ return {
 			M = {},
 			E = {},
 		},
+		SpecialMesh = { S = "FileMesh", P = { MeshType = "E:MeshType" }, M = {}, E = {} },
 		SpotLight = { S = "Light", P = { Angle = "n", Face = "E:NormalId", Range = "n" }, M = {}, E = {} },
 		StarterGui = {
 			S = "BasePlayerGui",
