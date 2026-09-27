@@ -13,13 +13,26 @@ local FUNCTIONS = {
 	"BuyUpgrade", -- (upgradeId: string, expectedLevel: number)
 	"SkipTutorial", -- ()
 	"SaveSettings", -- (settings: { [string]: any })
+	-- Stage 2
+	"BuyDie", -- (dieId)
+	"EquipDice", -- (dieIds in slot order)
+	"UnlockRegion", -- (regionId)
+	"Travel", -- (regionId) teleports to an unlocked region
+	"ClaimCollection", -- (regionId)
+	-- Stage 3
+	"FulfillOrder", -- (slotIndex)
+	"SkipOrder", -- (slotIndex)
+	"Craft", -- (recipeId)
+	"EquipCosmetic", -- (kind: "Aura" | "Tray", id)
+	"ClaimDaily", -- (index)
+	"ClaimMilestone", -- (milestoneId)
 }
 
 local EVENTS = {
 	"State", -- server → client: full public state after any change
 	"Notify", -- server → client: (text, kind)
 	"OpenPanel", -- server → client: (panelName, regionId) from world prompts
-	"Announce", -- server → all clients: (playerName, itemId, mutation) for Legendary+ finds
+	"Announce", -- server → all clients: (kind, playerName, a, b) — "find" (itemId, mutation) | "unlock" (regionId)
 }
 
 local Net = { Functions = {}, Events = {} }

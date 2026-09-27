@@ -67,6 +67,56 @@ function Bag.SetLocked(data, key: string, locked: boolean): (boolean, string?)
 	return true, nil
 end
 
+-- Unlocked stacks that can pay for `itemId`, cheapest first (plain before mutated).
+-- mutation = nil accepts any variant; a string accepts only that exact mutation.
+local function payableStacks(data, itemId: string, mutation: string?): { { Key: string, Qty: number, Mult: number } }
+	local list = {}
+	for key, stack in data.Bag do
+		if stack.Id == itemId and not stack.Locked and (mutation == nil or stack.Mut == mutation) then
+			local mult = 1
+			if stack.Mut then
+				local def = Config.Economy.Mutations.ById[stack.Mut]
+				mult = if def then def.Multiplier else 1
+			end
+			table.insert(list, { Key = key, Qty = stack.Qty, Mult = mult })
+		end
+	end
+	table.sort(list, function(a, b)
+		if a.Mult ~= b.Mult then
+			return a.Mult < b.Mult
+		end
+		return a.Key < b.Key
+	end)
+	return list
+end
+
+-- How many unlocked copies can be used (locked items never count).
+function Bag.Available(data, itemId: string, mutation: string?): number
+	local total = 0
+	for _, entry in payableStacks(data, itemId, mutation) do
+		total += entry.Qty
+	end
+	return total
+end
+
+-- Removes `qty` unlocked copies, cheapest variants first. All-or-nothing: returns false and
+-- changes nothing if there aren't enough.
+function Bag.Take(data, itemId: string, mutation: string?, qty: number): boolean
+	if qty < 1 or Bag.Available(data, itemId, mutation) < qty then
+		return false
+	end
+	local left = qty
+	for _, entry in payableStacks(data, itemId, mutation) do
+		local take = math.min(left, entry.Qty)
+		Bag.Remove(data, entry.Key, take)
+		left -= take
+		if left == 0 then
+			break
+		end
+	end
+	return true
+end
+
 -- Records a discovery in the collection book. Discoveries are permanent: selling the item later
 -- never removes them. Returns (newItem, newMutationVariant).
 function Bag.Discover(data, itemId: string, mutation: string?, qty: number, now: number): (boolean, boolean)

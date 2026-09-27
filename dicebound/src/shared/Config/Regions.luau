@@ -3,6 +3,9 @@
 --   Bounds       box (relative to Origin) where you count as "in" the region. Rolls use the
 --                loot table of the region you stand in when the server accepts the roll.
 --   Merchant     where the merchant stands (relative to Origin). Selling requires being nearby.
+--   Stall        the second stall (west side): which panel its prompt opens.
+--   Portal       the travel stone that opens the map.
+--   CollectionReward  coins for discovering every item of the region (claimed in the book).
 --   Unlock       what it costs to open. Coins are spent; Discoveries is the number of unique
 --                items you must have discovered in the previous region (never spent).
 --   JackpotCoins bonus coins for a Jackpot combo rolled here.
@@ -12,14 +15,22 @@ local Regions = {
 	List = {
 		{
 			Id = "meadow",
+			Stall = {
+				Position = { -30, 0, 0 },
+				Name = "Tobble the Tinkerer",
+				Title = "Upgrades",
+				Panel = "Upgrades",
+				Action = "Upgrades & crafting",
+			},
+			CollectionReward = 1000,
 			Name = "Meadow Market",
 			Stage = 1,
 			Tagline = "Where every treasure hunter rolls their first die.",
 			Origin = { 0, 0, 0 },
 			Bounds = { Center = { 0, 30, 0 }, Size = { 220, 90, 220 } },
 			Merchant = { Position = { 30, 0, 0 }, Name = "Marta the Merchant" },
-			Tinkerer = { Position = { -30, 0, 0 }, Name = "Tobble the Tinkerer" },
 			SpawnPosition = { 0, 0, 44 },
+			Portal = { 0, 0, -86 },
 			Unlock = { Coins = 0 },
 			JackpotCoins = 250,
 			RevisitReason = "Home of the Golden Goose Egg and the cheapest merchant orders.",
@@ -32,13 +43,22 @@ local Regions = {
 		},
 		{
 			Id = "crystal",
+			Stall = {
+				Position = { -30, 0, 0 },
+				Name = "Quill the Dicewright",
+				Title = "Dice Shop",
+				Panel = "Dice",
+				Action = "Browse dice",
+			},
+			CollectionReward = 6000,
 			Name = "Crystal Caverns",
 			Stage = 2,
 			Tagline = "Glowing tunnels full of gems and very small frogs.",
 			Origin = { 0, 0, -260 },
 			Bounds = { Center = { 0, 30, 0 }, Size = { 200, 90, 200 } },
-			Merchant = { Position = { 26, 0, 0 }, Name = "Glim the Gemcutter" },
-			SpawnPosition = { 0, 0, 60 },
+			Merchant = { Position = { 30, 0, 0 }, Name = "Glim the Gemcutter" },
+			SpawnPosition = { 0, 0, 44 },
+			Portal = { 0, 0, -86 },
 			Unlock = { Coins = 2500, Discoveries = 6 },
 			JackpotCoins = 700,
 			RevisitReason = "Glass and Clover dice are sold here.",
@@ -51,14 +71,23 @@ local Regions = {
 		},
 		{
 			Id = "frost",
+			Stall = {
+				Position = { -30, 0, 0 },
+				Name = "Nessa the Carver",
+				Title = "Workbench",
+				Panel = "Craft",
+				Action = "Craft",
+			},
+			CollectionReward = 40000,
 			Name = "Frostfall Village",
 			Stage = 2,
 			Tagline = "Cozy lanterns, northern lights, and treasure frozen in time.",
 			Origin = { -300, 0, -260 },
 			Bounds = { Center = { 0, 30, 0 }, Size = { 200, 90, 200 } },
-			Merchant = { Position = { 24, 0, 0 }, Name = "Old Pim" },
-			SpawnPosition = { 60, 0, 0 },
-			Unlock = { Coins = 40000, Discoveries = 7 },
+			Merchant = { Position = { 30, 0, 0 }, Name = "Old Pim" },
+			SpawnPosition = { 0, 0, 44 },
+			Portal = { 0, 0, -86 },
+			Unlock = { Coins = 30000, Discoveries = 7 },
 			JackpotCoins = 2000,
 			RevisitReason = "Frozen mutations are native here, and the Frost Die shines.",
 			Palette = {
@@ -70,14 +99,23 @@ local Regions = {
 		},
 		{
 			Id = "ember",
+			Stall = {
+				Position = { -30, 0, 0 },
+				Name = "Forgemaster Ulf",
+				Title = "Dice Forge",
+				Panel = "Dice",
+				Action = "Browse dice",
+			},
+			CollectionReward = 150000,
 			Name = "Emberforge",
 			Stage = 2,
 			Tagline = "A volcanic workshop where dice are forged and beetles tick.",
 			Origin = { 300, 0, -260 },
 			Bounds = { Center = { 0, 30, 0 }, Size = { 200, 90, 200 } },
-			Merchant = { Position = { -24, 0, 0 }, Name = "Brakka the Smith" },
-			SpawnPosition = { -60, 0, 0 },
-			Unlock = { Coins = 250000, Discoveries = 7 },
+			Merchant = { Position = { 30, 0, 0 }, Name = "Brakka the Smith" },
+			SpawnPosition = { 0, 0, 44 },
+			Portal = { 0, 0, -86 },
+			Unlock = { Coins = 400000, Discoveries = 7 },
 			JackpotCoins = 5000,
 			RevisitReason = "Golden mutations run hot here, and the Magma Die is forged on site.",
 			Palette = {
@@ -89,14 +127,23 @@ local Regions = {
 		},
 		{
 			Id = "astral",
+			Stall = {
+				Position = { -30, 0, 0 },
+				Name = "The Archivist",
+				Title = "Collection",
+				Panel = "Book",
+				Action = "Open collection book",
+			},
+			CollectionReward = 600000,
 			Name = "Astral Sanctuary",
 			Stage = 2,
 			Tagline = "Floating islands among the stars, scattered with moon relics.",
 			Origin = { 0, 60, -560 },
 			Bounds = { Center = { 0, 30, 0 }, Size = { 220, 110, 220 } },
-			Merchant = { Position = { 26, 0, 0 }, Name = "The Stargazer" },
-			SpawnPosition = { 0, 0, 70 },
-			Unlock = { Coins = 1500000, Discoveries = 7 },
+			Merchant = { Position = { 30, 0, 0 }, Name = "The Stargazer" },
+			SpawnPosition = { 0, 0, 44 },
+			Portal = { 0, 0, -86 },
+			Unlock = { Coins = 3000000, Discoveries = 7 },
 			JackpotCoins = 12000,
 			RevisitReason = "Cosmic mutations and the Celestial Die's crafting materials.",
 			Palette = {

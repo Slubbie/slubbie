@@ -269,7 +269,11 @@ T.test("buying upgrades: funds, duplicates and max level", function()
 	T.eq(Shop.BuyUpgrade(data, "AutoRoll", 0), true)
 	T.eq(select(2, Shop.BuyUpgrade(data, "AutoRoll", 1)), "Already at max level.")
 	T.eq(Shop.BuyUpgrade(data, "Nope", 0), false)
-	T.eq(Shop.BuyUpgrade(data, "DiceSlots", 0), false, "stage 2 upgrade not live yet")
+	T.eq(
+		Shop.BuyUpgrade(data, "DiceSlots", 0),
+		Config.IsLive(Config.Economy.Upgrades.ById.DiceSlots),
+		"live only when its stage is"
+	)
 	T.eq(Shop.BuyUpgrade(data, "Bag", "1"), false, "string level refused")
 end)
 

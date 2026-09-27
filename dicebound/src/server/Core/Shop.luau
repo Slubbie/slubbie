@@ -14,11 +14,12 @@ Shop.MaxSelectionSize = 250
 export type SaleLine = { Key: string, Id: string, Mut: string?, Qty: number, Coins: number }
 export type SalePlan = { Lines: { SaleLine }, Total: number, Multiplier: number, Units: number }
 
--- Sell price multiplier from the Silver Tongue upgrade + equipped dice perks, capped.
-function Shop.SellMultiplier(data): number
+-- Sell price multiplier from the Silver Tongue upgrade + equipped dice perks + an optional event
+-- bonus (Merchant Festival), capped.
+function Shop.SellMultiplier(data, eventBonus: number?): number
 	local upgrade = Config.UpgradeValue("Sell", data.Upgrades.Sell)
 	local perks = LootMath.Perks(data.Dice.Equipped)
-	return math.min(1 + upgrade + perks.SellBonus, Config.Economy.MaxSellMultiplier)
+	return math.min(1 + upgrade + perks.SellBonus + (eventBonus or 0), Config.Economy.MaxSellMultiplier)
 end
 
 local function needsConfirm(itemId: string): boolean
@@ -48,11 +49,11 @@ end
 
 -- selection: { [stackKey] = quantity }. Fails as a whole if any entry is invalid, so a stale
 -- or duplicated request can never sell part of what the player meant.
-function Shop.PlanSale(data, selection: any, confirmHighValue: boolean): (SalePlan?, string?)
+function Shop.PlanSale(data, selection: any, confirmHighValue: boolean, eventBonus: number?): (SalePlan?, string?)
 	if type(selection) ~= "table" then
 		return nil, "Nothing selected."
 	end
-	local mult = Shop.SellMultiplier(data)
+	local mult = Shop.SellMultiplier(data, eventBonus)
 	local lines = {}
 	local count = 0
 	for key, qty in selection do
@@ -82,8 +83,8 @@ function Shop.PlanSale(data, selection: any, confirmHighValue: boolean): (SalePl
 end
 
 -- Every unlocked stack. Legendary-or-better stacks are included only when includeHighValue.
-function Shop.PlanSellAll(data, includeHighValue: boolean): (SalePlan?, string?)
-	local mult = Shop.SellMultiplier(data)
+function Shop.PlanSellAll(data, includeHighValue: boolean, eventBonus: number?): (SalePlan?, string?)
+	local mult = Shop.SellMultiplier(data, eventBonus)
 	local lines = {}
 	for key, stack in data.Bag do
 		if not stack.Locked and (includeHighValue or not needsConfirm(stack.Id)) then

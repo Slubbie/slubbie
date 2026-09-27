@@ -14,11 +14,24 @@ export type Perks = {
 	MutationChanceMult: number,
 	MutationWeights: { [string]: number },
 	UndiscoveredBoost: number,
+	TierBoost: number, -- multiplies Rare-and-better weights in face tier rows (world events)
+	EventSellBonus: number, -- extra sell bonus from a world event at this merchant
 }
 
--- Combined perks of the equipped dice. The same perk never stacks: the largest value wins.
-function LootMath.Perks(diceIds: { string }): Perks
-	local perks: Perks = { SellBonus = 0, MutationChanceMult = 1, MutationWeights = {}, UndiscoveredBoost = 1 }
+-- An active world event: { Id = eventId, Region = regionId }.
+export type Event = { Id: string, Region: string }
+
+-- Combined perks of the equipped dice, plus the world event if it is running in `regionId`.
+-- The same dice perk never stacks (the largest value wins). Event effects multiply on top.
+function LootMath.Perks(diceIds: { string }, regionId: string?, event: Event?): Perks
+	local perks: Perks = {
+		SellBonus = 0,
+		MutationChanceMult = 1,
+		MutationWeights = {},
+		UndiscoveredBoost = 1,
+		TierBoost = 1,
+		EventSellBonus = 0,
+	}
 	for _, dieId in diceIds do
 		local die = Config.Dice.ById[dieId]
 		local p = die and die.Perks or {}
@@ -29,7 +42,31 @@ function LootMath.Perks(diceIds: { string }): Perks
 			perks.MutationWeights[mutationId] = math.max(perks.MutationWeights[mutationId] or 1, mult)
 		end
 	end
+	local def = event and regionId and event.Region == regionId and Economy.Events.ById[event.Id]
+	if def then
+		local e = def.Effects
+		perks.MutationChanceMult *= e.MutationChanceMult or 1
+		perks.TierBoost *= e.TierBoost or 1
+		perks.UndiscoveredBoost = math.max(perks.UndiscoveredBoost, e.UndiscoveredBoost or 1)
+		perks.EventSellBonus += e.SellBonus or 0
+		for mutationId, mult in e.MutationWeights or {} do
+			perks.MutationWeights[mutationId] = (perks.MutationWeights[mutationId] or 1) * mult
+		end
+	end
 	return perks
+end
+
+-- A face tier row adjusted by perks: TierBoost multiplies Rare-and-better weights.
+function LootMath.TierRow(row: { [string]: number }, perks: Perks?): { [string]: number }
+	local boost = if perks then perks.TierBoost else 1
+	if boost == 1 then
+		return row
+	end
+	local adjusted = {}
+	for tier, weight in row do
+		adjusted[tier] = if Rarities.Order(tier) >= 3 then weight * boost else weight
+	end
+	return adjusted
 end
 
 function LootMath.FacesFor(dieId: string, regionId: string): { number }

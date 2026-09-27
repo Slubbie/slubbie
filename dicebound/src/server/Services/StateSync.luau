@@ -11,6 +11,7 @@ local ActionState = require(script.Parent.ActionState)
 local Core = script.Parent.Parent.Core
 local Bag = require(Core.Bag)
 local Shop = require(Core.Shop)
+local Progress = require(Core.Progress)
 
 local StateSync = {}
 
@@ -55,6 +56,26 @@ local function build(player: Player, profile: PlayerData.Profile)
 		Cooldown = Config.UpgradeValue("Speed", data.Upgrades.Speed),
 		NextRollIn = math.max(0, state.NextRollAt - os.clock()),
 		SaveMode = profile.SaveMode,
+		-- Stage 2/3
+		Orders = {
+			Slots = table.clone(data.Orders.Slots),
+			SkipIn = math.max(0, data.Orders.SkipAt - os.time()),
+			ServerTime = os.time(),
+		},
+		Daily = { Day = data.Daily.Day, List = data.Daily.List, ResetIn = 86400 - os.time() % 86400 },
+		Milestones = table.clone(data.Milestones),
+		Collection = table.clone(data.Collection),
+		Cosmetics = {
+			Auras = table.clone(data.Cosmetics.Auras),
+			Trays = table.clone(data.Cosmetics.Trays),
+			Aura = data.Cosmetics.Aura,
+			Tray = data.Cosmetics.Tray,
+		},
+		StatValues = {
+			Unique = Progress.StatValue(data, "Unique"),
+			Regions = Progress.StatValue(data, "Regions"),
+		},
+		Claimable = Progress.Claimable(data),
 	}
 end
 

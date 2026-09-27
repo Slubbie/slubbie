@@ -183,3 +183,136 @@ T.test("pacing targets", function()
 	T.truthy(results["Crystal Caverns affordable"] >= 8 * 60, "second region not too fast")
 	T.truthy(results["Crystal Caverns affordable"] <= 17 * 60, "second region not too slow")
 end)
+
+-- ── Full progression (all regions, dice, slots) ────────────────────────────────
+-- Extra assumptions: the player buys any upgrade or die costing <= 20% of the next region's
+-- price (cheapest first), unlocks each region as soon as it can and moves there, leads with
+-- the best die for the region (regional die > Clover > anything) and fills the other slots.
+-- Orders, dailies, milestones and collection rewards are ignored, so real pacing is faster.
+local Workshop = require(Core.Workshop)
+local LootMath = require(game:GetService("ReplicatedStorage").Dicebound.LootMath)
+
+local DIE_PREFERENCE = { "clover", "glass", "copper", "wooden" }
+
+local function equipBest(data, regionId)
+	local order = {}
+	for _, die in Config.Dice.List do
+		if data.Dice.Owned[die.Id] and die.RegionFaces and die.RegionFaces[regionId] then
+			table.insert(order, die.Id)
+		end
+	end
+	for _, id in DIE_PREFERENCE do
+		if data.Dice.Owned[id] and not table.find(order, id) then
+			table.insert(order, id)
+		end
+	end
+	for _, die in Config.Dice.List do
+		if data.Dice.Owned[die.Id] and not table.find(order, die.Id) then
+			table.insert(order, die.Id)
+		end
+	end
+	local slots = Config.UpgradeValue("DiceSlots", data.Upgrades.DiceSlots)
+	while #order > slots do
+		table.remove(order)
+	end
+	Workshop.Equip(data, order)
+end
+
+local function fullRun(seed: number, limit: number)
+	local rng = T.Rng(seed)
+	local data = Schema.Defaults()
+	local t, region = 0, "meadow"
+	local marks = {}
+	local nextIndex = 2
+	local function shop()
+		local target = Config.Regions.List[nextIndex]
+		local budget = if target then target.Unlock.Coins * 0.2 else math.huge
+		local bought = true
+		while bought do
+			bought = false
+			local bestKind, bestId, bestCost
+			for _, upgrade in Config.Economy.Upgrades.List do
+				local nextLevel = upgrade.Levels[data.Upgrades[upgrade.Id] + 2]
+				if Config.IsLive(upgrade) and nextLevel and nextLevel.Cost <= budget then
+					if not bestCost or nextLevel.Cost < bestCost then
+						bestKind, bestId, bestCost = "Upgrade", upgrade.Id, nextLevel.Cost
+					end
+				end
+			end
+			for _, die in Config.Dice.List do
+				local source = die.Source
+				if
+					source.Kind == "Shop"
+					and not data.Dice.Owned[die.Id]
+					and data.Regions[source.Region]
+					and source.Price <= budget
+				then
+					if not bestCost or source.Price < bestCost then
+						bestKind, bestId, bestCost = "Die", die.Id, source.Price
+					end
+				end
+			end
+			if bestCost and data.Coins >= bestCost then
+				if bestKind == "Upgrade" then
+					Shop.BuyUpgrade(data, bestId, data.Upgrades[bestId])
+				else
+					Workshop.BuyDie(data, bestId)
+				end
+				bought = true
+			end
+		end
+		local target2 = Config.Regions.List[nextIndex]
+		if target2 and Workshop.UnlockRegion(data, target2.Id) then
+			marks[target2.Name] = t
+			region = target2.Id
+			nextIndex += 1
+		end
+		equipBest(data, region)
+	end
+	while t < limit and nextIndex <= #Config.Regions.List do
+		local need = LootMath.MaxRewardUnits(#data.Dice.Equipped)
+		if Bag.Free(data) < need then
+			local plan = Shop.PlanSellAll(data, true)
+			if plan then
+				Shop.ApplySale(data, plan)
+			end
+			t += SELL_TRIP
+			shop()
+		end
+		local outcome = RollEngine.Roll(rng, region, data.Dice.Equipped, data.Discovered)
+		for _, reward in outcome.Rewards do
+			Bag.Add(data, reward.Id, reward.Mut, reward.Qty)
+			Bag.Discover(data, reward.Id, reward.Mut, reward.Qty, 0)
+		end
+		data.Coins += outcome.Coins
+		local auto = data.Upgrades.AutoRoll > 0
+		t += Config.UpgradeValue("Speed", data.Upgrades.Speed) + (if auto then AUTO_REACTION else REACTION)
+	end
+	return marks
+end
+
+print("\nFull progression (100 players, up to 6 hours of active play)")
+local fullRuns = {}
+for seed = 1, 100 do
+	table.insert(fullRuns, fullRun(seed * 104729, 6 * 3600))
+end
+for i = 2, #Config.Regions.List do
+	local name = Config.Regions.List[i].Name
+	local times, reached = {}, 0
+	for _, run in fullRuns do
+		if run[name] then
+			reached += 1
+		end
+		table.insert(times, run[name] or math.huge)
+	end
+	local function fmt(p)
+		local v = percentile(table.clone(times), p)
+		return if v == math.huge then "    >6h" else string.format("%4dh%02dm", v // 3600, (v % 3600) // 60)
+	end
+	print(string.format("  %-22s p10 %s   median %s   p90 %s   (%d%%)", name, fmt(0.1), fmt(0.5), fmt(0.9), reached))
+end
+for _, region in Config.Regions.List do
+	local one = Odds.Compute(region.Id, { "wooden" }).ExpectedCoins
+	local three = Odds.Compute(region.Id, { "clover", "glass", "copper" }).ExpectedCoins
+	print(string.format("  EV/roll %-18s 1 wooden: %8.1f   clover+glass+copper: %8.1f", region.Name, one, three))
+end

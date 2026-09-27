@@ -11,6 +11,7 @@ local Config = {
 	Regions = require(script.Regions),
 	Economy = require(script.Economy),
 	Sounds = require(script.Sounds),
+	Crafting = require(script.Crafting),
 }
 
 -- Content (dice, regions, upgrades) tagged with a Stage above Game.Stage is not live yet.

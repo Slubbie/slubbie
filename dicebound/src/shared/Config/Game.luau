@@ -5,8 +5,8 @@ return {
 	ShortName = "Dicebound",
 
 	-- Content with a Stage higher than this is hidden and rejected by the server.
-	-- Stage 1 = Meadow Market foundation. Raise it only when the next stage's code is installed.
-	Stage = 1,
+	-- 1 = Meadow foundation, 2 = dice + regions + collection, 3 = orders, crafting, events, quests.
+	Stage = 3,
 
 	-- DataStore name. Changing it starts everyone with fresh saves (old saves stay in the old store).
 	DataStoreName = "Dicebound_Players_v1",

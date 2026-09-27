@@ -171,4 +171,119 @@ Economy.MaxDice = 3
 -- Coins for finishing the tutorial (skipping it gives nothing, but costs nothing either).
 Economy.TutorialReward = 25
 
+-- ── World events (Stage 3) ──────────────────────────────────────────────────────
+-- Every Interval seconds the server starts one event in a random live region for Duration
+-- seconds. Effects only apply to rolls (and sales) in that region while it runs.
+Economy.Events = {
+	FirstDelay = 90,
+	Interval = 600,
+	Duration = 240,
+	List = {
+		{
+			Id = "GoldenHour",
+			Name = "Golden Hour",
+			Icon = "👑",
+			Text = "Golden mutations are 4× as likely",
+			Effects = { MutationWeights = { Golden = 4 } },
+		},
+		{
+			Id = "LuckyWinds",
+			Name = "Lucky Winds",
+			Icon = "🍃",
+			Text = "Mutation chance ×2",
+			Effects = { MutationChanceMult = 2 },
+		},
+		{
+			Id = "TreasureRush",
+			Name = "Treasure Rush",
+			Icon = "💎",
+			Text = "Rare-and-better tiers are 1.5× as likely",
+			Effects = { TierBoost = 1.5 },
+		},
+		{
+			Id = "MerchantFestival",
+			Name = "Merchant Festival",
+			Icon = "🎪",
+			Text = "+25% sell price at this region's merchant",
+			Effects = { SellBonus = 0.25 },
+		},
+		{
+			Id = "DiscoveryDay",
+			Name = "Discovery Day",
+			Icon = "🔭",
+			Text = "Undiscovered items are 3× as likely within their tier",
+			Effects = { UndiscoveredBoost = 3 },
+		},
+	},
+	ById = {},
+}
+for _, event in Economy.Events.List do
+	Economy.Events.ById[event.Id] = event
+end
+
+-- ── Merchant orders (Stage 3) ───────────────────────────────────────────────────
+-- Merchants ask for specific treasure and pay RewardMult × its sell value, so filling an order
+-- always beats selling the same items. Orders only use regions you've unlocked.
+Economy.Orders = {
+	Slots = 3,
+	ReplaceDelay = 45, -- seconds before a completed or skipped order is replaced
+	SkipCooldown = 180, -- seconds between skips
+	RewardMult = { Min = 1.6, Max = 2.1 },
+	MutatedChance = 0.15, -- chance an order asks for a specific mutation
+	MutatedRewardBonus = 1.3,
+	RarityWeights = { Common = 45, Uncommon = 35, Rare = 17, Epic = 3 },
+	Quantity = { Common = { 3, 6 }, Uncommon = { 2, 4 }, Rare = { 1, 2 }, Epic = { 1, 1 } },
+}
+
+-- ── Daily objectives (Stage 3) ──────────────────────────────────────────────────
+-- Three a day (UTC), optional, no streaks to lose. Rewards scale with your best unlocked region.
+Economy.Dailies = {
+	Count = 3,
+	RegionScale = { 1, 2.5, 6, 14, 32 },
+	Pool = {
+		{ Id = "roll", Stat = "Rolls", Goal = 60, Reward = 150, Text = "Roll %d times" },
+		{ Id = "roll_big", Stat = "Rolls", Goal = 150, Reward = 350, Text = "Roll %d times" },
+		{ Id = "rare", Stat = "Rares", Goal = 8, Reward = 200, Text = "Find %d Rare-or-better items" },
+		{ Id = "mutation", Stat = "Mutated", Goal = 3, Reward = 250, Text = "Find %d mutated items" },
+		{
+			Id = "sell",
+			Stat = "SaleCoins",
+			Goal = 800,
+			Reward = 200,
+			Text = "Earn %d coins from selling",
+			Scales = true,
+		},
+		{ Id = "order", Stat = "Orders", Goal = 2, Reward = 300, Text = "Complete %d merchant orders" },
+		{ Id = "combo", Stat = "Combos", Goal = 10, Reward = 300, Text = "Roll %d dice combos", NeedsDice = 2 },
+	},
+}
+
+-- ── Milestones (Stage 3) ────────────────────────────────────────────────────────
+-- Permanent, one-time rewards. Stat "Unique" = unique discoveries, "Regions" = regions unlocked.
+Economy.Milestones = {
+	{ Id = "rolls_100", Name = "Warm Hands", Stat = "Rolls", Goal = 100, Reward = 300 },
+	{ Id = "rolls_1000", Name = "Seasoned Roller", Stat = "Rolls", Goal = 1000, Reward = 3000 },
+	{ Id = "rolls_5000", Name = "Dice Devotee", Stat = "Rolls", Goal = 5000, Reward = 25000 },
+	{ Id = "rolls_20000", Name = "Legend of the Tray", Stat = "Rolls", Goal = 20000, Reward = 150000 },
+	{ Id = "unique_5", Name = "Curious Collector", Stat = "Unique", Goal = 5, Reward = 150 },
+	{ Id = "unique_15", Name = "Keen Eye", Stat = "Unique", Goal = 15, Reward = 2000 },
+	{ Id = "unique_30", Name = "Treasure Scholar", Stat = "Unique", Goal = 30, Reward = 20000 },
+	{ Id = "unique_50", Name = "Completionist", Stat = "Unique", Goal = 50, Reward = 250000 },
+	{ Id = "orders_5", Name = "Helpful Hand", Stat = "Orders", Goal = 5, Reward = 1000 },
+	{ Id = "orders_25", Name = "Trusted Supplier", Stat = "Orders", Goal = 25, Reward = 10000 },
+	{ Id = "orders_100", Name = "Merchant's Favorite", Stat = "Orders", Goal = 100, Reward = 80000 },
+	{ Id = "regions_2", Name = "Wanderer", Stat = "Regions", Goal = 2, Reward = 500 },
+	{ Id = "regions_3", Name = "Explorer", Stat = "Regions", Goal = 3, Reward = 5000 },
+	{ Id = "regions_4", Name = "Pathfinder", Stat = "Regions", Goal = 4, Reward = 30000 },
+	{ Id = "regions_5", Name = "Star Walker", Stat = "Regions", Goal = 5, Reward = 150000 },
+	{ Id = "jackpot_1", Name = "Jackpot!", Stat = "Jackpots", Goal = 1, Reward = 2000 },
+	{ Id = "jackpot_10", Name = "Lady Luck", Stat = "Jackpots", Goal = 10, Reward = 30000 },
+	{ Id = "mutated_10", Name = "Oddity Hunter", Stat = "Mutated", Goal = 10, Reward = 1500 },
+	{ Id = "mutated_100", Name = "Mutation Maven", Stat = "Mutated", Goal = 100, Reward = 25000 },
+	{ Id = "crafts_1", Name = "Tinkerer's Apprentice", Stat = "Crafts", Goal = 1, Reward = 1000 },
+}
+
+-- Seconds between teleports on the travel map.
+Economy.TravelCooldown = 3
+
 return Economy

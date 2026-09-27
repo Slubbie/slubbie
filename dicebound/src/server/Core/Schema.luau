@@ -11,7 +11,7 @@ local Config = require(ReplicatedStorage.Dicebound.Config)
 
 local Schema = {}
 
-Schema.Version = 1
+Schema.Version = 2
 
 export type Stack = { Id: string, Mut: string?, Qty: number, Locked: boolean, Seq: number }
 
@@ -29,9 +29,29 @@ export type Data = {
 	Tutorial: { Step: number, Done: boolean },
 	Settings: { [string]: any },
 	Orphans: { any },
+	-- v2
+	Orders: { Slots: { any }, NextId: number, SkipAt: number },
+	Daily: { Day: number, List: { any } },
+	Milestones: { [string]: boolean },
+	Collection: { [string]: boolean },
+	Cosmetics: { Auras: { [string]: boolean }, Trays: { [string]: boolean }, Aura: string, Tray: string },
 }
 
-Schema.StatNames = { "Rolls", "Found", "Sold", "CoinsEarned", "Combos", "Jackpots", "Upgrades" }
+Schema.StatNames = {
+	"Rolls",
+	"Found",
+	"Sold",
+	"CoinsEarned",
+	"Combos",
+	"Jackpots",
+	"Upgrades",
+	-- v2
+	"Rares",
+	"Mutated",
+	"SaleCoins",
+	"Orders",
+	"Crafts",
+}
 
 Schema.SettingDefaults = {
 	Music = 0.5,
@@ -63,13 +83,30 @@ function Schema.Defaults(): Data
 		Tutorial = { Step = 1, Done = false },
 		Settings = table.clone(Schema.SettingDefaults),
 		Orphans = {},
+		Orders = { Slots = {}, NextId = 0, SkipAt = 0 },
+		Daily = { Day = 0, List = {} },
+		Milestones = {},
+		Collection = {},
+		Cosmetics = { Auras = {}, Trays = { classic = true }, Aura = "", Tray = "classic" },
 	}
 end
 
 -- Migrations[v] upgrades a version-v save to version v + 1.
 local Migrations: { [number]: (any) -> () } = {
-	-- Example for the future:
-	-- [1] = function(data) data.Orders = {} end,
+	-- v1 -> v2: orders, dailies, milestones, collection rewards and cosmetics were added (Sanitize
+	-- fills their defaults). Backfill the new "Mutated" stat from the mutation variants found.
+	[1] = function(data)
+		if type(data.Stats) ~= "table" then
+			data.Stats = {}
+		end
+		local count = 0
+		if type(data.MutationsFound) == "table" then
+			for _ in data.MutationsFound do
+				count += 1
+			end
+		end
+		data.Stats.Mutated = count
+	end,
 }
 
 local function isInt(value: any, min: number?): boolean
@@ -203,6 +240,101 @@ function Schema.Sanitize(raw: any): Data
 			if type(value) == type(default) then
 				data.Settings[name] = if type(value) == "number" then math.clamp(value, 0, 1) else value
 			end
+		end
+	end
+
+	-- v2 fields ---------------------------------------------------------------------------
+	if type(raw.Orders) == "table" then
+		if isInt(raw.Orders.NextId) then
+			data.Orders.NextId = raw.Orders.NextId
+		end
+		if isInt(raw.Orders.SkipAt) then
+			data.Orders.SkipAt = raw.Orders.SkipAt
+		end
+		if type(raw.Orders.Slots) == "table" then
+			for i = 1, Config.Economy.Orders.Slots do
+				local slot = raw.Orders.Slots[i]
+				if type(slot) == "table" and isInt(slot.ReadyAt) then
+					local valid = slot.ItemId == nil
+						or (
+							Config.Items.ById[slot.ItemId] ~= nil
+							and isInt(slot.Qty, 1)
+							and isInt(slot.Reward, 1)
+							and isInt(slot.Id)
+							and (slot.Mut == nil or Config.Economy.Mutations.ById[slot.Mut] ~= nil)
+						)
+					if valid then
+						data.Orders.Slots[i] = {
+							Id = slot.Id,
+							ItemId = slot.ItemId,
+							Mut = slot.Mut,
+							Qty = slot.Qty,
+							Reward = slot.Reward,
+							Giver = if type(slot.Giver) == "string" then slot.Giver else nil,
+							ReadyAt = slot.ReadyAt,
+						}
+					end
+				end
+			end
+		end
+	end
+	if type(raw.Daily) == "table" and isInt(raw.Daily.Day) and type(raw.Daily.List) == "table" then
+		local list = {}
+		for _, entry in raw.Daily.List do
+			if
+				type(entry) == "table"
+				and type(entry.Id) == "string"
+				and isInt(entry.Goal, 1)
+				and isInt(entry.Reward)
+				and isInt(entry.Progress)
+			then
+				table.insert(list, {
+					Id = entry.Id,
+					Stat = if type(entry.Stat) == "string" then entry.Stat else "Rolls",
+					Goal = entry.Goal,
+					Reward = entry.Reward,
+					Progress = entry.Progress,
+					Claimed = entry.Claimed == true,
+				})
+			end
+		end
+		data.Daily = { Day = raw.Daily.Day, List = list }
+	end
+	local milestoneIds = {}
+	for _, m in Config.Economy.Milestones do
+		milestoneIds[m.Id] = true
+	end
+	if type(raw.Milestones) == "table" then
+		for id, claimed in raw.Milestones do
+			if milestoneIds[id] and claimed == true then
+				data.Milestones[id] = true
+			end
+		end
+	end
+	if type(raw.Collection) == "table" then
+		for id, claimed in raw.Collection do
+			if Config.Regions.ById[id] and claimed == true then
+				data.Collection[id] = true
+			end
+		end
+	end
+	if type(raw.Cosmetics) == "table" then
+		local cosmetics = raw.Cosmetics
+		for _, kind in { "Auras", "Trays" } do
+			local catalog = Config.Crafting[kind]
+			if type(cosmetics[kind]) == "table" then
+				for id, owned in cosmetics[kind] do
+					if catalog[id] and owned == true then
+						data.Cosmetics[kind][id] = true
+					end
+				end
+			end
+		end
+		if type(cosmetics.Aura) == "string" and data.Cosmetics.Auras[cosmetics.Aura] then
+			data.Cosmetics.Aura = cosmetics.Aura
+		end
+		if type(cosmetics.Tray) == "string" and data.Cosmetics.Trays[cosmetics.Tray] then
+			data.Cosmetics.Tray = cosmetics.Tray
 		end
 	end
 

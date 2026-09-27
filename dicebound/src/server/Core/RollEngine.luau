@@ -78,9 +78,15 @@ local function rollMutation(rng: Rng, regionId: string, perks): string?
 	return picked and picked.Id
 end
 
-function RollEngine.Roll(rng: Rng, regionId: string, diceIds: { string }, discovered: { [string]: any }?): Outcome
+function RollEngine.Roll(
+	rng: Rng,
+	regionId: string,
+	diceIds: { string },
+	discovered: { [string]: any }?,
+	event: LootMath.Event?
+): Outcome
 	assert(#diceIds >= 1 and #diceIds <= Economy.MaxDice, "bad dice count")
-	local perks = LootMath.Perks(diceIds)
+	local perks = LootMath.Perks(diceIds, regionId, event)
 
 	local faces, maxFaces = {}, {}
 	for i, dieId in diceIds do
@@ -112,7 +118,7 @@ function RollEngine.Roll(rng: Rng, regionId: string, diceIds: { string }, discov
 	end
 
 	-- Main reward: lead die face -> tier -> item.
-	local tier = pickTier(rng, Economy.FaceTiers[faces[1]])
+	local tier = pickTier(rng, LootMath.TierRow(Economy.FaceTiers[faces[1]], perks))
 	local main = drawItem(rng, regionId, tier, perks, discovered)
 	outcome.Tier = if main then main.Rarity else tier
 
@@ -121,7 +127,7 @@ function RollEngine.Roll(rng: Rng, regionId: string, diceIds: { string }, discov
 	grant(main, if combo == "Pair" then combos.Pair.MainQuantity else 1, "Main")
 
 	if combo == "Triple" then
-		local bonusTier = pickTier(rng, Economy.FaceTiers[combos.Triple.BonusFace])
+		local bonusTier = pickTier(rng, LootMath.TierRow(Economy.FaceTiers[combos.Triple.BonusFace], perks))
 		grant(drawItem(rng, regionId, bonusTier, perks, discovered), 1, "Triple")
 	elseif combo == "Straight" then
 		if rng:NextNumber() < combos.Straight.CollectibleChance then

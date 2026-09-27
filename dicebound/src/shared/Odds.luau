@@ -50,8 +50,13 @@ local function expectedValue(items: { [string]: number }, mutationFactor: number
 	return total * mutationFactor
 end
 
-function Odds.Compute(regionId: string, diceIds: { string }, discovered: { [string]: any }?): Result
-	local perks = LootMath.Perks(diceIds)
+function Odds.Compute(
+	regionId: string,
+	diceIds: { string },
+	discovered: { [string]: any }?,
+	event: LootMath.Event?
+): Result
+	local perks = LootMath.Perks(diceIds, regionId, event)
 	local chance, mutations = LootMath.MutationTable(regionId, perks)
 
 	local mutationWeightSum = 0
@@ -71,7 +76,7 @@ function Odds.Compute(regionId: string, diceIds: { string }, discovered: { [stri
 	local faceItems = {}
 	local faceValue = {}
 	for face, row in Economy.FaceTiers do
-		faceItems[face] = itemsForRow(regionId, row, perks, discovered)
+		faceItems[face] = itemsForRow(regionId, LootMath.TierRow(row, perks), perks, discovered)
 		faceValue[face] = expectedValue(faceItems[face], mutationFactor)
 	end
 
