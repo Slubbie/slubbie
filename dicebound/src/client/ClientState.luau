@@ -131,4 +131,19 @@ function ClientState.NearMerchant()
 	return nil
 end
 
+-- The running world event (published by the server as ReplicatedStorage attributes), or nil.
+function ClientState.Event(): { Id: string, Region: string, EndsIn: number }?
+	local id = ReplicatedStorage:GetAttribute("DB_EventId")
+	local region = ReplicatedStorage:GetAttribute("DB_EventRegion")
+	local ends = ReplicatedStorage:GetAttribute("DB_EventEnds")
+	if type(id) ~= "string" or id == "" or type(ends) ~= "number" then
+		return nil
+	end
+	local left = ends - workspace:GetServerTimeNow()
+	if left <= 0 then
+		return nil
+	end
+	return { Id = id, Region = region, EndsIn = left }
+end
+
 return ClientState

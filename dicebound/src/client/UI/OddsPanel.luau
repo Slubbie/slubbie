@@ -58,6 +58,13 @@ function OddsPanel.new()
 		local dice = data and data.Dice.Equipped or { Config.Game.StartingDie }
 		local base = Odds.Compute(region.Id, { Config.Game.StartingDie })
 		local yours = Odds.Compute(region.Id, dice)
+		-- Temporary bonus: a world event running in this region, shown as its own column.
+		local liveEvent = ClientState.Event()
+		local event = if liveEvent and liveEvent.Region == region.Id
+			then { Id = liveEvent.Id, Region = liveEvent.Region }
+			else nil
+		local boosted = if event then Odds.Compute(region.Id, dice, nil, event) else nil
+		local eventDef = event and Config.Economy.Events.ById[event.Id]
 
 		text("How a roll works", 20, Theme.Fonts.Title)
 		text(
@@ -106,6 +113,9 @@ function OddsPanel.new()
 				if not sameDice then
 					line ..= "  →  yours " .. Odds.Format(y)
 				end
+				if boosted then
+					line ..= "  →  with event " .. Odds.Format(boosted.Tiers[rarity.Id] or 0)
+				end
 				table.insert(tierLines, line)
 			end
 		end
@@ -115,9 +125,20 @@ function OddsPanel.new()
 		)
 		text(table.concat(tierLines, "\n"))
 		text(
-			if sameDice
-				then "Base odds (one Wooden Die). You have no bonuses active."
-				else "Left: base odds (one Wooden Die). Right: with your equipped dice.",
+			(
+				if sameDice
+					then "Base odds (one Wooden Die)."
+					else "Base odds (one Wooden Die), then with your equipped dice."
+			)
+				.. (
+					if eventDef
+						then string.format(
+							" Last column: with the %s %s event running here (temporary).",
+							eventDef.Icon,
+							eventDef.Name
+						)
+						else " No temporary bonuses are active here."
+				),
 			13,
 			nil,
 			C.InkSoft
@@ -159,7 +180,21 @@ function OddsPanel.new()
 		)
 		text(table.concat(mutationLines, "\n"))
 
-		text("Dice combos (Stage 2: needs 2–3 dice)", 20, Theme.Fonts.Title)
+		text("Dice combos (need 2–3 dice)", 20, Theme.Fonts.Title)
+		if #dice >= 2 then
+			local parts = {}
+			for _, name in Config.Economy.Combos.Priority do
+				table.insert(parts, string.format("%s %s", name, Odds.Format(yours.Combos[name] or 0)))
+			end
+			text("Your chances per roll: " .. table.concat(parts, " · "), 14, Theme.Fonts.Bold, C.BlueDark)
+		else
+			text(
+				"You roll one die. Buy the Dice Tray upgrade to roll 2–3 dice and unlock combos.",
+				14,
+				nil,
+				C.InkSoft
+			)
+		end
 		text(
 			"Only the <b>single highest</b> combo applies:\n"
 				.. "<b>Jackpot</b> (2+ dice, all on their top face): +1 Legendary-or-better find and bonus coins.\n"

@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Dicebound.Config)
+local Format = require(ReplicatedStorage.Dicebound.Format)
 local Net = require(ReplicatedStorage.Dicebound.Net)
 local ClientState = require(script.ClientState)
 local Sound = require(script.Sound)
@@ -22,7 +23,14 @@ local InventoryPanel = require(UI.InventoryPanel)
 local UpgradesPanel = require(UI.UpgradesPanel)
 local OddsPanel = require(UI.OddsPanel)
 local SettingsPanel = require(UI.SettingsPanel)
+local DicePanel = require(UI.DicePanel)
+local MapPanel = require(UI.MapPanel)
+local BookPanel = require(UI.BookPanel)
+local QuestsPanel = require(UI.QuestsPanel)
+local CraftPanel = require(UI.CraftPanel)
+local Effects = require(UI.Effects)
 local RollController = require(script.Controllers.RollController)
+local Atmosphere = require(script.Controllers.Atmosphere)
 
 local player = Players.LocalPlayer
 
@@ -109,6 +117,21 @@ local hud = Hud.new(root, {
 	Settings = function()
 		Panels.Toggle("Settings")
 	end,
+	Dice = function()
+		Panels.Toggle("Dice")
+	end,
+	Map = function()
+		Panels.Toggle("Map")
+	end,
+	Quests = function()
+		Panels.Toggle("Quests")
+	end,
+	Book = function()
+		Panels.Toggle("Book")
+	end,
+	Craft = function()
+		Panels.Toggle("Craft")
+	end,
 	SkipTutorial = function()
 		local result = ClientState.Request("SkipTutorial")
 		if result.ok then
@@ -121,12 +144,69 @@ InventoryPanel.new()
 UpgradesPanel.new()
 OddsPanel.new()
 SettingsPanel.new()
+DicePanel.new()
+MapPanel.new()
+BookPanel.new()
+QuestsPanel.new()
+CraftPanel.new()
+Effects.Init(root, hud.CoinPill)
 RollController.Start(hud, reveal)
 Guide.Start(hud)
 Sound.Start()
+Atmosphere.Start()
+
+local function updateBadges(data)
+	local claimable = data.Claimable
+	local readyOrders = 0
+	for _, slot in data.Orders.Slots do
+		if slot.ItemId then
+			local have = 0
+			for _, stack in data.Bag do
+				if stack.Id == slot.ItemId and not stack.Locked and (slot.Mut == nil or stack.Mut == slot.Mut) then
+					have += stack.Qty
+				end
+			end
+			if have >= slot.Qty then
+				readyOrders += 1
+			end
+		end
+	end
+	hud.SetBadge("Quests", claimable.Daily + claimable.Milestones + readyOrders)
+	hud.SetBadge("Book", claimable.Collection)
+	local canUnlock = 0
+	for _, region in Config.Regions.List do
+		if Config.IsLive(region) and not data.Regions[region.Id] then
+			local previous = Config.Regions.Previous(region.Id)
+			if previous and data.Regions[previous.Id] and data.Coins >= region.Unlock.Coins then
+				local found = ClientState.DiscoveredIn(previous.Id)
+				if found >= (region.Unlock.Discoveries or 0) then
+					canUnlock += 1
+				end
+			end
+			break
+		end
+	end
+	hud.SetBadge("Map", canUnlock)
+	local canBuyDie = 0
+	for _, die in Config.Dice.List do
+		local source = die.Source
+		if
+			Config.IsLive(die)
+			and source.Kind == "Shop"
+			and not data.Dice.Owned[die.Id]
+			and data.Regions[source.Region]
+			and data.Coins >= source.Price
+		then
+			canBuyDie += 1
+		end
+	end
+	hud.SetBadge("Dice", canBuyDie)
+end
 
 ClientState.Changed:Connect(function(data)
 	hud.Update(data)
+	hud.Tray:SetFelt(data.Cosmetics.Tray)
+	updateBadges(data)
 	if loading.Parent then
 		loading:Destroy()
 	end
@@ -148,23 +228,62 @@ Net.Events.Notify.OnClientEvent:Connect(function(text: string, kind: string)
 	Toasts.Show(text, kind)
 	if kind == "success" then
 		Sound.Play("Purchase")
+		Effects.Coins(5)
 	end
 end)
+local PANELS = { Upgrades = true, Dice = true, Map = true, Quests = true, Book = true, Craft = true, Bag = true }
 Net.Events.OpenPanel.OnClientEvent:Connect(function(panel: string)
 	if panel == "Merchant" then
 		Panels.Open("Bag")
-	elseif panel == "Upgrades" then
-		Panels.Open("Upgrades")
+	elseif PANELS[panel] then
+		Panels.Open(panel)
 	end
 end)
-Net.Events.Announce.OnClientEvent:Connect(function(name: string, itemId: string, mutation: string?)
-	local item = Config.Items.ById[itemId]
-	if item and name ~= player.DisplayName then
-		Toasts.Show(
-			string.format("⭐ %s found %s %s!", name, Theme.RarityText(item.Rarity), ItemIcon.Name(itemId, mutation)),
-			"announce",
-			4
-		)
+Net.Events.Announce.OnClientEvent:Connect(function(kind: string, name: string, a: any, b: any)
+	if name == player.DisplayName then
+		return
+	end
+	if kind == "find" then
+		local item = Config.Items.ById[a]
+		if item then
+			Toasts.Show(
+				string.format("⭐ %s found %s %s!", name, Theme.RarityText(item.Rarity), ItemIcon.Name(a, b)),
+				"announce",
+				4
+			)
+		end
+	elseif kind == "unlock" then
+		local region = Config.Regions.ById[a]
+		if region then
+			Toasts.Show(string.format("🗺️ %s unlocked %s!", name, region.Name), "announce", 4)
+		end
+	end
+end)
+
+-- ── World event banner ──────────────────────────────────────────────────────
+task.spawn(function()
+	while true do
+		local event = ClientState.Event()
+		if event then
+			local def = Config.Economy.Events.ById[event.Id]
+			local region = Config.Regions.ById[event.Region]
+			local here = ClientState.CurrentRegion()
+			local isHere = here ~= nil and here.Id == event.Region
+			hud.SetEvent(
+				string.format(
+					"%s %s · %s · %s left%s",
+					def and def.Icon or "✨",
+					def and def.Name or event.Id,
+					def and def.Text or "",
+					Format.Seconds(event.EndsIn),
+					if isHere then "" else "  (in " .. (region and region.Name or "?") .. ")"
+				),
+				isHere
+			)
+		else
+			hud.SetEvent(nil, false)
+		end
+		task.wait(1)
 	end
 end)
 
@@ -193,6 +312,14 @@ UserInputService.InputBegan:Connect(function(input, processed)
 		Panels.Toggle("Bag")
 	elseif key == Enum.KeyCode.U then
 		Panels.Toggle("Upgrades")
+	elseif key == Enum.KeyCode.M then
+		Panels.Toggle("Map")
+	elseif key == Enum.KeyCode.Q then
+		Panels.Toggle("Quests")
+	elseif key == Enum.KeyCode.C then
+		Panels.Toggle("Book")
+	elseif key == Enum.KeyCode.G then
+		Panels.Toggle("Dice")
 	elseif key == Enum.KeyCode.Escape then
 		Panels.Close()
 	end

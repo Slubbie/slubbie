@@ -23,7 +23,7 @@ function Toasts.Init(root: Instance)
 	container = Kit.new("Frame", {
 		Name = "Toasts",
 		Size = UDim2.fromOffset(460, 200),
-		Position = UDim2.new(0.5, 0, 0, 58),
+		Position = UDim2.new(0.5, 0, 0, 120),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundTransparency = 1,
 		ZIndex = 40,

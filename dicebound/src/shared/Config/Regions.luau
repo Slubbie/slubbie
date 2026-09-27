@@ -20,7 +20,7 @@ local Regions = {
 				Name = "Tobble the Tinkerer",
 				Title = "Upgrades",
 				Panel = "Upgrades",
-				Action = "Upgrades & crafting",
+				Action = "Upgrades",
 			},
 			CollectionReward = 1000,
 			Name = "Meadow Market",

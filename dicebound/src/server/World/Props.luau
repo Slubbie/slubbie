@@ -12,16 +12,13 @@ function Props.Portal(parent: Instance, base: Vector3, facing: Vector3, stone, g
 	local model = Builder.Model(parent, "Portal")
 	local cf = CFrame.lookAt(base, base + Vector3.new(facing.X, 0, facing.Z))
 	for _, x in { -6.5, 6.5 } do
-		P(
-			model,
-			{
-				Name = "Pillar",
-				Size = Vector3.new(2.6, 15, 2.6),
-				CFrame = cf * CFrame.new(x, 7.5, 0),
-				Color = stone,
-				Material = "Slate",
-			}
-		)
+		P(model, {
+			Name = "Pillar",
+			Size = Vector3.new(2.6, 15, 2.6),
+			CFrame = cf * CFrame.new(x, 7.5, 0),
+			Color = stone,
+			Material = "Slate",
+		})
 		P(model, {
 			Name = "Rune",
 			Size = Vector3.new(0.4, 6, 0.4),
@@ -32,26 +29,20 @@ function Props.Portal(parent: Instance, base: Vector3, facing: Vector3, stone, g
 			CastShadow = false,
 		})
 	end
-	P(
-		model,
-		{
-			Name = "Lintel",
-			Size = Vector3.new(17, 2.6, 3.2),
-			CFrame = cf * CFrame.new(0, 16, 0),
-			Color = stone,
-			Material = "Slate",
-		}
-	)
-	P(
-		model,
-		{
-			Name = "Step",
-			Size = Vector3.new(15, 0.6, 7),
-			CFrame = cf * CFrame.new(0, 0.3, 0),
-			Color = stone,
-			Material = "Slate",
-		}
-	)
+	P(model, {
+		Name = "Lintel",
+		Size = Vector3.new(17, 2.6, 3.2),
+		CFrame = cf * CFrame.new(0, 16, 0),
+		Color = stone,
+		Material = "Slate",
+	})
+	P(model, {
+		Name = "Step",
+		Size = Vector3.new(15, 0.6, 7),
+		CFrame = cf * CFrame.new(0, 0.3, 0),
+		Color = stone,
+		Material = "Slate",
+	})
 	local disc = P(model, {
 		Name = "Gateway",
 		Shape = Enum.PartType.Cylinder,
@@ -185,16 +176,13 @@ end
 function Props.Cabin(parent: Instance, base: Vector3, facing: Vector3, wallColor): Model
 	local model = Builder.Model(parent, "Cabin")
 	local cf = CFrame.lookAt(base, base + Vector3.new(facing.X, 0, facing.Z))
-	P(
-		model,
-		{
-			Name = "Walls",
-			Size = Vector3.new(14, 9, 11),
-			CFrame = cf * CFrame.new(0, 4.5, 0),
-			Color = wallColor,
-			Material = "WoodPlanks",
-		}
-	)
+	P(model, {
+		Name = "Walls",
+		Size = Vector3.new(14, 9, 11),
+		CFrame = cf * CFrame.new(0, 4.5, 0),
+		Color = wallColor,
+		Material = "WoodPlanks",
+	})
 	for _, side in { -1, 1 } do
 		local roof = Instance.new("WedgePart")
 		roof.Anchored = true
@@ -216,16 +204,13 @@ function Props.Cabin(parent: Instance, base: Vector3, facing: Vector3, wallColor
 	light.Color = Color3.fromRGB(255, 190, 110)
 	light.Range = 14
 	light.Parent = window
-	P(
-		model,
-		{
-			Name = "Door",
-			Size = Vector3.new(3, 6, 0.3),
-			CFrame = cf * CFrame.new(3, 3, -5.55),
-			Color = { 110, 70, 45 },
-			Material = "Wood",
-		}
-	)
+	P(model, {
+		Name = "Door",
+		Size = Vector3.new(3, 6, 0.3),
+		CFrame = cf * CFrame.new(3, 3, -5.55),
+		Color = { 110, 70, 45 },
+		Material = "Wood",
+	})
 	P(model, {
 		Name = "Chimney",
 		Size = Vector3.new(2, 5, 2),
@@ -313,16 +298,13 @@ Props.Smoke = smoke
 function Props.Forge(parent: Instance, base: Vector3, facing: Vector3): Model
 	local model = Builder.Model(parent, "Forge")
 	local cf = CFrame.lookAt(base, base + Vector3.new(facing.X, 0, facing.Z))
-	P(
-		model,
-		{
-			Name = "Body",
-			Size = Vector3.new(9, 7, 7),
-			CFrame = cf * CFrame.new(0, 3.5, 0),
-			Color = { 70, 60, 60 },
-			Material = "Brick",
-		}
-	)
+	P(model, {
+		Name = "Body",
+		Size = Vector3.new(9, 7, 7),
+		CFrame = cf * CFrame.new(0, 3.5, 0),
+		Color = { 70, 60, 60 },
+		Material = "Brick",
+	})
 	local mouth = P(model, {
 		Name = "Mouth",
 		Size = Vector3.new(4, 3, 0.4),
@@ -350,37 +332,28 @@ end
 function Props.Anvil(parent: Instance, base: Vector3, angle: number): Model
 	local model = Builder.Model(parent, "Anvil")
 	local cf = CFrame.new(base) * CFrame.Angles(0, angle, 0)
-	P(
-		model,
-		{
-			Name = "Stump",
-			Shape = Enum.PartType.Cylinder,
-			Size = Vector3.new(2, 2.4, 2.4),
-			CFrame = cf * CFrame.new(0, 1, 0) * CFrame.Angles(0, 0, math.rad(90)),
-			Color = { 90, 60, 40 },
-			Material = "Wood",
-		}
-	)
-	P(
-		model,
-		{
-			Name = "Base",
-			Size = Vector3.new(1.4, 1, 1.2),
-			CFrame = cf * CFrame.new(0, 2.5, 0),
-			Color = { 60, 60, 70 },
-			Material = "Metal",
-		}
-	)
-	P(
-		model,
-		{
-			Name = "Top",
-			Size = Vector3.new(3.2, 0.9, 1.4),
-			CFrame = cf * CFrame.new(0, 3.4, 0),
-			Color = { 70, 70, 80 },
-			Material = "Metal",
-		}
-	)
+	P(model, {
+		Name = "Stump",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(2, 2.4, 2.4),
+		CFrame = cf * CFrame.new(0, 1, 0) * CFrame.Angles(0, 0, math.rad(90)),
+		Color = { 90, 60, 40 },
+		Material = "Wood",
+	})
+	P(model, {
+		Name = "Base",
+		Size = Vector3.new(1.4, 1, 1.2),
+		CFrame = cf * CFrame.new(0, 2.5, 0),
+		Color = { 60, 60, 70 },
+		Material = "Metal",
+	})
+	P(model, {
+		Name = "Top",
+		Size = Vector3.new(3.2, 0.9, 1.4),
+		CFrame = cf * CFrame.new(0, 3.4, 0),
+		Color = { 70, 70, 80 },
+		Material = "Metal",
+	})
 	return model
 end
 
@@ -426,16 +399,13 @@ function Props.StarPillar(parent: Instance, base: Vector3, height: number, color
 		Color = { 235, 230, 245 },
 		Material = "Marble",
 	})
-	P(
-		model,
-		{
-			Name = "Cap",
-			Size = Vector3.new(3, 0.8, 3),
-			Position = base + Vector3.new(0, height + 0.4, 0),
-			Color = { 220, 215, 235 },
-			Material = "Marble",
-		}
-	)
+	P(model, {
+		Name = "Cap",
+		Size = Vector3.new(3, 0.8, 3),
+		Position = base + Vector3.new(0, height + 0.4, 0),
+		Color = { 220, 215, 235 },
+		Material = "Marble",
+	})
 	Props.StarOrb(model, base + Vector3.new(0, height + 2.2, 0), 1.8, color)
 	return model
 end

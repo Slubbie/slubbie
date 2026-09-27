@@ -161,6 +161,7 @@ function DiceTray.new(parent: Instance)
 	})
 
 	self.Frame = frame
+	self.Felt = felt
 	self.World = world
 	self.Badges = badges
 	self.ComboLabel = comboLabel
@@ -189,6 +190,13 @@ function DiceTray:SetDice(diceIds: { string })
 		table.insert(self.Dice, { Id = dieId, Model = model, Rest = rest })
 	end
 	self:ClearBadges()
+end
+
+-- Apply a tray skin from Config.Crafting.Trays.
+function DiceTray:SetFelt(trayId: string)
+	local def = Config.Crafting.Trays[trayId] or Config.Crafting.Trays.classic
+	self.Felt.Color = Format.Color(def.Color)
+	self.Felt.Material = (Enum.Material :: any)[def.Material] or Enum.Material.Fabric
 end
 
 function DiceTray:ClearBadges()

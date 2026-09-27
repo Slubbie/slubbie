@@ -407,4 +407,61 @@ function Kit.Chip(parent: Instance, text: string, color: Color3, textColor: Colo
 	return chip
 end
 
+-- Vertical scrolling list that grows with its content.
+function Kit.Scroll(parent: Instance, props: { [string]: any }?): ScrollingFrame
+	local scroll = Kit.new("ScrollingFrame", {
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 8,
+		ScrollBarImageColor3 = C.Stroke,
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		CanvasSize = UDim2.new(),
+		Parent = parent,
+	})
+	local extra: { [string]: any } = props or {}
+	for k, v in extra do
+		(scroll :: any)[k] = v
+	end
+	Kit.List(scroll, Enum.FillDirection.Vertical, 8)
+	Kit.Padding(scroll, 4, 6)
+	return scroll
+end
+
+-- Row of tab buttons. onSelect(name) fires on click; returns a setter to highlight a tab.
+function Kit.Tabs(parent: Instance, names: { string }, onSelect: (string) -> ()): (string) -> ()
+	local row = Kit.new("Frame", { Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Parent = parent })
+	Kit.List(row, Enum.FillDirection.Horizontal, 6)
+	local buttons = {}
+	for i, name in names do
+		buttons[name] = Kit.Button({
+			Parent = row,
+			Text = name,
+			Color = C.PanelDeep,
+			TextColor = C.Ink,
+			Size = UDim2.fromOffset(math.max(96, #name * 10 + 30), 36),
+			TextSize = 15,
+			LayoutOrder = i,
+			OnClick = function()
+				onSelect(name)
+			end,
+		})
+	end
+	return function(active: string)
+		for name, button in buttons do
+			button:SetSelected(name == active)
+			button:SetColor(if name == active then C.Gold else C.PanelDeep)
+		end
+	end
+end
+
+-- Removes every GuiObject child (keeps layouts/padding).
+function Kit.Clear(parent: Instance)
+	for _, child in parent:GetChildren() do
+		if child:IsA("GuiObject") then
+			child:Destroy()
+		end
+	end
+end
+
 return Kit

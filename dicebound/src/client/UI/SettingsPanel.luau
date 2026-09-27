@@ -44,7 +44,7 @@ function SettingsPanel.new()
 		end, 4)
 		Kit.Label({
 			Parent = scroll,
-			Text = "Controls: R = roll · B = bag · U = upgrades · E at a stall to interact.\n"
+			Text = "Controls: R roll · B bag · U upgrades · G dice · M map · Q quests · C collection · E at a stall.\n"
 				.. "Your progress saves automatically every 90 seconds and when you leave.",
 			TextSize = 14,
 			TextColor3 = C.InkSoft,

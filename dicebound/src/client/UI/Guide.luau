@@ -151,25 +151,69 @@ function Guide.Update()
 		end
 	else
 		clearBeam()
-		local found, total = ClientState.DiscoveredIn(region.Id)
-		local detail = string.format("%s collection: %d / %d discovered", region.Name, found, total)
-		if data.Upgrades.AutoRoll < 1 then
-			detail ..= "\nAuto-Roller: 🪙 " .. Format.Coins(Config.Economy.Upgrades.ById.AutoRoll.Levels[2].Cost)
+		local here = ClientState.CurrentRegion() or region
+		local found, total = ClientState.DiscoveredIn(here.Id)
+		local detail = string.format("%s collection: %d / %d", here.Name, found, total)
+
+		-- The next locked region and how close we are to it.
+		local nextRegion = nil
+		for _, r in Config.Regions.List do
+			if Config.IsLive(r) and not data.Regions[r.Id] then
+				nextRegion = r
+				break
+			end
 		end
+		local regionReady, regionFraction = false, 1
+		if nextRegion then
+			local previous = Config.Regions.Previous(nextRegion.Id)
+			local need = nextRegion.Unlock
+			local prevFound = if previous then ClientState.DiscoveredIn(previous.Id) else 0
+			local discNeed = need.Discoveries or 0
+			local discFraction = if discNeed > 0 then math.min(prevFound / discNeed, 1) else 1
+			regionFraction = math.min(data.Coins / math.max(need.Coins, 1), 1) * 0.8 + discFraction * 0.2
+			regionReady = data.Coins >= need.Coins and prevFound >= discNeed
+			detail ..= string.format(
+				"\nNext region: %s · 🪙 %s / %s · finds %d/%d",
+				nextRegion.Name,
+				Format.Coins(data.Coins),
+				Format.Coins(need.Coins),
+				math.min(prevFound, discNeed),
+				discNeed
+			)
+		end
+
+		local claimable = data.Claimable
+		local rewards = claimable.Daily + claimable.Milestones
 		local upgrade, cost = ClientState.CheapestUpgrade()
 		if data.Used >= data.Capacity then
 			key = "full"
 			target = nil
-			hud.SetGoal(
-				"BAG FULL",
-				"Sell treasure at " .. region.Merchant.Name .. "'s stall to keep rolling.",
-				1,
-				detail
-			)
+			hud.SetGoal("BAG FULL", "Sell treasure at a merchant stall (or fill an order) to keep rolling.", 1, detail)
+		elseif regionReady and nextRegion then
+			key = "region"
+			target = hud.MenuButtons.Map.Instance
+			hud.SetGoal("NEW REGION!", "You can unlock " .. nextRegion.Name .. "! Open 🗺️ Map.", 1, detail)
+		elseif claimable.Collection > 0 then
+			key = "book"
+			target = hud.MenuButtons.Book.Instance
+			hud.SetGoal("REWARD READY", "A collection is complete! Claim it in 📖 Book.", 1, detail)
+		elseif rewards > 0 then
+			key = "quests"
+			target = hud.MenuButtons.Quests.Instance
+			hud.SetGoal("REWARD READY", "You have rewards to claim in 📜 Quests.", 1, detail)
 		elseif upgrade and cost and data.Coins >= cost then
 			key = "buy"
 			target = hud.MenuButtons.Upgrades.Instance
 			hud.SetGoal("NEXT GOAL", "You can afford " .. upgrade.Name .. "! Open 🔧 Upgrades.", 1, detail)
+		elseif nextRegion then
+			key = "save-region"
+			target = nil
+			hud.SetGoal(
+				"NEXT GOAL",
+				"Work toward " .. nextRegion.Name .. ". Fill orders for bonus coins!",
+				regionFraction,
+				detail
+			)
 		elseif upgrade and cost then
 			key = "save"
 			target = nil
@@ -187,7 +231,7 @@ function Guide.Update()
 		else
 			key = "done"
 			target = nil
-			hud.SetGoal("NEXT GOAL", "Every upgrade is maxed! Complete your collection.", found / total, detail)
+			hud.SetGoal("NEXT GOAL", "Complete every collection and chase the Secret treasures!", found / total, detail)
 		end
 	end
 	if key ~= lastKey then

@@ -10,6 +10,7 @@ local LootMath = require(ReplicatedStorage.Dicebound.LootMath)
 local ClientState = require(script.Parent.Parent.ClientState)
 local Sound = require(script.Parent.Parent.Sound)
 local Toasts = require(script.Parent.Parent.UI.Toasts)
+local Effects = require(script.Parent.Parent.UI.Effects)
 
 local RollController = {}
 
@@ -101,9 +102,19 @@ function RollController.Roll(auto: boolean?)
 		local rule = Config.Economy.Combos[result.Combo]
 		tray:ShowCombo(rule and rule.Label or result.Combo)
 		Sound.Play("Combo")
+		if result.Combo == "Jackpot" then
+			Effects.Shake(0.6, 0.5)
+			Effects.Confetti(80)
+		end
+	elseif result.Event then
+		local def = Config.Economy.Events.ById[result.Event]
+		if def then
+			tray:ShowCombo(def.Icon .. " " .. def.Name)
+		end
 	end
 	if result.Coins and result.Coins > 0 then
 		Toasts.Show("Jackpot bonus: 🪙 " .. Format.Coins(result.Coins), "reward")
+		Effects.Coins(10)
 	end
 	for _, reward in result.Rewards do
 		reveal:Show(reward)

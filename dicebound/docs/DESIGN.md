@@ -33,7 +33,7 @@ There is always a visible next goal. The goal card shows the tutorial step, then
 
 `Odds.luau` computes exact probabilities from these same tables, and the Odds panel shows base odds (one Wooden Die) next to your equipped dice.
 
-## Dice (config ready; Stage 2 adds the shop and equipping)
+## Dice
 
 | Die | Faces | Strength | Tradeoff |
 |---|---|---|---|
@@ -51,7 +51,7 @@ The same perk from two dice does not stack (the largest value wins), and the sel
 
 Capacity counts **individual items**, not stacks. Items stack by item + mutation. Locks are per stack and enforced by the server. Discoveries are recorded when an item is earned, so selling never removes a collection entry.
 
-## Upgrades and balance (Stage 1)
+## Upgrades and balance
 
 | Upgrade | Levels (value @ cost) |
 |---|---|
@@ -59,7 +59,17 @@ Capacity counts **individual items**, not stacks. Items stack by item + mutation
 | Quick Hands (cooldown) | 2.6s → 2.4 @150 → 2.2 @500 → 2.0 @1,400 → 1.85 @4,000 → 1.7 @11,000 → 1.6 @30,000 (floor 1.5s) |
 | Silver Tongue | +5% @350 → +10% @1,800 → +15% @7,000 → +20% @25,000 |
 | Auto-Roller | unlock @2,000 |
-| Crystal Caverns gate (Stage 2) | 2,500 coins + 6 Meadow discoveries |
+| Dice Tray (slots) | 1 → 2 @5,000 → 3 @30,000 |
+
+Region unlocks (coins are spent; discoveries count finds in the previous region):
+
+| Region | Unlock | Collection reward | Dice sold there |
+|---|---|---|---|
+| Meadow Market | start | 1,000 | Copper (2,500) |
+| Crystal Caverns | 2,500 + 6 finds | 6,000 | Glass (6,000), Clover (15,000) |
+| Frostfall Village | 30,000 + 7 finds | 40,000 | Frost (40,000) |
+| Emberforge | 400,000 + 7 finds | 150,000 | Magma (120,000) |
+| Astral Sanctuary | 3,000,000 + 7 finds | 600,000 | none; the Celestial Die is crafted from Astral treasure |
 
 The average roll with a Wooden Die in the Meadow is worth about 15.6 coins.
 
@@ -78,6 +88,33 @@ At the median, a player buys 12 upgrades and discovers all 9 regular Meadow item
 
 The simulation assumes a 0.35s reaction per manual roll (0.1s on auto), a 12s round trip to sell, and selling everything when the bag is full. It buys upgrades costing ≤600 first, saves for the gate, then buys the cheapest upgrade available. These are targets to validate through playtesting, not guarantees. Real players will stop to look at reveals and keep some items.
 
+**Full progression** (100 simulated players, real code). The simulated player buys anything costing ≤20% of the next region's price (cheapest first), unlocks each region as soon as possible and moves there, leads with the best die for the region and fills the other slots. Orders, dailies, milestones and collection rewards are *ignored*, so real players get there somewhat faster.
+
+| Region unlocked | p10 | Median | p90 |
+|---|---|---|---|
+| Crystal Caverns | 0h11m | 0h12m | 0h14m |
+| Frostfall Village | 0h41m | 0h44m | 0h48m |
+| Emberforge | 1h20m | 1h26m | 1h32m |
+| Astral Sanctuary | 2h40m | 2h52m | 2h59m |
+
+Average value per roll grows from 15.6 coins (Meadow, one Wooden Die) to about 1,750 (Astral, three good dice).
+
+## Activities (Stage 3)
+
+- **Merchant orders:** 3 slots. Each asks for N× an item (Common 3–6 … Epic 1) from an unlocked region, or occasionally one specific mutation (15%). The reward is 1.6–2.1× the sell value, and ×1.3 more for mutation orders. Orders are handed in at any merchant; locked items never count, and plain copies are used first. A completed or skipped order is replaced after 45 s, and skipping has a 3-minute cooldown.
+- **Crafting:** 9 recipes, each consuming duplicate treasure plus a coin fee. They make the Celestial Die (undiscovered items ×3 within their tier), 5 auras that everyone can see, and 3 dice-tray felts. The panel shows every requirement and what you have. Locked items are never consumed, and crafting is all-or-nothing.
+- **Collection book:** silhouettes for undiscovered items (their rarity is shown), a find count and mutation variants for discovered ones, and a one-time reward per completed region. Completing a region requires its Secret, which only comes from Straights and Jackpots.
+- **Daily objectives:** 3 per UTC day, stable per player per day, chosen from roll / find Rare+ / find mutations / sell coins / complete orders / roll combos. Combo dailies only appear with 2+ dice. Rewards scale with your best region (×1 up to ×32). There are no streaks, so missing a day costs nothing.
+- **Milestones:** 20 permanent one-time rewards across rolls, unique discoveries, orders, regions, jackpots, mutations and crafts.
+- **World events:** the first starts about 90 s after server start, then one every 10 minutes, each lasting 4 minutes in a random region:
+  - Golden Hour: Golden ×4
+  - Lucky Winds: mutation chance ×2
+  - Treasure Rush: Rare+ tier weights ×1.5
+  - Merchant Festival: +25% sell at that merchant
+  - Discovery Day: undiscovered ×3
+
+  Effects apply only in that region. They go through the same `LootMath.Perks`, so the Odds panel shows an accurate temporary "with event" column. The sell multiplier cap (×1.5) and the mutation chance cap (25%) still hold.
+
 ## Security model
 
 - The client only sends *intent*: roll (auto flag), stack keys + quantities to sell, lock toggles, and an upgrade id + the level it saw. Prices, rewards, rarities and values are always taken from server config.
@@ -85,11 +122,13 @@ The simulation assumes a 0.35s reaction per manual roll (0.1s on auto), a 12s ro
 - Rolls are enforced by a server cooldown. The region is captured when the server accepts the roll, and rewards go straight into the bag. Leaving or walking away mid-animation cannot lose or duplicate anything.
 - Selling requires being within 22 studs of a merchant. Sales are all-or-nothing and re-verified when applied.
 - Legendary+ sales require an explicit confirmation flag, checked by the server as well as the client.
+- Dice must be owned, unique and fit your slots. Regions are unlocked in order and travel only goes to unlocked ones (with a cooldown). Orders, crafting and claims re-check their conditions and mark themselves done in the same step, so repeat requests pay nothing.
 
 ## Saving
 
 - The record `{ Data, Lock, SavedAt }` is stored under `u_<UserId>` using `UpdateAsync` only. The schema is versioned (`Schema.Version`), with step-by-step migrations and a sanitiser that fills defaults, clamps values and moves unknown items to `Orphans` instead of deleting them.
 - **Session lock:** the server's JobId is written at load and refreshed on every autosave (90s, staggered, budget-checked). Another server that sees a fresh lock retries with backoff, then asks the player to rejoin. Locks older than 5 minutes (crashed servers) are taken over. Each save checks the lock is still held; if not, it stops saving and never overwrites.
+- **Migration:** v1 saves (Stage 1) migrate to v2 on load. The migration backfills the new Mutated stat, and the sanitiser adds orders, dailies, milestones, collection and cosmetics with safe defaults. This is covered by a test.
 - **Load failure:** the player is kicked with a friendly message and no default profile is ever written. A save from a newer version is refused, never downgraded.
 - Saves happen on leave (3 attempts with backoff) and on shutdown (`BindToClose`, in parallel, 25s cap).
 - In Studio without API access, the player gets an unsaved session with a visible banner.

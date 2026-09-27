@@ -53,7 +53,7 @@ function Hud.new(root: Instance, callbacks: { [string]: () -> () })
 		Parent = root,
 	})
 	Kit.List(left, Enum.FillDirection.Vertical, 8)
-	local _, coins = pill(left, "🪙", 1)
+	local coinPill, coins = pill(left, "🪙", 1)
 	local bagPill, bagText = pill(left, "🎒", 2)
 	bagText.Size = UDim2.new(1, -48, 0, 28)
 	bagText.TextSize = 18
@@ -132,7 +132,7 @@ function Hud.new(root: Instance, callbacks: { [string]: () -> () })
 	Kit.Padding(banner, 0, 16)
 	local saveWarning = Kit.Label({
 		Parent = root,
-		Position = UDim2.new(0.5, 0, 0, 50),
+		Position = UDim2.new(0.5, 0, 0, 88),
 		AnchorPoint = Vector2.new(0.5, 0),
 		Size = UDim2.fromOffset(0, 24),
 		AutomaticSize = Enum.AutomaticSize.X,
@@ -149,23 +149,35 @@ function Hud.new(root: Instance, callbacks: { [string]: () -> () })
 	Kit.Corner(saveWarning, 8)
 	Kit.Padding(saveWarning, 0, 10)
 
-	-- ── Right side (middle, away from the jump button): menu buttons ───────────
+	-- ── Right side (middle, away from the jump button): menu grid ──────────────
 	local menu = Kit.new("Frame", {
 		Name = "Menu",
 		Position = UDim2.new(1, -14, 0.42, 0),
 		AnchorPoint = Vector2.new(1, 0.5),
-		Size = UDim2.fromOffset(76, 330),
+		Size = UDim2.fromOffset(142, 340),
 		BackgroundTransparency = 1,
 		Parent = root,
 	})
-	Kit.List(menu, Enum.FillDirection.Vertical, 8, Enum.HorizontalAlignment.Right)
+	Kit.new("UIGridLayout", {
+		CellSize = UDim2.fromOffset(68, 62),
+		CellPadding = UDim2.fromOffset(6, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		HorizontalAlignment = Enum.HorizontalAlignment.Right,
+		Parent = menu,
+	})
 	local menuButtons = {}
+	local badges = {}
 	for i, def in
 		{
 			{ "Bag", "🎒", "Bag", C.GoldDark },
-			{ "Upgrades", "🔧", "Upgrades", C.Blue },
-			{ "Odds", "🎯", "Odds", C.Purple },
-			{ "Settings", "⚙️", "Settings", C.InkSoft },
+			{ "Upgrades", "🔧", "Upgrade", C.Blue },
+			{ "Dice", "🎲", "Dice", C.Green },
+			{ "Map", "🗺️", "Map", C.GreenDark },
+			{ "Quests", "📜", "Quests", C.Red },
+			{ "Book", "📖", "Book", C.Purple },
+			{ "Craft", "⚒️", "Craft", C.BlueDark },
+			{ "Odds", "🎯", "Odds", C.InkSoft },
+			{ "Settings", "⚙️", "Settings", C.InkFaint },
 		}
 	do
 		local button = Kit.Button({
@@ -173,13 +185,52 @@ function Hud.new(root: Instance, callbacks: { [string]: () -> () })
 			Name = def[1],
 			Text = def[2] .. "\n" .. def[3],
 			Color = def[4],
-			Size = UDim2.fromOffset(76, 68),
-			TextSize = 15,
+			TextSize = 14,
 			LayoutOrder = i,
 			OnClick = callbacks[def[1]],
 		})
 		menuButtons[def[1]] = button
+		local badge = Kit.Label({
+			Parent = button.Instance,
+			Size = UDim2.fromOffset(22, 22),
+			Position = UDim2.new(1, 4, 0, -6),
+			AnchorPoint = Vector2.new(1, 0),
+			BackgroundTransparency = 0,
+			BackgroundColor3 = C.Red,
+			Text = "!",
+			TextColor3 = C.White,
+			Font = Theme.Fonts.Title,
+			TextSize = 14,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Visible = false,
+			ZIndex = 5,
+		})
+		Kit.Corner(badge, 11)
+		Kit.Stroke(badge, C.White, 2)
+		badges[def[1]] = badge
 	end
+
+	-- ── Top center (under the region banner): world event ─────────────────────
+	local eventBanner = Kit.Label({
+		Parent = root,
+		Name = "EventBanner",
+		Position = UDim2.new(0.5, 0, 0, 52),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Size = UDim2.fromOffset(0, 30),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Color3.fromRGB(255, 240, 200),
+		TextColor3 = C.GoldDark,
+		Font = Theme.Fonts.Bold,
+		TextSize = 14,
+		TextWrapped = false,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "",
+		Visible = false,
+	})
+	Kit.Corner(eventBanner, 15)
+	Kit.Stroke(eventBanner, C.Gold, 2)
+	Kit.Padding(eventBanner, 0, 12)
 
 	-- ── Bottom center: tray, roll, auto ──────────────────────────────────────────
 	local bottom = Kit.new("Frame", {
@@ -242,6 +293,25 @@ function Hud.new(root: Instance, callbacks: { [string]: () -> () })
 	self.MenuButtons = menuButtons
 	self.RollArea = bottom
 	self.SkipButton = skipButton
+	self.Badges = badges
+	self.CoinPill = coinPill
+
+	function self.SetBadge(name: string, count: number)
+		local badge = badges[name]
+		if badge then
+			badge.Visible = count > 0
+			badge.Text = if count > 9 then "9+" elseif count > 0 then tostring(count) else "!"
+		end
+	end
+
+	function self.SetEvent(text: string?, here: boolean)
+		eventBanner.Visible = text ~= nil
+		if text then
+			eventBanner.Text = text
+			eventBanner.BackgroundColor3 = if here then Color3.fromRGB(255, 235, 170) else Color3.fromRGB(240, 235, 225)
+			eventBanner.TextColor3 = if here then C.GoldDark else C.InkSoft
+		end
+	end
 
 	local cooldownToken = 0
 	function self.StartCooldown(seconds: number)

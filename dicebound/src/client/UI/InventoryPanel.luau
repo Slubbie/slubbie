@@ -13,6 +13,7 @@ local ItemIcon = require(script.Parent.ItemIcon)
 local Panels = require(script.Parent.Panels)
 local Toasts = require(script.Parent.Toasts)
 local Confirm = require(script.Parent.Confirm)
+local Effects = require(script.Parent.Effects)
 
 local C = Theme.Colors
 
@@ -91,14 +92,25 @@ function InventoryPanel.new()
 			refresh()
 		end,
 	})
+	Kit.Button({
+		Parent = toolbar,
+		Text = "📜 Orders",
+		Color = C.Red,
+		Size = UDim2.fromOffset(110, 36),
+		TextSize = 15,
+		LayoutOrder = 4,
+		OnClick = function()
+			Panels.Open("Quests", "Orders")
+		end,
+	})
 	local capacity = Kit.Label({
 		Parent = toolbar,
 		Text = "",
-		Size = UDim2.fromOffset(160, 36),
+		Size = UDim2.fromOffset(120, 36),
 		Font = Theme.Fonts.Title,
 		TextSize = 18,
 		TextXAlignment = Enum.TextXAlignment.Right,
-		LayoutOrder = 4,
+		LayoutOrder = 5,
 	})
 
 	-- Grid
@@ -158,6 +170,7 @@ function InventoryPanel.new()
 
 	local function showSale(result)
 		Sound.Play("Sell")
+		Effects.Coins(math.clamp(result.Units, 3, 10))
 		local parts = {}
 		table.sort(result.Lines, function(a, b)
 			return a.Coins > b.Coins
