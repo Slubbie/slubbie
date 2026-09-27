@@ -222,12 +222,12 @@ function MatchRunner:awaitAction()
 	local started = os.clock()
 	self.turnStartedAt = started
 	local deadline = timer > 0 and started + timer or nil
-	match.Dispatcher:broadcast("Turn", {
+	match.Dispatcher:turn({
 		Owner = owner,
 		Token = token,
 		Duration = timer,
 		EndsAt = timer > 0 and workspace:GetServerTimeNow() + timer or nil,
-	}, true)
+	})
 	if participant.Kind == "AI" then
 		self:scheduleAI(owner, token)
 	end

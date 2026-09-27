@@ -10,7 +10,7 @@
 --   Begin     scene + first snapshot (also on rejoin / spectate)
 --   Event     one engine event            { Seq, Type, Data, Time }
 --   Snapshot  full redacted state for this viewer
---   Turn      whose turn, token, timer    { Owner, Token, Duration, EndsAt }
+--   Turn      whose turn, token, timer    { Owner, Token, Duration, EndsAt, Legal? }
 --   Dialogue, Ambient, Presence, Emote, Rejected, PostMatch, Rematch, End
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -103,6 +103,26 @@ function Dispatcher:broadcast(kind: string, data: any, skipDelay: boolean?)
 		else
 			self:toSpectators(kind, data)
 		end
+	end
+end
+
+-- Announces whose turn it is. The acting subject also receives their legal
+-- actions (with the reason each unavailable one is disabled), so the HUD never
+-- has to guess at rules it can't see.
+function Dispatcher:turn(data: { [string]: any })
+	local state = self.match.State
+	for _, r in self:recipients() do
+		if r.Subject == data.Owner then
+			local mine = table.clone(data)
+			mine.Legal = Engine.legal(state, r.Subject)
+			self.network:match(r.Player, "Turn", mine)
+		else
+			self.network:match(r.Player, "Turn", data)
+		end
+	end
+	if next(self.match.Spectators) then
+		-- Delayed like their events, so a spectator's turn marker stays in step.
+		self:toSpectators("Turn", data)
 	end
 end
 

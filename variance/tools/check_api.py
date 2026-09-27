@@ -121,6 +121,19 @@ def main():
             m = new_re.search(code)
             if m:
                 assignments.setdefault(m.group(1), []).append((i, m.group(2)))
+        # Any other binding of the same name (a new local, a parameter, a
+        # plain reassignment) ends the tracking from that line on.
+        for var, spots in list(assignments.items()):
+            rebind = re.compile(
+                r"(?:\blocal\s+" + re.escape(var) + r"\b(?!\s*=\s*Instance\.new)"
+                r"|\bfunction\b[^(]*\([^)]*\b" + re.escape(var) + r"\b"
+                r"|^\s*" + re.escape(var) + r"\s*=(?!=)(?!\s*Instance\.new))"
+            )
+            for i, line in enumerate(lines, 1):
+                code = line.split("--", 1)[0]
+                if rebind.search(code) and not new_re.search(code):
+                    spots.append((i, None))
+            spots.sort()
         for var, spots in assignments.items():
             pat = re.compile(r"(?<![\w.:])" + re.escape(var) + r"([.:])(\w+)")
             for i, line in enumerate(lines, 1):
@@ -128,6 +141,8 @@ def main():
                 for line_no, cls in spots:
                     if line_no <= i:
                         current = cls
+                if current is None:
+                    continue
                 if current is None:
                     continue
                 members = members_of(current, classes, parents) | extra

@@ -302,6 +302,15 @@ function AudioController:setMusic(context: string, intensity: number?)
 	end
 end
 
+-- Current generative score layers and their volumes (debug panel read-out).
+function AudioController:scoreState(): { [string]: number }
+	local out = { Intensity = musicIntensity }
+	for name, sound in musicLayers do
+		out[name] = sound.Volume
+	end
+	return out
+end
+
 function AudioController:setIntensity(intensity: number)
 	musicIntensity = math.clamp(intensity, 0, 1)
 end

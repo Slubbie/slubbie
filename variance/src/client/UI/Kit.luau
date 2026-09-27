@@ -16,10 +16,6 @@ Kit.sound = function(_name: string) end
 -- Set by UIController: the root ScreenGui (for modals and tooltips).
 Kit.root = nil :: ScreenGui?
 
-local C = function(key: string): Color3
-	return Theme.Colors[key]
-end
-
 function Kit.create(className: string, props: { [string]: any }?, children: { Instance }?): Instance
 	local instance = Instance.new(className)
 	local parent = nil
@@ -190,6 +186,102 @@ function Kit.keycap(parent: Instance?, text: string, order: number?): Frame
 	return cap
 end
 
+---------------------------------------------------------------------------
+-- Tooltips: any GuiObject with a "Tooltip" (or, when disabled, a
+-- "DisabledReason") attribute shows it on hover or gamepad focus.
+---------------------------------------------------------------------------
+
+local tip: Frame? = nil
+local tipLabel: TextLabel? = nil
+local tipOwner: GuiObject? = nil
+
+local function tipText(object: GuiObject): string?
+	if object:GetAttribute("Enabled") == false and object:GetAttribute("DisabledReason") then
+		return object:GetAttribute("DisabledReason")
+	end
+	return object:GetAttribute("Tooltip")
+end
+
+function Kit.showTip(object: GuiObject)
+	local text = tipText(object)
+	local root = Kit.root
+	if text == nil or text == "" or root == nil then
+		return
+	end
+	if tip == nil then
+		local frame = Instance.new("Frame")
+		frame.Name = "Tooltip"
+		frame.BorderSizePixel = 0
+		frame.BackgroundTransparency = 0.04
+		frame.AutomaticSize = Enum.AutomaticSize.XY
+		frame.Size = UDim2.fromOffset(0, 0)
+		frame.ZIndex = 300
+		Theme.bind(frame, "BackgroundColor3", "Bg")
+		Kit.corner(frame, 3)
+		Kit.stroke(frame, "LineStrong", 1, 0)
+		Kit.padding(frame, 6, 10)
+		local label = Instance.new("TextLabel")
+		label.BackgroundTransparency = 1
+		label.AutomaticSize = Enum.AutomaticSize.XY
+		label.Size = UDim2.fromOffset(0, 0)
+		label.TextWrapped = true
+		label.RichText = true
+		label.ZIndex = 301
+		label.Parent = frame
+		Theme.bind(label, "TextColor3", "Text")
+		local limit = Instance.new("UISizeConstraint")
+		limit.MaxSize = Vector2.new(300, 400)
+		limit.Parent = label
+		tip, tipLabel = frame, label
+	end
+	local frame, label = tip :: Frame, tipLabel :: TextLabel
+	label.Font = Theme.Fonts.Body
+	label.TextSize = Theme.textSize("Small")
+	label.Text = text
+	tipOwner = object
+	frame.Parent = root
+	local pos, size = object.AbsolutePosition, object.AbsoluteSize
+	local inset = root.IgnoreGuiInset and 0 or 36
+	local above = pos.Y > 140
+	frame.AnchorPoint = Vector2.new(0.5, above and 1 or 0)
+	frame.Position = UDim2.fromOffset(pos.X + size.X / 2, (above and pos.Y - 8 or pos.Y + size.Y + 8) + inset)
+end
+
+function Kit.hideTip(object: GuiObject?)
+	if tip and (object == nil or object == tipOwner) then
+		tip.Parent = nil
+		tipOwner = nil
+	end
+end
+
+-- Wires hover/focus tooltips onto any GuiObject.
+function Kit.tooltip(object: GuiObject, text: string?)
+	if text then
+		object:SetAttribute("Tooltip", text)
+	end
+	if object:GetAttribute("TipWired") then
+		return
+	end
+	object:SetAttribute("TipWired", true)
+	object.MouseEnter:Connect(function()
+		Kit.showTip(object)
+	end)
+	object.MouseLeave:Connect(function()
+		Kit.hideTip(object)
+	end)
+	object.SelectionGained:Connect(function()
+		Kit.showTip(object)
+	end)
+	object.SelectionLost:Connect(function()
+		Kit.hideTip(object)
+	end)
+	object.AncestryChanged:Connect(function()
+		if not object:IsDescendantOf(game) then
+			Kit.hideTip(object)
+		end
+	end)
+end
+
 local selectionFrame: Frame? = nil
 local function focusIndicator(): Frame
 	if selectionFrame == nil then
@@ -271,6 +363,7 @@ function Kit.button(parent: Instance?, props: ButtonProps): TextButton
 	end
 	button:SetAttribute("Enabled", true)
 	button:SetAttribute("Tooltip", props.Tooltip)
+	Kit.tooltip(button)
 	local hovering = false
 	local function refresh()
 		local enabled = button:GetAttribute("Enabled") ~= false
@@ -476,7 +569,7 @@ function Kit.tabs(parent: Instance?, tabs: { { Id: string, Label: string } }, on
 	local strip = Kit.create("Frame", { Name = "Tabs", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, height or 36), Parent = parent }) :: Frame
 	Kit.list(strip, "X", 4)
 	local buttons = {}
-	local function select(id: string)
+	local function choose(id: string)
 		for tabId, button in buttons do
 			button:SetAttribute("Active", tabId == id)
 		end
@@ -490,12 +583,12 @@ function Kit.tabs(parent: Instance?, tabs: { { Id: string, Label: string } }, on
 			LayoutOrder = i,
 			Sound = "Tab",
 			OnClick = function()
-				select(tab.Id)
+				choose(tab.Id)
 			end,
 		})
 		buttons[tab.Id] = b
 	end
-	return strip, select
+	return strip, choose
 end
 
 function Kit.scroll(parent: Instance?, props: { Size: UDim2?, Position: UDim2?, Padding: number?, Direction: string?, Name: string? }): ScrollingFrame
@@ -635,10 +728,11 @@ function Kit.setPips(frame: Frame, value: number, max: number)
 	end
 end
 
--- Subtle CRT scanlines over a container (static frames; cheap).
-function Kit.scanlines(parent: Instance, spacing: number?, alpha: number?): Frame
+-- Subtle CRT scanlines over a container (static frames; cheap). `count` is the
+-- number of lines across the container's height.
+function Kit.scanlines(parent: Instance, count: number?, alpha: number?): Frame
 	local layer = Kit.create("Frame", { Name = "Scanlines", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 50, Parent = parent }) :: Frame
-	local count = 90
+	count = count or 90
 	for i = 0, count - 1 do
 		Kit.create("Frame", {
 			BorderSizePixel = 0,
@@ -650,7 +744,6 @@ function Kit.scanlines(parent: Instance, spacing: number?, alpha: number?): Fram
 			Parent = layer,
 		})
 	end
-	local _ = spacing
 	return layer
 end
 
