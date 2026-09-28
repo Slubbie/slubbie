@@ -98,7 +98,7 @@ local function powerBoost(player: Player, record: any): number
 			local r = (effect.Def.Radius or 0) + math.max(effect.Def.Size[1], effect.Def.Size[2]) / 2
 			if (effect.X - cx) ^ 2 + (effect.Z - cz) ^ 2 <= r * r then
 				local boost = fn.Speed
-				if fn.Windy and wdef and (wdef.Wind or 0) >= 0.5 then
+				if fn.Windy and wdef and (wdef.Visual.Wind or 0) >= 0.5 then
 					boost = fn.Windy
 				elseif fn.Sunny and (weather == "Sunny" or weather == "Heatwave") then
 					boost = fn.Sunny

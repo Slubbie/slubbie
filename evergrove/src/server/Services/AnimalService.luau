@@ -96,7 +96,7 @@ end
 
 local function badWeather(t: number): boolean
 	local def = WeatherMath.Def(WeatherMath.Current(t))
-	return def ~= nil and (def.Bad == true or (def.Wind or 0) >= 0.8 or def.Hazard ~= nil)
+	return def ~= nil and (def.Animals < 0 or def.Visual.Wind >= 0.8 or def.Hazard ~= nil)
 end
 
 -- Is the animal's home on a Pasture parcel (happier animals)?

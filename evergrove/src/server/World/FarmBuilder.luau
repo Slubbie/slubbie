@@ -270,6 +270,7 @@ function FarmBuilder.BuildLot(lotDef: any, root: Instance): (Model, any)
 	local model = Instance.new("Model")
 	model.Name = "Lot" .. lotDef.Id
 	model:SetAttribute("Lot", lotDef.Id)
+	model:SetAttribute("Origin", origin)
 	model.Parent = root
 
 	-- Ground: tidy yard dirt path to the house and gravel in front.

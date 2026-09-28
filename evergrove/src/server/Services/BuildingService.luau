@@ -381,6 +381,15 @@ local function decorate(model: Model, def: any, uid: string, owner: Player, reco
 	end
 	model:SetAttribute("Uid", uid)
 	model:SetAttribute("Owner", owner.UserId)
+	-- Placement and style, so build mode can move, copy and undo precisely.
+	model:SetAttribute("Px", record.Px)
+	model:SetAttribute("Pz", record.Pz)
+	model:SetAttribute("Py", record.Py)
+	model:SetAttribute("Ry", record.Ry)
+	model:SetAttribute("Free", record.F == true)
+	model:SetAttribute("C", record.C)
+	model:SetAttribute("Mt", record.Mt)
+	model:SetAttribute("Sc", record.Sc)
 	model:SetAttribute("Kind", fn and fn.Kind or "Decor")
 	if def.Walkable then
 		for _, d in model:GetDescendants() do

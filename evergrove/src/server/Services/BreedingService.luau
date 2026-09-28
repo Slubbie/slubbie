@@ -134,7 +134,7 @@ local function hybridChance(hybrid: any, profile: any): number
 	local t = GameTime.Now()
 	local weather = WeatherMath.Current(t)
 	local info = GameTime.Info(t)
-	if hybrid.Weather and (hybrid.Weather == weather or (hybrid.Weather == "Windy" and (WeatherMath.Def(weather).Wind or 0) >= 0.5)) then
+	if hybrid.Weather and (hybrid.Weather == weather or (hybrid.Weather == "Windy" and (WeatherMath.Def(weather).Visual.Wind or 0) >= 0.5)) then
 		chance *= HYBRID_WEATHER_MULT
 	end
 	if hybrid.Season and hybrid.Season == info.SeasonId then
