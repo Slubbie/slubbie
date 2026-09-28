@@ -126,7 +126,7 @@ function DataService.NewProfile(): any
 			Perm = { Default = Social.Permissions.Default, Players = {} },
 			Layouts = {},
 			Cleared = {},
-			Rules = { Sell = {}, Replant = {}, Priority = {} },
+			Rules = { Sell = {}, Replant = {}, Priority = {}, Bots = {} },
 			Bin = {},
 			Visitors = 0,
 		},
@@ -163,6 +163,9 @@ function DataService.NewProfile(): any
 		Purchases = {},
 		Passes = {},
 		Pending = {},
+		Gather = { Day = -1, Got = {} },
+		Festival = { Key = "" },
+		Public = { Bio = "", HideStats = false },
 		Offline = { Last = now, LastReal = os.time() },
 		PlayTime = 0,
 	}
@@ -415,7 +418,7 @@ local REPLICATED = {
 	Collection = true, Claimed = true, Museum = true, Showcase = true, Achievements = true, Stats = true,
 	Mail = true, Daily = true, Settings = true, Cosmetics = true, Titles = true, Recipes = true, Secrets = true,
 	Lore = true, Travel = true, Regions = true, Projects = true, Unlocks = true, Contracts = true, Exports = true,
-	Stall = true, Buffs = true, Tutorial = true, Guild = true, PlayTime = true, Created = true,
+	Stall = true, Buffs = true, Tutorial = true, Guild = true, PlayTime = true, Created = true, Gather = true, Festival = true, Public = true, Passes = true,
 }
 local FARM_PRIVATE = { Tiles = true, Placed = true }
 

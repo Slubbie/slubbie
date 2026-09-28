@@ -467,6 +467,7 @@ local function collect(actor: Player, uid: string)
 			S.Collection.OnItem(receiver, stack)
 			S.Quest.Progress(receiver, "Process", stack.Id, stack.N)
 			S.Data.AddStat(receiver, "Processed", stack.N)
+			S.Data.AddStat(receiver, "ArtisanMade", stack.N)
 		else
 			table.insert(remaining, stack)
 		end
@@ -644,10 +645,10 @@ function MachineService.AutoCycle(player: Player, uid: string): (number, number)
 	local pushed, pulled = 0, 0
 	local keep = {}
 	for _, stack in state.O do
-		local stored = S.Inventory.SiloAdd(player, stack)
-		pushed += stored
-		if stored < stack.N then
-			stack.N -= stored
+		local leftover = S.Inventory.SiloAdd(player, stack)
+		pushed += stack.N - leftover
+		if leftover > 0 then
+			stack.N = leftover
 			table.insert(keep, stack)
 		end
 	end

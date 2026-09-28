@@ -419,9 +419,16 @@ function CropService.Harvest(owner: Player, key: string, actor: Player, opts: an
 		table.insert(stacks, { Id = "seed_" .. crop.Id, N = 1, G = Genetics.Inherit(cs.G, random) })
 	end
 
-	local receiver = owner
 	for _, stack in stacks do
-		S.Inventory.Add(receiver, stack, { Source = "Harvest", Position = opts.Position })
+		if opts.ToSilo then
+			-- Harvest drones deliver into silos; anything that doesn't fit goes to the bag.
+			local leftover = S.Inventory.SiloAdd(owner, stack)
+			if leftover > 0 then
+				S.Inventory.Add(owner, ItemUtil.Split(stack, leftover), { Source = "Harvest drones", Silent = true })
+			end
+		else
+			S.Inventory.Add(owner, stack, { Source = "Harvest", Position = opts.Position })
+		end
 	end
 	if actor ~= owner then
 		S.Notify.Toast(owner, actor.DisplayName .. " harvested " .. crop.Name .. " for you!", "Info")

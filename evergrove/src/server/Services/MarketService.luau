@@ -127,6 +127,19 @@ local function recordSale(player: Player, stack: ItemUtil.Stack, total: number)
 	addPressure(stack.Id, total)
 end
 
+-- Sell a stack that isn't in the player's bag (shipping dock, automation).
+-- Pays immediately and records market pressure like any other sale.
+function MarketService.AutoSell(player: Player, stack: ItemUtil.Stack, venueMult: number): number
+	local def = Registry.Items[stack.Id]
+	if not def or not ItemUtil.Sellable(stack) then
+		return 0
+	end
+	local total = MarketService.UnitPrice(player, stack, venueMult) * stack.N
+	S.Economy.AddCoins(player, total, "Shipping dock")
+	recordSale(player, stack, total)
+	return total
+end
+
 local function binPosition(player: Player): Vector3?
 	local farm = S.Farm.Get(player)
 	return farm and farm.Lot.Bin

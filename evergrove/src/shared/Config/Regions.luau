@@ -99,8 +99,8 @@ local List: { Region } = {
 		Name = "Mossback River & Reedmarsh",
 		Icon = "🏞️",
 		Description = "A lazy river and a misty marsh full of fish, frogs and reeds.",
-		Center = V(520, 0, 180),
-		Radius = 330,
+		Center = V(470, 0, 120),
+		Radius = 250,
 		Biome = "Wetlands",
 		Waters = {
 			{ Tag = "River", Center = V(250, 0, 40), Radius = 150 },

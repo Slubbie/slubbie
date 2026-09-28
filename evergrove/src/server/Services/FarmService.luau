@@ -765,6 +765,15 @@ function FarmService.SpawnCFrame(player: Player): CFrame?
 	return CFrame.lookAt(gate, gate + Vector3.new(0, 0, 10))
 end
 
+-- Re-dress the farmhouse/fences after a cosmetic change.
+function FarmService.RefreshCosmetics(player: Player)
+	local farm = farms[player]
+	local profile = S.Data.Get(player)
+	if farm and profile then
+		FarmBuilder.UpdateHouse(farm, profile.Farm.House, profile)
+	end
+end
+
 function FarmService.OwnerOfLot(lotId: number): Player?
 	return lotOwner[lotId]
 end
@@ -774,8 +783,12 @@ function FarmService.Init()
 	root.Name = "Farms"
 	root.Parent = workspace
 	for _, lotDef in World.Farms.Lots do
-		local model = FarmBuilder.BuildLot(lotDef, root)
-		lots[lotDef.Id] = { Id = lotDef.Id, Origin = lotDef.Origin, Model = model }
+		local model, info = FarmBuilder.BuildLot(lotDef, root)
+		local lot = { Id = lotDef.Id, Origin = lotDef.Origin, Model = model }
+		for key, value in info do
+			lot[key] = value
+		end
+		lots[lotDef.Id] = lot
 	end
 
 	Net.Handle("LandBuy", buyParcel)

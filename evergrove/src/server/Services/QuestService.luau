@@ -306,6 +306,8 @@ function QuestService.Progress(player: Player, kind: string, target: string?, co
 	if not profile or count < 0 then
 		return
 	end
+	-- Festival challenges listen to the same events.
+	S.Festival.Progress(player, kind, target, count, meta)
 	local changed = false
 	for questId, state in profile.Quests.Active do
 		local quest = Registry.Quests[questId]

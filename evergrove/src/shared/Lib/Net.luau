@@ -165,6 +165,7 @@ local ACTIONS: { [string]: ActionDef } = {
 	ProfileSet = req(2, 4, { "string:24", "any?" }),
 	StoreGet = req(1, 2, {}),
 	CosmeticEquip = req(3, 6, { "string:24", "string:40?" }),
+	StoreGiftTarget = req(2, 4, { "int" }), -- who the next gift purchase goes to
 	TutorialSkip = req(1, 2, {}),
 	TutorialAck = req(2, 4, { "string:32" }),
 

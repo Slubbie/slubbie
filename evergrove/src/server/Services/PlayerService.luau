@@ -267,6 +267,24 @@ local function travel(player: Player, id: string)
 		PlayerService.Teleport(player, spawn)
 		return true
 	end
+	-- Lifts (mine shaft, sky lift): free, no discovery needed, must stand at the lift.
+	local liftId = string.match(id, "^lift:(.+)$")
+	if liftId then
+		local lift = S.World.LiftNear(S.Security.RootPosition(player), liftId)
+		if not lift then
+			return false, "Stand at the lift"
+		end
+		local ok, reason = PlayerService.CanAccess(player, lift.Region)
+		if not ok then
+			return false, reason
+		end
+		if lift.Travel and not profile.Travel[lift.Travel] then
+			profile.Travel[lift.Travel] = true
+			S.Data.Changed(player, "Travel")
+		end
+		PlayerService.Teleport(player, CFrame.new(lift.Arrive + Vector3.new(0, 4, 0)))
+		return true
+	end
 	local dest = travelById[id]
 	if not dest then
 		return false, "Unknown destination"

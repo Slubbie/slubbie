@@ -35,13 +35,14 @@ export type Mail = {
 	Items: { ItemUtil.Stack }?,
 	Coins: number?,
 	Tokens: number?,
+	Title: string?,
 	At: number,
 	Read: boolean?,
 	Claimed: boolean?,
 }
 
 local function hasAttachments(mail: any): boolean
-	return not mail.Claimed and ((mail.Items and #mail.Items > 0) or (mail.Coins or 0) > 0 or (mail.Tokens or 0) > 0)
+	return not mail.Claimed and ((mail.Items and #mail.Items > 0) or (mail.Coins or 0) > 0 or (mail.Tokens or 0) > 0 or mail.Title ~= nil)
 end
 
 local function promote(profile: any)
@@ -67,6 +68,7 @@ function MailService.Send(player: Player, mail: { [string]: any })
 		Items = mail.Items,
 		Coins = mail.Coins,
 		Tokens = mail.Tokens,
+		Title = if type(mail.Title) == "string" then mail.Title else nil,
 		At = GameTime.Now(),
 	}
 	if #box.List < CFG.Capacity then
@@ -174,6 +176,11 @@ local function claim(player: Player, id: string)
 	end
 	if (mail.Tokens or 0) > 0 then
 		S.Economy.AddTokens(player, mail.Tokens)
+	end
+	if mail.Title then
+		profile.Titles[mail.Title] = true
+		S.Data.Changed(player, "Titles")
+		S.Notify.Toast(player, "🏷️ New title: " .. mail.Title, "Success")
 	end
 	S.Notify.Reward(player, mail.Items or {}, mail.Coins or 0, mail.From)
 	S.Data.Changed(player, "Mail")

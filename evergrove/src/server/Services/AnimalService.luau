@@ -388,6 +388,7 @@ function AnimalService.Grant(player: Player, speciesId: string, genes: any?, opt
 	local phenotype = Genetics.Phenotype(speciesId, g)
 	S.Collection.Discover(player, "Animals", speciesId .. ":" .. phenotype.Coat.Id, { Rarity = Genetics.AnimalRarity(speciesId, g) })
 	S.Data.MaxStat(player, "AnimalsOwned", AnimalService.Count(profile))
+	S.Data.AddStat(player, "AnimalsOwnedTotal")
 	return aid, nil
 end
 
@@ -777,7 +778,7 @@ function AnimalService.Deliver(player: Player, profile: any, animal: any)
 	end
 	local baby = profile.Farm.Animals[aid]
 	baby.Fr = 100
-	S.Data.AddStat(player, "AnimalsBorn")
+	S.Data.AddStat(player, "AnimalsBred")
 	S.Quest.Progress(player, "Breed", animal.Sp, 1)
 	S.Skill.AddXP(player, "Ranching", 40)
 	local phenotype = Genetics.Phenotype(animal.Sp, preg.G)

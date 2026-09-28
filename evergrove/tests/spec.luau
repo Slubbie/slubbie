@@ -31,6 +31,7 @@ local RNG = require(Lib.RNG)
 local Format = require(Lib.Format)
 local TableUtil = require(Lib.TableUtil)
 local Net = require(Lib.Net)
+local ContestMath = require(Lib.ContestMath)
 
 local Crops = require(Config.Crops)
 local Soil = require(Config.Soil)
@@ -811,6 +812,45 @@ do
 	check(Stats.ShopDiscount(profile, "general") == 0.05, "pip discount at 3 hearts")
 	check(Stats.EstateLevel({ Skills = {} }) == 1, "estate level starts at 1")
 	check(Stats.MaxEnergy(profile) > 120, "energy grows with house")
+end
+
+-- Contest scoring --------------------------------------------------------------------------------
+section("ContestMath")
+do
+	local giantCrop
+	for _, fest in Festivals.List do
+		for _, activity in fest.Activities do
+			if activity.Id == "giant_crop" then
+				giantCrop = activity
+			end
+			if activity.Kind == "Contest" then
+				local total = 0
+				for _, w in activity.Scoring do
+					total += w
+				end
+				check(total == 100, activity.Id .. ": scoring weights must sum to 100 (got " .. total .. ")")
+			end
+		end
+	end
+	check(giantCrop ~= nil, "giant crop contest exists")
+	local plain = { Kind = "Item", Stack = { Id = "pumpkin", N = 1, S = Registry.Crops.pumpkin.Size[1] } }
+	local prize = { Kind = "Item", Stack = { Id = "pumpkin", N = 1, Q = 6, S = Registry.Crops.pumpkin.Size[1] + Registry.Crops.pumpkin.Size[2] * 3, M = { "Golden" }, U = "sp1" } }
+	check(ContestMath.Accepts(giantCrop, plain), "crops are accepted in the giant crop contest")
+	check(not ContestMath.Accepts(giantCrop, { Kind = "Item", Stack = { Id = "wood", N = 1 } }), "wood isn't a crop")
+	local low, lowPoints = ContestMath.Score(giantCrop, plain)
+	local high = ContestMath.Score(giantCrop, prize)
+	check(low >= 0 and high <= 100, "scores are within 0-100")
+	check(high > low + 30, string.format("a giant golden radiant pumpkin beats a plain one (%.1f vs %.1f)", high, low))
+	local sum = 0
+	for _, pts in lowPoints do
+		sum += pts
+	end
+	check(math.abs(sum - low) < 0.6, "breakdown points add up to the total")
+	local animal = { Kind = "Animal", Animal = { Sp = "cow", Hap = 100, Fr = 1000, G = Genetics.RandomAnimal("cow", Random.new(3)) } }
+	local livestock = Festivals.List[2].Activities[1]
+	check(ContestMath.Accepts(livestock, animal), "animals enter the livestock show")
+	local score = ContestMath.Score(livestock, animal)
+	check(score > 20, "a happy, loved cow scores well (" .. score .. ")")
 end
 
 -- Balance report -----------------------------------------------------------------------------------

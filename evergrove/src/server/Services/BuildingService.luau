@@ -41,7 +41,11 @@ local GRID = World.Farms.ParcelTiles * World.Farms.Parcels
 local YARD = World.Farms.YardDepth
 local ROT_STEP = 15
 local MAX_LIFT = 12
-local LAYOUT_SLOTS = Placeables.LayoutSlots or 3
+
+-- Saved decoration layouts: 3, plus any from the Extra Layout Slots pass.
+local function layoutSlots(profile: any): number
+	return (Placeables.LayoutSlots or 3) + (tonumber(profile.Unlocks.LayoutSlots) or 0)
+end
 
 local BuildingService = {}
 BuildingService.Spawned = Signal.new() -- (player, uid, model, def) a model exists in the world
@@ -49,6 +53,7 @@ BuildingService.Despawned = Signal.new() -- (player, uid, def)
 BuildingService.Placed = Signal.new() -- (player, uid, def) newly placed by the player
 BuildingService.Removed = Signal.new() -- (player, uid, def, record) picked up
 BuildingService.Moved = Signal.new() -- (player, uid, def)
+BuildingService.Styled = Signal.new() -- (player, uid, def) paint/material/scale/text changed
 
 -- Models by player → uid.
 local spawned: { [Player]: { [string]: Model } } = {}
@@ -558,6 +563,31 @@ local function newUid(profile: any): string
 	return uid
 end
 
+-- Place an object for free (starter kit, quest rewards, admin tools). Uses the
+-- normal validation; returns the uid or nil, reason.
+function BuildingService.Grant(player: Player, placeableId: string, spec: any): (string?, string?)
+	local profile = S.Data.Get(player)
+	local def = Registry.Placeables[placeableId]
+	if not profile or not def then
+		return nil, "Unknown placeable"
+	end
+	local record = normalise(def, spec)
+	if not record then
+		return nil, "Bad placement"
+	end
+	local valid, why = BuildingService.Validate(player, def, record)
+	if not valid then
+		return nil, why
+	end
+	local uid = newUid(profile)
+	record.T = os.time()
+	profile.Farm.Placed[uid] = record
+	spawnOne(player, uid, record)
+	commit(player, {}, { { record, def } })
+	BuildingService.Placed:Fire(player, uid, def)
+	return uid, nil
+end
+
 -- Place an object from the actor's inventory on the farm they're standing on.
 function BuildingService.Place(actor: Player, ref: string, spec: any): (boolean, any)
 	local actorProfile = S.Data.Get(actor)
@@ -825,6 +855,7 @@ function BuildingService.Style(actor: Player, uid: string, style: any): (boolean
 	else
 		S.Data.Changed(owner, "Farm", "Placed")
 	end
+	BuildingService.Styled:Fire(owner, uid, def)
 	return true
 end
 
@@ -835,7 +866,7 @@ end
 
 local function layoutSave(player: Player, slot: number, name: string)
 	local profile = S.Data.Get(player)
-	if not profile or slot < 1 or slot > LAYOUT_SLOTS then
+	if not profile or slot < 1 or slot > layoutSlots(profile) then
 		return false, "Bad slot"
 	end
 	local items = {}
@@ -861,7 +892,7 @@ local function layoutList(player: Player)
 		return false, "Not ready"
 	end
 	local out = {}
-	for i = 1, LAYOUT_SLOTS do
+	for i = 1, layoutSlots(profile) do
 		local layout = profile.Farm.Layouts[tostring(i)]
 		out[i] = if layout then { Name = layout.Name, Count = #layout.Items, Saved = layout.Saved } else false
 	end
