@@ -112,7 +112,7 @@ local function runBanner(title: string, subtitle: string?, icon: string?, style:
 	end
 	panel.Parent = bannerHost
 	Kit.Pop(panel, 0.6)
-	C.Audio.PlayUI(if style == "Legend" then "LegendaryReveal" else "QuestComplete")
+	C.Audio.PlayUI(if style == "Legend" then "LegendaryReveal" elseif style == "Region" then "Chime" else "QuestComplete")
 	task.delay(duration or 4.5, function()
 		Kit.PopOut(panel, function()
 			panel:Destroy()
@@ -312,10 +312,12 @@ end
 
 function Notify.Init()
 	local overlay = C.UI.Layer("Overlay")
-	toastColumn = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(330, 400), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -14, 0, 70), Name = "Toasts", Parent = overlay })
+	toastColumn = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(330, 400), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -14, 0, 112), Name = "Toasts", Parent = overlay })
 	Kit.List(toastColumn, "Y", 6)
 	bannerHost = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 200), Position = UDim2.fromOffset(0, 70), Name = "Banners", Parent = overlay })
-	popColumn = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(260, 320), AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -14, 1, -120), Name = "Pops", Parent = overlay })
+	-- Reward pops sit bottom-right, left of the touch buttons on phones and tablets.
+	local touch = C.Settings.PrimaryInput() == "Touch"
+	popColumn = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(260, 320), AnchorPoint = Vector2.new(1, 1), Position = if touch then UDim2.new(1, -380, 1, -120) else UDim2.new(1, -14, 1, -120), Name = "Pops", Parent = overlay })
 	local popLayout = Kit.List(popColumn, "Y", 4)
 	popLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	captionLabel = Kit.new("TextLabel", {

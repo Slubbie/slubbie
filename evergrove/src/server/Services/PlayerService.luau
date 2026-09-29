@@ -430,11 +430,23 @@ end
 
 function PlayerService.Init()
 	Net.Handle("Travel", travel)
+	local emotes = {}
+	for _, emote in require(Shared.Config.Social).Emotes do
+		emotes[emote.Id] = emote
+	end
 	Net.Handle("Pose", function(player, pose)
 		local character = player.Character
-		if character then
-			character:SetAttribute("Pose", pose)
+		if not character then
+			return
 		end
+		if pose ~= nil then
+			local emote = emotes[pose]
+			local profile = S.Data.Get(player)
+			if not emote or (emote.Pack and not (profile and profile.Cosmetics.Owned["Emote:" .. pose])) then
+				return
+			end
+		end
+		character:SetAttribute("Pose", pose)
 	end)
 end
 

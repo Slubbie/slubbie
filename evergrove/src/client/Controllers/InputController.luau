@@ -38,7 +38,7 @@ local InputController = {}
 
 local player = Players.LocalPlayer
 local TILE = 4
-local HOTBAR_SIZE = 10
+local HOTBAR_SIZE = 9 -- inventory slots 1-9 (matches the server)
 
 local areaSize = 0 -- 0 = use the default (max unless set to 1x1)
 local holding = false
@@ -61,6 +61,7 @@ local WINDOW_KEYS: { [Enum.KeyCode]: string } = {
 	[Enum.KeyCode.U] = "Calendar",
 	[Enum.KeyCode.Y] = "Achievements",
 	[Enum.KeyCode.Backquote] = "Menu",
+	[Enum.KeyCode.L] = "Land",
 	[Enum.KeyCode.F1] = "Settings",
 }
 
@@ -488,11 +489,8 @@ local function onInput(input: InputObject, processed: boolean)
 	end
 	-- Hotbar numbers
 	local n = key.Value - Enum.KeyCode.One.Value + 1
-	if n >= 1 and n <= 9 then
+	if n >= 1 and n <= HOTBAR_SIZE then
 		InputController.SelectHotbar(n)
-		return
-	elseif key == Enum.KeyCode.Zero then
-		InputController.SelectHotbar(10)
 		return
 	end
 	if key == Enum.KeyCode.ButtonL1 or key == Enum.KeyCode.ButtonR1 then

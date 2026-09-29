@@ -117,6 +117,9 @@ function UI.Init()
 	Kit.PlaySound = function(name: string)
 		C.Audio.PlayUI(name)
 	end
+	require(UIFolder.Picker).GetProfile = function()
+		return C.State.Data()
+	end
 	rescale()
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(rescale)
 	C.Settings.Changed:Connect(function(key)

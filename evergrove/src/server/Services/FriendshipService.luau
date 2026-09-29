@@ -160,6 +160,9 @@ local function gift(player: Player, npcId: string, ref: string)
 	end
 	entry.GC = (entry.GC or 0) + 1
 	local pref = FriendshipService.Preference(npcId, taken)
+	-- Remember what you've learned about their taste (shown in the gift picker).
+	entry.Known = entry.Known or {}
+	entry.Known[taken.Id] = pref
 	local points = NPCs.GiftPoints[pref]
 	if points > 0 then
 		points *= 1 + ((taken.Q or 1) - 1) * NPCs.QualityGiftBonus

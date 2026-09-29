@@ -162,7 +162,7 @@ local function craft(player: Player, recipeId: string, times: number)
 	end
 	S.Quest.Progress(player, "Craft", recipe.Out, produced)
 	if out and out.Placeable then
-		S.Notify.Toast(player, "Open Build mode (B) to place your " .. out.Name, "Info")
+		S.Notify.Toast(player, "Open Build mode (H) to place your " .. out.Name, "Info")
 	end
 	return true, produced
 end

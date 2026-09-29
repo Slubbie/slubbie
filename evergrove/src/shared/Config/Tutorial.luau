@@ -17,7 +17,7 @@ return {
 		{ Id = "harvest", Title = "Harvest", Text = "Select the Sickle (slot 3) and harvest your ripe carrots.", Wait = "Harvest", Count = 4, Target = "Tile", Hotbar = 3 },
 		{ Id = "store", Title = "Storage", Text = "Open your inventory (Tab / B) and drag one carrot into the chest next to your house. Chests keep things safe.", Wait = "Store", Count = 1, Target = "Chest" },
 		{ Id = "sell", Title = "Sell Your Harvest", Text = "Drop carrots in the Shipping Bin. You'll be paid at 6 AM at the market price. Or sell instantly to Pip in town.", Wait = "Sell", Count = 1, Target = "Bin" },
-		{ Id = "upgrade", Title = "Grow Your Farm", Text = "Open the Farm menu (F) to see land you can buy. For now, buy more seeds from Pip in the village!", Wait = "Buy", Count = 1, Target = "Npc:pip" },
+		{ Id = "upgrade", Title = "Grow Your Farm", Text = "Open the Land screen (L, or the sign by your gate) to see land you can buy. For now, buy more seeds from Pip in the village!", Wait = "Buy", Count = 1, Target = "Npc:pip" },
 		{ Id = "world", Title = "The World Awaits", Text = "Talk to villagers, fish, forage and explore. Your quest log (J) always shows what to do next. Have fun!", Wait = "Ack", Target = "Menu:Quests" },
 	},
 	-- Starter kit given with a fresh save.

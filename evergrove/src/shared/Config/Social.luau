@@ -97,4 +97,18 @@ return {
 		ShowcaseSlots = 6,
 		-- Everything shown on a profile card is gameplay data; no account info.
 	},
+
+	-- Emotes / photo-mode poses. Pack = needs "Emote:<Id>" from the store's emote pack.
+	Emotes = {
+		{ Id = "Wave", Name = "Wave", Icon = "👋" },
+		{ Id = "Cheer", Name = "Cheer", Icon = "🙌" },
+		{ Id = "Clap", Name = "Clap", Icon = "👏" },
+		{ Id = "Think", Name = "Think", Icon = "🤔" },
+		{ Id = "Bow", Name = "Bow", Icon = "🙇" },
+		{ Id = "Point", Name = "Point", Icon = "👉" },
+		{ Id = "HarvestDance", Name = "Harvest Dance", Icon = "🕺", Pack = true },
+		{ Id = "Yodel", Name = "Yodel", Icon = "🎶", Pack = true },
+		{ Id = "TipHat", Name = "Tip Hat", Icon = "🎩", Pack = true },
+		{ Id = "Scarecrow", Name = "Scarecrow", Icon = "🧍", Pack = true },
+	},
 }
