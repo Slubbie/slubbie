@@ -486,7 +486,7 @@ local function buildDock()
 	waterBar.Frame.Position = UDim2.new(0.5, 4, 0, 0)
 	waterBar.Frame.Parent = bars
 	Kit.AttachTooltip(energyBar.Frame, function()
-		return { { Text = "Energy", Bold = true }, { Text = "Tools and actions use energy. Eat food, rest at home or sleep to restore it; it also refills slowly over time.", Color = "SubText", Size = Theme.Sizes.Small, } }
+		return { { Text = "Energy", Bold = true }, { Text = "Tools and actions use energy. Eat or drink to restore it; it also refills slowly over time, and grows with your skills and house.", Color = "SubText", Size = Theme.Sizes.Small, } }
 	end)
 	Kit.AttachTooltip(waterBar.Frame, function()
 		return { { Text = "Watering can", Bold = true }, { Text = "Refill at a well, pond or river with the can in hand.", Color = "SubText", Size = Theme.Sizes.Small } }

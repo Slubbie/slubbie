@@ -149,8 +149,9 @@ local function seedBreed(player: Player, refA: string, refB: string)
 	if not profile then
 		return false, "Not ready"
 	end
-	if not S.Crafting.AtStation(player, "Lab") then
-		return false, "Use the Genetics Lab to breed seeds"
+	-- Your own Genetics Lab, or Juniper's research lab in town (during opening hours).
+	if not S.Crafting.AtStation(player, "Lab") and not (S.NPC.Near(player, "juniper") and S.Economy.IsOpen("lab")) then
+		return false, "Use a Genetics Lab, or visit Juniper at the Vale Research Lab"
 	end
 	if refA == refB then
 		local stack = S.Inventory.Slot(player, refA)
