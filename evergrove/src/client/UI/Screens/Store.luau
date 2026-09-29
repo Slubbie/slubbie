@@ -39,16 +39,29 @@ return {
 
 		render = function()
 			Kit.Clear(content)
-			local promise = Kit.Label("💚 Fair play promise: the store only sells looks, companions, music and conveniences like layout slots. No crops, coins, growth or luck — ever.", { Size = Theme.Sizes.Small, Color = "Good", Wrap = true })
+			local promise = Kit.Label(
+				"💚 Fair play promise: the store only sells looks, companions, music and conveniences like layout slots. No crops, coins, growth or luck — ever.",
+				{ Size = Theme.Sizes.Small, Color = "Good", Wrap = true }
+			)
 			promise.Parent = content
 			if args.GiftTo then
-				local gift = Kit.Label("🎁 Gifting to " .. tostring(args.GiftName or "a friend") .. " — gift items bought now go to their mailbox.", { Size = Theme.Sizes.Small, Color = "Accent", Wrap = true })
+				local gift = Kit.Label(
+					"🎁 Gifting to "
+						.. tostring(args.GiftName or "a friend")
+						.. " — gift items bought now go to their mailbox.",
+					{ Size = Theme.Sizes.Small, Color = "Accent", Wrap = true }
+				)
 				gift.Position = UDim2.fromOffset(0, 40)
 				gift.Parent = content
 			end
 			local grid = Kit.Scroll({ Size = UDim2.new(1, 0, 1, -76), Position = UDim2.fromOffset(0, 72) })
 			grid.Parent = content
-			local layout = Kit.new("UIGridLayout", { CellSize = UDim2.new(0.333, -8, 0, 170), CellPadding = UDim2.fromOffset(10, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = grid })
+			local layout = Kit.new("UIGridLayout", {
+				CellSize = UDim2.new(0.333, -8, 0, 170),
+				CellPadding = UDim2.fromOffset(10, 10),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Parent = grid,
+			})
 			layout.FillDirectionMaxCells = 3
 			if not items then
 				Kit.Empty("Opening the store…").Parent = grid
@@ -59,34 +72,53 @@ return {
 				card.LayoutOrder = i
 				card.Parent = grid
 				Kit.List(card, "Y", 4)
-				local head = Kit.Label(item.Icon .. " " .. item.Name, { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Wrap = true })
+				local head = Kit.Label(
+					item.Icon .. " " .. item.Name,
+					{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Wrap = true }
+				)
 				head.Parent = card
-				local desc = Kit.Label(item.Description or "", { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+				local desc =
+					Kit.Label(item.Description or "", { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
 				desc.LayoutOrder = 1
 				desc.Parent = card
-				local price = Kit.Label("R$ " .. tostring(item.Price) .. (if item.Kind == "Product" then "  ·  repeatable" else ""), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Number, Color = "Accent" })
+				local price = Kit.Label(
+					"R$ " .. tostring(item.Price) .. (if item.Kind == "Product" then "  ·  repeatable" else ""),
+					{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Number, Color = "Accent" }
+				)
 				price.LayoutOrder = 2
 				price.Parent = card
 				local label = if item.Owned then "✔ Owned" elseif not item.Available then "Coming soon" else "Buy"
-				local buy = Kit.Button(label, { Style = if item.Owned then "Ghost" else "Primary", Size = UDim2.new(1, 0, 0, 34), TextSize = Theme.Sizes.Small, LayoutOrder = 3, OnClick = function()
-					if item.Owned or not item.Available then
-						return
-					end
-					if item.Kind == "Pass" and item.GamePassId and item.GamePassId > 0 then
-						MarketplaceService:PromptGamePassPurchase(Players.LocalPlayer, item.GamePassId)
-					elseif item.ProductId and item.ProductId > 0 then
-						if args.GiftTo then
-							Net.Request("StoreGiftTarget", args.GiftTo)
+				local buy = Kit.Button(label, {
+					Style = if item.Owned then "Ghost" else "Primary",
+					Size = UDim2.new(1, 0, 0, 34),
+					TextSize = Theme.Sizes.Small,
+					LayoutOrder = 3,
+					OnClick = function()
+						if item.Owned or not item.Available then
+							return
 						end
-						MarketplaceService:PromptProductPurchase(Players.LocalPlayer, item.ProductId)
-					end
-				end })
+						if item.Kind == "Pass" and item.GamePassId and item.GamePassId > 0 then
+							MarketplaceService:PromptGamePassPurchase(Players.LocalPlayer, item.GamePassId)
+						elseif item.ProductId and item.ProductId > 0 then
+							if args.GiftTo then
+								Net.Request("StoreGiftTarget", args.GiftTo)
+							end
+							MarketplaceService:PromptProductPurchase(Players.LocalPlayer, item.ProductId)
+						end
+					end,
+				})
 				buy.Parent = card
 				Kit.SetEnabled(buy, not item.Owned and item.Available)
 			end
-			local wardrobe = Kit.Button("👒 Open your wardrobe", { Style = "Secondary", Size = UDim2.fromOffset(220, 36), TextSize = Theme.Sizes.Small, LayoutOrder = 999, OnClick = function()
-				C.Windows.Open("Profile", { Tab = "Wardrobe" })
-			end })
+			local wardrobe = Kit.Button("👒 Open your wardrobe", {
+				Style = "Secondary",
+				Size = UDim2.fromOffset(220, 36),
+				TextSize = Theme.Sizes.Small,
+				LayoutOrder = 999,
+				OnClick = function()
+					C.Windows.Open("Profile", { Tab = "Wardrobe" })
+				end,
+			})
 			wardrobe.Parent = grid
 			Kit.RepaintGradients(content)
 		end

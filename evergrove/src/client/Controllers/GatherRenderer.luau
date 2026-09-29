@@ -77,7 +77,13 @@ end
 
 local function signature(entry: Entry): string
 	local a = entry.Anchor
-	return table.concat({ entry.Kind, tostring(a:GetAttribute("Item")), tostring(a:GetAttribute("Bug")), tostring(a:GetAttribute("Active")), tostring(a:GetAttribute("Window")) }, "|")
+	return table.concat({
+		entry.Kind,
+		tostring(a:GetAttribute("Item")),
+		tostring(a:GetAttribute("Bug")),
+		tostring(a:GetAttribute("Active")),
+		tostring(a:GetAttribute("Window")),
+	}, "|")
 end
 
 -- Builders ---------------------------------------------------------------------------------------------------------
@@ -89,15 +95,39 @@ local function forageModel(itemId: string, spot: string): Model
 	local tags = def and def.Tags or {}
 	if tags.Mushroom then
 		Kit.Cyl(model, 0.7, 0.25, CFrame.new(0, 0.35, 0), Color3.fromRGB(240, 230, 210), { Collide = false })
-		Kit.Ball(model, Vector3.new(1, 0.5, 1), CFrame.new(0, 0.75, 0), tint:Lerp(Color3.fromRGB(190, 120, 70), 0.5), { Collide = false, Name = "Glint" })
+		Kit.Ball(
+			model,
+			Vector3.new(1, 0.5, 1),
+			CFrame.new(0, 0.75, 0),
+			tint:Lerp(Color3.fromRGB(190, 120, 70), 0.5),
+			{ Collide = false, Name = "Glint" }
+		)
 	elseif tags.Flower then
-		Kit.Box(model, Vector3.new(0.1, 1, 0.1), CFrame.new(0, 0.5, 0), Color3.fromRGB(90, 150, 70), { Collide = false })
+		Kit.Box(
+			model,
+			Vector3.new(0.1, 1, 0.1),
+			CFrame.new(0, 0.5, 0),
+			Color3.fromRGB(90, 150, 70),
+			{ Collide = false }
+		)
 		Kit.Ball(model, Vector3.new(0.6, 0.3, 0.6), CFrame.new(0, 1.05, 0), tint, { Collide = false, Name = "Glint" })
 	else
 		for i = 1, 3 do
-			Kit.Ball(model, Vector3.new(0.45, 0.45, 0.45), CFrame.new(math.cos(i * 2) * 0.35, 0.25, math.sin(i * 2) * 0.35), tint, { Collide = false, Name = "Glint" })
+			Kit.Ball(
+				model,
+				Vector3.new(0.45, 0.45, 0.45),
+				CFrame.new(math.cos(i * 2) * 0.35, 0.25, math.sin(i * 2) * 0.35),
+				tint,
+				{ Collide = false, Name = "Glint" }
+			)
 		end
-		Kit.Wedge(model, Vector3.new(0.1, 0.6, 0.8), CFrame.new(0, 0.3, 0), Color3.fromRGB(90, 150, 70), { Collide = false })
+		Kit.Wedge(
+			model,
+			Vector3.new(0.1, 0.6, 0.8),
+			CFrame.new(0, 0.3, 0),
+			Color3.fromRGB(90, 150, 70),
+			{ Collide = false }
+		)
 	end
 	local glint = model:FindFirstChild("Glint") :: BasePart
 	Kit.Particles(glint, "Sparkle", Color3.fromRGB(255, 250, 200), 1.5)
@@ -110,10 +140,22 @@ local function bugModel(bugId: string, spot: string): Model
 	local model = Kit.Model("Bug")
 	local tint = (def and def.Tint) or Color3.fromRGB(240, 200, 90)
 	local flying = def == nil or def.Flying ~= false
-	local body = Kit.Ball(model, Vector3.new(0.25, 0.25, 0.6), CFrame.new(0, 0, 0), Color3.fromRGB(40, 35, 30), { Collide = false, Name = "Body" })
+	local body = Kit.Ball(
+		model,
+		Vector3.new(0.25, 0.25, 0.6),
+		CFrame.new(0, 0, 0),
+		Color3.fromRGB(40, 35, 30),
+		{ Collide = false, Name = "Body" }
+	)
 	if flying then
 		for _, sx in { -1, 1 } do
-			local wing = Kit.Wedge(model, Vector3.new(0.05, 0.7, 0.6), CFrame.new(sx * 0.35, 0.1, 0) * CFrame.Angles(0, 0, sx * 0.3), tint, { Collide = false, Name = "Wing" })
+			local wing = Kit.Wedge(
+				model,
+				Vector3.new(0.05, 0.7, 0.6),
+				CFrame.new(sx * 0.35, 0.1, 0) * CFrame.Angles(0, 0, sx * 0.3),
+				tint,
+				{ Collide = false, Name = "Wing" }
+			)
 			wing:SetAttribute("Side", sx)
 			wing.Transparency = 0.1
 		end
@@ -131,9 +173,22 @@ end
 
 local function digModel(spot: string): Model
 	local model = Kit.Model("DigSpot")
-	Kit.Ball(model, Vector3.new(1.6, 0.4, 1.6), CFrame.new(0, 0.05, 0), Color3.fromRGB(110, 80, 55), { Collide = false, Material = Enum.Material.Ground, Name = "Mound" })
+	Kit.Ball(
+		model,
+		Vector3.new(1.6, 0.4, 1.6),
+		CFrame.new(0, 0.05, 0),
+		Color3.fromRGB(110, 80, 55),
+		{ Collide = false, Material = Enum.Material.Ground, Name = "Mound" }
+	)
 	for i = 1, 3 do
-		local worm = Kit.Cyl(model, 0.7, 0.18, CFrame.new(math.cos(i * 2.1) * 0.3, 0.4, math.sin(i * 2.1) * 0.3), Color3.fromRGB(210, 140, 130), { Collide = false, Name = "Worm" })
+		local worm = Kit.Cyl(
+			model,
+			0.7,
+			0.18,
+			CFrame.new(math.cos(i * 2.1) * 0.3, 0.4, math.sin(i * 2.1) * 0.3),
+			Color3.fromRGB(210, 140, 130),
+			{ Collide = false, Name = "Worm" }
+		)
 		worm:SetAttribute("Wiggle", i)
 	end
 	makePrompt(model:FindFirstChild("Mound") :: BasePart, "Dig", "Dig", "Something buried", spot)
@@ -142,28 +197,64 @@ end
 
 local FESTIVAL_SHAPES: { [string]: (Model) -> BasePart } = {
 	Egg = function(m)
-		local p = Kit.Ball(m, Vector3.new(0.9, 1.2, 0.9), CFrame.new(0, 0.6, 0), Color3.fromHSV(math.random(), 0.5, 1), { Collide = false, Name = "Core" })
+		local p = Kit.Ball(
+			m,
+			Vector3.new(0.9, 1.2, 0.9),
+			CFrame.new(0, 0.6, 0),
+			Color3.fromHSV(math.random(), 0.5, 1),
+			{ Collide = false, Name = "Core" }
+		)
 		Kit.Box(m, Vector3.new(0.95, 0.15, 0.95), CFrame.new(0, 0.65, 0), Color3.new(1, 1, 1), { Collide = false })
 		return p
 	end,
 	Star = function(m)
-		local p = Kit.Box(m, Vector3.new(0.3, 1.2, 1.2), CFrame.new(0, 1, 0) * CFrame.Angles(math.rad(45), 0, 0), Color3.fromRGB(255, 230, 120), { Collide = false, Name = "Core" })
+		local p = Kit.Box(
+			m,
+			Vector3.new(0.3, 1.2, 1.2),
+			CFrame.new(0, 1, 0) * CFrame.Angles(math.rad(45), 0, 0),
+			Color3.fromRGB(255, 230, 120),
+			{ Collide = false, Name = "Core" }
+		)
 		Kit.Glow(p, Color3.fromRGB(255, 230, 120))
 		Kit.Light(p, Color3.fromRGB(255, 230, 150), 10, 1.2)
 		return p
 	end,
 	Apple = function(m)
-		local p = Kit.Ball(m, Vector3.new(0.9, 0.9, 0.9), CFrame.new(0, 0.45, 0), Color3.fromRGB(220, 50, 40), { Collide = false, Name = "Core" })
+		local p = Kit.Ball(
+			m,
+			Vector3.new(0.9, 0.9, 0.9),
+			CFrame.new(0, 0.45, 0),
+			Color3.fromRGB(220, 50, 40),
+			{ Collide = false, Name = "Core" }
+		)
 		Kit.Box(m, Vector3.new(0.08, 0.3, 0.08), CFrame.new(0, 1, 0), Color3.fromRGB(100, 70, 40), { Collide = false })
 		return p
 	end,
 	Chest = function(m)
-		local p = Kit.Ball(m, Vector3.new(1.6, 0.5, 1.6), CFrame.new(0, 0.1, 0), Color3.fromRGB(120, 90, 60), { Collide = false, Name = "Core", Material = Enum.Material.Ground })
-		Kit.Box(m, Vector3.new(0.2, 0.9, 0.2), CFrame.new(0.4, 0.5, 0) * CFrame.Angles(0, 0, 0.5), Color3.fromRGB(200, 60, 50), { Collide = false })
+		local p = Kit.Ball(
+			m,
+			Vector3.new(1.6, 0.5, 1.6),
+			CFrame.new(0, 0.1, 0),
+			Color3.fromRGB(120, 90, 60),
+			{ Collide = false, Name = "Core", Material = Enum.Material.Ground }
+		)
+		Kit.Box(
+			m,
+			Vector3.new(0.2, 0.9, 0.2),
+			CFrame.new(0.4, 0.5, 0) * CFrame.Angles(0, 0, 0.5),
+			Color3.fromRGB(200, 60, 50),
+			{ Collide = false }
+		)
 		return p
 	end,
 	Lantern = function(m)
-		local p = Kit.Box(m, Vector3.new(0.8, 1.1, 0.8), CFrame.new(0, 1.2, 0), Color3.fromRGB(255, 150, 90), { Collide = false, Name = "Core" })
+		local p = Kit.Box(
+			m,
+			Vector3.new(0.8, 1.1, 0.8),
+			CFrame.new(0, 1.2, 0),
+			Color3.fromRGB(255, 150, 90),
+			{ Collide = false, Name = "Core" }
+		)
 		Kit.Glow(p, Color3.fromRGB(255, 160, 90))
 		Kit.Light(p, Color3.fromRGB(255, 160, 90), 12, 1.3)
 		return p
@@ -175,7 +266,13 @@ local function festivalModel(anchor: BasePart): Model
 	local shape = FESTIVAL_SHAPES[tostring(anchor:GetAttribute("Model") or "Star")] or FESTIVAL_SHAPES.Star
 	local core = shape(model)
 	Kit.Particles(core, "Sparkle", Color3.fromRGB(255, 240, 200), 2)
-	local prompt = makePrompt(core, "Festival", if anchor:GetAttribute("Dig") then "Dig up" else "Collect", "Festival find", tostring(anchor:GetAttribute("Activity")) .. ":" .. tostring(anchor:GetAttribute("Index")))
+	local prompt = makePrompt(
+		core,
+		"Festival",
+		if anchor:GetAttribute("Dig") then "Dig up" else "Collect",
+		"Festival find",
+		tostring(anchor:GetAttribute("Activity")) .. ":" .. tostring(anchor:GetAttribute("Index"))
+	)
 	prompt:SetAttribute("Activity", anchor:GetAttribute("Activity"))
 	prompt:SetAttribute("Index", anchor:GetAttribute("Index"))
 	return model
@@ -338,25 +435,45 @@ local function animate()
 				local flying = model:GetAttribute("Flying")
 				local p = anchor.Position
 				local offset = if flying
-					then Vector3.new(math.cos(t * 0.9 + entry.Phase) * 2.5, 1.5 + math.sin(t * 1.7 + entry.Phase) * 0.8, math.sin(t * 1.1 + entry.Phase) * 2.5)
-					else Vector3.new(math.cos(t * 0.3 + entry.Phase) * 1.2, -0.9, math.sin(t * 0.3 + entry.Phase) * 1.2)
+					then Vector3.new(
+						math.cos(t * 0.9 + entry.Phase) * 2.5,
+						1.5 + math.sin(t * 1.7 + entry.Phase) * 0.8,
+						math.sin(t * 1.1 + entry.Phase) * 2.5
+					)
+					else Vector3.new(
+						math.cos(t * 0.3 + entry.Phase) * 1.2,
+						-0.9,
+						math.sin(t * 0.3 + entry.Phase) * 1.2
+					)
 				local heading = if flying then t * 1.1 + entry.Phase else t * 0.3 + entry.Phase
 				model:PivotTo(CFrame.new(p + offset) * CFrame.Angles(0, -heading, 0))
 				for _, d in model:GetChildren() do
 					if d.Name == "Wing" and d:IsA("BasePart") then
 						local side = d:GetAttribute("Side") or 1
-						d.CFrame = model:GetPivot() * CFrame.new(side * 0.35, 0.1, 0) * CFrame.Angles(0, 0, side * (0.3 + math.sin(t * 30) * 0.7))
+						d.CFrame = model:GetPivot()
+							* CFrame.new(side * 0.35, 0.1, 0)
+							* CFrame.Angles(0, 0, side * (0.3 + math.sin(t * 30) * 0.7))
 					end
 				end
 			elseif entry.Kind == "Dig" then
 				for _, d in model:GetChildren() do
 					local w = d:GetAttribute("Wiggle")
 					if w and d:IsA("BasePart") then
-						d.CFrame = model:GetPivot() * CFrame.new(math.cos(w * 2.1) * 0.3, 0.3 + math.abs(math.sin(t * 3 + w)) * 0.3, math.sin(w * 2.1) * 0.3) * CFrame.Angles(math.sin(t * 4 + w) * 0.4, 0, math.pi / 2)
+						d.CFrame = model:GetPivot()
+							* CFrame.new(
+								math.cos(w * 2.1) * 0.3,
+								0.3 + math.abs(math.sin(t * 3 + w)) * 0.3,
+								math.sin(w * 2.1) * 0.3
+							)
+							* CFrame.Angles(math.sin(t * 4 + w) * 0.4, 0, math.pi / 2)
 					end
 				end
 			elseif entry.Kind == "Festival" then
-				model:PivotTo(CFrame.new(anchor.Position - Vector3.new(0, anchor.Size.Y / 2 - math.sin(t * 2 + entry.Phase) * 0.25, 0)) * CFrame.Angles(0, t + entry.Phase, 0))
+				model:PivotTo(
+					CFrame.new(
+						anchor.Position - Vector3.new(0, anchor.Size.Y / 2 - math.sin(t * 2 + entry.Phase) * 0.25, 0)
+					) * CFrame.Angles(0, t + entry.Phase, 0)
+				)
 			end
 		end
 	end

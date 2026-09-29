@@ -1,4 +1,5 @@
--- Admin console (F8, admins only — the server checks every command).
+-- Admin console (Config/Gameplay.Debug.Hotkey, F8 by default; admins only —
+-- the server checks every command).
 --
 -- Type a command with positional or key=value arguments:
 --   give carrot 20 4        coins 50000        weather Thunderstorm 2
@@ -121,12 +122,23 @@ function Screen.Build(win)
 		return nil
 	end
 	local quick = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 76), Parent = content })
-	local grid = Kit.new("UIGridLayout", { CellSize = UDim2.new(1 / 6, -6, 0, 34), CellPadding = UDim2.fromOffset(6, 6), SortOrder = Enum.SortOrder.LayoutOrder, Parent = quick })
+	local grid = Kit.new("UIGridLayout", {
+		CellSize = UDim2.new(1 / 6, -6, 0, 34),
+		CellPadding = UDim2.fromOffset(6, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = quick,
+	})
 	grid.FillDirectionMaxCells = 6
 	for i, entry in QUICK do
-		Kit.Button(entry[1], { Style = "Secondary", TextSize = Theme.Sizes.Tiny, LayoutOrder = i, OnClick = function()
-			run(entry[2])
-		end }).Parent = quick
+		Kit.Button(entry[1], {
+			Style = "Secondary",
+			TextSize = Theme.Sizes.Tiny,
+			LayoutOrder = i,
+			OnClick = function()
+				run(entry[2])
+			end,
+		}).Parent =
+			quick
 	end
 	local output = Kit.Scroll({ Size = UDim2.new(1, 0, 1, -130), Position = UDim2.fromOffset(0, 82) })
 	output.Parent = content
@@ -135,10 +147,14 @@ function Screen.Build(win)
 	box.Position = UDim2.new(0, 0, 1, -38)
 	box.Font = Enum.Font.Code
 	box.Parent = content
-	local runButton = Kit.Button("Run", { Style = "Primary", Size = UDim2.fromOffset(92, 38), OnClick = function()
-		run(box.Text)
-		box.Text = ""
-	end })
+	local runButton = Kit.Button("Run", {
+		Style = "Primary",
+		Size = UDim2.fromOffset(92, 38),
+		OnClick = function()
+			run(box.Text)
+			box.Text = ""
+		end,
+	})
 	runButton.Position = UDim2.new(1, -92, 1, -38)
 	runButton.Parent = content
 	box.FocusLost:Connect(function(enter)
@@ -151,7 +167,15 @@ function Screen.Build(win)
 	local function render()
 		Kit.Clear(output)
 		for i, line in lines do
-			local l = Kit.Label(line, { Size = Theme.Sizes.Tiny, Wrap = true, Font = Enum.Font.Code, Color = if string.sub(line, 11, 12) == "> " then "Accent" elseif string.find(line, "✖", 1, true) then "Bad" else "Text" })
+			local l = Kit.Label(line, {
+				Size = Theme.Sizes.Tiny,
+				Wrap = true,
+				Font = Enum.Font.Code,
+				Color = if string.sub(line, 11, 12) == "> "
+					then "Accent"
+					elseif string.find(line, "✖", 1, true) then "Bad"
+					else "Text",
+			})
 			l.LayoutOrder = i
 			l.Parent = output
 		end

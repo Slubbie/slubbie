@@ -113,18 +113,33 @@ end
 -- Registry ---------------------------------------------------------------------------------
 section("Registry")
 check(#Registry.ItemList > 400, "expected a large item catalog, got " .. #Registry.ItemList)
-print(string.format("    %d items, %d crops, %d fish, %d placeables, %d recipes, %d quests",
-	#Registry.ItemList, #Crops.List, #Fish.List, #Placeables.List, #Recipes.List, #Quests.List))
+print(
+	string.format(
+		"    %d items, %d crops, %d fish, %d placeables, %d recipes, %d quests",
+		#Registry.ItemList,
+		#Crops.List,
+		#Fish.List,
+		#Placeables.List,
+		#Recipes.List,
+		#Quests.List
+	)
+)
 for _, def in Registry.ItemList do
 	check(type(def.Name) == "string" and def.Name ~= "", "item has a name: " .. def.Id)
 	check(type(def.Icon) == "string" and def.Icon ~= "", "item has an icon: " .. def.Id)
-	check(require(Config.Quality).Rarities[def.Rarity] ~= nil, "item rarity valid: " .. def.Id .. " " .. tostring(def.Rarity))
+	check(
+		require(Config.Quality).Rarities[def.Rarity] ~= nil,
+		"item rarity valid: " .. def.Id .. " " .. tostring(def.Rarity)
+	)
 	check(def.Value >= 0, "item value >= 0: " .. def.Id)
 end
 check(Registry.Items["jam_strawberry"] ~= nil, "generated jam_strawberry")
 check(Registry.Items["smoked_tuna"] ~= nil, "generated smoked_tuna")
 check(Registry.Items["honey_lavender"] ~= nil, "generated honey_lavender")
-check(Registry.Items["wine_grape"] and Registry.Items["wine_grape"].Value == Registry.Items.grape.Value * 3, "wine value formula")
+check(
+	Registry.Items["wine_grape"] and Registry.Items["wine_grape"].Value == Registry.Items.grape.Value * 3,
+	"wine value formula"
+)
 check(Registry.Matches("strawberry", "#Fruit"), "strawberry is fruit")
 check(not Registry.Matches("carrot", "#Fruit"), "carrot isn't fruit")
 check(Registry.Matches("starfruit", "@Rare"), "starfruit is Rare+")
@@ -164,7 +179,10 @@ for _, crop in Crops.List do
 	check(obtainable, crop.Id .. ": no way to obtain seeds")
 end
 for _, hybrid in Crops.Hybrids do
-	check(Registry.Crops[hybrid.A] and Registry.Crops[hybrid.B] and Registry.Crops[hybrid.Result], "hybrid crops exist " .. hybrid.Result)
+	check(
+		Registry.Crops[hybrid.A] and Registry.Crops[hybrid.B] and Registry.Crops[hybrid.Result],
+		"hybrid crops exist " .. hybrid.Result
+	)
 	check(hybrid.Weather == nil or Weather.Types[hybrid.Weather] ~= nil, "hybrid weather " .. tostring(hybrid.Weather))
 end
 for _, comp in Soil.Companions do
@@ -305,7 +323,11 @@ for _, p in Placeables.List do
 	if p.Function and p.Function.Kind == "Machine" then
 		check(Registry.Machines[p.Function.Machine] ~= nil, "placeable machine " .. p.Id)
 	end
-	local obtainable = p.Price ~= nil or craftable[p.Id] or sold[p.Id] or p.Category == "Trophy" or p.Category == "Seasonal"
+	local obtainable = p.Price ~= nil
+		or craftable[p.Id]
+		or sold[p.Id]
+		or p.Category == "Trophy"
+		or p.Category == "Seasonal"
 	if not obtainable then
 		-- Also obtainable from festival shops / NPC rewards.
 		for _, festival in Festivals.List do
@@ -357,10 +379,15 @@ for _, npc in NPCs.List do
 	end
 	for listName, list in npc.Schedule do
 		for _, entry in list do
-			check(waypointValid(entry[2]), npc.Id .. " schedule " .. listName .. ": unknown waypoint " .. tostring(entry[2]))
+			check(
+				waypointValid(entry[2]),
+				npc.Id .. " schedule " .. listName .. ": unknown waypoint " .. tostring(entry[2])
+			)
 		end
 	end
-	for _, key in { "Stranger", "Acquaintance", "Friend", "Close", "Love", "Like", "Neutral", "Dislike", "Hate", "Birthday" } do
+	for _, key in
+		{ "Stranger", "Acquaintance", "Friend", "Close", "Love", "Like", "Neutral", "Dislike", "Hate", "Birthday" }
+	do
 		check(npc.Lines[key] and #npc.Lines[key] > 0, npc.Id .. ": missing lines " .. key)
 	end
 	for _, event in npc.Events do
@@ -640,7 +667,10 @@ section("GameTime / Weather")
 do
 	local t = GameTime.FromReal(require(Config.Time).Epoch)
 	local info = GameTime.Info(t)
-	check(info.Day == 0 and math.abs(info.Hour - 6) < 1e-6 and info.SeasonId == "Spring" and info.Year == 1, "epoch = Spring 1, 6 AM")
+	check(
+		info.Day == 0 and math.abs(info.Hour - 6) < 1e-6 and info.SeasonId == "Spring" and info.Year == 1,
+		"epoch = Spring 1, 6 AM"
+	)
 	local later = GameTime.Info(t + GameTime.DAY * GameTime.SEASON_DAYS)
 	check(later.SeasonId == "Summer", "next season")
 	check(GameTime.Info(t + GameTime.YEAR_DAYS * GameTime.DAY).Year == 2, "next year")
@@ -670,9 +700,17 @@ do
 	check(ItemUtil.MutationMultiplier({ "Golden" }) == 3, "golden x3")
 	local mm = ItemUtil.MutationMultiplier({ "Golden", "Rainbow" })
 	check(math.abs(mm - 4 * (1 + 2 * Mutations.StackFalloff)) < 1e-9, "stack falloff " .. mm)
-	check(ItemUtil.MutationMultiplier({ "Celestial", "Glowing", "Moonkissed", "Astral", "Rainbow" }) <= Mutations.ValueCap, "value cap")
+	check(
+		ItemUtil.MutationMultiplier({ "Celestial", "Glowing", "Moonkissed", "Astral", "Rainbow" }) <= Mutations.ValueCap,
+		"value cap"
+	)
 	check(ItemUtil.UnitValue(ItemUtil.New("carrot", 1)) == Registry.Items.carrot.Value, "unit value base")
-	check(ItemUtil.Valid(a) and not ItemUtil.Valid({ Id = "nope", N = 1 }) and not ItemUtil.Valid({ Id = "carrot", N = 0 }), "stack validation")
+	check(
+		ItemUtil.Valid(a)
+			and not ItemUtil.Valid({ Id = "nope", N = 1 })
+			and not ItemUtil.Valid({ Id = "carrot", N = 0 }),
+		"stack validation"
+	)
 	local last = -1
 	for score = 0, 100 do
 		local tier = QualityMath.TierFor(score / 100)
@@ -700,15 +738,18 @@ do
 		total += p
 	end
 	check(math.abs(total - 1) < 1e-9, "coat odds sum to 1")
-	local golden = { Coat = { "golden", "golden" }, Pattern = { "plain", "plain" }, Size = 5, Yield = 5, Temper = 5, Speed = 5 }
+	local golden =
+		{ Coat = { "golden", "golden" }, Pattern = { "plain", "plain" }, Size = 5, Yield = 5, Temper = 5, Speed = 5 }
 	check(Genetics.Phenotype("chicken", golden).Coat.Id == "golden", "homozygous recessive shows")
-	local carrier = { Coat = { "white", "golden" }, Pattern = { "plain", "plain" }, Size = 5, Yield = 5, Temper = 5, Speed = 5 }
+	local carrier =
+		{ Coat = { "white", "golden" }, Pattern = { "plain", "plain" }, Size = 5, Yield = 5, Temper = 5, Speed = 5 }
 	check(Genetics.Phenotype("chicken", carrier).Coat.Id == "white", "carrier hides recessive")
 	local o = Genetics.BreedOdds("chicken", carrier, carrier)
 	check(math.abs((o.Coat.golden or 0) - 0.25) < 1e-9, "carrier x carrier = 25% golden")
 	check(Genetics.Hybrid("sunflower", "wheat") ~= nil, "hybrid lookup either order")
 	for _ = 1, 50 do
-		local child = Genetics.Breed("cow", Genetics.RandomAnimal("cow", random), Genetics.RandomAnimal("cow", random), random)
+		local child =
+			Genetics.Breed("cow", Genetics.RandomAnimal("cow", random), Genetics.RandomAnimal("cow", random), random)
 		check(Genetics.ValidAnimal("cow", child), "bred genes valid")
 	end
 end
@@ -804,10 +845,17 @@ end
 
 section("Stats")
 do
-	local profile = { Skills = { Farming = { XP = 5000, Nodes = { green_thumb = 2 } } }, Friendship = { pip = { Pts = 800 } }, Farm = { House = 2 } }
+	local profile = {
+		Skills = { Farming = { XP = 5000, Nodes = { green_thumb = 2 } } },
+		Friendship = { pip = { Pts = 800 } },
+		Farm = { House = 2 },
+	}
 	local level = Stats.SkillLevel(profile, "Farming")
 	check(level > 5, "farming level from xp " .. level)
-	check(math.abs(Stats.Effect(profile, "GrowthSpeed") - (0.08 + 0.003 * (level - 1))) < 1e-9, "growth effect sums ranks + passive")
+	check(
+		math.abs(Stats.Effect(profile, "GrowthSpeed") - (0.08 + 0.003 * (level - 1))) < 1e-9,
+		"growth effect sums ranks + passive"
+	)
 	check(Stats.Hearts(profile, "pip") == 3, "hearts")
 	check(Stats.ShopDiscount(profile, "general") == 0.05, "pip discount at 3 hearts")
 	check(Stats.EstateLevel({ Skills = {} }) == 1, "estate level starts at 1")
@@ -834,7 +882,17 @@ do
 	end
 	check(giantCrop ~= nil, "giant crop contest exists")
 	local plain = { Kind = "Item", Stack = { Id = "pumpkin", N = 1, S = Registry.Crops.pumpkin.Size[1] } }
-	local prize = { Kind = "Item", Stack = { Id = "pumpkin", N = 1, Q = 6, S = Registry.Crops.pumpkin.Size[1] + Registry.Crops.pumpkin.Size[2] * 3, M = { "Golden" }, U = "sp1" } }
+	local prize = {
+		Kind = "Item",
+		Stack = {
+			Id = "pumpkin",
+			N = 1,
+			Q = 6,
+			S = Registry.Crops.pumpkin.Size[1] + Registry.Crops.pumpkin.Size[2] * 3,
+			M = { "Golden" },
+			U = "sp1",
+		},
+	}
 	check(ContestMath.Accepts(giantCrop, plain), "crops are accepted in the giant crop contest")
 	check(not ContestMath.Accepts(giantCrop, { Kind = "Item", Stack = { Id = "wood", N = 1 } }), "wood isn't a crop")
 	local low, lowPoints = ContestMath.Score(giantCrop, plain)
@@ -846,7 +904,10 @@ do
 		sum += pts
 	end
 	check(math.abs(sum - low) < 0.6, "breakdown points add up to the total")
-	local animal = { Kind = "Animal", Animal = { Sp = "cow", Hap = 100, Fr = 1000, G = Genetics.RandomAnimal("cow", Random.new(3)) } }
+	local animal = {
+		Kind = "Animal",
+		Animal = { Sp = "cow", Hap = 100, Fr = 1000, G = Genetics.RandomAnimal("cow", Random.new(3)) },
+	}
 	local livestock = Festivals.List[2].Activities[1]
 	check(ContestMath.Accepts(livestock, animal), "animals enter the livestock show")
 	local score = ContestMath.Score(livestock, animal)
@@ -870,7 +931,15 @@ table.sort(rows, function(a, b)
 	return a[2] < b[2]
 end)
 for _, row in rows do
-	print(string.format("    %-18s %8.1f/min%s  %s", row[1], row[2], if row[3] then string.format("  regrow %6.1f/min", row[3]) else "", row[4]))
+	print(
+		string.format(
+			"    %-18s %8.1f/min%s  %s",
+			row[1],
+			row[2],
+			if row[3] then string.format("  regrow %6.1f/min", row[3]) else "",
+			row[4]
+		)
+	)
 end
 
 if #__warnings > 0 then

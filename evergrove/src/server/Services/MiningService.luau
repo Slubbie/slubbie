@@ -435,12 +435,20 @@ function MiningService.Hit(player: Player, nid: string, family: string): (boolea
 	node.Hitters[player] = os.clock()
 	local character = player.Character
 	if character then
-		character:SetAttribute("Act", (if def.Kind == "Tree" then "Chop" else "Mine") .. "@" .. string.format("%.2f", os.clock()))
+		character:SetAttribute(
+			"Act",
+			(if def.Kind == "Tree" then "Chop" else "Mine") .. "@" .. string.format("%.2f", os.clock())
+		)
 	end
 	if node.Model then
 		node.Model:SetAttribute("HP", node.HP)
 	end
-	S.Notify.FX(node.Position, "NodeHit", { Nid = nid, HP = node.HP, Max = def.HP, Crit = crit, Kind = def.Kind, By = player.UserId }, 150)
+	S.Notify.FX(
+		node.Position,
+		"NodeHit",
+		{ Nid = nid, HP = node.HP, Max = def.HP, Crit = crit, Kind = def.Kind, By = player.UserId },
+		150
+	)
 	if node.HP <= 0 then
 		deplete(player, node)
 	end

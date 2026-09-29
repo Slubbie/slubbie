@@ -114,7 +114,13 @@ function Models.Placeable(def: any, record: any?): Model
 		end
 	else
 		warn("[Evergrove] No model builder named", def.Model, "for", def.Id)
-		Kit.Box(model, Vector3.new(w * 0.9, h, d * 0.9), CFrame.new(0, h / 2, 0), Kit.C.Wood, { Paint = true, Mat = true })
+		Kit.Box(
+			model,
+			Vector3.new(w * 0.9, h, d * 0.9),
+			CFrame.new(0, h / 2, 0),
+			Kit.C.Wood,
+			{ Paint = true, Mat = true }
+		)
 	end
 	if record then
 		local color = if def.Paint then Models.ColorOf(record.C) else nil

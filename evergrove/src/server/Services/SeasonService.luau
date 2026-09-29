@@ -47,7 +47,10 @@ local function announce(info)
 		if dormant > 0 then
 			S.Notify.Toast(
 				player,
-				string.format("%d of your crops are out of season and have gone dormant. A greenhouse keeps them growing.", dormant),
+				string.format(
+					"%d of your crops are out of season and have gone dormant. A greenhouse keeps them growing.",
+					dormant
+				),
 				"Warning"
 			)
 		end

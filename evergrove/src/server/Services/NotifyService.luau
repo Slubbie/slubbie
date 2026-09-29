@@ -17,7 +17,12 @@ end
 
 -- Big centred banner (quest complete, festival start...).
 function NotifyService.Banner(player: Player, title: string, subtitle: string?, style: string?, icon: string?)
-	Net.Fire(player, "Notify", "Banner", { Title = title, Subtitle = subtitle, Style = style or "Default", Icon = icon })
+	Net.Fire(
+		player,
+		"Notify",
+		"Banner",
+		{ Title = title, Subtitle = subtitle, Style = style or "Default", Icon = icon }
+	)
 end
 
 function NotifyService.BannerAll(title: string, subtitle: string?, style: string?, icon: string?)
@@ -27,7 +32,12 @@ end
 -- Items/coins gained: animated pops that fly to the inventory/currency.
 -- items: { { Id, N, Q?, M? } }
 function NotifyService.Reward(player: Player, items: { any }?, coins: number?, source: string?, position: Vector3?)
-	Net.Fire(player, "Notify", "Reward", { Items = items or {}, Coins = coins or 0, Source = source, Position = position })
+	Net.Fire(
+		player,
+		"Notify",
+		"Reward",
+		{ Items = items or {}, Coins = coins or 0, Source = source, Position = position }
+	)
 end
 
 function NotifyService.Coins(player: Player, amount: number, reason: string?)

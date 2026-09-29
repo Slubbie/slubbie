@@ -98,7 +98,9 @@ local EXTRA_TAGS: { [string]: { string } } = {
 
 local function register(def: any, source: string)
 	if Registry.Items[def.Id] then
-		error(string.format("[Registry] duplicate item id '%s' (%s vs %s)", def.Id, Registry.Items[def.Id].Source, source))
+		error(
+			string.format("[Registry] duplicate item id '%s' (%s vs %s)", def.Id, Registry.Items[def.Id].Source, source)
+		)
 	end
 	local tagSet = {}
 	local tagList = {}
@@ -207,11 +209,7 @@ for _, crop in Crops.List do
 		Rarity = crop.Rarity,
 		Value = seedValue,
 		Tags = { "Seed" },
-		Description = string.format(
-			"Grows %s. Season: %s.",
-			crop.Name,
-			table.concat(crop.Seasons, ", ")
-		),
+		Description = string.format("Grows %s. Season: %s.", crop.Name, table.concat(crop.Seasons, ", ")),
 		Use = "Plant",
 		Plants = crop.Id,
 	}, "Crops")
@@ -520,7 +518,9 @@ function Registry.MachineRecipe(machineId: string, inputId: string): (any?, stri
 	end
 	for pass = 1, 2 do
 		for _, recipe in machine.Recipes do
-			local matches = if pass == 1 then recipe.In.Id == inputId else (recipe.In.Tag ~= nil and item.Tags[recipe.In.Tag] == true)
+			local matches = if pass == 1
+				then recipe.In.Id == inputId
+				else (recipe.In.Tag ~= nil and item.Tags[recipe.In.Tag] == true)
 			if matches then
 				local out = recipe.Out
 				if string.find(out, "%%s") then

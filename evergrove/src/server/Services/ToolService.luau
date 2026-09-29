@@ -260,7 +260,7 @@ local function doWater(player, target, opts)
 		return
 	end
 	local tiles = area(gx, gz, chosenSize(opts, tier.MaxArea, player))
-	if not S.Player.SpendEnergy(player, energyFor(player, family, tier, #tiles), false) then
+	if not S.Player.SpendEnergy(player, energyFor(player, family, tier, #tiles), "Water") then
 		result(player, 0, "Too tired")
 		return
 	end
@@ -491,7 +491,11 @@ local function doPowered(player, target, opts, stack: ItemUtil.Stack)
 		result(player, 0, "Too far away")
 		return
 	end
-	local farm, gx, gz, reason = farmAction(player, target, if mode == "Harvest" then "Harvest" elseif mode == "Water" then "Crops" else "Trusted")
+	local farm, gx, gz, reason = farmAction(
+		player,
+		target,
+		if mode == "Harvest" then "Harvest" elseif mode == "Water" then "Crops" else "Trusted"
+	)
 	if not farm then
 		result(player, 0, reason)
 		return
@@ -596,7 +600,7 @@ local function toolUse(player: Player, itemId: string, target: Vector3, opts: an
 		elseif family == "net" then
 			actAnimation(player, "Net")
 			local tier = ToolService.TierDef(player, "net")
-			S.Player.SpendEnergy(player, tier.Energy, true)
+			S.Player.SpendEnergy(player, tier.Energy, "Net")
 		elseif family == "rod" then
 			-- Casting goes through FishCast; this is just the animation for others.
 			actAnimation(player, "Cast")
@@ -667,7 +671,13 @@ local function upgrade(player: Player, familyId: string)
 	setHeld(player)
 	S.Data.AddStat(player, "ToolUpgrades")
 	S.Quest.Progress(player, "Upgrade", familyId, 1)
-	S.Notify.Banner(player, nextTier.Name .. " " .. family.Name .. "!", nextTier.Ability or "Bigger area and less effort.", "Upgrade", family.Icon)
+	S.Notify.Banner(
+		player,
+		nextTier.Name .. " " .. family.Name .. "!",
+		nextTier.Ability or "Bigger area and less effort.",
+		"Upgrade",
+		family.Icon
+	)
 	return true, current + 1
 end
 

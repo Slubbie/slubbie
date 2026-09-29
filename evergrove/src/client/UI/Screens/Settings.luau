@@ -40,7 +40,8 @@ return {
 		local current = (ctx.Args and ctx.Args.Tab) or SettingsConfig.Tabs[1]
 		local render: () -> ()
 		local tabList = {}
-		local icons = { Graphics = "🖥️", Audio = "🔊", Interface = "🧩", Accessibility = "♿", Gameplay = "🎮" }
+		local icons =
+			{ Graphics = "🖥️", Audio = "🔊", Interface = "🧩", Accessibility = "♿", Gameplay = "🎮" }
 		for _, tab in SettingsConfig.Tabs do
 			table.insert(tabList, { Id = tab, Label = tab, Icon = icons[tab] })
 		end
@@ -50,13 +51,19 @@ return {
 			render()
 		end)
 		tabs.Frame.Parent = content
-		local body = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -46), Position = UDim2.fromOffset(0, 46), Parent = content })
+		local body = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 1, -46),
+			Position = UDim2.fromOffset(0, 46),
+			Parent = content,
+		})
 
 		local function renderControls()
 			local list = Kit.Scroll({ Size = UDim2.fromScale(1, 1) })
 			list.Parent = body
 			Kit.List(list, "Y", 4)
-			local header = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 24), Parent = list })
+			local header =
+				Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 24), Parent = list })
 			for i, text in { "Action", "Keyboard & mouse", "Gamepad", "Touch" } do
 				local l = Kit.Label(text, { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
 				l.Size = UDim2.new(0.25, 0, 1, 0)
@@ -64,7 +71,12 @@ return {
 				l.Parent = header
 			end
 			for i, row in CONTROLS do
-				local r = Kit.new("Frame", { BackgroundTransparency = if i % 2 == 0 then 1 else 0.85, Size = UDim2.new(1, -8, 0, 26), LayoutOrder = i, Parent = list })
+				local r = Kit.new("Frame", {
+					BackgroundTransparency = if i % 2 == 0 then 1 else 0.85,
+					Size = UDim2.new(1, -8, 0, 26),
+					LayoutOrder = i,
+					Parent = list,
+				})
 				Kit.Paint(r, "BackgroundColor3", "PanelAlt")
 				Kit.Corner(r, 6)
 				for j, text in row do
@@ -74,7 +86,10 @@ return {
 					l.Parent = r
 				end
 			end
-			local build = Kit.Label("Build mode: click to place · R rotate · T free placement · G snap · [ ] size · PgUp/PgDn lift · Ctrl+Z / Ctrl+Y undo/redo · Ctrl+D duplicate · I copy style · Delete pick up · Z/X turn camera.", { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+			local build = Kit.Label(
+				"Build mode: click to place · R rotate · T free placement · G snap · [ ] size · PgUp/PgDn lift · Ctrl+Z / Ctrl+Y undo/redo · Ctrl+D duplicate · I copy style · Delete pick up · Z/X turn camera.",
+				{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+			)
 			build.LayoutOrder = 100
 			build.Parent = list
 		end
@@ -124,10 +139,15 @@ return {
 					row.Parent = list
 				end
 			end
-			local reset = Kit.Button("Reset " .. current .. " to defaults", { Style = "Secondary", Size = UDim2.fromOffset(260, 36), TextSize = Theme.Sizes.Small, OnClick = function()
-				C.Settings.ResetTab(current)
-				task.delay(0.1, render)
-			end })
+			local reset = Kit.Button("Reset " .. current .. " to defaults", {
+				Style = "Secondary",
+				Size = UDim2.fromOffset(260, 36),
+				TextSize = Theme.Sizes.Small,
+				OnClick = function()
+					C.Settings.ResetTab(current)
+					task.delay(0.1, render)
+				end,
+			})
 			reset.Position = UDim2.new(0, 0, 1, -38)
 			reset.Parent = body
 			Kit.RepaintGradients(body)

@@ -51,7 +51,10 @@ function Notify.Toast(text: string, kind: string?)
 	card.AutomaticSize = Enum.AutomaticSize.Y
 	card.LayoutOrder = -os.clock() * 1000
 	Kit.Padding(card, 8, 10)
-	local accent = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.new(0, 4, 1, 0), Position = UDim2.fromOffset(-10, 0), Parent = card })
+	local accent = Kit.new(
+		"Frame",
+		{ BorderSizePixel = 0, Size = UDim2.new(0, 4, 1, 0), Position = UDim2.fromOffset(-10, 0), Parent = card }
+	)
 	Kit.Paint(accent, "BackgroundColor3", style.Key)
 	local label = Kit.Label(style.Icon .. "  " .. text, { Wrap = true, Size = Theme.Sizes.Small, Rich = false })
 	label.Parent = card
@@ -100,10 +103,16 @@ local function runBanner(title: string, subtitle: string?, icon: string?, style:
 	panel.Position = UDim2.new(0.5, 0, 0, 0)
 	Kit.Padding(panel, 14, 22)
 	Kit.List(panel, "Y", 4, "Center")
-	local ribbon = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.new(1, 44, 0, 6), Position = UDim2.fromOffset(-22, -14), Parent = panel })
+	local ribbon = Kit.new(
+		"Frame",
+		{ BorderSizePixel = 0, Size = UDim2.new(1, 44, 0, 6), Position = UDim2.fromOffset(-22, -14), Parent = panel }
+	)
 	Kit.Paint(ribbon, "BackgroundColor3", if style == "Legend" or style == "Festival" then "Accent" else "HeaderA")
 	Kit.Gradient(ribbon, "HeaderA", "Accent", 0)
-	local t = Kit.Label((icon and icon .. "  " or "") .. title, { Size = 28, Font = Theme.Fonts.Heading, Align = "Center", Wrap = true })
+	local t = Kit.Label(
+		(icon and icon .. "  " or "") .. title,
+		{ Size = 28, Font = Theme.Fonts.Heading, Align = "Center", Wrap = true }
+	)
 	t.Parent = panel
 	if subtitle and subtitle ~= "" then
 		local s = Kit.Label(subtitle, { Size = Theme.Sizes.Body, Align = "Center", Color = "SubText", Wrap = true })
@@ -112,7 +121,9 @@ local function runBanner(title: string, subtitle: string?, icon: string?, style:
 	end
 	panel.Parent = bannerHost
 	Kit.Pop(panel, 0.6)
-	C.Audio.PlayUI(if style == "Legend" then "LegendaryReveal" elseif style == "Region" then "Chime" else "QuestComplete")
+	C.Audio.PlayUI(
+		if style == "Legend" then "LegendaryReveal" elseif style == "Region" then "Chime" else "QuestComplete"
+	)
 	task.delay(duration or 4.5, function()
 		Kit.PopOut(panel, function()
 			panel:Destroy()
@@ -177,8 +188,19 @@ function Notify.ItemPop(stack: any)
 	if stroke then
 		stroke.Color = Theme.RarityColor(rarity)
 	end
-	Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(34, 34), Position = UDim2.fromOffset(4, 3), Text = def.Icon or "📦", TextScaled = true, Font = Theme.Fonts.Body, Parent = card })
-	local text = Kit.Label("+" .. Format.Commas(stack.N) .. "  " .. ItemUtil.DisplayName(stack), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
+	Kit.new("TextLabel", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(34, 34),
+		Position = UDim2.fromOffset(4, 3),
+		Text = def.Icon or "📦",
+		TextScaled = true,
+		Font = Theme.Fonts.Body,
+		Parent = card,
+	})
+	local text = Kit.Label(
+		"+" .. Format.Commas(stack.N) .. "  " .. ItemUtil.DisplayName(stack),
+		{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+	)
 	text.Name = "Text"
 	text.Size = UDim2.new(1, -46, 1, 0)
 	text.Position = UDim2.fromOffset(42, 0)
@@ -236,7 +258,13 @@ end
 function Notify.LevelUp(payload: any)
 	local skill = Registry.Skills[payload.Skill]
 	local name = if skill then skill.Name else payload.Skill
-	Notify.Banner((if skill then skill.Icon .. " " else "") .. name .. " level " .. payload.Level .. "!", "You earned a skill point. Open Skills (K) to spend it.", nil, "LevelUp", 4)
+	Notify.Banner(
+		(if skill then skill.Icon .. " " else "") .. name .. " level " .. payload.Level .. "!",
+		"You earned a skill point. Open Skills (K) to spend it.",
+		nil,
+		"LevelUp",
+		4
+	)
 	C.Audio.PlayUI("LevelUp")
 	C.FX.LevelUpBurst()
 end
@@ -255,7 +283,14 @@ function Notify.Achievement(id: string)
 	card.AnchorPoint = Vector2.new(0.5, 1)
 	card.Position = UDim2.new(0.5, 0, 1, -150)
 	Kit.Padding(card, 8, 12)
-	Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(52, 52), Text = def.Icon or "🏅", TextScaled = true, Font = Theme.Fonts.Body, Parent = card })
+	Kit.new("TextLabel", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(52, 52),
+		Text = def.Icon or "🏅",
+		TextScaled = true,
+		Font = Theme.Fonts.Body,
+		Parent = card,
+	})
 	local title = Kit.Label("Achievement unlocked", { Size = Theme.Sizes.Tiny, Color = "SubText" })
 	title.Position = UDim2.fromOffset(62, 2)
 	title.Size = UDim2.new(1, -62, 0, 16)
@@ -287,7 +322,10 @@ function Notify.Quest(payload: any)
 		C.Audio.PlayUI("Notification")
 	elseif payload.Event == "Ready" then
 		local npc = payload.TurnIn and Registry.Npcs[payload.TurnIn]
-		Notify.Toast("✔️ " .. name .. " is ready to turn in" .. (if npc then " to " .. npc.Name else "") .. "!", "Success")
+		Notify.Toast(
+			"✔️ " .. name .. " is ready to turn in" .. (if npc then " to " .. npc.Name else "") .. "!",
+			"Success"
+		)
 	elseif payload.Event == "Completed" then
 		Notify.Banner("Quest complete!", name, "📜", "Quest", 3.5)
 	end
@@ -312,12 +350,32 @@ end
 
 function Notify.Init()
 	local overlay = C.UI.Layer("Overlay")
-	toastColumn = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(330, 400), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -14, 0, 112), Name = "Toasts", Parent = overlay })
+	toastColumn = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(330, 400),
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -14, 0, 112),
+		Name = "Toasts",
+		Parent = overlay,
+	})
 	Kit.List(toastColumn, "Y", 6)
-	bannerHost = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 200), Position = UDim2.fromOffset(0, 70), Name = "Banners", Parent = overlay })
+	bannerHost = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 200),
+		Position = UDim2.fromOffset(0, 70),
+		Name = "Banners",
+		Parent = overlay,
+	})
 	-- Reward pops sit bottom-right, left of the touch buttons on phones and tablets.
 	local touch = C.Settings.PrimaryInput() == "Touch"
-	popColumn = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(260, 320), AnchorPoint = Vector2.new(1, 1), Position = if touch then UDim2.new(1, -380, 1, -120) else UDim2.new(1, -14, 1, -120), Name = "Pops", Parent = overlay })
+	popColumn = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(260, 320),
+		AnchorPoint = Vector2.new(1, 1),
+		Position = if touch then UDim2.new(1, -380, 1, -120) else UDim2.new(1, -14, 1, -120),
+		Name = "Pops",
+		Parent = overlay,
+	})
 	local popLayout = Kit.List(popColumn, "Y", 4)
 	popLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	captionLabel = Kit.new("TextLabel", {
@@ -374,7 +432,11 @@ function Notify.Init()
 	Net.On("Festival", function(kind: string, payload: any)
 		if kind == "End" then
 			local def = payload and Registry.Festivals[payload.Id]
-			Notify.Toast((if def then def.Icon .. " " .. def.Name else "The festival") .. " has ended. Winners get their prizes by mail!", "Info")
+			Notify.Toast(
+				(if def then def.Icon .. " " .. def.Name else "The festival")
+					.. " has ended. Winners get their prizes by mail!",
+				"Info"
+			)
 		end
 		C.Windows.Refresh("Festival")
 		C.Windows.Refresh("Calendar")

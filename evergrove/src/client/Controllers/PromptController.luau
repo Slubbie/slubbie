@@ -21,7 +21,12 @@ local PromptController = {}
 local player = Players.LocalPlayer
 local cards: { [ProximityPrompt]: BillboardGui } = {}
 
-local GAMEPAD_GLYPHS = { [Enum.KeyCode.ButtonX] = "Ⓧ", [Enum.KeyCode.ButtonA] = "Ⓐ", [Enum.KeyCode.ButtonY] = "Ⓨ", [Enum.KeyCode.ButtonB] = "Ⓑ" }
+local GAMEPAD_GLYPHS = {
+	[Enum.KeyCode.ButtonX] = "Ⓧ",
+	[Enum.KeyCode.ButtonA] = "Ⓐ",
+	[Enum.KeyCode.ButtonY] = "Ⓨ",
+	[Enum.KeyCode.ButtonB] = "Ⓑ",
+}
 
 local function held(): string?
 	local character = player.Character
@@ -72,7 +77,11 @@ routes.Water = function(prompt)
 	elseif def and def.Tool == "rod" then
 		C.Fishing.Cast(position)
 	else
-		C.Notify.Toast("Hold your watering can to refill it" .. (if prompt:GetAttribute("Water") == "Pond" then ", or your rod to fish" else ""), "Info")
+		C.Notify.Toast(
+			"Hold your watering can to refill it"
+				.. (if prompt:GetAttribute("Water") == "Pond" then ", or your rod to fish" else ""),
+			"Info"
+		)
 	end
 end
 routes.Display = function()
@@ -147,7 +156,11 @@ routes.Dig = function(_, target)
 end
 routes.Festival = function(prompt)
 	C.Animation.Play("Pick")
-	request("FestivalAction", "Find", { Activity = prompt:GetAttribute("Activity"), Index = prompt:GetAttribute("Index") })
+	request(
+		"FestivalAction",
+		"Find",
+		{ Activity = prompt:GetAttribute("Activity"), Index = prompt:GetAttribute("Index") }
+	)
 end
 
 -- Run a route without a prompt (e.g. swinging the net at a bug).
@@ -192,12 +205,23 @@ local function showCard(prompt: ProximityPrompt, inputType: Enum.ProximityPrompt
 	gui.LightInfluence = 0
 	gui.Active = true
 	gui.Adornee = prompt.Parent :: any
-	local card = Kit.new("TextButton", { AutoButtonColor = false, Text = "", BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Parent = gui })
+	local card = Kit.new(
+		"TextButton",
+		{ AutoButtonColor = false, Text = "", BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Parent = gui }
+	)
 	Kit.Paint(card, "BackgroundColor3", "Panel")
 	card.BackgroundTransparency = 0.08
 	Kit.Corner(card, 12)
 	Kit.Stroke(card, "Stroke", 1.5)
-	local key = Kit.new("TextLabel", { BorderSizePixel = 0, Size = UDim2.fromOffset(36, 36), Position = UDim2.fromOffset(7, 7), Font = Theme.Fonts.Bold, TextSize = 18, Text = keyText(prompt, inputType), Parent = card })
+	local key = Kit.new("TextLabel", {
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(36, 36),
+		Position = UDim2.fromOffset(7, 7),
+		Font = Theme.Fonts.Bold,
+		TextSize = 18,
+		Text = keyText(prompt, inputType),
+		Parent = card,
+	})
 	Kit.Paint(key, "BackgroundColor3", "HeaderA")
 	Kit.Paint(key, "TextColor3", "HeaderText")
 	Kit.Corner(key, 8)

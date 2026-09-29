@@ -35,17 +35,24 @@ return {
 				if have then
 					count += 1
 				end
-				local b = Kit.Button(if have then "📜 " .. page.Title else "❔ ???", { Style = if selected == page.Id then "Primary" else "Secondary", Size = UDim2.new(1, -8, 0, 34), TextSize = Theme.Sizes.Tiny, LayoutOrder = i, OnClick = function()
-					if have then
-						selected = page.Id
-						render()
-					end
-				end })
+				local b = Kit.Button(if have then "📜 " .. page.Title else "❔ ???", {
+					Style = if selected == page.Id then "Primary" else "Secondary",
+					Size = UDim2.new(1, -8, 0, 34),
+					TextSize = Theme.Sizes.Tiny,
+					LayoutOrder = i,
+					OnClick = function()
+						if have then
+							selected = page.Id
+							render()
+						end
+					end,
+				})
 				b.TextXAlignment = Enum.TextXAlignment.Left
 				Kit.Padding(b, 0, 10)
 				b.Parent = list
 			end
-			local header = Kit.Label(count .. " / " .. #Secrets.Lore .. " pages", { Size = Theme.Sizes.Tiny, Color = "SubText" })
+			local header =
+				Kit.Label(count .. " / " .. #Secrets.Lore .. " pages", { Size = Theme.Sizes.Tiny, Color = "SubText" })
 			header.LayoutOrder = 0
 			header.Parent = list
 			local page = nil
@@ -54,7 +61,8 @@ return {
 					page = p
 				end
 			end
-			local paper = Kit.Panel({ Size = UDim2.new(1, -242, 1, 0), Position = UDim2.fromOffset(242, 0), Color = "Inset" })
+			local paper =
+				Kit.Panel({ Size = UDim2.new(1, -242, 1, 0), Position = UDim2.fromOffset(242, 0), Color = "Inset" })
 			paper.Parent = content
 			Kit.Padding(paper, 22, 26)
 			Kit.List(paper, "Y", 14)
@@ -64,7 +72,11 @@ return {
 				text.LayoutOrder = 1
 				text.Parent = paper
 			else
-				Kit.Label("Lore pages are hidden around the valley: behind secrets, in old ruins, under full moons. Each tells a little of Evergrove's story.", { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }).Parent = paper
+				Kit.Label(
+					"Lore pages are hidden around the valley: behind secrets, in old ruins, under full moons. Each tells a little of Evergrove's story.",
+					{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+				).Parent =
+					paper
 			end
 			Kit.RepaintGradients(content)
 		end

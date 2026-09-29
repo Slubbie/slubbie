@@ -54,13 +54,32 @@ return {
 				local card = Kit.Card(96)
 				card.LayoutOrder = i
 				card.Parent = list
-				local icon = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(56, 56), Position = UDim2.fromOffset(0, 8), Text = family.Icon, TextScaled = true, Font = Theme.Fonts.Body, Parent = card })
+				local icon = Kit.new("TextLabel", {
+					BackgroundTransparency = 1,
+					Size = UDim2.fromOffset(56, 56),
+					Position = UDim2.fromOffset(0, 8),
+					Text = family.Icon,
+					TextScaled = true,
+					Font = Theme.Fonts.Body,
+					Parent = card,
+				})
 				icon.TextColor3 = tier.Color
-				local name = Kit.Label(tier.Name .. " " .. family.Name .. "  " .. string.rep("★", tierIndex) .. string.rep("☆", #family.Tiers - tierIndex), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
+				local name = Kit.Label(
+					tier.Name
+						.. " "
+						.. family.Name
+						.. "  "
+						.. string.rep("★", tierIndex)
+						.. string.rep("☆", #family.Tiers - tierIndex),
+					{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+				)
 				name.Position = UDim2.fromOffset(66, 0)
 				name.Size = UDim2.new(0.5, -66, 0, 20)
 				name.Parent = card
-				local now = Kit.Label(tierSummary(tier) .. (if tier.Ability then "\n✨ " .. tier.Ability else ""), { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+				local now = Kit.Label(
+					tierSummary(tier) .. (if tier.Ability then "\n✨ " .. tier.Ability else ""),
+					{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+				)
 				now.Position = UDim2.fromOffset(66, 22)
 				now.Size = UDim2.new(0.5, -66, 0, 0)
 				now.Parent = card
@@ -77,19 +96,36 @@ return {
 						table.insert(mats, (if def then def.Icon else mat.Id) .. " " .. have .. "/" .. mat.N)
 					end
 					local skillOk = Stats.SkillLevel(profile, family.Skill) >= nextTier.Level
-					local nextText = "Next: " .. nextTier.Name .. " — " .. tierSummary(nextTier) .. (if nextTier.Ability then "\n✨ " .. nextTier.Ability else "") .. "\n" .. Kit.Money(price) .. "  " .. table.concat(mats, "  ") .. (if skillOk then "" else "   🔒 " .. family.Skill .. " " .. nextTier.Level)
-					local nextLabel = Kit.Label(nextText, { Size = Theme.Sizes.Tiny, Wrap = true, Color = if skillOk then "Text" else "Warn" })
+					local nextText = "Next: "
+						.. nextTier.Name
+						.. " — "
+						.. tierSummary(nextTier)
+						.. (if nextTier.Ability then "\n✨ " .. nextTier.Ability else "")
+						.. "\n"
+						.. Kit.Money(price)
+						.. "  "
+						.. table.concat(mats, "  ")
+						.. (if skillOk then "" else "   🔒 " .. family.Skill .. " " .. nextTier.Level)
+					local nextLabel = Kit.Label(
+						nextText,
+						{ Size = Theme.Sizes.Tiny, Wrap = true, Color = if skillOk then "Text" else "Warn" }
+					)
 					nextLabel.Position = UDim2.new(0.5, 0, 0, 0)
 					nextLabel.Size = UDim2.new(0.5, -130, 0, 0)
 					nextLabel.Parent = card
-					local upgrade = Kit.Button("Upgrade", { Style = "Accent", Size = UDim2.fromOffset(120, 38), TextSize = Theme.Sizes.Small, OnClick = function()
-						local ok, err = Net.Request("ToolUpgrade", family.Id)
-						if ok then
-							C.Audio.PlayUI("LevelUp")
-						else
-							C.Notify.Toast(tostring(err), "Warning")
-						end
-					end })
+					local upgrade = Kit.Button("Upgrade", {
+						Style = "Accent",
+						Size = UDim2.fromOffset(120, 38),
+						TextSize = Theme.Sizes.Small,
+						OnClick = function()
+							local ok, err = Net.Request("ToolUpgrade", family.Id)
+							if ok then
+								C.Audio.PlayUI("LevelUp")
+							else
+								C.Notify.Toast(tostring(err), "Warning")
+							end
+						end,
+					})
 					upgrade.Position = UDim2.new(1, -120, 0.5, -19)
 					upgrade.Parent = card
 					Kit.SetEnabled(upgrade, skillOk and haveAll and profile.Coins >= price)

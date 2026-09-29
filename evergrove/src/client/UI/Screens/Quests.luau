@@ -50,21 +50,40 @@ return {
 	Build = function(win, ctx)
 		local args = ctx.Args or {}
 		local content = win.Content :: Frame
-		local body = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -46), Position = UDim2.fromOffset(0, 46), Parent = content })
+		local body = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 1, -46),
+			Position = UDim2.fromOffset(0, 46),
+			Parent = content,
+		})
 		local current = args.Tab or "Active"
 		local selected: string? = args.Quest
 		local board: any = nil
 		local render: () -> ()
 
-		local function objectiveRows(parent: Instance, objectives: { any }, progress: { number }?, order: number): number
+		local function objectiveRows(
+			parent: Instance,
+			objectives: { any },
+			progress: { number }?,
+			order: number
+		): number
 			local profile = C.State.Data()
 			for i, objective in objectives do
 				local cur, goal = Describe.Progress(profile, objective, progress and progress[i])
-				local row = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), LayoutOrder = order + i, Parent = parent })
-				local label = Kit.Label((if cur >= goal then "☑ " else "☐ ") .. Describe.Objective(objective), { Size = Theme.Sizes.Small, Color = if cur >= goal then "Good" else "Text" })
+				local row = Kit.new("Frame", {
+					BackgroundTransparency = 1,
+					Size = UDim2.new(1, 0, 0, 40),
+					LayoutOrder = order + i,
+					Parent = parent,
+				})
+				local label = Kit.Label(
+					(if cur >= goal then "☑ " else "☐ ") .. Describe.Objective(objective),
+					{ Size = Theme.Sizes.Small, Color = if cur >= goal then "Good" else "Text" }
+				)
 				label.Size = UDim2.new(1, 0, 0, 20)
 				label.Parent = row
-				local bar = Kit.Progress({ Size = UDim2.new(1, 0, 0, 12), Color = if cur >= goal then "Good" else "Accent" })
+				local bar =
+					Kit.Progress({ Size = UDim2.new(1, 0, 0, 12), Color = if cur >= goal then "Good" else "Accent" })
 				bar.Frame.Position = UDim2.fromOffset(0, 22)
 				bar.Frame.Parent = row
 				bar.Set(cur / math.max(goal, 1), Format.Short(cur) .. " / " .. Format.Short(goal), false)
@@ -77,7 +96,10 @@ return {
 			if #lines == 0 then
 				return
 			end
-			local label = Kit.Label("🎁 " .. table.concat(lines, "   "), { Size = Theme.Sizes.Small, Color = "Accent", Wrap = true })
+			local label = Kit.Label(
+				"🎁 " .. table.concat(lines, "   "),
+				{ Size = Theme.Sizes.Small, Color = "Accent", Wrap = true }
+			)
 			label.LayoutOrder = order
 			label.Parent = parent
 		end
@@ -89,7 +111,8 @@ return {
 			local left = Kit.Scroll({ Size = UDim2.new(0.4, -6, 1, 0) })
 			left.Parent = body
 			Kit.List(left, "Y", 4)
-			local right = Kit.Panel({ Size = UDim2.new(0.6, -6, 1, 0), Position = UDim2.new(0.4, 6, 0, 0), Color = "PanelAlt" })
+			local right =
+				Kit.Panel({ Size = UDim2.new(0.6, -6, 1, 0), Position = UDim2.new(0.4, 6, 0, 0), Color = "PanelAlt" })
 			right.Parent = body
 			Kit.Padding(right, 12, 14)
 			local ids = {}
@@ -116,15 +139,30 @@ return {
 				local quest = Registry.Quests[questId]
 				local state = quests.Active[questId]
 				local tracked = table.find(quests.Tracked, questId) ~= nil
-				local row = Kit.new("TextButton", { AutoButtonColor = false, Text = "", Size = UDim2.new(1, -8, 0, 48), LayoutOrder = i, Selectable = true, Parent = left })
+				local row = Kit.new("TextButton", {
+					AutoButtonColor = false,
+					Text = "",
+					Size = UDim2.new(1, -8, 0, 48),
+					LayoutOrder = i,
+					Selectable = true,
+					Parent = left,
+				})
 				Kit.Paint(row, "BackgroundColor3", if questId == selected then "SlotHover" else "PanelAlt")
 				Kit.Corner(row, 8)
-				local name = Kit.Label((KIND_ICON[quest.Kind] or "📜") .. " " .. quest.Name, { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = if state.Ready then "Good" else "Text" })
+				local name = Kit.Label((KIND_ICON[quest.Kind] or "📜") .. " " .. quest.Name, {
+					Size = Theme.Sizes.Small,
+					Font = Theme.Fonts.Bold,
+					Color = if state.Ready then "Good" else "Text",
+				})
 				name.Position = UDim2.fromOffset(10, 4)
 				name.Size = UDim2.new(1, -40, 0, 20)
 				name.Parent = row
 				local giver = quest.Giver and Registry.Npcs[quest.Giver]
-				local sub = Kit.Label((if state.Ready then "✔️ Ready to hand in" else quest.Kind) .. (if giver then " · " .. giver.Name else ""), { Size = Theme.Sizes.Tiny, Color = "SubText" })
+				local sub = Kit.Label(
+					(if state.Ready then "✔️ Ready to hand in" else quest.Kind)
+						.. (if giver then " · " .. giver.Name else ""),
+					{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+				)
 				sub.Position = UDim2.fromOffset(10, 24)
 				sub.Size = UDim2.new(1, -40, 0, 16)
 				sub.Parent = row
@@ -155,7 +193,15 @@ return {
 			title.Parent = scroll
 			local giver = quest.Giver and Registry.Npcs[quest.Giver]
 			local turnIn = quest.TurnIn and Registry.Npcs[quest.TurnIn]
-			local who = Kit.Label((if giver then "From " .. giver.Icon .. " " .. giver.Name else quest.Kind .. " quest") .. (if turnIn then "  ·  hand in to " .. turnIn.Icon .. " " .. turnIn.Name else "  ·  completes automatically"), { Size = Theme.Sizes.Tiny, Color = "SubText" })
+			local who = Kit.Label(
+				(if giver then "From " .. giver.Icon .. " " .. giver.Name else quest.Kind .. " quest")
+					.. (
+						if turnIn
+							then "  ·  hand in to " .. turnIn.Icon .. " " .. turnIn.Name
+							else "  ·  completes automatically"
+					),
+				{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+			)
 			who.LayoutOrder = 1
 			who.Parent = scroll
 			local desc = Kit.Label(quest.Description, { Wrap = true, Size = Theme.Sizes.Small })
@@ -164,27 +210,57 @@ return {
 			local order = objectiveRows(scroll, quest.Objectives, state.P, 10)
 			rewardRow(scroll, quest.Rewards, order + 1)
 			if state.Ready and turnIn then
-				local ready = Kit.Label("✔️ All done! Talk to " .. turnIn.Name .. " to hand it in.", { Size = Theme.Sizes.Small, Color = "Good", Wrap = true })
+				local ready = Kit.Label(
+					"✔️ All done! Talk to " .. turnIn.Name .. " to hand it in.",
+					{ Size = Theme.Sizes.Small, Color = "Good", Wrap = true }
+				)
 				ready.LayoutOrder = order + 2
 				ready.Parent = scroll
 			end
-			local buttons = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 38), Position = UDim2.new(0, 0, 1, -38), Parent = right })
+			local buttons = Kit.new("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, 0, 0, 38),
+				Position = UDim2.new(0, 0, 1, -38),
+				Parent = right,
+			})
 			Kit.List(buttons, "X", 8)
 			local tracked = table.find(quests.Tracked, questId) ~= nil
-			Kit.Button(if tracked then "📌 Untrack" else "📌 Track", { Style = "Secondary", Size = UDim2.fromOffset(130, 36), TextSize = Theme.Sizes.Small, OnClick = function()
-				request("QuestTrack", questId)
-			end }).Parent = buttons
+			Kit.Button(if tracked then "📌 Untrack" else "📌 Track", {
+				Style = "Secondary",
+				Size = UDim2.fromOffset(130, 36),
+				TextSize = Theme.Sizes.Small,
+				OnClick = function()
+					request("QuestTrack", questId)
+				end,
+			}).Parent =
+				buttons
 			if quest.Kind ~= "Story" then
-				Kit.Button("Abandon", { Style = "Danger", Size = UDim2.fromOffset(110, 36), TextSize = Theme.Sizes.Small, LayoutOrder = 2, OnClick = function()
-					Kit.Confirm("Abandon quest?", "Progress on \"" .. quest.Name .. "\" will be lost. You can pick it up again later.", function(yes)
-						if yes then
-							request("QuestAbandon", questId)
-						end
-					end, "Abandon", true)
-				end }).Parent = buttons
+				Kit.Button("Abandon", {
+					Style = "Danger",
+					Size = UDim2.fromOffset(110, 36),
+					TextSize = Theme.Sizes.Small,
+					LayoutOrder = 2,
+					OnClick = function()
+						Kit.Confirm(
+							"Abandon quest?",
+							'Progress on "' .. quest.Name .. '" will be lost. You can pick it up again later.',
+							function(yes)
+								if yes then
+									request("QuestAbandon", questId)
+								end
+							end,
+							"Abandon",
+							true
+						)
+					end,
+				}).Parent =
+					buttons
 			end
 			if not quest.TurnIn and not state.Ready then
-				local hint = Kit.Label("Tracked quests show on your screen (max " .. QuestsConfig.MaxTracked .. ").", { Size = Theme.Sizes.Tiny, Color = "SubText" })
+				local hint = Kit.Label(
+					"Tracked quests show on your screen (max " .. QuestsConfig.MaxTracked .. ").",
+					{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+				)
 				hint.Size = UDim2.fromOffset(260, 36)
 				hint.LayoutOrder = 3
 				hint.Parent = buttons
@@ -214,7 +290,14 @@ return {
 					card.LayoutOrder = order
 					card.Parent = scroll
 					Kit.List(card, "Y", 4)
-					local name = Kit.Label((if entry.Done then "✔️ " else "") .. (if template then template.Name else entry.Id), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = if entry.Done then "Good" else "Text" })
+					local name = Kit.Label(
+						(if entry.Done then "✔️ " else "") .. (if template then template.Name else entry.Id),
+						{
+							Size = Theme.Sizes.Small,
+							Font = Theme.Fonts.Bold,
+							Color = if entry.Done then "Good" else "Text",
+						}
+					)
 					name.Parent = card
 					objectiveRows(card, { entry }, { entry.P or 0 }, 1)
 					if template then
@@ -223,9 +306,17 @@ return {
 				end
 			end
 			local quests = profile and profile.Quests
-			section("☀️ Daily requests", (quests and quests.Daily and quests.Daily.List) or {}, "New requests in " .. Format.Duration(untilUtcMidnight()) .. " (real time)")
+			section(
+				"☀️ Daily requests",
+				(quests and quests.Daily and quests.Daily.List) or {},
+				"New requests in " .. Format.Duration(untilUtcMidnight()) .. " (real time)"
+			)
 			local week = os.time() % (7 * 86400)
-			section("📅 Weekly challenges", (quests and quests.Weekly and quests.Weekly.List) or {}, "Resets in " .. Format.Duration(7 * 86400 - week) .. " (real time)")
+			section(
+				"📅 Weekly challenges",
+				(quests and quests.Weekly and quests.Weekly.List) or {},
+				"Resets in " .. Format.Duration(7 * 86400 - week) .. " (real time)"
+			)
 			Kit.RepaintGradients(scroll)
 		end
 
@@ -244,11 +335,21 @@ return {
 				card.Parent = scroll
 				Kit.List(card, "Y", 6)
 				Kit.Heading("🤝 Community goal: " .. community.Name, 18).Parent = card
-				local bar = Kit.Progress({ Size = UDim2.new(1, 0, 0, 18), Color = if community.Done then "Good" else "Accent" })
+				local bar =
+					Kit.Progress({ Size = UDim2.new(1, 0, 0, 18), Color = if community.Done then "Good" else "Accent" })
 				bar.Frame.LayoutOrder = 1
 				bar.Frame.Parent = card
-				bar.Set(community.Progress / math.max(1, community.Goal), Format.Commas(community.Progress) .. " / " .. Format.Commas(community.Goal), false)
-				local info = Kit.Label(community.Contributors .. " farmers on this server have helped today. Everyone who contributes gets: " .. table.concat(Describe.Rewards(community.Reward), ", "), { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+				bar.Set(
+					community.Progress / math.max(1, community.Goal),
+					Format.Commas(community.Progress) .. " / " .. Format.Commas(community.Goal),
+					false
+				)
+				local info = Kit.Label(
+					community.Contributors
+						.. " farmers on this server have helped today. Everyone who contributes gets: "
+						.. table.concat(Describe.Rewards(community.Reward), ", "),
+					{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+				)
 				info.LayoutOrder = 2
 				info.Parent = card
 			end
@@ -265,33 +366,56 @@ return {
 					card.Parent = scroll
 					Kit.List(card, "Y", 4)
 					local giver = quest.Giver and Registry.Npcs[quest.Giver]
-					Kit.Label((KIND_ICON[quest.Kind] or "📜") .. " " .. quest.Name .. (if giver then "  ·  " .. giver.Icon .. " " .. giver.Name else ""), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }).Parent = card
+					Kit.Label(
+						(KIND_ICON[quest.Kind] or "📜")
+							.. " "
+							.. quest.Name
+							.. (if giver then "  ·  " .. giver.Icon .. " " .. giver.Name else ""),
+						{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+					).Parent =
+						card
 					local d = Kit.Label(quest.Description, { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
 					d.LayoutOrder = 1
 					d.Parent = card
 					rewardRow(card, quest.Rewards, 2)
-					Kit.Button("Accept", { Style = "Primary", Size = UDim2.fromOffset(110, 32), TextSize = Theme.Sizes.Small, LayoutOrder = 3, OnClick = function()
-						if request("QuestAccept", questId) then
-							C.Audio.PlayUI("UIConfirm")
-							task.spawn(function()
-								local ok, data = Net.Request("BoardGet")
-								if ok then
-									board = data
-									render()
-								end
-							end)
-						end
-					end }).Parent = card
+					Kit.Button("Accept", {
+						Style = "Primary",
+						Size = UDim2.fromOffset(110, 32),
+						TextSize = Theme.Sizes.Small,
+						LayoutOrder = 3,
+						OnClick = function()
+							if request("QuestAccept", questId) then
+								C.Audio.PlayUI("UIConfirm")
+								task.spawn(function()
+									local ok, data = Net.Request("BoardGet")
+									if ok then
+										board = data
+										render()
+									end
+								end)
+							end
+						end,
+					}).Parent =
+						card
 				end
 			end
 			if order == 10 then
-				local e = Kit.Label("Nothing new on the board right now. Befriend villagers and grow your estate to unlock more.", { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+				local e = Kit.Label(
+					"Nothing new on the board right now. Befriend villagers and grow your estate to unlock more.",
+					{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+				)
 				e.LayoutOrder = 11
 				e.Parent = scroll
 			end
-			local contracts = Kit.Button("📋 Contract board", { Style = "Secondary", Size = UDim2.fromOffset(200, 36), TextSize = Theme.Sizes.Small, LayoutOrder = 999, OnClick = function()
-				C.Windows.Open("Market", { Tab = "Contracts" })
-			end })
+			local contracts = Kit.Button("📋 Contract board", {
+				Style = "Secondary",
+				Size = UDim2.fromOffset(200, 36),
+				TextSize = Theme.Sizes.Small,
+				LayoutOrder = 999,
+				OnClick = function()
+					C.Windows.Open("Market", { Tab = "Contracts" })
+				end,
+			})
 			contracts.Parent = scroll
 			Kit.RepaintGradients(scroll)
 		end
@@ -312,11 +436,17 @@ return {
 				return a.At > b.At
 			end)
 			local total = #QuestsConfig.List
-			local header = Kit.Label(#ids .. " of " .. total .. " quests completed", { Size = Theme.Sizes.Small, Color = "SubText" })
+			local header = Kit.Label(
+				#ids .. " of " .. total .. " quests completed",
+				{ Size = Theme.Sizes.Small, Color = "SubText" }
+			)
 			header.Parent = scroll
 			for i, entry in ids do
 				local quest = Registry.Quests[entry.Id]
-				local label = Kit.Label("✔️ " .. (KIND_ICON[quest.Kind] or "") .. " " .. quest.Name, { Size = Theme.Sizes.Small })
+				local label = Kit.Label(
+					"✔️ " .. (KIND_ICON[quest.Kind] or "") .. " " .. quest.Name,
+					{ Size = Theme.Sizes.Small }
+				)
 				label.LayoutOrder = i
 				label.Parent = scroll
 			end

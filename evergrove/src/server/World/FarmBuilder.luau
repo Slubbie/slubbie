@@ -66,9 +66,29 @@ end
 -- Farmhouse --------------------------------------------------------------------------------------------------
 
 local SKINS = {
-	Default = { Wall = Color3.fromRGB(236, 222, 196), Trim = Color3.fromRGB(120, 80, 50), Roof = Color3.fromRGB(150, 60, 50), Door = Color3.fromRGB(110, 70, 40), Material = Enum.Material.WoodPlanks },
-	farmhouse_cottage = { Wall = Color3.fromRGB(250, 236, 214), Trim = Color3.fromRGB(150, 190, 150), Roof = Color3.fromRGB(205, 170, 95), Door = Color3.fromRGB(120, 170, 140), Material = Enum.Material.Plaster, Thatch = true },
-	farmhouse_celestial = { Wall = Color3.fromRGB(40, 48, 90), Trim = Color3.fromRGB(200, 190, 255), Roof = Color3.fromRGB(28, 30, 60), Door = Color3.fromRGB(90, 80, 160), Material = Enum.Material.SmoothPlastic, Stars = true },
+	Default = {
+		Wall = Color3.fromRGB(236, 222, 196),
+		Trim = Color3.fromRGB(120, 80, 50),
+		Roof = Color3.fromRGB(150, 60, 50),
+		Door = Color3.fromRGB(110, 70, 40),
+		Material = Enum.Material.WoodPlanks,
+	},
+	farmhouse_cottage = {
+		Wall = Color3.fromRGB(250, 236, 214),
+		Trim = Color3.fromRGB(150, 190, 150),
+		Roof = Color3.fromRGB(205, 170, 95),
+		Door = Color3.fromRGB(120, 170, 140),
+		Material = Enum.Material.Plaster,
+		Thatch = true,
+	},
+	farmhouse_celestial = {
+		Wall = Color3.fromRGB(40, 48, 90),
+		Trim = Color3.fromRGB(200, 190, 255),
+		Roof = Color3.fromRGB(28, 30, 60),
+		Door = Color3.fromRGB(90, 80, 160),
+		Material = Enum.Material.SmoothPlastic,
+		Stars = true,
+	},
 }
 
 local function buildHouse(level: number, skinId: string?): Model
@@ -80,22 +100,58 @@ local function buildHouse(level: number, skinId: string?): Model
 	local wallMat = if level == 1 then Enum.Material.Wood else skin.Material
 	local t = 0.8
 	-- Foundation and floor
-	Kit.Box(model, Vector3.new(w + 2, 1, d + 2), CFrame.new(0, 0.5, 0), C.Stone, { Material = Enum.Material.Cobblestone })
+	Kit.Box(
+		model,
+		Vector3.new(w + 2, 1, d + 2),
+		CFrame.new(0, 0.5, 0),
+		C.Stone,
+		{ Material = Enum.Material.Cobblestone }
+	)
 	-- Walls (door faces -Z, toward the gate)
 	Kit.Box(model, Vector3.new(w, wallH, t), CFrame.new(0, 1 + wallH / 2, d / 2), skin.Wall, { Material = wallMat })
 	Kit.Box(model, Vector3.new(t, wallH, d), CFrame.new(-w / 2, 1 + wallH / 2, 0), skin.Wall, { Material = wallMat })
 	Kit.Box(model, Vector3.new(t, wallH, d), CFrame.new(w / 2, 1 + wallH / 2, 0), skin.Wall, { Material = wallMat })
 	local doorW = 5
 	local side = (w - doorW) / 2
-	Kit.Box(model, Vector3.new(side, wallH, t), CFrame.new(-w / 2 + side / 2, 1 + wallH / 2, -d / 2), skin.Wall, { Material = wallMat })
-	Kit.Box(model, Vector3.new(side, wallH, t), CFrame.new(w / 2 - side / 2, 1 + wallH / 2, -d / 2), skin.Wall, { Material = wallMat })
-	Kit.Box(model, Vector3.new(doorW, wallH - 7, t), CFrame.new(0, 1 + 7 + (wallH - 7) / 2, -d / 2), skin.Wall, { Material = wallMat })
-	local door = Kit.Box(model, Vector3.new(doorW - 0.6, 7, 0.4), CFrame.new(0, 4.5, -d / 2 - 0.2), skin.Door, { Material = Enum.Material.Wood, Name = "Door" })
+	Kit.Box(
+		model,
+		Vector3.new(side, wallH, t),
+		CFrame.new(-w / 2 + side / 2, 1 + wallH / 2, -d / 2),
+		skin.Wall,
+		{ Material = wallMat }
+	)
+	Kit.Box(
+		model,
+		Vector3.new(side, wallH, t),
+		CFrame.new(w / 2 - side / 2, 1 + wallH / 2, -d / 2),
+		skin.Wall,
+		{ Material = wallMat }
+	)
+	Kit.Box(
+		model,
+		Vector3.new(doorW, wallH - 7, t),
+		CFrame.new(0, 1 + 7 + (wallH - 7) / 2, -d / 2),
+		skin.Wall,
+		{ Material = wallMat }
+	)
+	local door = Kit.Box(
+		model,
+		Vector3.new(doorW - 0.6, 7, 0.4),
+		CFrame.new(0, 4.5, -d / 2 - 0.2),
+		skin.Door,
+		{ Material = Enum.Material.Wood, Name = "Door" }
+	)
 	Kit.Ball(model, Vector3.new(0.4, 0.4, 0.4), CFrame.new(1.6, 4.5, -d / 2 - 0.5), C.Gold, { Collide = false })
 	-- Corner trim
 	for _, sx in { -1, 1 } do
 		for _, sz in { -1, 1 } do
-			Kit.Box(model, Vector3.new(1, wallH, 1), CFrame.new(sx * w / 2, 1 + wallH / 2, sz * d / 2), skin.Trim, { Material = Enum.Material.Wood })
+			Kit.Box(
+				model,
+				Vector3.new(1, wallH, 1),
+				CFrame.new(sx * w / 2, 1 + wallH / 2, sz * d / 2),
+				skin.Trim,
+				{ Material = Enum.Material.Wood }
+			)
 		end
 	end
 	-- Windows with warm light at night (client toggles "NightGlow").
@@ -103,35 +159,98 @@ local function buildHouse(level: number, skinId: string?): Model
 	for i = 1, windows do
 		local x = -w / 2 + (i - 0.5) * (w / windows)
 		if math.abs(x) > doorW then
-			local win = Kit.Box(model, Vector3.new(3, 3, 0.3), CFrame.new(x, 1 + wallH * 0.55, -d / 2 - 0.35), Color3.fromRGB(255, 230, 170), { Material = Enum.Material.Glass, Transparency = 0.2, Collide = false, Name = "Window" })
+			local win = Kit.Box(
+				model,
+				Vector3.new(3, 3, 0.3),
+				CFrame.new(x, 1 + wallH * 0.55, -d / 2 - 0.35),
+				Color3.fromRGB(255, 230, 170),
+				{ Material = Enum.Material.Glass, Transparency = 0.2, Collide = false, Name = "Window" }
+			)
 			win:SetAttribute("NightGlow", true)
-			Kit.Box(model, Vector3.new(3.8, 0.4, 0.6), CFrame.new(x, 1 + wallH * 0.55 - 1.7, -d / 2 - 0.45), skin.Trim, { Collide = false })
+			Kit.Box(
+				model,
+				Vector3.new(3.8, 0.4, 0.6),
+				CFrame.new(x, 1 + wallH * 0.55 - 1.7, -d / 2 - 0.45),
+				skin.Trim,
+				{ Collide = false }
+			)
 			-- Flower box
-			Kit.Box(model, Vector3.new(3.4, 0.8, 0.8), CFrame.new(x, 1 + wallH * 0.55 - 2.3, -d / 2 - 0.8), C.Wood, { Collide = false })
+			Kit.Box(
+				model,
+				Vector3.new(3.4, 0.8, 0.8),
+				CFrame.new(x, 1 + wallH * 0.55 - 2.3, -d / 2 - 0.8),
+				C.Wood,
+				{ Collide = false }
+			)
 			for f = -1, 1 do
-				Kit.Ball(model, Vector3.new(0.7, 0.7, 0.7), CFrame.new(x + f, 1 + wallH * 0.55 - 1.8, -d / 2 - 0.8), Color3.fromHSV(((i * 3 + f) % 7) / 7, 0.6, 1), { Collide = false })
+				Kit.Ball(
+					model,
+					Vector3.new(0.7, 0.7, 0.7),
+					CFrame.new(x + f, 1 + wallH * 0.55 - 1.8, -d / 2 - 0.8),
+					Color3.fromHSV(((i * 3 + f) % 7) / 7, 0.6, 1),
+					{ Collide = false }
+				)
 			end
 		end
 	end
 	-- Roof
 	local roofColor = skin.Roof
-	Kit.Roof(model, w, d, 1 + wallH, h - wallH, roofColor, 1.5, { Material = if skin.Thatch then Enum.Material.Fabric else Enum.Material.Slate })
+	Kit.Roof(
+		model,
+		w,
+		d,
+		1 + wallH,
+		h - wallH,
+		roofColor,
+		1.5,
+		{ Material = if skin.Thatch then Enum.Material.Fabric else Enum.Material.Slate }
+	)
 	-- Chimney with smoke
-	local chimney = Kit.Box(model, Vector3.new(2.5, h * 0.5, 2.5), CFrame.new(w * 0.28, 1 + wallH + (h - wallH) * 0.55, d * 0.15), C.DarkStone, { Material = Enum.Material.Brick })
+	local chimney = Kit.Box(
+		model,
+		Vector3.new(2.5, h * 0.5, 2.5),
+		CFrame.new(w * 0.28, 1 + wallH + (h - wallH) * 0.55, d * 0.15),
+		C.DarkStone,
+		{ Material = Enum.Material.Brick }
+	)
 	Kit.Particles(chimney, "Smoke", Color3.fromRGB(220, 220, 220), 2)
 	-- Level extras
 	if level >= 2 then
 		-- Porch
-		Kit.Box(model, Vector3.new(w * 0.6, 0.6, 5), CFrame.new(0, 1.2, -d / 2 - 2.5), C.Plank, { Material = Enum.Material.WoodPlanks })
-		Kit.Wedge(model, Vector3.new(w * 0.6, 1.6, 4), CFrame.new(0, wallH * 0.75, -d / 2 - 2.2) * CFrame.Angles(0, math.rad(180), 0), roofColor, { Collide = false })
+		Kit.Box(
+			model,
+			Vector3.new(w * 0.6, 0.6, 5),
+			CFrame.new(0, 1.2, -d / 2 - 2.5),
+			C.Plank,
+			{ Material = Enum.Material.WoodPlanks }
+		)
+		Kit.Wedge(
+			model,
+			Vector3.new(w * 0.6, 1.6, 4),
+			CFrame.new(0, wallH * 0.75, -d / 2 - 2.2) * CFrame.Angles(0, math.rad(180), 0),
+			roofColor,
+			{ Collide = false }
+		)
 		for _, sx in { -1, 1 } do
-			Kit.Box(model, Vector3.new(0.6, wallH * 0.7, 0.6), CFrame.new(sx * w * 0.28, wallH * 0.37, -d / 2 - 4.5), skin.Trim, { Material = Enum.Material.Wood })
+			Kit.Box(
+				model,
+				Vector3.new(0.6, wallH * 0.7, 0.6),
+				CFrame.new(sx * w * 0.28, wallH * 0.37, -d / 2 - 4.5),
+				skin.Trim,
+				{ Material = Enum.Material.Wood }
+			)
 		end
 	end
 	if level >= 3 then
 		-- Second-floor windows and a balcony rail
 		for _, sx in { -1, 1 } do
-			local win = Kit.Box(model, Vector3.new(3, 2.6, 0.3), CFrame.new(sx * w * 0.25, 1 + wallH * 0.85, -d / 2 - 0.35), Color3.fromRGB(255, 230, 170), { Material = Enum.Material.Glass, Transparency = 0.2, Collide = false, Name = "Window" })
+			local win = Kit.Box(
+				model,
+				Vector3.new(3, 2.6, 0.3),
+				CFrame.new(sx * w * 0.25, 1 + wallH * 0.85, -d / 2 - 0.35),
+				Color3.fromRGB(255, 230, 170),
+				{ Material = Enum.Material.Glass, Transparency = 0.2, Collide = false, Name = "Window" }
+			)
 			win:SetAttribute("NightGlow", true)
 		end
 	end
@@ -139,25 +258,69 @@ local function buildHouse(level: number, skinId: string?): Model
 		-- Side wings
 		for _, sx in { -1, 1 } do
 			local wingX = sx * (w / 2 + 4)
-			Kit.Box(model, Vector3.new(8, wallH * 0.8, d * 0.6), CFrame.new(wingX, 1 + wallH * 0.4, d * 0.1), skin.Wall, { Material = wallMat })
-			Kit.Box(model, Vector3.new(9, 0.8, d * 0.6 + 1), CFrame.new(wingX, 1 + wallH * 0.8 + 0.4, d * 0.1), roofColor, { Material = Enum.Material.Slate })
-			local win = Kit.Box(model, Vector3.new(3, 3, 0.3), CFrame.new(wingX, 1 + wallH * 0.45, d * 0.1 - d * 0.3 - 0.2), Color3.fromRGB(255, 230, 170), { Material = Enum.Material.Glass, Transparency = 0.2, Collide = false, Name = "Window" })
+			Kit.Box(
+				model,
+				Vector3.new(8, wallH * 0.8, d * 0.6),
+				CFrame.new(wingX, 1 + wallH * 0.4, d * 0.1),
+				skin.Wall,
+				{ Material = wallMat }
+			)
+			Kit.Box(
+				model,
+				Vector3.new(9, 0.8, d * 0.6 + 1),
+				CFrame.new(wingX, 1 + wallH * 0.8 + 0.4, d * 0.1),
+				roofColor,
+				{ Material = Enum.Material.Slate }
+			)
+			local win = Kit.Box(
+				model,
+				Vector3.new(3, 3, 0.3),
+				CFrame.new(wingX, 1 + wallH * 0.45, d * 0.1 - d * 0.3 - 0.2),
+				Color3.fromRGB(255, 230, 170),
+				{ Material = Enum.Material.Glass, Transparency = 0.2, Collide = false, Name = "Window" }
+			)
 			win:SetAttribute("NightGlow", true)
 		end
 	end
 	if level >= 5 then
 		-- Towers with flags
 		for _, sx in { -1, 1 } do
-			Kit.Cyl(model, h + 6, 6, CFrame.new(sx * (w / 2 + 2), (h + 6) / 2, -d / 2 + 2), skin.Wall, { Material = wallMat })
-			local cone = Kit.Cyl(model, 6, 7, CFrame.new(sx * (w / 2 + 2), h + 9, -d / 2 + 2), roofColor, { Material = Enum.Material.Slate })
+			Kit.Cyl(
+				model,
+				h + 6,
+				6,
+				CFrame.new(sx * (w / 2 + 2), (h + 6) / 2, -d / 2 + 2),
+				skin.Wall,
+				{ Material = wallMat }
+			)
+			local cone = Kit.Cyl(
+				model,
+				6,
+				7,
+				CFrame.new(sx * (w / 2 + 2), h + 9, -d / 2 + 2),
+				roofColor,
+				{ Material = Enum.Material.Slate }
+			)
 			cone.Shape = Enum.PartType.Ball
 			Kit.Box(model, Vector3.new(0.2, 4, 0.2), CFrame.new(sx * (w / 2 + 2), h + 14, -d / 2 + 2), C.DarkMetal)
-			Kit.Box(model, Vector3.new(0.1, 1.4, 2.4), CFrame.new(sx * (w / 2 + 2), h + 15.2, -d / 2 + 3.2), Color3.fromRGB(80, 150, 90), { Collide = false })
+			Kit.Box(
+				model,
+				Vector3.new(0.1, 1.4, 2.4),
+				CFrame.new(sx * (w / 2 + 2), h + 15.2, -d / 2 + 3.2),
+				Color3.fromRGB(80, 150, 90),
+				{ Collide = false }
+			)
 		end
 	end
 	if skin.Stars then
 		for i = 1, 8 do
-			local star = Kit.Ball(model, Vector3.new(0.5, 0.5, 0.5), CFrame.new(-w / 2 + i * w / 9, 1 + wallH + 0.8, -d / 2 - 1.2), Color3.fromRGB(255, 240, 180), { Collide = false })
+			local star = Kit.Ball(
+				model,
+				Vector3.new(0.5, 0.5, 0.5),
+				CFrame.new(-w / 2 + i * w / 9, 1 + wallH + 0.8, -d / 2 - 1.2),
+				Color3.fromRGB(255, 240, 180),
+				{ Collide = false }
+			)
 			Kit.Glow(star, Color3.fromRGB(255, 240, 180))
 		end
 	end
@@ -171,10 +334,28 @@ end
 
 local function buildBin(): Model
 	local model = Kit.Model("ShippingBin")
-	local body = Kit.Box(model, Vector3.new(6, 3.2, 4), CFrame.new(0, 1.6, 0), Color3.fromRGB(140, 95, 60), { Material = Enum.Material.WoodPlanks, Name = "Body" })
-	Kit.Box(model, Vector3.new(6.4, 0.4, 4.4), CFrame.new(0, 3.4, -0.3) * CFrame.Angles(math.rad(-20), 0, 0), Color3.fromRGB(110, 70, 45), { Name = "Lid" })
+	local body = Kit.Box(
+		model,
+		Vector3.new(6, 3.2, 4),
+		CFrame.new(0, 1.6, 0),
+		Color3.fromRGB(140, 95, 60),
+		{ Material = Enum.Material.WoodPlanks, Name = "Body" }
+	)
+	Kit.Box(
+		model,
+		Vector3.new(6.4, 0.4, 4.4),
+		CFrame.new(0, 3.4, -0.3) * CFrame.Angles(math.rad(-20), 0, 0),
+		Color3.fromRGB(110, 70, 45),
+		{ Name = "Lid" }
+	)
 	for _, x in { -2.6, 2.6 } do
-		Kit.Box(model, Vector3.new(0.4, 3.3, 4.1), CFrame.new(x, 1.65, 0), C.DarkMetal, { Material = Enum.Material.Metal })
+		Kit.Box(
+			model,
+			Vector3.new(0.4, 3.3, 4.1),
+			CFrame.new(x, 1.65, 0),
+			C.DarkMetal,
+			{ Material = Enum.Material.Metal }
+		)
 	end
 	local label = Kit.Box(model, Vector3.new(4, 1.2, 0.1), CFrame.new(0, 2, -2.05), C.Cream, { Collide = false })
 	Kit.Label(label, "SHIPPING", Enum.NormalId.Front)
@@ -185,7 +366,14 @@ end
 local function buildWell(): Model
 	local model = Kit.Model("Well")
 	Kit.Cyl(model, 3, 6, CFrame.new(0, 1.5, 0), C.Stone, { Material = Enum.Material.Cobblestone })
-	local water = Kit.Cyl(model, 0.2, 4.8, CFrame.new(0, 2.4, 0), C.Water, { Material = Enum.Material.Glass, Transparency = 0.2, Collide = false, Name = "Water" })
+	local water = Kit.Cyl(
+		model,
+		0.2,
+		4.8,
+		CFrame.new(0, 2.4, 0),
+		C.Water,
+		{ Material = Enum.Material.Glass, Transparency = 0.2, Collide = false, Name = "Water" }
+	)
 	water:SetAttribute("Water", "Well")
 	for _, x in { -2.6, 2.6 } do
 		Kit.Box(model, Vector3.new(0.6, 5, 0.6), CFrame.new(x, 5, 0), C.Wood, { Material = Enum.Material.Wood })
@@ -199,7 +387,13 @@ end
 
 local function buildWorkbench(): Model
 	local model = Kit.Model("Workbench")
-	local top = Kit.Box(model, Vector3.new(7, 0.6, 3.2), CFrame.new(0, 3.2, 0), C.Plank, { Material = Enum.Material.WoodPlanks, Name = "Top" })
+	local top = Kit.Box(
+		model,
+		Vector3.new(7, 0.6, 3.2),
+		CFrame.new(0, 3.2, 0),
+		C.Plank,
+		{ Material = Enum.Material.WoodPlanks, Name = "Top" }
+	)
 	for _, x in { -3, 3 } do
 		for _, z in { -1.2, 1.2 } do
 			Kit.Box(model, Vector3.new(0.6, 3, 0.6), CFrame.new(x, 1.5, z), C.DarkWood)
@@ -216,8 +410,10 @@ end
 local function buildMailbox(): Model
 	local model = Kit.Model("Mailbox")
 	Kit.Box(model, Vector3.new(0.5, 3.5, 0.5), CFrame.new(0, 1.75, 0), C.DarkWood)
-	local box = Kit.Box(model, Vector3.new(1.6, 1.4, 2.4), CFrame.new(0, 4, 0), Color3.fromRGB(60, 110, 170), { Name = "Box" })
-	local flag = Kit.Box(model, Vector3.new(0.1, 1, 0.4), CFrame.new(0.85, 4.6, 0.6), C.Red, { Collide = false, Name = "Flag" })
+	local box =
+		Kit.Box(model, Vector3.new(1.6, 1.4, 2.4), CFrame.new(0, 4, 0), Color3.fromRGB(60, 110, 170), { Name = "Box" })
+	local flag =
+		Kit.Box(model, Vector3.new(0.1, 1, 0.4), CFrame.new(0.85, 4.6, 0.6), C.Red, { Collide = false, Name = "Flag" })
 	flag:SetAttribute("Flag", true)
 	Kit.Prompt(box, "Mail", "Mail", "Mailbox", 10)
 	return model
@@ -228,7 +424,13 @@ local function buildSign(): (Model, TextLabel)
 	for _, x in { -3.5, 3.5 } do
 		Kit.Box(model, Vector3.new(0.6, 6, 0.6), CFrame.new(x, 3, 0), C.DarkWood, { Material = Enum.Material.Wood })
 	end
-	local board = Kit.Box(model, Vector3.new(8, 2.6, 0.4), CFrame.new(0, 5, 0), C.Plank, { Material = Enum.Material.WoodPlanks, Name = "Board" })
+	local board = Kit.Box(
+		model,
+		Vector3.new(8, 2.6, 0.4),
+		CFrame.new(0, 5, 0),
+		C.Plank,
+		{ Material = Enum.Material.WoodPlanks, Name = "Board" }
+	)
 	local label = Kit.Label(board, "Available", Enum.NormalId.Front)
 	Kit.Prompt(board, "FarmSign", "Farm", "Farm Office", 10)
 	return model, label
@@ -245,7 +447,13 @@ local function buildGateAndFence(model: Model, origin: Vector3)
 		local posts = math.floor(length / 8)
 		for i = 0, posts do
 			local p = a:Lerp(b, i / math.max(1, posts))
-			Kit.Box(model, Vector3.new(0.6, 3, 0.6), CFrame.new(origin + p + Vector3.new(0, 1.5, 0)), fenceColor, { Name = "Post" })
+			Kit.Box(
+				model,
+				Vector3.new(0.6, 3, 0.6),
+				CFrame.new(origin + p + Vector3.new(0, 1.5, 0)),
+				fenceColor,
+				{ Name = "Post" }
+			)
 		end
 	end
 	local gateHalf = 8
@@ -258,9 +466,21 @@ local function buildGateAndFence(model: Model, origin: Vector3)
 	run(Vector3.new(0, 0, SIZE), Vector3.new(SIZE, 0, SIZE))
 	-- Gate arch
 	for _, x in { -gateHalf, gateHalf } do
-		Kit.Box(model, Vector3.new(1, 9, 1), CFrame.new(origin + Vector3.new(SIZE / 2 + x, 4.5, -YARD)), C.DarkWood, { Material = Enum.Material.Wood })
+		Kit.Box(
+			model,
+			Vector3.new(1, 9, 1),
+			CFrame.new(origin + Vector3.new(SIZE / 2 + x, 4.5, -YARD)),
+			C.DarkWood,
+			{ Material = Enum.Material.Wood }
+		)
 	end
-	Kit.Box(model, Vector3.new(gateHalf * 2 + 2, 1, 1), CFrame.new(origin + Vector3.new(SIZE / 2, 9, -YARD)), C.DarkWood, { Material = Enum.Material.Wood })
+	Kit.Box(
+		model,
+		Vector3.new(gateHalf * 2 + 2, 1, 1),
+		CFrame.new(origin + Vector3.new(SIZE / 2, 9, -YARD)),
+		C.DarkWood,
+		{ Material = Enum.Material.Wood }
+	)
 end
 
 -- Lots -------------------------------------------------------------------------------------------------------------
@@ -274,8 +494,18 @@ function FarmBuilder.BuildLot(lotDef: any, root: Instance): (Model, any)
 	model.Parent = root
 
 	-- Ground: tidy yard dirt path to the house and gravel in front.
-	TerrainKit.PaintStrip(origin + Vector3.new(SIZE / 2, 0, -YARD), origin + Vector3.new(SIZE / 2, 0, -4), 8, Enum.Material.Ground)
-	TerrainKit.PaintStrip(origin + Vector3.new(SIZE / 2, 0, -24), origin + LAYOUT.House + Vector3.new(0, 0, -12), 6, Enum.Material.Ground)
+	TerrainKit.PaintStrip(
+		origin + Vector3.new(SIZE / 2, 0, -YARD),
+		origin + Vector3.new(SIZE / 2, 0, -4),
+		8,
+		Enum.Material.Ground
+	)
+	TerrainKit.PaintStrip(
+		origin + Vector3.new(SIZE / 2, 0, -24),
+		origin + LAYOUT.House + Vector3.new(0, 0, -12),
+		6,
+		Enum.Material.Ground
+	)
 	-- Parcel ponds (Riverside) as real water so fishing and can refills work.
 	for row = 1, PARCELS do
 		for col = 1, PARCELS do
@@ -284,8 +514,16 @@ function FarmBuilder.BuildLot(lotDef: any, root: Instance): (Model, any)
 				local x0 = ((col - 1) * PARCEL + 4) * TILE
 				local z0 = ((row - 1) * PARCEL + 4) * TILE
 				local center = origin + Vector3.new(x0 + 2 * TILE, 0, z0 + 1.5 * TILE)
-				workspace.Terrain:FillBlock(CFrame.new(center.X, -3, center.Z), Vector3.new(4 * TILE, 6, 3 * TILE), Enum.Material.Water)
-				workspace.Terrain:FillBlock(CFrame.new(center.X, -7, center.Z), Vector3.new(4 * TILE + 4, 2, 3 * TILE + 4), Enum.Material.Mud)
+				workspace.Terrain:FillBlock(
+					CFrame.new(center.X, -3, center.Z),
+					Vector3.new(4 * TILE, 6, 3 * TILE),
+					Enum.Material.Water
+				)
+				workspace.Terrain:FillBlock(
+					CFrame.new(center.X, -7, center.Z),
+					Vector3.new(4 * TILE + 4, 2, 3 * TILE + 4),
+					Enum.Material.Mud
+				)
 			end
 		end
 	end
@@ -332,16 +570,17 @@ function FarmBuilder.BuildLot(lotDef: any, root: Instance): (Model, any)
 	parcels.Name = "Parcels"
 	parcels.Parent = model
 
-	return model, {
-		House = origin + LAYOUT.House,
-		Bin = origin + LAYOUT.Bin,
-		Well = origin + LAYOUT.Well,
-		Workbench = origin + LAYOUT.Workbench,
-		Mailbox = origin + LAYOUT.Mailbox,
-		Reserved = reserved,
-		HouseModel = house,
-		SignLabel = label,
-	}
+	return model,
+		{
+			House = origin + LAYOUT.House,
+			Bin = origin + LAYOUT.Bin,
+			Well = origin + LAYOUT.Well,
+			Workbench = origin + LAYOUT.Workbench,
+			Mailbox = origin + LAYOUT.Mailbox,
+			Reserved = reserved,
+			HouseModel = house,
+			SignLabel = label,
+		}
 end
 
 -- Unowned parcels show overgrowth and a For Sale sign; owned ones are tidy.
@@ -366,12 +605,30 @@ function FarmBuilder.UpdateParcels(farm: any, profile: any?)
 				local rng = Random.new(row * 31 + col * 7)
 				for _ = 1, 7 do
 					local p = center + Vector3.new(rng:NextNumber(-20, 20), 0, rng:NextNumber(-20, 20))
-					local tuft = Kit.Wedge(parcel, Vector3.new(0.3, rng:NextNumber(1.5, 3), 1.2), CFrame.new(p + Vector3.new(0, 0.8, 0)) * CFrame.Angles(0, rng:NextNumber(0, 6), 0), Color3.fromRGB(110, 160, 70), { Collide = false })
+					local tuft = Kit.Wedge(
+						parcel,
+						Vector3.new(0.3, rng:NextNumber(1.5, 3), 1.2),
+						CFrame.new(p + Vector3.new(0, 0.8, 0)) * CFrame.Angles(0, rng:NextNumber(0, 6), 0),
+						Color3.fromRGB(110, 160, 70),
+						{ Collide = false }
+					)
 					tuft:SetAttribute("Foliage", true)
 				end
 				-- Sale sign
-				local post = Kit.Box(parcel, Vector3.new(0.4, 4, 0.4), CFrame.new(center + Vector3.new(0, 2, 0)), C.DarkWood, { Collide = false })
-				local board = Kit.Box(parcel, Vector3.new(4, 2.2, 0.3), CFrame.new(center + Vector3.new(0, 4.2, 0)) * CFrame.Angles(0, math.pi, 0), C.Cream, { Name = "SaleSign" })
+				local post = Kit.Box(
+					parcel,
+					Vector3.new(0.4, 4, 0.4),
+					CFrame.new(center + Vector3.new(0, 2, 0)),
+					C.DarkWood,
+					{ Collide = false }
+				)
+				local board = Kit.Box(
+					parcel,
+					Vector3.new(4, 2.2, 0.3),
+					CFrame.new(center + Vector3.new(0, 4.2, 0)) * CFrame.Angles(0, math.pi, 0),
+					C.Cream,
+					{ Name = "SaleSign" }
+				)
 				Kit.Label(board, ptype.Icon .. " For Sale", Enum.NormalId.Front)
 				local prompt = Kit.Prompt(board, "Parcel", "Buy Land", ptype.Name, 14)
 				prompt:SetAttribute("Target", key)

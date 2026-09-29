@@ -487,7 +487,10 @@ function BuildingService.RefreshDisplays(player: Player)
 		for _ = 1, display.Slots do
 			local stack = profile.Showcase[tostring(slot)]
 			if stack then
-				table.insert(shown, stack.Id .. ":" .. (stack.Q or 1) .. ":" .. (if stack.M then table.concat(stack.M, "+") else ""))
+				table.insert(
+					shown,
+					stack.Id .. ":" .. (stack.Q or 1) .. ":" .. (if stack.M then table.concat(stack.M, "+") else "")
+				)
 			end
 			slot += 1
 		end
@@ -634,7 +637,8 @@ function BuildingService.Place(actor: Player, ref: string, spec: any): (boolean,
 		return false, "You can only have " .. Format.Plural(def.Limit, def.Name)
 	end
 	if BuildingService.Count(profile) >= BuildingService.Cap(profile) then
-		return false, "Your farm is full (" .. BuildingService.Cap(profile) .. " objects). Raise your Estate level for more."
+		return false,
+			"Your farm is full (" .. BuildingService.Cap(profile) .. " objects). Raise your Estate level for more."
 	end
 	local record = normalise(def, spec)
 	if not record then
@@ -882,7 +886,17 @@ local function layoutSave(player: Player, slot: number, name: string)
 	for _, record in profile.Farm.Placed do
 		local def = Registry.Placeables[record.Id]
 		if def and isDecor(def) then
-			table.insert(items, { Id = record.Id, Px = record.Px, Pz = record.Pz, Ry = record.Ry, Py = record.Py, Sc = record.Sc, C = record.C, Mt = record.Mt, F = record.F })
+			table.insert(items, {
+				Id = record.Id,
+				Px = record.Px,
+				Pz = record.Pz,
+				Ry = record.Ry,
+				Py = record.Py,
+				Sc = record.Sc,
+				C = record.C,
+				Mt = record.Mt,
+				F = record.F,
+			})
 		end
 	end
 	local clean = Format.CleanName(name, 24)
@@ -937,7 +951,18 @@ local function layoutLoad(player: Player, slot: number)
 	for _, saved in layout.Items do
 		local def = Registry.Placeables[saved.Id]
 		if def then
-			local record = { Id = saved.Id, Px = saved.Px, Pz = saved.Pz, Ry = saved.Ry, Py = saved.Py, Sc = saved.Sc, C = saved.C, Mt = saved.Mt, F = saved.F, T = os.time() }
+			local record = {
+				Id = saved.Id,
+				Px = saved.Px,
+				Pz = saved.Pz,
+				Ry = saved.Ry,
+				Py = saved.Py,
+				Sc = saved.Sc,
+				C = saved.C,
+				Mt = saved.Mt,
+				F = saved.F,
+				T = os.time(),
+			}
 			local fromPool = (pool[saved.Id] or 0) > 0
 			local available = fromPool or S.Inventory.Count(player, saved.Id) > 0
 			local capOk = BuildingService.Count(profile) < BuildingService.Cap(profile)

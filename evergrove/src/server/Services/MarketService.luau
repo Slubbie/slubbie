@@ -92,7 +92,10 @@ function MarketService.UnitPrice(player: Player, stack: ItemUtil.Stack, venueMul
 	if not profile or not def then
 		return 0
 	end
-	local price = ItemUtil.UnitValue(stack) * MarketService.Factor(stack.Id) * sellerBonus(profile, def) * (venueMult or 1)
+	local price = ItemUtil.UnitValue(stack)
+		* MarketService.Factor(stack.Id)
+		* sellerBonus(profile, def)
+		* (venueMult or 1)
 	return math.max(1, math.floor(price))
 end
 
@@ -241,12 +244,26 @@ local function payBin(player: Player)
 	profile.Farm.BinAt = nil
 	S.Data.Changed(player, "Farm", "Bin")
 	S.Economy.AddCoins(player, total, "Shipping")
-	S.Notify.Banner(player, "📦 Shipping paid", string.format("%s items sold for %s coins", Format.Commas(count), Format.Commas(total)), "Coins")
+	S.Notify.Banner(
+		player,
+		"📦 Shipping paid",
+		string.format("%s items sold for %s coins", Format.Commas(count), Format.Commas(total)),
+		"Coins"
+	)
 end
 
 -- Contracts -------------------------------------------------------------------------------------------------
 
-local NPC_FOR = { Crop = "pip", Artisan = "marco", Fish = "finn", AnimalProduct = "hattie", Forage = "rook", Mineral = "bram", Gem = "bram", Flower = "ivy" }
+local NPC_FOR = {
+	Crop = "pip",
+	Artisan = "marco",
+	Fish = "finn",
+	AnimalProduct = "hattie",
+	Forage = "rook",
+	Mineral = "bram",
+	Gem = "bram",
+	Flower = "ivy",
+}
 
 local function contractCandidates(player: Player): { string }
 	local info = GameTime.Info()
@@ -258,7 +275,25 @@ local function contractCandidates(player: Player): { string }
 			table.insert(out, crop.Id)
 		end
 	end
-	for _, id in { "egg", "milk", "wool", "cheese", "mayonnaise", "cloth", "honey", "flour", "copper_bar", "iron_bar", "sea_bass", "river_perch", "glacier_salmon", "jam_strawberry", "pale_ale" } do
+	for _, id in
+		{
+			"egg",
+			"milk",
+			"wool",
+			"cheese",
+			"mayonnaise",
+			"cloth",
+			"honey",
+			"flour",
+			"copper_bar",
+			"iron_bar",
+			"sea_bass",
+			"river_perch",
+			"glacier_salmon",
+			"jam_strawberry",
+			"pale_ale",
+		}
+	do
 		if Registry.Items[id] then
 			table.insert(out, id)
 		end
@@ -295,7 +330,10 @@ local function makeContract(player: Player, seed: number, kind: string): any?
 	return {
 		Id = RNG.Uid("c"),
 		Kind = kind,
-		Npc = if kind == "Collector" then "beatrix" elseif kind == "Restaurant" then "marco" else (NPC_FOR[def.Category] or "mayor"),
+		Npc = if kind == "Collector"
+			then "beatrix"
+			elseif kind == "Restaurant" then "marco"
+			else (NPC_FOR[def.Category] or "mayor"),
 		Item = itemId,
 		Count = count,
 		Quality = quality,
@@ -392,7 +430,10 @@ local function deliver(player: Player, contractId: string)
 				return false, "Deliver it to " .. Registry.Npcs[contract.Npc].Name
 			end
 			if not S.Inventory.Remove(player, contract.Item, contract.Count, contract.Quality) then
-				return false, "You need " .. contract.Count .. " " .. Registry.Items[contract.Item].Name .. (if contract.Quality then " (Pristine+)" else "")
+				return false,
+					"You need " .. contract.Count .. " " .. Registry.Items[contract.Item].Name .. (if contract.Quality
+						then " (Pristine+)"
+						else "")
 			end
 			table.remove(profile.Contracts.Active, i)
 			S.Data.Changed(player, "Contracts")
@@ -469,7 +510,13 @@ local function exportShip(player: Player, refs: { any })
 	if delayed then
 		days += 1
 	end
-	table.insert(profile.Exports, { Value = value, Payout = payout, Due = GameTime.Now() + days * GameTime.DAY, Delayed = delayed, Count = #items })
+	table.insert(profile.Exports, {
+		Value = value,
+		Payout = payout,
+		Due = GameTime.Now() + days * GameTime.DAY,
+		Delayed = delayed,
+		Count = #items,
+	})
 	S.Data.Changed(player, "Exports")
 	S.Data.AddStat(player, "ExportsShipped")
 	S.Quest.Progress(player, "Export", "*", value)
@@ -492,7 +539,11 @@ local function payExports(player: Player)
 			S.Mail.Send(player, {
 				From = "Old Wendell",
 				Subject = "Your shipment arrived!",
-				Body = string.format("The buyers overseas paid %s coins for your goods.%s Fair winds!", Format.Commas(export.Payout), if export.Delayed then " Sorry about the storm delay." else ""),
+				Body = string.format(
+					"The buyers overseas paid %s coins for your goods.%s Fair winds!",
+					Format.Commas(export.Payout),
+					if export.Delayed then " Sorry about the storm delay." else ""
+				),
 				Coins = export.Payout,
 			})
 		end
@@ -528,7 +579,7 @@ local function sync()
 				local p = 0
 				local t = os.time()
 				if type(old) == "table" then
-					local hours = (t - (old.T or t)) / (GameTime.HOUR)
+					local hours = (t - (old.T or t)) / GameTime.HOUR
 					p = (old.P or 0) * (1 - SUPPLY.RecoveryPerHour) ^ math.max(0, hours)
 				end
 				p = math.min(SUPPLY.MaxDrop, p + delta)
@@ -577,14 +628,15 @@ local function marketGet(player: Player)
 	for id in relevant do
 		out[id] = pressure[id] or 0
 	end
-	return true, {
-		Pressure = out,
-		Event = eventMultiplier(),
-		Weather = S.Weather.Current(),
-		Tracked = profile.Contracts.Tracked or {},
-		Insight = Stats.Effect(profile, "MarketInsight") > 0,
-		SellerBonus = Stats.Effect(profile, "SellBonus"),
-	}
+	return true,
+		{
+			Pressure = out,
+			Event = eventMultiplier(),
+			Weather = S.Weather.Current(),
+			Tracked = profile.Contracts.Tracked or {},
+			Insight = Stats.Effect(profile, "MarketInsight") > 0,
+			SellerBonus = Stats.Effect(profile, "SellBonus"),
+		}
 end
 
 local function track(player: Player, itemId: string, on: boolean)

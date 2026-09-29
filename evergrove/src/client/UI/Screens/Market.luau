@@ -37,7 +37,13 @@ local function sparkline(values: { number }, forecast: { number }?): Frame
 	local span = math.max(hi - lo, 0.05)
 	local width = 1 / #all
 	for i, v in all do
-		local bar = Kit.new("Frame", { BorderSizePixel = 0, AnchorPoint = Vector2.new(0, 1), Size = UDim2.new(width, -1, (v - lo) / span * 0.85 + 0.15, 0), Position = UDim2.new((i - 1) * width, 0, 1, 0), Parent = frame })
+		local bar = Kit.new("Frame", {
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0, 1),
+			Size = UDim2.new(width, -1, (v - lo) / span * 0.85 + 0.15, 0),
+			Position = UDim2.new((i - 1) * width, 0, 1, 0),
+			Parent = frame,
+		})
 		local isForecast = i > #values
 		Kit.Paint(bar, "BackgroundColor3", if isForecast then "Info" elseif v >= 1 then "Good" else "Warn")
 		bar.BackgroundTransparency = if isForecast then 0.5 else 0.1
@@ -54,7 +60,12 @@ return {
 	Build = function(win, ctx)
 		local args = ctx.Args or {}
 		local content = win.Content :: Frame
-		local body = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -46), Position = UDim2.fromOffset(0, 46), Parent = content })
+		local body = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 1, -46),
+			Position = UDim2.fromOffset(0, 46),
+			Parent = content,
+		})
 		local current = args.Tab or "Prices"
 		local market: any = nil
 		local query = ""
@@ -65,7 +76,8 @@ return {
 		local function renderPrices()
 			local profile = C.State.Data()
 			local info = GameTime.Info()
-			local header = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 58), Parent = body })
+			local header =
+				Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 58), Parent = body })
 			local hot = {}
 			for _, id in MarketMath.HotItems(info.Day) do
 				local def = Registry.Items[id]
@@ -73,9 +85,31 @@ return {
 			end
 			local shortage = MarketMath.Shortage(info.Day)
 			local shortDef = shortage and Registry.Items[shortage]
-			local news = Kit.Label("🔥 Hot today (×" .. Economy.Market.HotItems.Multiplier .. "): " .. table.concat(hot, ", ") .. (if shortDef then "\n⚠️ Shortage (×" .. Economy.Market.Shortage.Multiplier .. "): " .. shortDef.Icon .. " " .. shortDef.Name else "") .. (if market and market.Event and market.Event > 1 then "\n🌙 Night market: +" .. math.floor((market.Event - 1) * 100) .. "% on everything" else ""), { Size = Theme.Sizes.Small, Wrap = true })
+			local news = Kit.Label(
+				"🔥 Hot today (×"
+					.. Economy.Market.HotItems.Multiplier
+					.. "): "
+					.. table.concat(hot, ", ")
+					.. (if shortDef
+						then "\n⚠️ Shortage (×"
+							.. Economy.Market.Shortage.Multiplier
+							.. "): "
+							.. shortDef.Icon
+							.. " "
+							.. shortDef.Name
+						else "")
+					.. (
+						if market
+								and market.Event
+								and market.Event > 1
+							then "\n🌙 Night market: +" .. math.floor((market.Event - 1) * 100) .. "% on everything"
+							else ""
+					),
+				{ Size = Theme.Sizes.Small, Wrap = true }
+			)
 			news.Parent = header
-			local search = Kit.TextBox("🔍 Look up any item's price…", { Size = UDim2.new(1, 0, 0, 32), Text = query })
+			local search =
+				Kit.TextBox("🔍 Look up any item's price…", { Size = UDim2.new(1, 0, 0, 32), Text = query })
 			search.Position = UDim2.fromOffset(0, 62)
 			search.Parent = body
 			local list = Kit.Scroll({ Size = UDim2.new(1, 0, 1, -100), Position = UDim2.fromOffset(0, 100) })
@@ -141,33 +175,57 @@ return {
 					name.Position = UDim2.fromOffset(48, 0)
 					name.Size = UDim2.new(0.35, -48, 0, 20)
 					name.Parent = row
-					local price = Kit.Label(Kit.Money(math.floor(def.Value * factor)) .. "  (base " .. Format.Commas(def.Value) .. ")", { Size = Theme.Sizes.Tiny, Color = "SubText" })
+					local price = Kit.Label(
+						Kit.Money(math.floor(def.Value * factor)) .. "  (base " .. Format.Commas(def.Value) .. ")",
+						{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+					)
 					price.Position = UDim2.fromOffset(48, 20)
 					price.Size = UDim2.new(0.35, -48, 0, 16)
 					price.Parent = row
-					local demand = Kit.Label(emoji .. " " .. label .. string.format("  ×%.2f", factor), { Size = Theme.Sizes.Small, Color = if factor >= 1.12 then "Good" elseif factor < 0.92 then "Bad" else "Text" })
+					local demand = Kit.Label(emoji .. " " .. label .. string.format("  ×%.2f", factor), {
+						Size = Theme.Sizes.Small,
+						Color = if factor >= 1.12 then "Good" elseif factor < 0.92 then "Bad" else "Text",
+					})
 					demand.Position = UDim2.new(0.35, 0, 0, 8)
 					demand.Size = UDim2.new(0.25, 0, 0, 20)
 					demand.Parent = row
 					local history = MarketMath.History(id, GameTime.Now(), 20)
-					local forecast = if market and market.Insight then MarketMath.Forecast(id, GameTime.Now(), 6) else nil
+					local forecast = if market and market.Insight
+						then MarketMath.Forecast(id, GameTime.Now(), 6)
+						else nil
 					local chart = sparkline(history, forecast)
 					chart.Position = UDim2.new(0.6, 0, 0, 2)
 					chart.Parent = row
 					Kit.AttachTooltip(chart, function()
-						return { { Text = "Last 20 in-game hours" .. (if forecast then " + 6-hour forecast (Market Savvy)" else "") }, { Text = "Supply pressure: −" .. math.floor((Prices.Snapshot.Pressure[id] or 0) * 100) .. "%", Color = "SubText", Size = Theme.Sizes.Tiny } }
+						return {
+							{
+								Text = "Last 20 in-game hours"
+									.. (if forecast then " + 6-hour forecast (Market Savvy)" else ""),
+							},
+							{
+								Text = "Supply pressure: −"
+									.. math.floor((Prices.Snapshot.Pressure[id] or 0) * 100)
+									.. "%",
+								Color = "SubText",
+								Size = Theme.Sizes.Tiny,
+							},
+						}
 					end)
-					local star = Kit.Button(if tracked[id] then "★" else "☆", { Style = "Ghost", Size = UDim2.fromOffset(40, 34), OnClick = function()
-						local ok = Net.Request("MarketTrack", id, not tracked[id])
-						if ok then
-							local ok2, data = Net.Request("MarketGet")
-							if ok2 then
-								market = data
-								Prices.SetSnapshot(data)
+					local star = Kit.Button(if tracked[id] then "★" else "☆", {
+						Style = "Ghost",
+						Size = UDim2.fromOffset(40, 34),
+						OnClick = function()
+							local ok = Net.Request("MarketTrack", id, not tracked[id])
+							if ok then
+								local ok2, data = Net.Request("MarketGet")
+								if ok2 then
+									market = data
+									Prices.SetSnapshot(data)
+								end
+								fill()
 							end
-							fill()
-						end
-					end })
+						end,
+					})
 					star.Position = UDim2.new(1, -42, 0, 2)
 					star.Parent = row
 					Kit.AttachTooltip(star, function()
@@ -195,8 +253,19 @@ return {
 			slot.Button.Active = false
 			slot.Set({ Id = contract.Item, N = contract.Count, Q = contract.Quality })
 			slot.Button.Parent = card
-			local kind = if contract.Kind == "Collector" then "🧾 Collector" elseif contract.Kind == "Restaurant" then "🍽️ Restaurant order" else "📋 Bulk order"
-			local title = Kit.Label(kind .. " · " .. contract.Count .. " × " .. (if def then def.Name else contract.Item) .. (if contract.Quality then " (" .. Theme.QualityTier(contract.Quality).Name .. "+)" else ""), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
+			local kind = if contract.Kind == "Collector"
+				then "🧾 Collector"
+				elseif contract.Kind == "Restaurant" then "🍽️ Restaurant order"
+				else "📋 Bulk order"
+			local title = Kit.Label(
+				kind
+					.. " · "
+					.. contract.Count
+					.. " × "
+					.. (if def then def.Name else contract.Item)
+					.. (if contract.Quality then " (" .. Theme.QualityTier(contract.Quality).Name .. "+)" else ""),
+				{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+			)
 			title.Position = UDim2.fromOffset(62, 0)
 			title.Size = UDim2.new(1, -190, 0, 20)
 			title.Parent = card
@@ -207,34 +276,54 @@ return {
 				end
 			end
 			local left = contract.Expires - GameTime.Now()
-			local sub = Kit.Label((if npc then "for " .. npc.Icon .. " " .. npc.Name .. " · " else "") .. "pays " .. Kit.Money(contract.Pay) .. " · " .. (if left > 0 then Format.Duration(left) .. " left" else "expired"), { Size = Theme.Sizes.Tiny, Color = "SubText" })
+			local sub = Kit.Label(
+				(if npc then "for " .. npc.Icon .. " " .. npc.Name .. " · " else "")
+					.. "pays "
+					.. Kit.Money(contract.Pay)
+					.. " · "
+					.. (if left > 0 then Format.Duration(left) .. " left" else "expired"),
+				{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+			)
 			sub.Position = UDim2.fromOffset(62, 22)
 			sub.Size = UDim2.new(1, -190, 0, 16)
 			sub.Parent = card
-			local progress = Kit.Progress({ Size = UDim2.new(1, -190, 0, 12), Color = if have >= contract.Count then "Good" else "Accent" })
+			local progress = Kit.Progress({
+				Size = UDim2.new(1, -190, 0, 12),
+				Color = if have >= contract.Count then "Good" else "Accent",
+			})
 			progress.Frame.Position = UDim2.fromOffset(62, 46)
 			progress.Frame.Parent = card
 			progress.Set(have / contract.Count, have .. " / " .. contract.Count, false)
 			local button
 			if active then
-				button = Kit.Button("Deliver", { Style = if have >= contract.Count then "Good" else "Secondary", Size = UDim2.fromOffset(110, 36), TextSize = Theme.Sizes.Small, OnClick = function()
-					local ok, result = Net.Request("ContractDeliver", contract.Id)
-					if ok then
-						C.Audio.PlayUI("QuestComplete")
-						C.Notify.Toast("📋 Contract complete: +" .. Kit.Money(result or contract.Pay), "Success")
-					else
-						C.Notify.Toast(tostring(result), "Warning")
-					end
-				end })
+				button = Kit.Button("Deliver", {
+					Style = if have >= contract.Count then "Good" else "Secondary",
+					Size = UDim2.fromOffset(110, 36),
+					TextSize = Theme.Sizes.Small,
+					OnClick = function()
+						local ok, result = Net.Request("ContractDeliver", contract.Id)
+						if ok then
+							C.Audio.PlayUI("QuestComplete")
+							C.Notify.Toast("📋 Contract complete: +" .. Kit.Money(result or contract.Pay), "Success")
+						else
+							C.Notify.Toast(tostring(result), "Warning")
+						end
+					end,
+				})
 			else
-				button = Kit.Button("Accept", { Style = "Primary", Size = UDim2.fromOffset(110, 36), TextSize = Theme.Sizes.Small, OnClick = function()
-					local ok, err = Net.Request("ContractAccept", contract.Id)
-					if not ok then
-						C.Notify.Toast(tostring(err), "Warning")
-					else
-						C.Audio.PlayUI("UIConfirm")
-					end
-				end })
+				button = Kit.Button("Accept", {
+					Style = "Primary",
+					Size = UDim2.fromOffset(110, 36),
+					TextSize = Theme.Sizes.Small,
+					OnClick = function()
+						local ok, err = Net.Request("ContractAccept", contract.Id)
+						if not ok then
+							C.Notify.Toast(tostring(err), "Warning")
+						else
+							C.Audio.PlayUI("UIConfirm")
+						end
+					end,
+				})
 			end
 			button.Position = UDim2.new(1, -112, 0, 18)
 			button.Parent = card
@@ -246,11 +335,15 @@ return {
 			local list = Kit.Scroll({ Size = UDim2.fromScale(1, 1) })
 			list.Parent = body
 			Kit.List(list, "Y", 6)
-			local h1 = Kit.Heading("Your contracts (" .. #contracts.Active .. " / " .. Economy.Contracts.MaxActive .. ")", 18)
+			local h1 =
+				Kit.Heading("Your contracts (" .. #contracts.Active .. " / " .. Economy.Contracts.MaxActive .. ")", 18)
 			h1.LayoutOrder = 0
 			h1.Parent = list
 			if #contracts.Active == 0 then
-				local e = Kit.Label("No active contracts. Accept one below, gather the goods and deliver them to the villager.", { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+				local e = Kit.Label(
+					"No active contracts. Accept one below, gather the goods and deliver them to the villager.",
+					{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+				)
 				e.LayoutOrder = 1
 				e.Parent = list
 			end
@@ -260,7 +353,10 @@ return {
 			local h2 = Kit.Heading("Today's board", 18)
 			h2.LayoutOrder = 100
 			h2.Parent = list
-			local note = Kit.Label("New orders every morning. Collector requests unlock with Beatrix; restaurant orders once you know a recipe.", { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+			local note = Kit.Label(
+				"New orders every morning. Collector requests unlock with Beatrix; restaurant orders once you know a recipe.",
+				{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+			)
 			note.LayoutOrder = 101
 			note.Parent = list
 			for i, contract in contracts.Board or {} do
@@ -272,9 +368,24 @@ return {
 		-- Export -------------------------------------------------------------------------------------------------------
 		local function renderExport()
 			local profile = C.State.Data()
-			local left = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.6, -8, 1, 0), Parent = body })
-			local right = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.4, -8, 1, 0), Position = UDim2.new(0.6, 8, 0, 0), Parent = body })
-			local intro = Kit.Label("Old Wendell ships crates overseas from the harbour. Buyers pay a premium (" .. math.floor(EXPORT.Premium * 100) .. "–" .. math.floor(EXPORT.MaxPremium * 100) .. "%) after " .. EXPORT.DeliveryDays .. " days; storms can delay a boat, never sink it. Preserves and export goods earn extra.", { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+			local left =
+				Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.6, -8, 1, 0), Parent = body })
+			local right = Kit.new("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.new(0.4, -8, 1, 0),
+				Position = UDim2.new(0.6, 8, 0, 0),
+				Parent = body,
+			})
+			local intro = Kit.Label(
+				"Old Wendell ships crates overseas from the harbour. Buyers pay a premium ("
+					.. math.floor(EXPORT.Premium * 100)
+					.. "–"
+					.. math.floor(EXPORT.MaxPremium * 100)
+					.. "%) after "
+					.. EXPORT.DeliveryDays
+					.. " days; storms can delay a boat, never sink it. Preserves and export goods earn extra.",
+				{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+			)
 			intro.Parent = left
 			local list = Kit.Scroll({ Size = UDim2.new(1, 0, 1, -110), Position = UDim2.fromOffset(0, 50) })
 			list.Parent = left
@@ -290,14 +401,29 @@ return {
 					if on then
 						total += value
 					end
-					local row = Kit.new("TextButton", { AutoButtonColor = false, Text = "", Size = UDim2.new(1, -8, 0, 40), LayoutOrder = order, Parent = list })
+					local row = Kit.new("TextButton", {
+						AutoButtonColor = false,
+						Text = "",
+						Size = UDim2.new(1, -8, 0, 40),
+						LayoutOrder = order,
+						Parent = list,
+					})
 					Kit.Paint(row, "BackgroundColor3", if on then "SlotHover" else "PanelAlt")
 					Kit.Corner(row, 8)
-					local label = Kit.Label((if on then "☑  " else "☐  ") .. Kit.ItemIcon(stack.Id) .. " " .. ItemUtil.DisplayName(stack) .. " ×" .. stack.N, { Size = Theme.Sizes.Small })
+					local label = Kit.Label(
+						(if on then "☑  " else "☐  ")
+							.. Kit.ItemIcon(stack.Id)
+							.. " "
+							.. ItemUtil.DisplayName(stack)
+							.. " ×"
+							.. stack.N,
+						{ Size = Theme.Sizes.Small }
+					)
 					label.Size = UDim2.new(1, -120, 1, 0)
 					label.Position = UDim2.fromOffset(10, 0)
 					label.Parent = row
-					local worth = Kit.Label(Kit.Money(value), { Size = Theme.Sizes.Small, Align = "Right", Color = "Accent" })
+					local worth =
+						Kit.Label(Kit.Money(value), { Size = Theme.Sizes.Small, Align = "Right", Color = "Accent" })
 					worth.Size = UDim2.new(0, 110, 1, 0)
 					worth.Position = UDim2.new(1, -116, 0, 0)
 					worth.Parent = row
@@ -314,46 +440,86 @@ return {
 			if order == 0 then
 				Kit.Empty("Nothing to export.").Parent = list
 			end
-			local premium = math.min(EXPORT.MaxPremium, EXPORT.Premium + math.floor(total / 10000) * EXPORT.BulkPremiumPer10k)
-			local summary = Kit.Label("Crate value " .. Kit.Money(total) .. "  →  about " .. Kit.Money(math.floor(total * (1 + premium))) .. " (+" .. math.floor(premium * 100) .. "%)", { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
+			local premium =
+				math.min(EXPORT.MaxPremium, EXPORT.Premium + math.floor(total / 10000) * EXPORT.BulkPremiumPer10k)
+			local summary = Kit.Label(
+				"Crate value "
+					.. Kit.Money(total)
+					.. "  →  about "
+					.. Kit.Money(math.floor(total * (1 + premium)))
+					.. " (+"
+					.. math.floor(premium * 100)
+					.. "%)",
+				{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+			)
 			summary.Position = UDim2.new(0, 0, 1, -54)
 			summary.Size = UDim2.new(1, 0, 0, 20)
 			summary.Parent = left
-			local ship = Kit.Button("🚢 Ship crate", { Style = "Good", Size = UDim2.fromOffset(170, 34), OnClick = function()
-				local refs = {}
-				for ref in exportPick do
-					table.insert(refs, ref)
-				end
-				local ok, result = Net.Request("ExportShip", refs)
-				if ok then
-					table.clear(exportPick)
-					C.Notify.Toast("🚢 Shipped! About " .. Kit.Money(result.Payout) .. " in " .. result.Days .. " days" .. (if result.Delayed then " (a storm is brewing — expect a delay)" else ""), "Success")
-				else
-					C.Notify.Toast(tostring(result), "Warning")
-				end
-				render()
-			end })
+			local ship = Kit.Button("🚢 Ship crate", {
+				Style = "Good",
+				Size = UDim2.fromOffset(170, 34),
+				OnClick = function()
+					local refs = {}
+					for ref in exportPick do
+						table.insert(refs, ref)
+					end
+					local ok, result = Net.Request("ExportShip", refs)
+					if ok then
+						table.clear(exportPick)
+						C.Notify.Toast(
+							"🚢 Shipped! About "
+								.. Kit.Money(result.Payout)
+								.. " in "
+								.. result.Days
+								.. " days"
+								.. (if result.Delayed then " (a storm is brewing — expect a delay)" else ""),
+							"Success"
+						)
+					else
+						C.Notify.Toast(tostring(result), "Warning")
+					end
+					render()
+				end,
+			})
 			ship.Position = UDim2.new(0, 0, 1, -32)
 			ship.Parent = left
 			Kit.SetEnabled(ship, total >= EXPORT.MinValue)
 			if total < EXPORT.MinValue then
-				local min = Kit.Label("Minimum crate: " .. Kit.Money(EXPORT.MinValue), { Size = Theme.Sizes.Tiny, Color = "SubText" })
+				local min = Kit.Label(
+					"Minimum crate: " .. Kit.Money(EXPORT.MinValue),
+					{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+				)
 				min.Position = UDim2.new(0, 180, 1, -30)
 				min.Size = UDim2.new(1, -180, 0, 28)
 				min.Parent = left
 			end
-			local h = Kit.Heading("At sea (" .. #((profile and profile.Exports) or {}) .. " / " .. EXPORT.MaxActive .. ")", 18)
+			local h = Kit.Heading(
+				"At sea (" .. #((profile and profile.Exports) or {}) .. " / " .. EXPORT.MaxActive .. ")",
+				18
+			)
 			h.Parent = right
-			local sea = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -34), Position = UDim2.fromOffset(0, 34), Parent = right })
+			local sea = Kit.new("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, 0, 1, -34),
+				Position = UDim2.fromOffset(0, 34),
+				Parent = right,
+			})
 			Kit.List(sea, "Y", 6)
 			for i, export in (profile and profile.Exports) or {} do
 				local card = Kit.Card(58)
 				card.LayoutOrder = i
 				card.Parent = sea
-				local l = Kit.Label("🚢 " .. export.Count .. " stacks · " .. Kit.Money(export.Payout), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
+				local l = Kit.Label(
+					"🚢 " .. export.Count .. " stacks · " .. Kit.Money(export.Payout),
+					{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+				)
 				l.Parent = card
 				local due = export.Due - GameTime.Now()
-				local d = Kit.Label((if due > 0 then "arrives in " .. Format.Duration(due) else "arriving — payment by mail") .. (if export.Delayed then " · ⛈️ storm delay" else ""), { Size = Theme.Sizes.Tiny, Color = "SubText" })
+				local d = Kit.Label(
+					(if due > 0 then "arrives in " .. Format.Duration(due) else "arriving — payment by mail")
+						.. (if export.Delayed then " · ⛈️ storm delay" else ""),
+					{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+				)
 				d.Position = UDim2.fromOffset(0, 22)
 				d.Parent = card
 			end
@@ -371,7 +537,11 @@ return {
 			end
 		end
 
-		local tabs = Kit.Tabs({ { Id = "Prices", Label = "Prices", Icon = "📈" }, { Id = "Contracts", Label = "Contracts", Icon = "📋" }, { Id = "Export", Label = "Export", Icon = "🚢" } }, function(id)
+		local tabs = Kit.Tabs({
+			{ Id = "Prices", Label = "Prices", Icon = "📈" },
+			{ Id = "Contracts", Label = "Contracts", Icon = "📋" },
+			{ Id = "Export", Label = "Export", Icon = "🚢" },
+		}, function(id)
 			current = id
 			render()
 		end)

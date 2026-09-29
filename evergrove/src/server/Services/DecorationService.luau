@@ -102,7 +102,13 @@ function DecorationService.Refresh(player: Player)
 	if tier.Title and not profile.Titles[tier.Title] then
 		profile.Titles[tier.Title] = true
 		S.Data.Changed(player, "Titles")
-		S.Notify.Banner(player, tier.Icon .. " Your farm is " .. tier.Name .. "!", "New title: " .. tier.Title, "Decor", tier.Icon)
+		S.Notify.Banner(
+			player,
+			tier.Icon .. " Your farm is " .. tier.Name .. "!",
+			"New title: " .. tier.Title,
+			"Decor",
+			tier.Icon
+		)
 	elseif score > before and before > 0 then
 		-- Crossing into a new tier without a title still deserves a note.
 		for _, t in DecorationService.Tiers do
@@ -116,7 +122,11 @@ function DecorationService.Refresh(player: Player)
 		if not profile.Unlocks[key] then
 			profile.Unlocks[key] = true
 			S.Data.Changed(player, "Unlocks")
-			S.Notify.Toast(player, "🎨 Theme set complete: " .. theme .. " (+" .. THEME_BONUS .. " appeal)", "Success")
+			S.Notify.Toast(
+				player,
+				"🎨 Theme set complete: " .. theme .. " (+" .. THEME_BONUS .. " appeal)",
+				"Success"
+			)
 		end
 	end
 end

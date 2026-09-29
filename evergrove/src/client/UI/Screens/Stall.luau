@@ -30,10 +30,29 @@ return {
 		local mine = ownerId == Players.LocalPlayer.UserId
 		local content = win.Content :: Frame
 		local listings: { [string]: any } = {}
-		local intro = Kit.Label(if mine then "Stock up to " .. STALL.Slots .. " shelves. Visitors buy while you play (or while you're away); the town keeps " .. math.floor(STALL.Fee * 100) .. "% of each sale." else "Buy directly from another farmer.", { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+		local intro = Kit.Label(
+			if mine
+				then "Stock up to "
+					.. STALL.Slots
+					.. " shelves. Visitors buy while you play (or while you're away); the town keeps "
+					.. math.floor(STALL.Fee * 100)
+					.. "% of each sale."
+				else "Buy directly from another farmer.",
+			{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+		)
 		intro.Parent = content
-		local grid = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -40), Position = UDim2.fromOffset(0, 40), Parent = content })
-		local layout = Kit.new("UIGridLayout", { CellSize = UDim2.new(0.333, -8, 0, 190), CellPadding = UDim2.fromOffset(10, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = grid })
+		local grid = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 1, -40),
+			Position = UDim2.fromOffset(0, 40),
+			Parent = content,
+		})
+		local layout = Kit.new("UIGridLayout", {
+			CellSize = UDim2.new(0.333, -8, 0, 190),
+			CellPadding = UDim2.fromOffset(10, 10),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = grid,
+		})
 		layout.FillDirectionMaxCells = 3
 
 		local render: () -> ()
@@ -71,21 +90,26 @@ return {
 						if not count then
 							return
 						end
-						Kit.AskNumber("Price each (" .. lo .. "–" .. hi .. ", value " .. value .. ")", hi, math.clamp(math.floor(value * 1.2), lo, hi), function(price)
-							if not price then
-								return
+						Kit.AskNumber(
+							"Price each (" .. lo .. "–" .. hi .. ", value " .. value .. ")",
+							hi,
+							math.clamp(math.floor(value * 1.2), lo, hi),
+							function(price)
+								if not price then
+									return
+								end
+								if price < lo then
+									C.Notify.Toast("The lowest price allowed is " .. lo, "Warning")
+									return
+								end
+								local ok, err = Net.Request("StallSet", slot, ref, count, price)
+								if ok then
+									C.Audio.PlayUI("Place")
+								else
+									C.Notify.Toast(tostring(err), "Warning")
+								end
 							end
-							if price < lo then
-								C.Notify.Toast("The lowest price allowed is " .. lo, "Warning")
-								return
-							end
-							local ok, err = Net.Request("StallSet", slot, ref, count, price)
-							if ok then
-								C.Audio.PlayUI("Place")
-							else
-								C.Notify.Toast(tostring(err), "Warning")
-							end
-						end)
+						)
 					end)
 				end,
 			})
@@ -105,52 +129,82 @@ return {
 				itemSlot.Button.Parent = card
 				if listing then
 					local def = Registry.Items[listing.Stack.Id]
-					local name = Kit.Label(ItemUtil.DisplayName(listing.Stack) .. " ×" .. listing.Stack.N, { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Align = "Center", Wrap = true })
+					local name = Kit.Label(
+						ItemUtil.DisplayName(listing.Stack) .. " ×" .. listing.Stack.N,
+						{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Align = "Center", Wrap = true }
+					)
 					name.LayoutOrder = 1
 					name.Parent = card
-					local price = Kit.Label(Kit.Money(listing.Price) .. " each" .. (if def then "  (value " .. ItemUtil.UnitValue(listing.Stack) .. ")" else ""), { Size = Theme.Sizes.Tiny, Color = "Accent", Align = "Center" })
+					local price = Kit.Label(
+						Kit.Money(listing.Price)
+							.. " each"
+							.. (if def then "  (value " .. ItemUtil.UnitValue(listing.Stack) .. ")" else ""),
+						{ Size = Theme.Sizes.Tiny, Color = "Accent", Align = "Center" }
+					)
 					price.LayoutOrder = 2
 					price.Parent = card
 					if mine then
-						Kit.Button("Take back", { Style = "Secondary", Size = UDim2.new(1, 0, 0, 32), TextSize = Theme.Sizes.Small, LayoutOrder = 3, OnClick = function()
-							local ok, err = Net.Request("StallClear", slot)
-							if not ok then
-								C.Notify.Toast(tostring(err), "Warning")
-							end
-						end }).Parent = card
-					else
-						Kit.Button("Buy", { Style = "Primary", Size = UDim2.new(1, 0, 0, 32), TextSize = Theme.Sizes.Small, LayoutOrder = 3, OnClick = function()
-							local coins = C.State.Get("Coins") or 0
-							local max = math.min(listing.Stack.N, math.floor(coins / math.max(1, listing.Price)))
-							if max < 1 then
-								C.Notify.Toast("Not enough coins", "Warning")
-								return
-							end
-							Kit.AskNumber("Buy how many?", max, 1, function(qty)
-								if not qty then
-									return
-								end
-								local ok, err = Net.Request("StallBuy", ownerId, slot, qty)
-								if ok then
-									C.Audio.PlayUI("Coins")
-									load()
-								else
+						Kit.Button("Take back", {
+							Style = "Secondary",
+							Size = UDim2.new(1, 0, 0, 32),
+							TextSize = Theme.Sizes.Small,
+							LayoutOrder = 3,
+							OnClick = function()
+								local ok, err = Net.Request("StallClear", slot)
+								if not ok then
 									C.Notify.Toast(tostring(err), "Warning")
 								end
-							end)
-						end }).Parent = card
+							end,
+						}).Parent =
+							card
+					else
+						Kit.Button("Buy", {
+							Style = "Primary",
+							Size = UDim2.new(1, 0, 0, 32),
+							TextSize = Theme.Sizes.Small,
+							LayoutOrder = 3,
+							OnClick = function()
+								local coins = C.State.Get("Coins") or 0
+								local max = math.min(listing.Stack.N, math.floor(coins / math.max(1, listing.Price)))
+								if max < 1 then
+									C.Notify.Toast("Not enough coins", "Warning")
+									return
+								end
+								Kit.AskNumber("Buy how many?", max, 1, function(qty)
+									if not qty then
+										return
+									end
+									local ok, err = Net.Request("StallBuy", ownerId, slot, qty)
+									if ok then
+										C.Audio.PlayUI("Coins")
+										load()
+									else
+										C.Notify.Toast(tostring(err), "Warning")
+									end
+								end)
+							end,
+						}).Parent =
+							card
 					end
 					Kit.AttachTooltip(card, function()
 						return Kit.ItemTooltip(listing.Stack)
 					end)
 				else
-					local empty = Kit.Label("Empty shelf", { Size = Theme.Sizes.Small, Color = "SubText", Align = "Center" })
+					local empty =
+						Kit.Label("Empty shelf", { Size = Theme.Sizes.Small, Color = "SubText", Align = "Center" })
 					empty.LayoutOrder = 1
 					empty.Parent = card
 					if mine then
-						Kit.Button("Stock", { Style = "Accent", Size = UDim2.new(1, 0, 0, 32), TextSize = Theme.Sizes.Small, LayoutOrder = 3, OnClick = function()
-							stock(slot)
-						end }).Parent = card
+						Kit.Button("Stock", {
+							Style = "Accent",
+							Size = UDim2.new(1, 0, 0, 32),
+							TextSize = Theme.Sizes.Small,
+							LayoutOrder = 3,
+							OnClick = function()
+								stock(slot)
+							end,
+						}).Parent =
+							card
 					end
 				end
 			end

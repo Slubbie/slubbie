@@ -36,7 +36,11 @@ function PlayerService.RegionAt(position: Vector3): string
 	for _, region in Regions.List do
 		local flat = Vector3.new(position.X - region.Center.X, 0, position.Z - region.Center.Z).Magnitude
 		local height = region.Height or 400
-		if flat <= region.Radius and math.abs(position.Y - region.Center.Y) <= height and region.Radius < bestRadius then
+		if
+			flat <= region.Radius
+			and math.abs(position.Y - region.Center.Y) <= height
+			and region.Radius < bestRadius
+		then
 			best, bestRadius = region.Id, region.Radius
 		end
 	end
@@ -96,7 +100,9 @@ function PlayerService.MaxEnergy(player: Player): number
 end
 
 -- Spend energy. Light actions (harvest/plant) are always allowed.
-function PlayerService.SpendEnergy(player: Player, amount: number, light: boolean?): boolean
+-- `light` is true for actions that still work when exhausted, or an action
+-- name looked up in Gameplay.Energy.LightActions.
+function PlayerService.SpendEnergy(player: Player, amount: number, light: (boolean | string)?): boolean
 	local profile = S.Data.Get(player)
 	if not profile then
 		return false
@@ -104,7 +110,8 @@ function PlayerService.SpendEnergy(player: Player, amount: number, light: boolea
 	if not Gameplay.Energy.Enabled or amount <= 0 then
 		return true
 	end
-	if profile.Energy < amount and not light then
+	local isLight = if type(light) == "string" then Gameplay.Energy.LightActions[light] == true else light == true
+	if profile.Energy < amount and not isLight then
 		if os.clock() - (energyWarnAt[player] or 0) > 6 then
 			energyWarnAt[player] = os.clock()
 			S.Notify.Toast(player, "You're exhausted! Eat something or rest a moment.", "Warning")
@@ -366,7 +373,9 @@ local function regionTick(player: Player, dt: number)
 			local target = if previous and previous ~= regionId then previous else "Village"
 			local region = Registry.Regions[target]
 			local fallback = travelById.town
-			local cframe = CFrame.new((if region and target ~= "Homestead" then region.Center else fallback.Position) + Vector3.new(0, 5, 0))
+			local cframe = CFrame.new(
+				(if region and target ~= "Homestead" then region.Center else fallback.Position) + Vector3.new(0, 5, 0)
+			)
 			PlayerService.Teleport(player, cframe)
 		end
 		return

@@ -83,12 +83,26 @@ local function announceMutations(player: Player, key: string, cs: any, events: a
 	end
 	for _, id in events.Combos do
 		S.Notify.FX(position, "Combo", { Id = id, Crop = cs.Id, Key = key }, 400)
-		S.Notify.Toast(player, string.format("✨ A %s %s is growing on your farm!", id, Registry.Crops[cs.Id].Name), "Success")
+		S.Notify.Toast(
+			player,
+			string.format("✨ A %s %s is growing on your farm!", id, Registry.Crops[cs.Id].Name),
+			"Success"
+		)
 	end
 	if events.Afflicted then
 		local aff = Soil.Afflictions[events.Afflicted]
 		S.Notify.FX(position, "Affliction", { Id = events.Afflicted, Key = key })
-		S.Notify.Toast(player, string.format("%s %s on your %s! Use %s.", aff.Icon, aff.Name, Registry.Crops[cs.Id].Name, Registry.Items[aff.Cure].Name), "Warning")
+		S.Notify.Toast(
+			player,
+			string.format(
+				"%s %s on your %s! Use %s.",
+				aff.Icon,
+				aff.Name,
+				Registry.Crops[cs.Id].Name,
+				Registry.Items[aff.Cure].Name
+			),
+			"Warning"
+		)
 	end
 end
 
@@ -168,12 +182,7 @@ local function step()
 				local stage = CropMath.StageOf(tile.C.P or 0)
 				local wet = wetState(tile, crop)
 				local visible = events
-					and (
-						events.Ripened
-						or #events.Mutations > 0
-						or #events.Combos > 0
-						or events.Afflicted ~= nil
-					)
+					and (events.Ripened or #events.Mutations > 0 or #events.Combos > 0 or events.Afflicted ~= nil)
 				if visible or stage ~= entry.LastStage or wet ~= entry.LastWet or clock >= entry.RenderAt then
 					entry.LastStage = stage
 					entry.LastWet = wet
@@ -593,7 +602,12 @@ function CropService.Spray(owner: Player, key: string, itemId: string): boolean
 			for _, mutation in require(Shared.Config.Mutations).List do
 				local chance = CropMath.MutationChance(mutation, cs, env, weather, info) * 20
 				if random:NextNumber() < chance and CropMath.AddMutation(cs, mutation.Id, env) then
-					announceMutations(owner, key, cs, { Mutations = { mutation.Id }, Combos = CropMath.ResolveCombos(cs) })
+					announceMutations(
+						owner,
+						key,
+						cs,
+						{ Mutations = { mutation.Id }, Combos = CropMath.ResolveCombos(cs) }
+					)
 				end
 			end
 		end

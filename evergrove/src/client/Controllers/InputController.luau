@@ -23,6 +23,7 @@ local UserInputService = game:GetService("UserInputService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Tools = require(Shared.Config.Tools)
 local Crops = require(Shared.Config.Crops)
+local Gameplay = require(Shared.Config.Gameplay)
 local Net = require(Shared.Lib.Net)
 local Registry = require(Shared.Lib.Registry)
 local GameTime = require(Shared.Lib.GameTime)
@@ -142,7 +143,14 @@ local function rayParams(): RaycastParams
 	return params
 end
 
-export type Target = { Position: Vector3, Node: string?, Spot: string?, SpotKind: string?, Water: boolean, Tile: BasePart? }
+export type Target = {
+	Position: Vector3,
+	Node: string?,
+	Spot: string?,
+	SpotKind: string?,
+	Water: boolean,
+	Tile: BasePart?,
+}
 
 local function pointerRay(): (Vector3, Vector3)
 	local location = UserInputService:GetMouseLocation()
@@ -207,7 +215,18 @@ end
 
 -- Use --------------------------------------------------------------------------------------------------------------
 
-local ACTION_FOR_FAMILY = { hoe = "Till", can = "Water", sickle = "Harvest", pruners = "Prune", shovel = "Dig", axe = "Chop", pickaxe = "Mine", net = "Net", rod = "Cast", seeder = "Plant" }
+local ACTION_FOR_FAMILY = {
+	hoe = "Till",
+	can = "Water",
+	sickle = "Harvest",
+	pruners = "Prune",
+	shovel = "Dig",
+	axe = "Chop",
+	pickaxe = "Mine",
+	net = "Net",
+	rod = "Cast",
+	seeder = "Plant",
+}
 
 local function cooldownFor(stack: any?): number
 	local family = familyOf(stack)
@@ -243,7 +262,15 @@ function InputController.Use()
 		return
 	end
 	-- Food, potions, boxes: use directly.
-	if not def.Tool and not def.Powered and not def.Plants and not def.Fertilizer and def.Use ~= "Spray" and def.Use ~= "Amend" and def.Use ~= "Plant" then
+	if
+		not def.Tool
+		and not def.Powered
+		and not def.Plants
+		and not def.Fertilizer
+		and def.Use ~= "Spray"
+		and def.Use ~= "Amend"
+		and def.Use ~= "Plant"
+	then
 		InputController.UseItem()
 		return
 	end
@@ -272,9 +299,22 @@ function InputController.Use()
 	end
 	local position = if target.Tile then target.Tile.Position else target.Position
 	Net.Send("ToolUse", stack.Id, position, opts)
-	local action = ACTION_FOR_FAMILY[family or ""] or (if def.Plants then "Plant" elseif def.Fertilizer then "Fertilize" else "Spray")
+	local action = ACTION_FOR_FAMILY[family or ""]
+		or (if def.Plants then "Plant" elseif def.Fertilizer then "Fertilize" else "Spray")
 	C.Animation.Play(action)
-	local sounds = { Till = "Till", Water = "Water", Harvest = "Harvest", Plant = "Plant", Fertilize = "Fertilize", Chop = "Chop", Mine = "Mine", Dig = "Dig", Net = "NetSwing", Prune = "Harvest", Spray = "Water" }
+	local sounds = {
+		Till = "Till",
+		Water = "Water",
+		Harvest = "Harvest",
+		Plant = "Plant",
+		Fertilize = "Fertilize",
+		Chop = "Chop",
+		Mine = "Mine",
+		Dig = "Dig",
+		Net = "NetSwing",
+		Prune = "Harvest",
+		Spray = "Water",
+	}
 	if sounds[action] and action ~= "Chop" and action ~= "Mine" then
 		C.Audio.PlayAt(sounds[action], position)
 	end
@@ -360,7 +400,12 @@ local function tileInfo(tile: BasePart): { any }
 	local w, h, n, p, k = string.match(soil, "(%d+),(%d+),(%d+),(%d+),(%d+)")
 	if crop then
 		local stage = tile:GetAttribute("S") or 1
-		table.insert(lines, { Text = crop.Icon .. " " .. crop.Name .. " · " .. Crops.StageNames[stage], Bold = true, Size = Theme.Sizes.Body, Color = Theme.RarityColor(crop.Rarity) })
+		table.insert(lines, {
+			Text = crop.Icon .. " " .. crop.Name .. " · " .. Crops.StageNames[stage],
+			Bold = true,
+			Size = Theme.Sizes.Body,
+			Color = Theme.RarityColor(crop.Rarity),
+		})
 		if tile:GetAttribute("R") then
 			table.insert(lines, { Text = "✨ Ready to harvest!", Color = "Good" })
 		else
@@ -372,7 +417,13 @@ local function tileInfo(tile: BasePart): { any }
 		local q = tile:GetAttribute("Q")
 		if q then
 			local tier = Theme.QualityTier(q)
-			table.insert(lines, { Text = "Quality on track: " .. (tier.Glyph ~= "" and tier.Glyph .. " " or "") .. tier.Name .. (if detailed then " (" .. tostring(tile:GetAttribute("Qs")) .. ")" else ""), Color = tier.Color })
+			table.insert(lines, {
+				Text = "Quality on track: "
+					.. (tier.Glyph ~= "" and tier.Glyph .. " " or "")
+					.. tier.Name
+					.. (if detailed then " (" .. tostring(tile:GetAttribute("Qs")) .. ")" else ""),
+				Color = tier.Color,
+			})
 		end
 		local m = tile:GetAttribute("M")
 		if m then
@@ -384,7 +435,10 @@ local function tileInfo(tile: BasePart): { any }
 			table.insert(lines, { Text = table.concat(names, ", "), Color = "Info" })
 		end
 		if tile:GetAttribute("Af") then
-			table.insert(lines, { Text = "⚠️ " .. tostring(tile:GetAttribute("Af")) .. " — treat it!", Color = "Bad" })
+			table.insert(
+				lines,
+				{ Text = "⚠️ " .. tostring(tile:GetAttribute("Af")) .. " — treat it!", Color = "Bad" }
+			)
 		end
 		if tile:GetAttribute("Dn") then
 			table.insert(lines, { Text = "💤 Out of season: barely growing outdoors", Color = "Warn" })
@@ -397,9 +451,17 @@ local function tileInfo(tile: BasePart): { any }
 		table.insert(lines, { Text = "🟫 Tilled soil", Bold = true })
 	end
 	local wb = tile:GetAttribute("Wb")
-	table.insert(lines, { Text = (if wb == 0 then "💧 Dry — water me!" elseif wb == 2 then "💦 Soaked" else "💧 Moist") .. (if w then " (" .. w .. "%)" else ""), Color = if wb == 0 then "Warn" else "Info" })
+	table.insert(lines, {
+		Text = (if wb == 0 then "💧 Dry — water me!" elseif wb == 2 then "💦 Soaked" else "💧 Moist")
+			.. (if w then " (" .. w .. "%)" else ""),
+		Color = if wb == 0 then "Warn" else "Info",
+	})
 	if detailed and h then
-		table.insert(lines, { Text = string.format("Soil health %s · N %s · P %s · K %s", h, n, p, k), Color = "SubText", Size = Theme.Sizes.Tiny })
+		table.insert(lines, {
+			Text = string.format("Soil health %s · N %s · P %s · K %s", h, n, p, k),
+			Color = "SubText",
+			Size = Theme.Sizes.Tiny,
+		})
 	end
 	if tile:GetAttribute("Spr") then
 		table.insert(lines, { Text = "💦 Covered by a sprinkler", Color = "SubText", Size = Theme.Sizes.Tiny })
@@ -422,7 +484,18 @@ local function updateHighlight()
 	local stack = InputController.HeldStack()
 	local target = InputController.Target()
 	local def = stack and Registry.Items[stack.Id]
-	local farmTool = def and (def.Tool == "hoe" or def.Tool == "can" or def.Tool == "sickle" or def.Tool == "pruners" or def.Tool == "shovel" or def.Plants or def.Fertilizer or def.Use == "Spray" or def.Use == "Amend")
+	local farmTool = def
+		and (
+			def.Tool == "hoe"
+			or def.Tool == "can"
+			or def.Tool == "sickle"
+			or def.Tool == "pruners"
+			or def.Tool == "shovel"
+			or def.Plants
+			or def.Fertilizer
+			or def.Use == "Spray"
+			or def.Use == "Amend"
+		)
 	if target and farmTool then
 		local size = InputController.AreaSize()
 		local half = math.floor(size / 2)
@@ -438,7 +511,8 @@ local function updateHighlight()
 				i += 1
 				local box = boxes[i]
 				local part = box.Adornee :: BasePart
-				part.Position = Vector3.new(origin.X + (gx + dx + 0.5) * TILE, center.Y + 0.2, origin.Z + (gz + dz + 0.5) * TILE)
+				part.Position =
+					Vector3.new(origin.X + (gx + dx + 0.5) * TILE, center.Y + 0.2, origin.Z + (gz + dz + 0.5) * TILE)
 				box.Color3 = Color3.fromRGB(255, 240, 150)
 				box.SurfaceColor3 = Color3.fromRGB(255, 240, 150)
 				box.Visible = true
@@ -505,7 +579,7 @@ local function onInput(input: InputObject, processed: boolean)
 		C.Build.Toggle()
 	elseif key == Enum.KeyCode.F2 then
 		C.Photo.Toggle()
-	elseif key == Enum.KeyCode.F8 then
+	elseif key.Name == Gameplay.Debug.Hotkey then
 		if player:GetAttribute("Admin") then
 			C.Windows.Toggle("Admin")
 		end
@@ -525,7 +599,11 @@ end
 function InputController.Start()
 	UserInputService.InputBegan:Connect(onInput)
 	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.KeyCode == Enum.KeyCode.ButtonR2 or input.UserInputType == Enum.UserInputType.Touch then
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.KeyCode == Enum.KeyCode.ButtonR2
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
 			holding = false
 		end
 	end)

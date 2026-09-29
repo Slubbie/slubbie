@@ -40,7 +40,10 @@ end
 function WeatherService.Force(weatherId: string?, seconds: number?)
 	if weatherId and WeatherConfig.Types[weatherId] then
 		ReplicatedStorage:SetAttribute("WeatherOverride", weatherId)
-		ReplicatedStorage:SetAttribute("WeatherOverrideUntil", GameTime.Now() + (seconds or WeatherConfig.OverrideDuration))
+		ReplicatedStorage:SetAttribute(
+			"WeatherOverrideUntil",
+			GameTime.Now() + (seconds or WeatherConfig.OverrideDuration)
+		)
 	else
 		ReplicatedStorage:SetAttribute("WeatherOverride", nil)
 		ReplicatedStorage:SetAttribute("WeatherOverrideUntil", nil)

@@ -134,7 +134,13 @@ function DataService.NewProfile(): any
 		Water = DataService.CanCapacity(1),
 		Powered = {},
 		Skills = skills,
-		Quests = { Active = {}, Done = {}, Tracked = {}, Daily = { Day = -1, List = {} }, Weekly = { Week = -1, List = {} } },
+		Quests = {
+			Active = {},
+			Done = {},
+			Tracked = {},
+			Daily = { Day = -1, List = {} },
+			Weekly = { Week = -1, List = {} },
+		},
 		Friendship = {},
 		Collection = {},
 		Claimed = {},
@@ -324,7 +330,9 @@ local function loadProfile(player: Player): (any?, boolean, string?)
 				if backup then
 					return backup, false, "Your farm was restored from a backup."
 				end
-				return nil, false, "Your save couldn't be read, so a fresh farm was started. Contact support to recover it."
+				return nil,
+					false,
+					"Your save couldn't be read, so a fresh farm was started. Contact support to recover it."
 			end
 			return loadedData, false, nil
 		end
@@ -413,12 +421,50 @@ end
 
 -- Keys the owning client mirrors (Farm is filtered: tiles/placed live in the world).
 local REPLICATED = {
-	Coins = true, Tokens = true, Energy = true, Inventory = true, Hotbar = true, Storage = true, Silo = true,
-	Farm = true, Tools = true, Water = true, Powered = true, Skills = true, Quests = true, Friendship = true,
-	Collection = true, Claimed = true, Museum = true, Showcase = true, Achievements = true, Stats = true,
-	Mail = true, Daily = true, Settings = true, Cosmetics = true, Titles = true, Recipes = true, Secrets = true,
-	Lore = true, Travel = true, Regions = true, Projects = true, Unlocks = true, Contracts = true, Exports = true,
-	Stall = true, Buffs = true, Tutorial = true, Guild = true, PlayTime = true, Created = true, Gather = true, Festival = true, Public = true, Passes = true,
+	Coins = true,
+	Tokens = true,
+	Energy = true,
+	Inventory = true,
+	Hotbar = true,
+	Storage = true,
+	Silo = true,
+	Farm = true,
+	Tools = true,
+	Water = true,
+	Powered = true,
+	Skills = true,
+	Quests = true,
+	Friendship = true,
+	Collection = true,
+	Claimed = true,
+	Museum = true,
+	Showcase = true,
+	Achievements = true,
+	Stats = true,
+	Mail = true,
+	Daily = true,
+	Settings = true,
+	Cosmetics = true,
+	Titles = true,
+	Recipes = true,
+	Secrets = true,
+	Lore = true,
+	Travel = true,
+	Regions = true,
+	Projects = true,
+	Unlocks = true,
+	Contracts = true,
+	Exports = true,
+	Stall = true,
+	Buffs = true,
+	Tutorial = true,
+	Guild = true,
+	PlayTime = true,
+	Created = true,
+	Gather = true,
+	Festival = true,
+	Public = true,
+	Passes = true,
 }
 local FARM_PRIVATE = { Tiles = true, Placed = true }
 

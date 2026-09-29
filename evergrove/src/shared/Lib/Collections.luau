@@ -61,7 +61,8 @@ local function category(id: string, name: string, icon: string, entries: { Entry
 	for _, entry in entries do
 		index[entry.Id] = entry
 	end
-	local cat: Category = { Id = id, Name = name, Icon = icon, Entries = entries, Index = index, Milestones = milestones(scale or 1) }
+	local cat: Category =
+		{ Id = id, Name = name, Icon = icon, Entries = entries, Index = index, Milestones = milestones(scale or 1) }
 	table.insert(categories, cat)
 	byId[id] = cat
 end
@@ -70,7 +71,10 @@ local function itemEntries(filter: (any) -> boolean): { Entry }
 	local out = {}
 	for _, item in Registry.ItemList do
 		if filter(item) then
-			table.insert(out, { Id = item.Id, Name = item.Name, Icon = item.Icon, Rarity = item.Rarity, Tint = item.Tint })
+			table.insert(
+				out,
+				{ Id = item.Id, Name = item.Name, Icon = item.Icon, Rarity = item.Rarity, Tint = item.Tint }
+			)
 		end
 	end
 	return out
@@ -81,7 +85,14 @@ do
 	local entries = {}
 	for _, crop in Registry.Crops do
 		local hint = if #crop.Sources > 0 then "Found: " .. table.concat(crop.Sources, ", ") else "Sold as seeds"
-		table.insert(entries, { Id = crop.Id, Name = crop.Name, Icon = crop.Icon, Rarity = crop.Rarity, Hint = hint, Tint = crop.Visual.Fruit })
+		table.insert(entries, {
+			Id = crop.Id,
+			Name = crop.Name,
+			Icon = crop.Icon,
+			Rarity = crop.Rarity,
+			Hint = hint,
+			Tint = crop.Visual.Fruit,
+		})
 	end
 	category("Crops", "Crops", "🌾", entries, 1.5)
 end
@@ -93,7 +104,13 @@ do
 		table.insert(entries, { Id = m.Id, Name = m.Name, Icon = m.Icon, Rarity = m.Rarity, Hint = m.Description })
 	end
 	for _, c in Mutations.Combos do
-		table.insert(entries, { Id = c.Id, Name = c.Name, Icon = c.Icon, Rarity = "Legendary", Hint = "Combine " .. table.concat(c.Requires, " + ") })
+		table.insert(entries, {
+			Id = c.Id,
+			Name = c.Name,
+			Icon = c.Icon,
+			Rarity = "Legendary",
+			Hint = "Combine " .. table.concat(c.Requires, " + "),
+		})
 	end
 	category("Mutations", "Mutations", "🧬", entries, 2)
 end
@@ -116,34 +133,66 @@ do
 	category("Animals", "Animal Breeds", "🐄", entries, 1.5)
 end
 
-category("Fish", "Fish", "🐟", itemEntries(function(item)
-	return item.Category == "Fish"
-end), 1.5)
+category(
+	"Fish",
+	"Fish",
+	"🐟",
+	itemEntries(function(item)
+		return item.Category == "Fish"
+	end),
+	1.5
+)
 
-category("Minerals", "Minerals & Gems", "💎", itemEntries(function(item)
-	return item.Category == "Gem" or item.Category == "Mineral"
-end))
+category(
+	"Minerals",
+	"Minerals & Gems",
+	"💎",
+	itemEntries(function(item)
+		return item.Category == "Gem" or item.Category == "Mineral"
+	end)
+)
 
-category("Artifacts", "Artifacts", "🏺", itemEntries(function(item)
-	return item.Category == "Artifact"
-end))
+category(
+	"Artifacts",
+	"Artifacts",
+	"🏺",
+	itemEntries(function(item)
+		return item.Category == "Artifact"
+	end)
+)
 
-category("Forage", "Forage", "🍄", itemEntries(function(item)
-	return item.Category == "Forage"
-end))
+category(
+	"Forage",
+	"Forage",
+	"🍄",
+	itemEntries(function(item)
+		return item.Category == "Forage"
+	end)
+)
 
-category("Flowers", "Flowers", "🌸", itemEntries(function(item)
-	return item.Tags.Flower == true and (item.Category == "Crop" or item.Category == "Forage")
-end))
+category(
+	"Flowers",
+	"Flowers",
+	"🌸",
+	itemEntries(function(item)
+		return item.Tags.Flower == true and (item.Category == "Crop" or item.Category == "Forage")
+	end)
+)
 
-category("Bugs", "Bugs", "🦋", itemEntries(function(item)
-	return item.Category == "Bug"
-end))
+category(
+	"Bugs",
+	"Bugs",
+	"🦋",
+	itemEntries(function(item)
+		return item.Category == "Bug"
+	end)
+)
 
 -- Crafted products: fixed artisan goods, food, potions and one entry per product family.
 do
 	local entries = itemEntries(function(item)
-		return item.Product == nil and (item.Category == "Artisan" or item.Category == "Food" or item.Category == "Potion")
+		return item.Product == nil
+			and (item.Category == "Artisan" or item.Category == "Food" or item.Category == "Potion")
 	end)
 	for productType, template in Machines.Products do
 		table.insert(entries, {
@@ -162,7 +211,12 @@ do
 	for _, recipe in Recipes.List do
 		local out = Registry.Items[recipe.Out]
 		if out then
-			table.insert(entries, { Id = recipe.Id, Name = out.Name, Icon = out.Icon, Rarity = if recipe.Unlock.Secret then "Epic" else out.Rarity })
+			table.insert(entries, {
+				Id = recipe.Id,
+				Name = out.Name,
+				Icon = out.Icon,
+				Rarity = if recipe.Unlock.Secret then "Epic" else out.Rarity,
+			})
 		end
 	end
 	category("Recipes", "Recipes", "📜", entries)
@@ -179,7 +233,13 @@ end
 do
 	local entries = {}
 	for _, region in Regions.List do
-		table.insert(entries, { Id = region.Id, Name = region.Name, Icon = region.Icon, Rarity = if region.Unlock then "Rare" else "Common", Hint = region.UnlockText })
+		table.insert(entries, {
+			Id = region.Id,
+			Name = region.Name,
+			Icon = region.Icon,
+			Rarity = if region.Unlock then "Rare" else "Common",
+			Hint = region.UnlockText,
+		})
 	end
 	category("Regions", "Regions", "🗺️", entries)
 end
@@ -188,7 +248,13 @@ do
 	local entries = {}
 	for _, id in Weather.Order do
 		local w = Weather.Types[id]
-		table.insert(entries, { Id = id, Name = w.Name, Icon = w.Icon, Rarity = if w.Rare then "Epic" else "Common", Hint = w.Description })
+		table.insert(entries, {
+			Id = id,
+			Name = w.Name,
+			Icon = w.Icon,
+			Rarity = if w.Rare then "Epic" else "Common",
+			Hint = w.Description,
+		})
 	end
 	category("Weather", "Weather", "⛅", entries)
 end

@@ -43,23 +43,41 @@ local function addHair(head: BasePart, look: any, model: Model)
 	folder.Name = "Hair"
 	folder.Parent = model
 	if style == "Hood" then
-		local hood = part(folder, { Name = "Hood", Size = Vector3.new(2.3, 1.6, 2.3), Color = look.Shirt, Material = Enum.Material.Fabric, Shape = Enum.PartType.Ball })
+		local hood = part(folder, {
+			Name = "Hood",
+			Size = Vector3.new(2.3, 1.6, 2.3),
+			Color = look.Shirt,
+			Material = Enum.Material.Fabric,
+			Shape = Enum.PartType.Ball,
+		})
 		weld(head, hood, CFrame.new(0, 0.35, 0.15))
 		return
 	end
-	local cap = part(folder, { Name = "Top", Size = Vector3.new(2.1, 0.7, 2.1), Color = color, Material = Enum.Material.SmoothPlastic })
+	local cap = part(
+		folder,
+		{ Name = "Top", Size = Vector3.new(2.1, 0.7, 2.1), Color = color, Material = Enum.Material.SmoothPlastic }
+	)
 	weld(head, cap, CFrame.new(0, 0.6, 0.05))
 	if style == "Long" or style == "Pigtails" or style == "Braids" then
-		local back = part(folder, { Name = "Back", Size = Vector3.new(2, 1.8, 0.4), Color = color, Material = Enum.Material.SmoothPlastic })
+		local back = part(
+			folder,
+			{ Name = "Back", Size = Vector3.new(2, 1.8, 0.4), Color = color, Material = Enum.Material.SmoothPlastic }
+		)
 		weld(head, back, CFrame.new(0, -0.3, 0.9))
 		if style ~= "Long" then
 			for _, side in { -1, 1 } do
-				local tail = part(folder, { Name = "Tail", Size = Vector3.new(0.5, 1.4, 0.5), Color = color, Material = Enum.Material.SmoothPlastic })
+				local tail = part(folder, {
+					Name = "Tail",
+					Size = Vector3.new(0.5, 1.4, 0.5),
+					Color = color,
+					Material = Enum.Material.SmoothPlastic,
+				})
 				weld(head, tail, CFrame.new(side * 1.05, -0.5, 0.4))
 			end
 		end
 	elseif style == "Bun" then
-		local bun = part(folder, { Name = "Bun", Size = Vector3.new(0.9, 0.9, 0.9), Color = color, Shape = Enum.PartType.Ball })
+		local bun =
+			part(folder, { Name = "Bun", Size = Vector3.new(0.9, 0.9, 0.9), Color = color, Shape = Enum.PartType.Ball })
 		weld(head, bun, CFrame.new(0, 0.9, 0.6))
 	elseif style == "Ponytail" then
 		local tail = part(folder, { Name = "Tail", Size = Vector3.new(0.5, 1.5, 0.5), Color = color })
@@ -69,7 +87,10 @@ local function addHair(head: BasePart, look: any, model: Model)
 		weld(head, beard, CFrame.new(0, -0.55, -0.55))
 	elseif style == "Messy" then
 		for i = 1, 4 do
-			local tuft = part(folder, { Name = "Tuft", Size = Vector3.new(0.5, 0.5, 0.5), Color = color, Shape = Enum.PartType.Ball })
+			local tuft = part(
+				folder,
+				{ Name = "Tuft", Size = Vector3.new(0.5, 0.5, 0.5), Color = color, Shape = Enum.PartType.Ball }
+			)
 			weld(head, tuft, CFrame.new(-0.7 + i * 0.35, 0.95, -0.2 + (i % 2) * 0.4))
 		end
 	elseif style == "Bob" then
@@ -82,9 +103,21 @@ end
 
 local HATS = {
 	Straw = function(folder, head, color)
-		local brim = part(folder, { Name = "Brim", Size = Vector3.new(3.2, 0.15, 3.2), Color = color, Material = Enum.Material.Fabric, Shape = Enum.PartType.Cylinder })
+		local brim = part(folder, {
+			Name = "Brim",
+			Size = Vector3.new(3.2, 0.15, 3.2),
+			Color = color,
+			Material = Enum.Material.Fabric,
+			Shape = Enum.PartType.Cylinder,
+		})
 		weld(head, brim, CFrame.new(0, 0.95, 0) * CFrame.Angles(0, 0, math.rad(90)))
-		local crown = part(folder, { Name = "Crown", Size = Vector3.new(0.7, 1.7, 1.7), Color = color, Material = Enum.Material.Fabric, Shape = Enum.PartType.Cylinder })
+		local crown = part(folder, {
+			Name = "Crown",
+			Size = Vector3.new(0.7, 1.7, 1.7),
+			Color = color,
+			Material = Enum.Material.Fabric,
+			Shape = Enum.PartType.Cylinder,
+		})
 		weld(head, crown, CFrame.new(0, 1.25, 0) * CFrame.Angles(0, 0, math.rad(90)))
 	end,
 	Cap = function(folder, head, color)
@@ -94,68 +127,123 @@ local HATS = {
 		weld(head, bill, CFrame.new(0, 0.55, -1.3))
 	end,
 	Cowboy = function(folder, head, color)
-		local brim = part(folder, { Name = "Brim", Size = Vector3.new(0.15, 3.4, 3.4), Color = color, Material = Enum.Material.Leather, Shape = Enum.PartType.Cylinder })
+		local brim = part(folder, {
+			Name = "Brim",
+			Size = Vector3.new(0.15, 3.4, 3.4),
+			Color = color,
+			Material = Enum.Material.Leather,
+			Shape = Enum.PartType.Cylinder,
+		})
 		weld(head, brim, CFrame.new(0, 0.9, 0) * CFrame.Angles(0, 0, math.rad(90)))
-		local crown = part(folder, { Name = "Crown", Size = Vector3.new(1.9, 1, 1.7), Color = color, Material = Enum.Material.Leather })
+		local crown = part(
+			folder,
+			{ Name = "Crown", Size = Vector3.new(1.9, 1, 1.7), Color = color, Material = Enum.Material.Leather }
+		)
 		weld(head, crown, CFrame.new(0, 1.4, 0))
 	end,
 	Chef = function(folder, head, color)
-		local band = part(folder, { Name = "Band", Size = Vector3.new(0.6, 2.1, 2.1), Color = color, Shape = Enum.PartType.Cylinder })
+		local band = part(
+			folder,
+			{ Name = "Band", Size = Vector3.new(0.6, 2.1, 2.1), Color = color, Shape = Enum.PartType.Cylinder }
+		)
 		weld(head, band, CFrame.new(0, 1, 0) * CFrame.Angles(0, 0, math.rad(90)))
-		local puff = part(folder, { Name = "Puff", Size = Vector3.new(2.4, 1.6, 2.4), Color = color, Shape = Enum.PartType.Ball })
+		local puff = part(
+			folder,
+			{ Name = "Puff", Size = Vector3.new(2.4, 1.6, 2.4), Color = color, Shape = Enum.PartType.Ball }
+		)
 		weld(head, puff, CFrame.new(0, 1.9, 0))
 	end,
 	Beanie = function(folder, head, color)
-		local b = part(folder, { Name = "Beanie", Size = Vector3.new(2.2, 1.3, 2.2), Color = color, Material = Enum.Material.Fabric, Shape = Enum.PartType.Ball })
+		local b = part(folder, {
+			Name = "Beanie",
+			Size = Vector3.new(2.2, 1.3, 2.2),
+			Color = color,
+			Material = Enum.Material.Fabric,
+			Shape = Enum.PartType.Ball,
+		})
 		weld(head, b, CFrame.new(0, 0.75, 0))
 	end,
 	HardHat = function(folder, head, color)
-		local b = part(folder, { Name = "Dome", Size = Vector3.new(2.3, 1.2, 2.4), Color = color, Shape = Enum.PartType.Ball })
+		local b = part(
+			folder,
+			{ Name = "Dome", Size = Vector3.new(2.3, 1.2, 2.4), Color = color, Shape = Enum.PartType.Ball }
+		)
 		weld(head, b, CFrame.new(0, 0.85, 0))
 	end,
 	Explorer = function(folder, head, color)
-		local brim = part(folder, { Name = "Brim", Size = Vector3.new(0.12, 3, 3), Color = color, Shape = Enum.PartType.Cylinder })
+		local brim = part(
+			folder,
+			{ Name = "Brim", Size = Vector3.new(0.12, 3, 3), Color = color, Shape = Enum.PartType.Cylinder }
+		)
 		weld(head, brim, CFrame.new(0, 0.9, 0) * CFrame.Angles(0, 0, math.rad(90)))
-		local dome = part(folder, { Name = "Dome", Size = Vector3.new(2, 1.2, 2), Color = color, Shape = Enum.PartType.Ball })
+		local dome =
+			part(folder, { Name = "Dome", Size = Vector3.new(2, 1.2, 2), Color = color, Shape = Enum.PartType.Ball })
 		weld(head, dome, CFrame.new(0, 1.2, 0))
 	end,
 	Wide = function(folder, head, color)
-		local brim = part(folder, { Name = "Brim", Size = Vector3.new(0.12, 4, 4), Color = color, Shape = Enum.PartType.Cylinder })
+		local brim = part(
+			folder,
+			{ Name = "Brim", Size = Vector3.new(0.12, 4, 4), Color = color, Shape = Enum.PartType.Cylinder }
+		)
 		weld(head, brim, CFrame.new(0, 0.95, 0) * CFrame.Angles(0, 0, math.rad(90)))
 		local cone = part(folder, { Name = "Cone", Size = Vector3.new(1.6, 1.4, 1.6), Color = color })
 		weld(head, cone, CFrame.new(0, 1.55, 0))
 	end,
 	TopHat = function(folder, head, color)
-		local brim = part(folder, { Name = "Brim", Size = Vector3.new(0.12, 2.8, 2.8), Color = color, Shape = Enum.PartType.Cylinder })
+		local brim = part(
+			folder,
+			{ Name = "Brim", Size = Vector3.new(0.12, 2.8, 2.8), Color = color, Shape = Enum.PartType.Cylinder }
+		)
 		weld(head, brim, CFrame.new(0, 0.9, 0) * CFrame.Angles(0, 0, math.rad(90)))
-		local tube = part(folder, { Name = "Tube", Size = Vector3.new(2, 1.7, 1.7), Color = color, Shape = Enum.PartType.Cylinder })
+		local tube = part(
+			folder,
+			{ Name = "Tube", Size = Vector3.new(2, 1.7, 1.7), Color = color, Shape = Enum.PartType.Cylinder }
+		)
 		weld(head, tube, CFrame.new(0, 1.8, 0) * CFrame.Angles(0, 0, math.rad(90)))
 	end,
 	Captain = function(folder, head, color)
 		local crown = part(folder, { Name = "Crown", Size = Vector3.new(2.3, 0.7, 2.3), Color = color })
 		weld(head, crown, CFrame.new(0, 0.95, 0))
-		local bill = part(folder, { Name = "Bill", Size = Vector3.new(1.6, 0.12, 0.8), Color = Color3.fromRGB(30, 30, 40) })
+		local bill =
+			part(folder, { Name = "Bill", Size = Vector3.new(1.6, 0.12, 0.8), Color = Color3.fromRGB(30, 30, 40) })
 		weld(head, bill, CFrame.new(0, 0.65, -1.2))
 	end,
 	Flower = function(folder, head, color)
 		for i = 0, 4 do
-			local petal = part(folder, { Name = "Petal", Size = Vector3.new(0.45, 0.45, 0.45), Color = color, Shape = Enum.PartType.Ball })
+			local petal = part(
+				folder,
+				{ Name = "Petal", Size = Vector3.new(0.45, 0.45, 0.45), Color = color, Shape = Enum.PartType.Ball }
+			)
 			local angle = i / 5 * math.pi * 2
 			weld(head, petal, CFrame.new(0.8 + math.cos(angle) * 0.3, 0.8 + math.sin(angle) * 0.3, -0.3))
 		end
 	end,
 	Goggles = function(folder, head, color)
-		local band = part(folder, { Name = "Band", Size = Vector3.new(2.15, 0.35, 2.15), Color = Color3.fromRGB(40, 40, 40) })
+		local band =
+			part(folder, { Name = "Band", Size = Vector3.new(2.15, 0.35, 2.15), Color = Color3.fromRGB(40, 40, 40) })
 		weld(head, band, CFrame.new(0, 0.45, 0))
 		for _, side in { -1, 1 } do
-			local lens = part(folder, { Name = "Lens", Size = Vector3.new(0.5, 0.2, 0.5), Color = color, Material = Enum.Material.Glass, Shape = Enum.PartType.Cylinder })
+			local lens = part(folder, {
+				Name = "Lens",
+				Size = Vector3.new(0.5, 0.2, 0.5),
+				Color = color,
+				Material = Enum.Material.Glass,
+				Shape = Enum.PartType.Cylinder,
+			})
 			weld(head, lens, CFrame.new(side * 0.4, 0.45, -1.05) * CFrame.Angles(0, math.rad(90), 0))
 		end
 	end,
 	Stars = function(folder, head, color)
-		local hat = part(folder, { Name = "Cone", Size = Vector3.new(1.5, 2.2, 1.5), Color = Color3.fromRGB(40, 40, 110) })
+		local hat =
+			part(folder, { Name = "Cone", Size = Vector3.new(1.5, 2.2, 1.5), Color = Color3.fromRGB(40, 40, 110) })
 		weld(head, hat, CFrame.new(0, 1.8, 0))
-		local star = part(folder, { Name = "Star", Size = Vector3.new(0.5, 0.5, 0.5), Color = color, Material = Enum.Material.Neon, Shape = Enum.PartType.Ball })
+		local star = part(folder, {
+			Name = "Star",
+			Size = Vector3.new(0.5, 0.5, 0.5),
+			Color = color,
+			Material = Enum.Material.Neon,
+			Shape = Enum.PartType.Ball,
+		})
 		weld(head, star, CFrame.new(0, 3, 0))
 	end,
 }
@@ -171,24 +259,53 @@ local function accessory(model: Model, look: any)
 	folder.Parent = model
 	local kind = look.Accessory
 	if kind == "Apron" then
-		local apron = part(folder, { Name = "Apron", Size = Vector3.new(1.8, 1.9, 0.1), Color = Color3.fromRGB(245, 240, 225), Material = Enum.Material.Fabric })
+		local apron = part(folder, {
+			Name = "Apron",
+			Size = Vector3.new(1.8, 1.9, 0.1),
+			Color = Color3.fromRGB(245, 240, 225),
+			Material = Enum.Material.Fabric,
+		})
 		weld(torso, apron, CFrame.new(0, -0.3, -0.55))
 	elseif kind == "Glasses" then
 		for _, side in { -1, 1 } do
-			local lens = part(folder, { Name = "Lens", Size = Vector3.new(0.45, 0.35, 0.05), Color = Color3.fromRGB(30, 30, 30), Transparency = 0.2 })
+			local lens = part(folder, {
+				Name = "Lens",
+				Size = Vector3.new(0.45, 0.35, 0.05),
+				Color = Color3.fromRGB(30, 30, 30),
+				Transparency = 0.2,
+			})
 			weld(head, lens, CFrame.new(side * 0.35, 0.15, -0.62))
 		end
 	elseif kind == "Backpack" then
-		local pack = part(folder, { Name = "Pack", Size = Vector3.new(1.6, 1.6, 0.8), Color = Color3.fromRGB(120, 90, 60), Material = Enum.Material.Leather })
+		local pack = part(folder, {
+			Name = "Pack",
+			Size = Vector3.new(1.6, 1.6, 0.8),
+			Color = Color3.fromRGB(120, 90, 60),
+			Material = Enum.Material.Leather,
+		})
 		weld(torso, pack, CFrame.new(0, 0.1, 0.8))
 	elseif kind == "Cloak" then
-		local cloak = part(folder, { Name = "Cloak", Size = Vector3.new(2.2, 3.4, 0.15), Color = look.Shirt, Material = Enum.Material.Fabric })
+		local cloak = part(
+			folder,
+			{ Name = "Cloak", Size = Vector3.new(2.2, 3.4, 0.15), Color = look.Shirt, Material = Enum.Material.Fabric }
+		)
 		weld(torso, cloak, CFrame.new(0, -0.6, 0.6))
 	elseif kind == "Scarf" then
-		local scarf = part(folder, { Name = "Scarf", Size = Vector3.new(1.3, 0.4, 1.3), Color = look.Pants, Material = Enum.Material.Fabric, Shape = Enum.PartType.Cylinder })
+		local scarf = part(folder, {
+			Name = "Scarf",
+			Size = Vector3.new(1.3, 0.4, 1.3),
+			Color = look.Pants,
+			Material = Enum.Material.Fabric,
+			Shape = Enum.PartType.Cylinder,
+		})
 		weld(torso, scarf, CFrame.new(0, 1, 0) * CFrame.Angles(0, 0, math.rad(90)))
 	elseif kind == "Toolbelt" then
-		local belt = part(folder, { Name = "Belt", Size = Vector3.new(2.1, 0.35, 1.1), Color = Color3.fromRGB(90, 60, 40), Material = Enum.Material.Leather })
+		local belt = part(folder, {
+			Name = "Belt",
+			Size = Vector3.new(2.1, 0.35, 1.1),
+			Color = Color3.fromRGB(90, 60, 40),
+			Material = Enum.Material.Leather,
+		})
 		weld(torso, belt, CFrame.new(0, -0.85, 0))
 	elseif kind == "Mustache" then
 		local stache = part(folder, { Name = "Mustache", Size = Vector3.new(0.9, 0.2, 0.15), Color = look.Hair })
@@ -220,15 +337,22 @@ function NpcBuilder.Build(npc: any): Model
 	else
 		-- Offline fallback (e.g. Studio without internet): a simple blocky rig.
 		model = Instance.new("Model")
-		local root = part(model, { Name = "HumanoidRootPart", Size = Vector3.new(2, 2, 1), Transparency = 1, Anchored = false })
+		local root =
+			part(model, { Name = "HumanoidRootPart", Size = Vector3.new(2, 2, 1), Transparency = 1, Anchored = false })
 		local torso = part(model, { Name = "Torso", Size = Vector3.new(2, 2, 1), Color = look.Shirt })
 		weld(root, torso, CFrame.new())
 		local head = part(model, { Name = "Head", Size = Vector3.new(2, 1, 1), Color = look.Skin })
 		weld(torso, head, CFrame.new(0, 1.5, 0))
 		for _, side in { -1, 1 } do
-			local arm = part(model, { Name = if side < 0 then "Left Arm" else "Right Arm", Size = Vector3.new(1, 2, 1), Color = look.Shirt })
+			local arm = part(
+				model,
+				{ Name = if side < 0 then "Left Arm" else "Right Arm", Size = Vector3.new(1, 2, 1), Color = look.Shirt }
+			)
 			weld(torso, arm, CFrame.new(side * 1.5, 0, 0))
-			local leg = part(model, { Name = if side < 0 then "Left Leg" else "Right Leg", Size = Vector3.new(1, 2, 1), Color = look.Pants })
+			local leg = part(
+				model,
+				{ Name = if side < 0 then "Left Leg" else "Right Leg", Size = Vector3.new(1, 2, 1), Color = look.Pants }
+			)
 			weld(torso, leg, CFrame.new(side * 0.5, -2, 0))
 		end
 		local humanoid = Instance.new("Humanoid")

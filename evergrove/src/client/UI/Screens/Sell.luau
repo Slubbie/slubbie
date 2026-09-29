@@ -19,9 +19,19 @@ return {
 		if venue ~= "Bin" then
 			win.Title.Text = "💰  Sell"
 		end
-		local intro = Kit.Label(if venue == "Bin" then "Drop goods in the bin: they're sold at the market price when the bin is emptied at 6 AM — even while you're offline." else "Sold right away at this merchant's price.", { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+		local intro = Kit.Label(
+			if venue == "Bin"
+				then "Drop goods in the bin: they're sold at the market price when the bin is emptied at 6 AM — even while you're offline."
+				else "Sold right away at this merchant's price.",
+			{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+		)
 		intro.Parent = win.Content
-		local holder = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -30), Position = UDim2.fromOffset(0, 30), Parent = win.Content })
+		local holder = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 1, -30),
+			Position = UDim2.fromOffset(0, 30),
+			Parent = win.Content,
+		})
 		local panel = SellPanel.Build(holder, venue, C)
 		C.Tutorial.Hint("Sell")
 		return { Refresh = panel.Refresh }

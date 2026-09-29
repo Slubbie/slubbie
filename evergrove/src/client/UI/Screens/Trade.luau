@@ -52,7 +52,10 @@ function Screen.OnEvent(payload: any)
 		if C.Windows.IsOpen("Trade") then
 			C.Windows.Close(true)
 		end
-		C.Notify.Toast("🤝 " .. tostring(payload.Reason or "Trade closed"), if payload.Reason == "Trade complete!" then "Success" else "Info")
+		C.Notify.Toast(
+			"🤝 " .. tostring(payload.Reason or "Trade closed"),
+			if payload.Reason == "Trade complete!" then "Success" else "Info"
+		)
 		if payload.Reason == "Trade complete!" then
 			C.Audio.PlayUI("QuestComplete")
 		end
@@ -72,13 +75,25 @@ function Screen.Build(win)
 	local confirmButton: TextButton? = nil
 
 	local function side(parent: Instance, offer: any, mine: boolean, xScale: number)
-		local panel = Kit.Panel({ Size = UDim2.new(0.5, -6, 1, -56), Position = UDim2.new(xScale, if xScale > 0 then 6 else 0, 0, 0), Color = "PanelAlt" })
+		local panel = Kit.Panel({
+			Size = UDim2.new(0.5, -6, 1, -56),
+			Position = UDim2.new(xScale, if xScale > 0 then 6 else 0, 0, 0),
+			Color = "PanelAlt",
+		})
 		panel.Parent = parent
 		Kit.Padding(panel, 10, 12)
-		local title = Kit.Heading((if mine then "Your offer" else offer.Name .. "'s offer") .. (if offer.Ready then "  ✔ ready" else ""), 18)
+		local title = Kit.Heading(
+			(if mine then "Your offer" else offer.Name .. "'s offer") .. (if offer.Ready then "  ✔ ready" else ""),
+			18
+		)
 		title.TextColor3 = if offer.Ready then Color3.fromRGB(120, 210, 120) else title.TextColor3
 		title.Parent = panel
-		local grid = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -110), Position = UDim2.fromOffset(0, 34), Parent = panel })
+		local grid = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 1, -110),
+			Position = UDim2.fromOffset(0, 34),
+			Parent = panel,
+		})
 		Kit.Grid(grid, 60, 6)
 		for i = 1, Social.Trading.MaxSlots do
 			local stack = offer.Items[i]
@@ -111,27 +126,46 @@ function Screen.Build(win)
 						end,
 					})
 				end)
-				local plus = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Text = "+", TextScaled = true, Font = Theme.Fonts.Bold, TextTransparency = 0.5, Parent = slot.Button })
+				local plus = Kit.new("TextLabel", {
+					BackgroundTransparency = 1,
+					Size = UDim2.fromScale(1, 1),
+					Text = "+",
+					TextScaled = true,
+					Font = Theme.Fonts.Bold,
+					TextTransparency = 0.5,
+					Parent = slot.Button,
+				})
 				Kit.Paint(plus, "TextColor3", "SubText")
 			end
 		end
-		local coins = Kit.Label(Kit.Money(offer.Coins or 0), { Size = Theme.Sizes.Body, Font = Theme.Fonts.Number, Color = "Accent" })
+		local coins = Kit.Label(
+			Kit.Money(offer.Coins or 0),
+			{ Size = Theme.Sizes.Body, Font = Theme.Fonts.Number, Color = "Accent" }
+		)
 		coins.Position = UDim2.new(0, 0, 1, -66)
 		coins.Size = UDim2.new(1, -130, 0, 28)
 		coins.Parent = panel
 		if mine then
-			local set = Kit.Button("Set coins", { Style = "Secondary", Size = UDim2.fromOffset(120, 30), TextSize = Theme.Sizes.Tiny, OnClick = function()
-				local wallet = C.State.Get("Coins") or 0
-				Kit.AskNumber("Offer how many coins?", math.max(1, wallet), offer.Coins or 0, function(n)
-					if n then
-						request("TradeCoins", n)
-					end
-				end)
-			end })
+			local set = Kit.Button("Set coins", {
+				Style = "Secondary",
+				Size = UDim2.fromOffset(120, 30),
+				TextSize = Theme.Sizes.Tiny,
+				OnClick = function()
+					local wallet = C.State.Get("Coins") or 0
+					Kit.AskNumber("Offer how many coins?", math.max(1, wallet), offer.Coins or 0, function(n)
+						if n then
+							request("TradeCoins", n)
+						end
+					end)
+				end,
+			})
 			set.Position = UDim2.new(1, -120, 1, -66)
 			set.Parent = panel
 		end
-		local note = Kit.Label(if mine then "Click an item to take it back." else "Hover items to inspect them.", { Size = Theme.Sizes.Tiny, Color = "SubText" })
+		local note = Kit.Label(
+			if mine then "Click an item to take it back." else "Hover items to inspect them.",
+			{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+		)
 		note.Position = UDim2.new(0, 0, 1, -30)
 		note.Size = UDim2.new(1, 0, 0, 20)
 		note.Parent = panel
@@ -146,17 +180,32 @@ function Screen.Build(win)
 		win.Title.Text = "🤝  Trading with " .. state.Them.Name
 		side(content, state.Me, true, 0)
 		side(content, state.Them, false, 0.5)
-		local footer = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 46), Position = UDim2.new(0, 0, 1, -46), Parent = content })
+		local footer = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 46),
+			Position = UDim2.new(0, 0, 1, -46),
+			Parent = content,
+		})
 		Kit.List(footer, "X", 10, "Right")
-		Kit.Button("Cancel trade", { Style = "Danger", Size = UDim2.fromOffset(150, 44), OnClick = function()
-			request("TradeCancel")
-		end }).Parent = footer
-		local confirm = Kit.Button(if state.Me.Ready then "Waiting for " .. state.Them.Name .. "…" else "✔ Confirm", { Style = "Good", Size = UDim2.fromOffset(240, 44), OnClick = function()
-			local ok, result = request("TradeConfirm")
-			if ok and result and result.Waiting then
-				C.Notify.Toast("Waiting for " .. state.Them.Name .. " to confirm", "Info")
-			end
-		end })
+		Kit.Button("Cancel trade", {
+			Style = "Danger",
+			Size = UDim2.fromOffset(150, 44),
+			OnClick = function()
+				request("TradeCancel")
+			end,
+		}).Parent =
+			footer
+		local confirm =
+			Kit.Button(if state.Me.Ready then "Waiting for " .. state.Them.Name .. "…" else "✔ Confirm", {
+				Style = "Good",
+				Size = UDim2.fromOffset(240, 44),
+				OnClick = function()
+					local ok, result = request("TradeConfirm")
+					if ok and result and result.Waiting then
+						C.Notify.Toast("Waiting for " .. state.Them.Name .. " to confirm", "Info")
+					end
+				end,
+			})
 		confirm.LayoutOrder = 1
 		confirm.Parent = footer
 		confirmButton = confirm

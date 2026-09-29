@@ -145,7 +145,12 @@ end
 function FarmService.LotOfPosition(position: Vector3): number?
 	for id, lot in lots do
 		local rel = position - lot.Origin
-		if rel.X >= -8 and rel.X <= GRID * TILE + 8 and rel.Z >= -World.Farms.YardDepth - 8 and rel.Z <= GRID * TILE + 8 then
+		if
+			rel.X >= -8
+			and rel.X <= GRID * TILE + 8
+			and rel.Z >= -World.Farms.YardDepth - 8
+			and rel.Z <= GRID * TILE + 8
+		then
 			return id
 		end
 	end
@@ -174,7 +179,12 @@ function FarmService.RebuildOccupancy(player: Player)
 			local tiles = S.Building.Footprint(placed, def)
 			local interior = def.Function ~= nil and def.Function.Kind == "Interior"
 			for _, key in tiles do
-				farm.Occ[key] = { Uid = uid, Interior = interior, Tags = if interior then def.Function.Tags else nil, Walkable = def.Walkable }
+				farm.Occ[key] = {
+					Uid = uid,
+					Interior = interior,
+					Tags = if interior then def.Function.Tags else nil,
+					Walkable = def.Walkable,
+				}
 				if def.Function and def.Function.Kind == "Water" then
 					farm.Water[key] = def.Function.Water
 				end
@@ -723,7 +733,10 @@ local function assign(player: Player, profile: any)
 	farms[player] = farm
 	model:SetAttribute("Owner", player.UserId)
 	model:SetAttribute("OwnerName", player.DisplayName)
-	model:SetAttribute("FarmName", if profile.Farm.Name ~= "" then profile.Farm.Name else player.DisplayName .. "'s Farm")
+	model:SetAttribute(
+		"FarmName",
+		if profile.Farm.Name ~= "" then profile.Farm.Name else player.DisplayName .. "'s Farm"
+	)
 	player:SetAttribute("Lot", lotId)
 	FarmBuilder.ApplyOwner(farm, profile, player)
 

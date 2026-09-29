@@ -207,7 +207,12 @@ local function experiment(player: Player, ids: { any })
 				CraftingService.Learn(player, recipe.Id, true)
 				S.Data.AddStat(player, "SecretRecipes")
 				local out = Registry.Items[recipe.Out]
-				S.Notify.Discovery(player, "Recipes", recipe.Id, { Name = out.Name, Icon = out.Icon, Rarity = "Epic", Secret = true })
+				S.Notify.Discovery(
+					player,
+					"Recipes",
+					recipe.Id,
+					{ Name = out.Name, Icon = out.Icon, Rarity = "Epic", Secret = true }
+				)
 				return true, recipe.Id
 			end
 		end
@@ -218,7 +223,10 @@ local function experiment(player: Player, ids: { any })
 		for _, recipe in Recipes.List do
 			if recipe.Unlock.Secret and not profile.Recipes[recipe.Id] then
 				local hintItem = recipe.In[1][1]
-				return false, "Nothing happened... but you sense " .. Registry.SpecName(hintItem) .. " wants to be part of something."
+				return false,
+					"Nothing happened... but you sense "
+						.. Registry.SpecName(hintItem)
+						.. " wants to be part of something."
 			end
 		end
 	end

@@ -187,7 +187,10 @@ local function cast(player: Player, target: Vector3, baitRef: string?)
 	end
 	-- What's on the line?
 	local kind, item, difficulty = "Fish", nil, 20
-	local treasureChance = FishConfig.TreasureChance * (if tier >= 4 then 1.5 else 1) * (if bait == "magnet_bait" then 3 else 1) + Stats.Effect(profile, "TreasureChance")
+	local treasureChance = FishConfig.TreasureChance
+			* (if tier >= 4 then 1.5 else 1)
+			* (if bait == "magnet_bait" then 3 else 1)
+		+ Stats.Effect(profile, "TreasureChance")
 	local roll = random:NextNumber()
 	if roll < treasureChance then
 		kind, item, difficulty = "Treasure", "treasure_chest", 45
@@ -232,16 +235,17 @@ local function cast(player: Player, target: Vector3, baitRef: string?)
 	character:SetAttribute("Bobber", target)
 	local fish = Registry.Fish[item :: string]
 	local zone = GAME.BaseZone + GAME.ZonePerTier * (tier - 1) + Stats.Effect(profile, "FishZone") * GAME.BaseZone
-	return true, {
-		Id = id,
-		BiteIn = delay,
-		Difficulty = difficulty,
-		Behavior = if fish then fish.Behavior elseif kind == "Treasure" then "Floater" else "Smooth",
-		Zone = math.clamp(zone, 0.12, 0.6),
-		Fill = GAME.FillRate * (1 + Stats.Effect(profile, "FishFill")),
-		Legend = fish ~= nil and fish.Legendary == true,
-		Water = water,
-	}
+	return true,
+		{
+			Id = id,
+			BiteIn = delay,
+			Difficulty = difficulty,
+			Behavior = if fish then fish.Behavior elseif kind == "Treasure" then "Floater" else "Smooth",
+			Zone = math.clamp(zone, 0.12, 0.6),
+			Fill = GAME.FillRate * (1 + Stats.Effect(profile, "FishFill")),
+			Legend = fish ~= nil and fish.Legendary == true,
+			Water = water,
+		}
 end
 
 -- Resolving ---------------------------------------------------------------------------------------------------------
@@ -309,7 +313,11 @@ local function resolve(player: Player, castId: string, outcome: any)
 			S.Data.AddStat(player, "LegendaryFish")
 			profile.Unlocks["Legend_" .. fish.Id] = true
 			S.Data.Changed(player, "Unlocks")
-			S.Notify.BannerAll("🐉 " .. player.DisplayName .. " caught " .. fish.Name .. "!", "A legend of the valley, landed at last.", "Legend")
+			S.Notify.BannerAll(
+				"🐉 " .. player.DisplayName .. " caught " .. fish.Name .. "!",
+				"A legend of the valley, landed at last.",
+				"Legend"
+			)
 		end
 		S.Quest.Progress(player, "Catch", fish.Id, 1, { Quality = q, Size = size })
 		local xp = 6 + (Registry.RarityOrder(fish.Rarity) - 1) * 14 + math.floor(fish.Difficulty / 5)
@@ -329,7 +337,13 @@ local function resolve(player: Player, castId: string, outcome: any)
 		S.Inventory.Give(player, itemId, 1, nil, nil, { Source = "Fishing" })
 	end
 	S.Tutorial.Event(player, "Fish")
-	S.Notify.FX(c.Target, "Catch", { Item = stack.Id, Q = stack.Q, Size = stack.S, By = player.UserId, Legend = fish ~= nil and fish.Legendary == true }, 120)
+	S.Notify.FX(c.Target, "Catch", {
+		Item = stack.Id,
+		Q = stack.Q,
+		Size = stack.S,
+		By = player.UserId,
+		Legend = fish ~= nil and fish.Legendary == true,
+	}, 120)
 	if character then
 		character:SetAttribute("Act", "Catch@" .. string.format("%.2f", now))
 	end

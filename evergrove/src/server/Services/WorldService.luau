@@ -198,12 +198,20 @@ end
 
 local function blocked(p: Vector3, clearance: number): boolean
 	for _, r in rects do
-		if p.X >= r.MinX - clearance and p.X <= r.MaxX + clearance and p.Z >= r.MinZ - clearance and p.Z <= r.MaxZ + clearance then
+		if
+			p.X >= r.MinX - clearance
+			and p.X <= r.MaxX + clearance
+			and p.Z >= r.MinZ - clearance
+			and p.Z <= r.MaxZ + clearance
+		then
 			return true
 		end
 	end
 	for _, e in exclusions do
-		if (Vector3.new(p.X, e.Center.Y, p.Z) - e.Center).Magnitude < e.Radius + clearance and math.abs(p.Y - e.Center.Y) < 60 then
+		if
+			(Vector3.new(p.X, e.Center.Y, p.Z) - e.Center).Magnitude < e.Radius + clearance
+			and math.abs(p.Y - e.Center.Y) < 60
+		then
 			return true
 		end
 	end
@@ -308,10 +316,40 @@ local function setupLighting()
 	end)
 end
 
+-- Remove the Baseplate template's floor and spawn pad (they'd show through
+-- lakes and rivers), and add an invisible spawn on the village plaza where
+-- players stand until their farm is ready.
+local function replaceTemplate()
+	for _, child in workspace:GetChildren() do
+		if (child.Name == "Baseplate" and child:IsA("BasePart")) or child:IsA("SpawnLocation") then
+			child:Destroy()
+		end
+	end
+	local spawn = Instance.new("SpawnLocation")
+	spawn.Name = "PlazaSpawn"
+	spawn.Anchored = true
+	spawn.Neutral = true
+	spawn.Transparency = 1
+	spawn.CanCollide = false
+	spawn.CanQuery = false
+	spawn.CanTouch = false
+	spawn.Size = Vector3.new(12, 1, 12)
+	spawn.Duration = 0
+	spawn.Position = World.Spawn
+	spawn.Parent = root
+end
+
 local function buildBase()
 	local cx = (BOUNDS.MinX + BOUNDS.MaxX) / 2
 	local cz = (BOUNDS.MinZ + BOUNDS.MaxZ) / 2
-	TerrainKit.Slab(Vector3.new(cx, 0, cz), BOUNDS.MaxX - BOUNDS.MinX, BOUNDS.MaxZ - BOUNDS.MinZ, 12, Enum.Material.Grass, 0)
+	TerrainKit.Slab(
+		Vector3.new(cx, 0, cz),
+		BOUNDS.MaxX - BOUNDS.MinX,
+		BOUNDS.MaxZ - BOUNDS.MinZ,
+		12,
+		Enum.Material.Grass,
+		0
+	)
 	-- Invisible walls at the edge of the world.
 	local walls = Instance.new("Folder")
 	walls.Name = "Bounds"
@@ -399,6 +437,7 @@ function WorldService.Init()
 	root.Parent = workspace
 	local started = os.clock()
 	setupLighting()
+	replaceTemplate()
 	buildBase()
 	local regionInfo = RegionBuilder.Build(root)
 	lifts = regionInfo.Lifts
@@ -468,7 +507,22 @@ function WorldService.Init()
 		end
 	end
 	buildSignposts()
-	print(string.format("[Evergrove] World built in %.1fs (%d road nodes, %d lifts)", os.clock() - started, #nodes, #lifts))
+	-- Stand the plaza spawn on whatever the village built there.
+	local spawn = root:FindFirstChild("PlazaSpawn") :: SpawnLocation?
+	if spawn then
+		local ground = WorldService.GroundAt(World.Spawn, 120)
+		if ground then
+			spawn.Position = ground + Vector3.new(0, 0.6, 0)
+		end
+	end
+	print(
+		string.format(
+			"[Evergrove] World built in %.1fs (%d road nodes, %d lifts)",
+			os.clock() - started,
+			#nodes,
+			#lifts
+		)
+	)
 end
 
 return WorldService

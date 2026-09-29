@@ -39,7 +39,16 @@ local Screen = {
 
 -- Races ---------------------------------------------------------------------------------------------------------------
 
-local race: { Activity: string, Checkpoints: { Vector3 }, Next: number, Parts: { BasePart }, Label: TextLabel?, Start: number, Conn: RBXScriptConnection? }? = nil
+local race: {
+	Activity: string,
+	Checkpoints: { Vector3 },
+	Next: number,
+	Parts: { BasePart },
+	Label: TextLabel?,
+	Start: number,
+	Conn: RBXScriptConnection?,
+}? =
+	nil
 
 local function endRace()
 	local r = race
@@ -81,7 +90,15 @@ function Screen.RunRace(activityId: string, checkpoints: { Vector3 })
 	label.Position = UDim2.new(0, 0, 0, 120)
 	label.TextStrokeTransparency = 0.4
 	label.Parent = C.UI.Layer("Overlay")
-	local r = { Activity = activityId, Checkpoints = checkpoints, Next = 2, Parts = parts, Label = label, Start = os.clock(), Conn = nil :: RBXScriptConnection? }
+	local r = {
+		Activity = activityId,
+		Checkpoints = checkpoints,
+		Next = 2,
+		Parts = parts,
+		Label = label,
+		Start = os.clock(),
+		Conn = nil :: RBXScriptConnection?,
+	}
 	race = r
 	local busy = false
 	r.Conn = RunService.Heartbeat:Connect(function()
@@ -90,7 +107,8 @@ function Screen.RunRace(activityId: string, checkpoints: { Vector3 })
 		if not rootPart or race ~= r then
 			return
 		end
-		label.Text = string.format("🏁 %.2f s   ·   checkpoint %d / %d", os.clock() - r.Start, r.Next - 1, #checkpoints - 1)
+		label.Text =
+			string.format("🏁 %.2f s   ·   checkpoint %d / %d", os.clock() - r.Start, r.Next - 1, #checkpoints - 1)
 		local target = checkpoints[r.Next]
 		if target and not busy and (rootPart.Position - target).Magnitude < 18 then
 			busy = true
@@ -112,7 +130,13 @@ function Screen.RunRace(activityId: string, checkpoints: { Vector3 })
 					ring.Transparency = 1
 				end
 				if result.Finished then
-					C.Notify.Banner("🏁 Finished!", string.format("%.2f seconds · best %.2f", result.Time, result.Best), nil, "Festival", 4)
+					C.Notify.Banner(
+						"🏁 Finished!",
+						string.format("%.2f seconds · best %.2f", result.Time, result.Best),
+						nil,
+						"Festival",
+						4
+					)
 					endRace()
 				else
 					r.Next = result.Next
@@ -133,8 +157,18 @@ function Screen.Build(win, ctx)
 	local data: any = nil
 	local current = (ctx.Args and ctx.Args.Tab) or "Activities"
 	local render: () -> ()
-	local body = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -46), Position = UDim2.fromOffset(0, 46), Parent = content })
-	local tabs = Kit.Tabs({ { Id = "Activities", Label = "Activities", Icon = "🎪" }, { Id = "Challenges", Label = "Challenges", Icon = "🎟️" }, { Id = "Shop", Label = "Token shop", Icon = "🛍️" }, { Id = "Boards", Label = "Leaderboards", Icon = "🏆" } }, function(id)
+	local body = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 1, -46),
+		Position = UDim2.fromOffset(0, 46),
+		Parent = content,
+	})
+	local tabs = Kit.Tabs({
+		{ Id = "Activities", Label = "Activities", Icon = "🎪" },
+		{ Id = "Challenges", Label = "Challenges", Icon = "🎟️" },
+		{ Id = "Shop", Label = "Token shop", Icon = "🛍️" },
+		{ Id = "Boards", Label = "Leaderboards", Icon = "🏆" },
+	}, function(id)
 		current = id
 		render()
 	end)
@@ -163,11 +197,17 @@ function Screen.Build(win, ctx)
 					table.insert(lines, string.format("%s  %.1f / %d", key, points[key] or 0, weight))
 				end
 			end
-			Kit.Confirm(string.format("Score: %.1f / 100", score), table.concat(lines, "\n") .. "\n\nYou can enter once. The best scores across all servers win when the festival ends.", function(yes)
-				if yes then
-					submit()
-				end
-			end, "Enter")
+			Kit.Confirm(
+				string.format("Score: %.1f / 100", score),
+				table.concat(lines, "\n")
+					.. "\n\nYou can enter once. The best scores across all servers win when the festival ends.",
+				function(yes)
+					if yes then
+						submit()
+					end
+				end,
+				"Enter"
+			)
 		end
 		if acceptsAnimals then
 			local profile = C.State.Data()
@@ -176,7 +216,15 @@ function Screen.Build(win, ctx)
 			if not layer then
 				return
 			end
-			local shade = Kit.new("TextButton", { AutoButtonColor = false, Text = "", BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.45, Size = UDim2.fromScale(1, 1), ZIndex = 80, Parent = layer })
+			local shade = Kit.new("TextButton", {
+				AutoButtonColor = false,
+				Text = "",
+				BackgroundColor3 = Color3.new(0, 0, 0),
+				BackgroundTransparency = 0.45,
+				Size = UDim2.fromScale(1, 1),
+				ZIndex = 80,
+				Parent = layer,
+			})
 			local panel = Kit.Panel({ Size = UDim2.fromOffset(480, 420), Shadow = true })
 			panel.AnchorPoint = Vector2.new(0.5, 0.5)
 			panel.Position = UDim2.fromScale(0.5, 0.5)
@@ -190,21 +238,33 @@ function Screen.Build(win, ctx)
 				local species = Registry.Species[animal.Sp]
 				local entry = { Kind = "Animal", Animal = animal }
 				local score = ContestMath.Score(a, entry)
-				local b = Kit.Button(string.format("%s %s  ·  %.1f pts", if species then species.Icon else "🐾", animal.Nm, score), { Style = "Secondary", Size = UDim2.new(1, -8, 0, 40), TextSize = Theme.Sizes.Small, OnClick = function()
-					shade:Destroy()
-					showPreview(entry, function()
-						local ok, err = Net.Request("FestivalAction", "Enter", { Activity = a.Id, Aid = aid })
-						if not ok then
-							C.Notify.Toast(tostring(err), "Warning")
-						end
-						fetch()
-					end)
-				end })
+				local b = Kit.Button(
+					string.format("%s %s  ·  %.1f pts", if species then species.Icon else "🐾", animal.Nm, score),
+					{
+						Style = "Secondary",
+						Size = UDim2.new(1, -8, 0, 40),
+						TextSize = Theme.Sizes.Small,
+						OnClick = function()
+							shade:Destroy()
+							showPreview(entry, function()
+								local ok, err = Net.Request("FestivalAction", "Enter", { Activity = a.Id, Aid = aid })
+								if not ok then
+									C.Notify.Toast(tostring(err), "Warning")
+								end
+								fetch()
+							end)
+						end,
+					}
+				)
 				b.Parent = list
 			end
-			local cancel = Kit.Button("Cancel", { Style = "Ghost", Size = UDim2.fromOffset(120, 34), OnClick = function()
-				shade:Destroy()
-			end })
+			local cancel = Kit.Button("Cancel", {
+				Style = "Ghost",
+				Size = UDim2.fromOffset(120, 34),
+				OnClick = function()
+					shade:Destroy()
+				end,
+			})
 			cancel.Position = UDim2.new(1, -120, 1, -34)
 			cancel.Parent = panel
 			return
@@ -239,7 +299,25 @@ function Screen.Build(win, ctx)
 		Kit.List(panel, "Y", 10)
 		Kit.Heading("No festival today", 22).Parent = panel
 		if nextDef then
-			local l = Kit.Label(nextDef.Icon .. " " .. nextDef.Name .. " is " .. (if data.NextInDays == 0 then "later today" elseif data.NextInDays == 1 then "tomorrow" else "in " .. data.NextInDays .. " days") .. " (" .. Describe.SeasonDay(nextDef.Season, nextDef.Day) .. ", " .. Format.Clock(nextDef.Hours[1]) .. "–" .. Format.Clock(nextDef.Hours[2]) .. ").\n" .. nextDef.Description, { Size = Theme.Sizes.Body, Wrap = true })
+			local l = Kit.Label(
+				nextDef.Icon
+					.. " "
+					.. nextDef.Name
+					.. " is "
+					.. (if data.NextInDays == 0
+						then "later today"
+						elseif data.NextInDays == 1 then "tomorrow"
+						else "in " .. data.NextInDays .. " days")
+					.. " ("
+					.. Describe.SeasonDay(nextDef.Season, nextDef.Day)
+					.. ", "
+					.. Format.Clock(nextDef.Hours[1])
+					.. "–"
+					.. Format.Clock(nextDef.Hours[2])
+					.. ").\n"
+					.. nextDef.Description,
+				{ Size = Theme.Sizes.Body, Wrap = true }
+			)
 			l.LayoutOrder = 1
 			l.Parent = panel
 		end
@@ -247,7 +325,10 @@ function Screen.Build(win, ctx)
 		for _, f in Festivals.List do
 			table.insert(all, f.Icon .. " " .. f.Name .. " — " .. Describe.SeasonDay(f.Season, f.Day))
 		end
-		local list = Kit.Label("This year's festivals:\n" .. table.concat(all, "\n"), { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+		local list = Kit.Label(
+			"This year's festivals:\n" .. table.concat(all, "\n"),
+			{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+		)
 		list.LayoutOrder = 2
 		list.Parent = panel
 	end
@@ -259,7 +340,14 @@ function Screen.Build(win, ctx)
 		list.Parent = body
 		Kit.List(list, "Y", 8)
 		local left = data.Ends - GameTime.Now()
-		local head = Kit.Label(f.Description .. "   ·   ends in " .. Format.Duration(math.max(0, left)) .. "   ·   " .. Kit.Money(C.State.Get("Tokens") or 0, "Tokens"), { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+		local head = Kit.Label(
+			f.Description
+				.. "   ·   ends in "
+				.. Format.Duration(math.max(0, left))
+				.. "   ·   "
+				.. Kit.Money(C.State.Get("Tokens") or 0, "Tokens"),
+			{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+		)
 		head.Parent = list
 		for i, a in f.Activities do
 			local card = Kit.Card()
@@ -273,7 +361,15 @@ function Screen.Build(win, ctx)
 				for _ in (st.Found and st.Found[a.Id]) or {} do
 					found += 1
 				end
-				line = "Find them around the village" .. (if a.Dig then " (dig with your shovel)" else "") .. ": " .. found .. " / " .. a.Count .. " · " .. a.Tokens .. " 🎟️ each"
+				line = "Find them around the village"
+					.. (if a.Dig then " (dig with your shovel)" else "")
+					.. ": "
+					.. found
+					.. " / "
+					.. a.Count
+					.. " · "
+					.. a.Tokens
+					.. " 🎟️ each"
 			elseif a.Kind == "Contest" then
 				local entry = st.Entries and st.Entries[a.Id]
 				local weights = {}
@@ -282,29 +378,47 @@ function Screen.Build(win, ctx)
 						table.insert(weights, key .. " " .. a.Scoring[key] .. "%")
 					end
 				end
-				line = "Judged on " .. table.concat(weights, ", ") .. (if entry then string.format("\nYour entry scored %.1f / 100", entry.Score) else "")
+				line = "Judged on "
+					.. table.concat(weights, ", ")
+					.. (if entry then string.format("\nYour entry scored %.1f / 100", entry.Score) else "")
 			elseif a.Kind == "Derby" then
-				line = "Catch the biggest fish during the festival" .. (if st.Best and st.Best[a.Id] then " · your best: " .. st.Best[a.Id] .. " cm" else "")
+				line = "Catch the biggest fish during the festival"
+					.. (if st.Best and st.Best[a.Id] then " · your best: " .. st.Best[a.Id] .. " cm" else "")
 			else
-				line = "Ride through every checkpoint as fast as you can" .. (if st.Best and st.Best[a.Id] then string.format(" · your best: %.2f s", st.Best[a.Id]) else "")
+				line = "Ride through every checkpoint as fast as you can"
+					.. (if st.Best and st.Best[a.Id] then string.format(" · your best: %.2f s", st.Best[a.Id]) else "")
 			end
 			local l = Kit.Label(line, { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
 			l.LayoutOrder = 1
 			l.Parent = card
 			if a.Kind == "Contest" and not (st.Entries and st.Entries[a.Id]) then
-				Kit.Button("Enter", { Style = "Accent", Size = UDim2.fromOffset(140, 34), TextSize = Theme.Sizes.Small, LayoutOrder = 2, OnClick = function()
-					contestEntry(a)
-				end }).Parent = card
+				Kit.Button("Enter", {
+					Style = "Accent",
+					Size = UDim2.fromOffset(140, 34),
+					TextSize = Theme.Sizes.Small,
+					LayoutOrder = 2,
+					OnClick = function()
+						contestEntry(a)
+					end,
+				}).Parent =
+					card
 			elseif a.Kind == "Race" then
-				Kit.Button(if race and race.Activity == a.Id then "Restart race" else "Start race", { Style = "Accent", Size = UDim2.fromOffset(140, 34), TextSize = Theme.Sizes.Small, LayoutOrder = 2, OnClick = function()
-					local ok, result = Net.Request("FestivalAction", "RaceStart", { Activity = a.Id })
-					if ok then
-						ctx.Close()
-						Screen.RunRace(a.Id, result.Checkpoints)
-					else
-						C.Notify.Toast(tostring(result), "Warning")
-					end
-				end }).Parent = card
+				Kit.Button(if race and race.Activity == a.Id then "Restart race" else "Start race", {
+					Style = "Accent",
+					Size = UDim2.fromOffset(140, 34),
+					TextSize = Theme.Sizes.Small,
+					LayoutOrder = 2,
+					OnClick = function()
+						local ok, result = Net.Request("FestivalAction", "RaceStart", { Activity = a.Id })
+						if ok then
+							ctx.Close()
+							Screen.RunRace(a.Id, result.Checkpoints)
+						else
+							C.Notify.Toast(tostring(result), "Warning")
+						end
+					end,
+				}).Parent =
+					card
 			end
 		end
 	end
@@ -318,8 +432,14 @@ function Screen.Build(win, ctx)
 		for i, ch in f.Challenges do
 			local have = (st.Ch and st.Ch[ch.Id]) or 0
 			local done = st.Done and st.Done[ch.Id]
-			local row = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 44), LayoutOrder = i, Parent = list })
-			local l = Kit.Label((if done then "✔️ " else "🎟️ ") .. ch.Text .. "  (+" .. ch.Tokens .. ")", { Size = Theme.Sizes.Small, Color = if done then "Good" else "Text" })
+			local row = Kit.new(
+				"Frame",
+				{ BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 44), LayoutOrder = i, Parent = list }
+			)
+			local l = Kit.Label(
+				(if done then "✔️ " else "🎟️ ") .. ch.Text .. "  (+" .. ch.Tokens .. ")",
+				{ Size = Theme.Sizes.Small, Color = if done then "Good" else "Text" }
+			)
 			l.Size = UDim2.new(1, 0, 0, 20)
 			l.Parent = row
 			local bar = Kit.Progress({ Size = UDim2.new(1, 0, 0, 12), Color = if done then "Good" else "Accent" })
@@ -334,7 +454,12 @@ function Screen.Build(win, ctx)
 		local st = data.State
 		local grid = Kit.Scroll({ Size = UDim2.fromScale(1, 1) })
 		grid.Parent = body
-		local layout = Kit.new("UIGridLayout", { CellSize = UDim2.new(0.333, -8, 0, 110), CellPadding = UDim2.fromOffset(10, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = grid })
+		local layout = Kit.new("UIGridLayout", {
+			CellSize = UDim2.new(0.333, -8, 0, 110),
+			CellPadding = UDim2.fromOffset(10, 10),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = grid,
+		})
 		layout.FillDirectionMaxCells = 3
 		for i, entry in f.Shop do
 			local item = Registry.Items[entry.Id]
@@ -351,22 +476,34 @@ function Screen.Build(win, ctx)
 				name.Position = UDim2.fromOffset(60, 0)
 				name.Size = UDim2.new(1, -60, 0, 0)
 				name.Parent = card
-				local price = Kit.Label(Kit.Money(entry.Price, "Tokens") .. (if entry.Stock then "  ·  " .. (entry.Stock - bought) .. " left" else ""), { Size = Theme.Sizes.Tiny, Color = "Accent" })
+				local price = Kit.Label(
+					Kit.Money(entry.Price, "Tokens")
+						.. (if entry.Stock then "  ·  " .. (entry.Stock - bought) .. " left" else ""),
+					{ Size = Theme.Sizes.Tiny, Color = "Accent" }
+				)
 				price.Position = UDim2.fromOffset(60, 40)
 				price.Size = UDim2.new(1, -60, 0, 16)
 				price.Parent = card
-				local buy = Kit.Button("Buy", { Style = "Primary", Size = UDim2.new(1, 0, 0, 30), TextSize = Theme.Sizes.Small, OnClick = function()
-					local ok, err = Net.Request("FestivalAction", "Buy", { Id = entry.Id, N = 1 })
-					if ok then
-						C.Audio.PlayUI("Coins")
-						fetch()
-					else
-						C.Notify.Toast(tostring(err), "Warning")
-					end
-				end })
+				local buy = Kit.Button("Buy", {
+					Style = "Primary",
+					Size = UDim2.new(1, 0, 0, 30),
+					TextSize = Theme.Sizes.Small,
+					OnClick = function()
+						local ok, err = Net.Request("FestivalAction", "Buy", { Id = entry.Id, N = 1 })
+						if ok then
+							C.Audio.PlayUI("Coins")
+							fetch()
+						else
+							C.Notify.Toast(tostring(err), "Warning")
+						end
+					end,
+				})
 				buy.Position = UDim2.new(0, 0, 1, -30)
 				buy.Parent = card
-				Kit.SetEnabled(buy, (C.State.Get("Tokens") or 0) >= entry.Price and (not entry.Stock or bought < entry.Stock))
+				Kit.SetEnabled(
+					buy,
+					(C.State.Get("Tokens") or 0) >= entry.Price and (not entry.Stock or bought < entry.Stock)
+				)
 				Kit.AttachTooltip(card, function()
 					return Kit.ItemTooltip({ Id = entry.Id, N = 1 })
 				end)
@@ -387,7 +524,10 @@ function Screen.Build(win, ctx)
 			end
 		end
 		if #prizeLines > 0 then
-			local p = Kit.Label("Prizes (mailed when the festival ends):\n" .. table.concat(prizeLines, "\n"), { Size = Theme.Sizes.Small, Color = "Accent", Wrap = true })
+			local p = Kit.Label(
+				"Prizes (mailed when the festival ends):\n" .. table.concat(prizeLines, "\n"),
+				{ Size = Theme.Sizes.Small, Color = "Accent", Wrap = true }
+			)
 			p.Parent = list
 		end
 		local order = 1
@@ -401,16 +541,35 @@ function Screen.Build(win, ctx)
 				Kit.List(card, "Y", 3)
 				Kit.Label(a.Icon .. " " .. a.Name, { Size = Theme.Sizes.Body, Font = Theme.Fonts.Bold }).Parent = card
 				if #board == 0 then
-					local e = Kit.Label("No entries yet — be the first!", { Size = Theme.Sizes.Small, Color = "SubText" })
+					local e =
+						Kit.Label("No entries yet — be the first!", { Size = Theme.Sizes.Small, Color = "SubText" })
 					e.LayoutOrder = 1
 					e.Parent = card
 				end
 				for rank, row in board do
 					local meta = row.Meta or {}
-					local what = if meta.Item then " · " .. ItemUtil.DisplayName({ Id = meta.Item, N = 1, Q = meta.Q, M = meta.M }) elseif meta.Animal then " · " .. meta.Animal else ""
-					local value = if a.Kind == "Race" then string.format("%.2f s", row.Value) elseif a.Kind == "Derby" then tostring(row.Value) .. " cm" else string.format("%.1f pts", row.Value)
+					local what = if meta.Item
+						then " · " .. ItemUtil.DisplayName({ Id = meta.Item, N = 1, Q = meta.Q, M = meta.M })
+						elseif meta.Animal then " · " .. meta.Animal
+						else ""
+					local value = if a.Kind == "Race"
+						then string.format("%.2f s", row.Value)
+						elseif a.Kind == "Derby" then tostring(row.Value) .. " cm"
+						else string.format("%.1f pts", row.Value)
 					local mine = row.UserId == Players.LocalPlayer.UserId
-					local l = Kit.Label((PLACE_ICON[rank] or ("#" .. rank)) .. "  " .. tostring(meta.Name or row.UserId) .. what .. "  —  " .. value, { Size = Theme.Sizes.Small, Color = if mine then "Accent" else "Text", Font = if mine then Theme.Fonts.Bold else nil })
+					local l = Kit.Label(
+						(PLACE_ICON[rank] or ("#" .. rank))
+							.. "  "
+							.. tostring(meta.Name or row.UserId)
+							.. what
+							.. "  —  "
+							.. value,
+						{
+							Size = Theme.Sizes.Small,
+							Color = if mine then "Accent" else "Text",
+							Font = if mine then Theme.Fonts.Bold else nil,
+						}
+					)
 					l.LayoutOrder = rank
 					l.Parent = card
 				end
@@ -445,9 +604,11 @@ function Screen.Build(win, ctx)
 
 	tabs.Select(current)
 	task.spawn(fetch)
-	return { Refresh = function()
-		task.spawn(fetch)
-	end }
+	return {
+		Refresh = function()
+			task.spawn(fetch)
+		end,
+	}
 end
 
 return Screen

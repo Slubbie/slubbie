@@ -107,7 +107,13 @@ local function updateIndex(guild: any?, removeId: string?)
 			end
 		end
 		if guild then
-			table.insert(list, 1, { Id = guild.Id, Name = guild.Name, Members = memberCount(guild), Points = guild.Points or 0, Open = guild.Open })
+			table.insert(list, 1, {
+				Id = guild.Id,
+				Name = guild.Name,
+				Members = memberCount(guild),
+				Points = guild.Points or 0,
+				Open = guild.Open,
+			})
 		end
 		while #list > INDEX_MAX do
 			table.remove(list)
@@ -225,7 +231,8 @@ local function join(player: Player, id: string)
 			reason = "That co-op is full"
 			return nil
 		end
-		guild.Members[tostring(player.UserId)] = { Name = player.DisplayName, Role = "Member", Joined = os.time(), Points = 0 }
+		guild.Members[tostring(player.UserId)] =
+			{ Name = player.DisplayName, Role = "Member", Joined = os.time(), Points = 0 }
 		return guild
 	end)
 	if not ok or reason or type(result) ~= "table" then

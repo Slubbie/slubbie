@@ -33,7 +33,12 @@ return {
 			local homes = AnimalInfo.Homes(profile)
 			local grid = Kit.Scroll({ Size = UDim2.fromScale(1, 1) })
 			grid.Parent = content
-			local layout = Kit.new("UIGridLayout", { CellSize = UDim2.new(0.5, -6, 0, 132), CellPadding = UDim2.fromOffset(10, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = grid })
+			local layout = Kit.new("UIGridLayout", {
+				CellSize = UDim2.new(0.5, -6, 0, 132),
+				CellPadding = UDim2.fromOffset(10, 10),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Parent = grid,
+			})
 			layout.FillDirectionMaxCells = 2
 			for i, species in Animals.List do
 				if species.Buyable then
@@ -42,7 +47,14 @@ return {
 					local card = Kit.Card(132)
 					card.LayoutOrder = i + (if locked then 100 else 0)
 					card.Parent = grid
-					local icon = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(64, 64), Text = species.Icon, TextScaled = true, Font = Theme.Fonts.Body, Parent = card })
+					local icon = Kit.new("TextLabel", {
+						BackgroundTransparency = 1,
+						Size = UDim2.fromOffset(64, 64),
+						Text = species.Icon,
+						TextScaled = true,
+						Font = Theme.Fonts.Body,
+						Parent = card,
+					})
 					icon.TextTransparency = if locked then 0.5 else 0
 					local name = Kit.Label(species.Name, { Size = Theme.Sizes.Body, Font = Theme.Fonts.Bold })
 					name.Position = UDim2.fromOffset(74, 0)
@@ -54,7 +66,18 @@ return {
 						local item = Registry.Items[id]
 						table.insert(feeds, if item then item.Icon else id)
 					end
-					local info = Kit.Label("Lives in a " .. species.Home .. "\n" .. (if product then product.Icon .. " " .. product.Name else species.Product) .. " every " .. Format.Duration(species.Interval * GameTime.HOUR) .. "\nEats " .. table.concat(feeds, " / ") .. (if species.Rideable then " · 🏇 rideable" else ""), { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+					local info = Kit.Label(
+						"Lives in a "
+							.. species.Home
+							.. "\n"
+							.. (if product then product.Icon .. " " .. product.Name else species.Product)
+							.. " every "
+							.. Format.Duration(species.Interval * GameTime.HOUR)
+							.. "\nEats "
+							.. table.concat(feeds, " / ")
+							.. (if species.Rideable then " · 🏇 rideable" else ""),
+						{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+					)
 					info.Position = UDim2.fromOffset(74, 24)
 					info.Size = UDim2.new(1, -74, 0, 0)
 					info.Parent = card
@@ -64,34 +87,59 @@ return {
 							table.insert(free, home)
 						end
 					end
-					local status = if locked then "🔒 Ranching " .. species.Level elseif #free == 0 then "Needs a " .. species.Home .. " with room" else #free .. " home" .. (if #free > 1 then "s" else "") .. " with room"
-					local statusLabel = Kit.Label(status, { Size = Theme.Sizes.Tiny, Color = if locked or #free == 0 then "Warn" else "Good" })
+					local status = if locked
+						then "🔒 Ranching " .. species.Level
+						elseif #free == 0 then "Needs a " .. species.Home .. " with room"
+						else #free .. " home" .. (if #free > 1 then "s" else "") .. " with room"
+					local statusLabel = Kit.Label(
+						status,
+						{ Size = Theme.Sizes.Tiny, Color = if locked or #free == 0 then "Warn" else "Good" }
+					)
 					statusLabel.Position = UDim2.new(0, 0, 1, -36)
 					statusLabel.Size = UDim2.new(1, -140, 0, 16)
 					statusLabel.Parent = card
-					local priceLabel = Kit.Label(Kit.Money(price), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Number, Color = "Accent" })
+					local priceLabel = Kit.Label(
+						Kit.Money(price),
+						{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Number, Color = "Accent" }
+					)
 					priceLabel.Position = UDim2.new(0, 0, 1, -18)
 					priceLabel.Size = UDim2.new(1, -140, 0, 18)
 					priceLabel.Parent = card
-					local buy = Kit.Button("Adopt", { Style = "Primary", Size = UDim2.fromOffset(120, 36), TextSize = Theme.Sizes.Small, OnClick = function()
-						local function go(homeUid: string)
-							local ok, result = Net.Request("AnimalBuy", species.Id, homeUid)
-							if ok then
-								C.Audio.PlayUI("Discovery")
-							else
-								C.Notify.Toast(tostring(result), "Warning")
+					local buy = Kit.Button("Adopt", {
+						Style = "Primary",
+						Size = UDim2.fromOffset(120, 36),
+						TextSize = Theme.Sizes.Small,
+						OnClick = function()
+							local function go(homeUid: string)
+								local ok, result = Net.Request("AnimalBuy", species.Id, homeUid)
+								if ok then
+									C.Audio.PlayUI("Discovery")
+								else
+									C.Notify.Toast(tostring(result), "Warning")
+								end
 							end
-						end
-						if #free <= 1 then
-							go(if free[1] then free[1].Uid else "")
-							return
-						end
-						Kit.Confirm("Which home?", "You have " .. #free .. " " .. species.Home .. "s with room. Your new " .. species.Name .. " will move into the first one with space — you can move it later from its care card.", function(yes)
-							if yes then
-								go(free[1].Uid)
+							if #free <= 1 then
+								go(if free[1] then free[1].Uid else "")
+								return
 							end
-						end, "Adopt")
-					end })
+							Kit.Confirm(
+								"Which home?",
+								"You have "
+									.. #free
+									.. " "
+									.. species.Home
+									.. "s with room. Your new "
+									.. species.Name
+									.. " will move into the first one with space — you can move it later from its care card.",
+								function(yes)
+									if yes then
+										go(free[1].Uid)
+									end
+								end,
+								"Adopt"
+							)
+						end,
+					})
 					buy.Position = UDim2.new(1, -120, 1, -36)
 					buy.Parent = card
 					Kit.SetEnabled(buy, not locked and #free > 0 and (profile and profile.Coins or 0) >= price)

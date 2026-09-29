@@ -32,19 +32,17 @@ return {
 
 	Performance = {
 		-- Crops advanced per server Heartbeat (the scheduler walks all crops round-robin).
+		-- Machines and animals need no budget: they settle lazily from timestamps.
 		CropsPerStep = 180,
 		-- Target seconds between visual updates of the same crop.
 		CropRefresh = 4,
-		MachinesPerStep = 40,
-		AutomationInterval = 5,
-		AnimalsPerStep = 60,
 	},
 
 	Energy = {
-		-- Actions with no energy left: heavy actions blocked, light ones still work.
+		-- With no energy left heavy actions are blocked; light ones still work.
+		-- (Harvesting and planting cost no energy at all.)
 		Enabled = true,
-		LightActions = { Harvest = true, Plant = true, Water = false },
-		SleepRestore = 1,
+		LightActions = { Water = false, Net = true },
 	},
 
 	Security = {

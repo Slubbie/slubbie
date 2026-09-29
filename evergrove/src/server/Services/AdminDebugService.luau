@@ -93,7 +93,11 @@ commands.give = function(player, a)
 	if not Registry.Items[id] then
 		return "Unknown item " .. id
 	end
-	local stack = ItemUtil.New(id, math.clamp(math.floor(num(a.N, 1)), 1, 9999), if a.Q then math.clamp(num(a.Q, 1), 1, 6) else nil)
+	local stack = ItemUtil.New(
+		id,
+		math.clamp(math.floor(num(a.N, 1)), 1, 9999),
+		if a.Q then math.clamp(num(a.Q, 1), 1, 6) else nil
+	)
 	if type(a.M) == "table" then
 		local mutations = {}
 		for _, m in a.M do
@@ -269,8 +273,17 @@ commands.inspect = function(_player, a)
 	for _ in profile.Farm.Tiles do
 		tiles += 1
 	end
-	return string.format("%s: %s coins, Estate %d, %d tiles, %d placed, %d animals, schema v%d, read-only=%s",
-		target.Name, tostring(profile.Coins), Stats.EstateLevel(profile), tiles, placed, animals, profile.Version or 0, tostring(S.Data.IsReadOnly(target)))
+	return string.format(
+		"%s: %s coins, Estate %d, %d tiles, %d placed, %d animals, schema v%d, read-only=%s",
+		target.Name,
+		tostring(profile.Coins),
+		Stats.EstateLevel(profile),
+		tiles,
+		placed,
+		animals,
+		profile.Version or 0,
+		tostring(S.Data.IsReadOnly(target))
+	)
 end
 
 commands.log = function()

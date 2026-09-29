@@ -213,7 +213,11 @@ local function looksValid(d: any, spec: any): (boolean, string?)
 		for _, m in lotFolder:GetChildren() do
 			if m ~= picked and m:IsA("Model") then
 				local other = def(m:GetAttribute("Placeable"))
-				if other and (other.Category == "Path") == isPath and not (other.Function and other.Function.Kind == "Interior" and d.OnSoil) then
+				if
+					other
+					and (other.Category == "Path") == isPath
+					and not (other.Function and other.Function.Kind == "Interior" and d.OnSoil)
+				then
 					local osc = if other.Scale then (m:GetAttribute("Sc") or 1) else 1
 					local ow, od = other.Size[1] * TILE * osc / 2, other.Size[2] * TILE * osc / 2
 					if (m:GetAttribute("Ry") or 0) % 180 == 90 then
@@ -267,8 +271,8 @@ local function updateGhost()
 		return
 	end
 	local o = origin :: Vector3
-	local pos = o + Vector3.new(spec.X, spec.Y or 0, spec.Z)
-	;(ghost :: Model):PivotTo(CFrame.new(pos) * CFrame.Angles(0, math.rad(spec.R), 0))
+	local pos = o + Vector3.new(spec.X, spec.Y or 0, spec.Z);
+	(ghost :: Model):PivotTo(CFrame.new(pos) * CFrame.Angles(0, math.rad(spec.R), 0))
 	local ok, why = looksValid(d, spec)
 	if highlight then
 		highlight.FillColor = if ok then Color3.fromRGB(120, 230, 120) else Color3.fromRGB(240, 90, 80)
@@ -279,7 +283,13 @@ local function updateGhost()
 	else
 		local counts = owned()
 		local n = if picked then 1 else (counts[d.Id] or 0)
-		status((if picked then "Moving " else "Placing ") .. d.Name .. (if picked then "" else "  ·  " .. n .. " in your bag") .. (if free then "  ·  free (" .. Placeables.GridSnap[snapIndex] .. " studs)" else "  ·  grid"), "SubText")
+		status(
+			(if picked then "Moving " else "Placing ")
+				.. d.Name
+				.. (if picked then "" else "  ·  " .. n .. " in your bag")
+				.. (if free then "  ·  free (" .. Placeables.GridSnap[snapIndex] .. " studs)" else "  ·  grid"),
+			"SubText"
+		)
 	end
 end
 
@@ -383,7 +393,10 @@ local function refreshInspector()
 	Kit.Clear(frame)
 	local d = currentDef()
 	if not d then
-		local tip = Kit.Label("Pick something from the catalog, or click an object on your farm to move it.", { Wrap = true, Color = "SubText", Size = Theme.Sizes.Small })
+		local tip = Kit.Label(
+			"Pick something from the catalog, or click an object on your farm to move it.",
+			{ Wrap = true, Color = "SubText", Size = Theme.Sizes.Small }
+		)
 		tip.Parent = frame
 		return
 	end
@@ -401,11 +414,17 @@ local function refreshInspector()
 		widget.Parent = frame
 	end
 	if d.Paint then
-		local swatches = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y })
+		local swatches = Kit.new(
+			"Frame",
+			{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y }
+		)
 		local grid = Kit.Grid(swatches, 24, 4)
 		grid.SortOrder = Enum.SortOrder.LayoutOrder
 		for i, color in Placeables.Palette do
-			local sw = Kit.new("TextButton", { AutoButtonColor = true, Text = "", BackgroundColor3 = color, LayoutOrder = i, Parent = swatches })
+			local sw = Kit.new(
+				"TextButton",
+				{ AutoButtonColor = true, Text = "", BackgroundColor3 = color, LayoutOrder = i, Parent = swatches }
+			)
 			Kit.Corner(sw, 6)
 			sw.Activated:Connect(function()
 				brush.C = color:ToHex()
@@ -420,7 +439,8 @@ local function refreshInspector()
 				end
 			end)
 		end
-		local clear = Kit.new("TextButton", { Text = "✕", BackgroundTransparency = 0.5, LayoutOrder = 99, Parent = swatches })
+		local clear =
+			Kit.new("TextButton", { Text = "✕", BackgroundTransparency = 0.5, LayoutOrder = 99, Parent = swatches })
 		clear.Activated:Connect(function()
 			brush.C = nil
 		end)
@@ -432,9 +452,12 @@ local function refreshInspector()
 		for _, m in d.Materials do
 			table.insert(options, m)
 		end
-		row(Kit.Row("Material", Kit.Choice(options, brush.Mt or "Default", function(v)
-			brush.Mt = if v == "Default" then nil else v
-		end)))
+		row(Kit.Row(
+			"Material",
+			Kit.Choice(options, brush.Mt or "Default", function(v)
+				brush.Mt = if v == "Default" then nil else v
+			end)
+		))
 	end
 	if d.Scale then
 		row(Kit.Label("Size", { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }))
@@ -449,16 +472,31 @@ local function refreshInspector()
 	end
 	local buttons = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 36) })
 	Kit.List(buttons, "X", 6)
-	Kit.Button("⟲", { Style = "Secondary", Size = UDim2.fromOffset(40, 34), OnClick = function()
-		rotation = (rotation + (if free then 15 else 90)) % 360
-	end }).Parent = buttons
+	Kit.Button("⟲", {
+		Style = "Secondary",
+		Size = UDim2.fromOffset(40, 34),
+		OnClick = function()
+			rotation = (rotation + (if free then 15 else 90)) % 360
+		end,
+	}).Parent =
+		buttons
 	if picked then
-		Kit.Button("Pick up", { Style = "Danger", Size = UDim2.fromOffset(90, 34), OnClick = function()
-			BuildController.RemovePicked()
-		end }).Parent = buttons
-		Kit.Button("Copy", { Style = "Secondary", Size = UDim2.fromOffset(70, 34), OnClick = function()
-			BuildController.Duplicate()
-		end }).Parent = buttons
+		Kit.Button("Pick up", {
+			Style = "Danger",
+			Size = UDim2.fromOffset(90, 34),
+			OnClick = function()
+				BuildController.RemovePicked()
+			end,
+		}).Parent =
+			buttons
+		Kit.Button("Copy", {
+			Style = "Secondary",
+			Size = UDim2.fromOffset(70, 34),
+			OnClick = function()
+				BuildController.Duplicate()
+			end,
+		}).Parent =
+			buttons
 	end
 	row(buttons)
 end
@@ -626,25 +664,51 @@ local function refreshCatalog()
 		return a.Def.Name < b.Def.Name
 	end)
 	if #entries == 0 then
-		Kit.Empty(if category == "All" and search == "" then "Nothing to place yet. Buy decorations and buildings from Gus at Timberline Builders, or craft them." else "No matches.").Parent = list
+		Kit.Empty(
+			if category == "All" and search == ""
+				then "Nothing to place yet. Buy decorations and buildings from Gus at Timberline Builders, or craft them."
+				else "No matches."
+		).Parent =
+			list
 		return
 	end
 	for i, entry in entries do
 		local d = entry.Def
-		local card = Kit.new("TextButton", { AutoButtonColor = false, Text = "", Size = UDim2.new(1, -6, 0, 46), LayoutOrder = i, Parent = list })
+		local card = Kit.new(
+			"TextButton",
+			{ AutoButtonColor = false, Text = "", Size = UDim2.new(1, -6, 0, 46), LayoutOrder = i, Parent = list }
+		)
 		Kit.Paint(card, "BackgroundColor3", if selectedId == d.Id then "SlotHover" else "Slot")
 		Kit.Corner(card, 8)
-		local icon = Kit.new("TextLabel", { BackgroundTransparency = 1, Text = d.Icon, TextScaled = true, Size = UDim2.fromOffset(34, 34), Position = UDim2.fromOffset(6, 6), Parent = card })
+		local icon = Kit.new("TextLabel", {
+			BackgroundTransparency = 1,
+			Text = d.Icon,
+			TextScaled = true,
+			Size = UDim2.fromOffset(34, 34),
+			Position = UDim2.fromOffset(6, 6),
+			Parent = card,
+		})
 		icon.Font = Theme.Fonts.Body
 		local name = Kit.Label(d.Name, { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
 		name.Position = UDim2.fromOffset(46, 4)
 		name.Size = UDim2.new(1, -90, 0, 20)
 		name.Parent = card
-		local sub = Kit.Label("×" .. entry.N .. " · " .. d.Size[1] .. "×" .. d.Size[2], { Size = Theme.Sizes.Tiny, Color = "SubText" })
+		local sub = Kit.Label(
+			"×" .. entry.N .. " · " .. d.Size[1] .. "×" .. d.Size[2],
+			{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+		)
 		sub.Position = UDim2.fromOffset(46, 24)
 		sub.Size = UDim2.new(1, -90, 0, 16)
 		sub.Parent = card
-		local star = Kit.new("TextButton", { BackgroundTransparency = 1, Text = if favorites[d.Id] then "★" else "☆", TextSize = 20, Font = Theme.Fonts.Bold, Size = UDim2.fromOffset(32, 32), Position = UDim2.new(1, -36, 0, 7), Parent = card })
+		local star = Kit.new("TextButton", {
+			BackgroundTransparency = 1,
+			Text = if favorites[d.Id] then "★" else "☆",
+			TextSize = 20,
+			Font = Theme.Fonts.Bold,
+			Size = UDim2.fromOffset(32, 32),
+			Position = UDim2.new(1, -36, 0, 7),
+			Parent = card,
+		})
 		Kit.Paint(star, "TextColor3", "Accent")
 		star.Activated:Connect(function()
 			if favorites[d.Id] then
@@ -660,7 +724,10 @@ local function refreshCatalog()
 			refreshCatalog()
 		end)
 		Kit.AttachTooltip(card, function()
-			return { { Text = d.Icon .. " " .. d.Name, Bold = true }, { Text = d.Description or d.Category, Color = "SubText", Size = Theme.Sizes.Small } }
+			return {
+				{ Text = d.Icon .. " " .. d.Name, Bold = true },
+				{ Text = d.Description or d.Category, Color = "SubText", Size = Theme.Sizes.Small },
+			}
 		end)
 	end
 end
@@ -675,9 +742,14 @@ local function buildPanel()
 	Kit.Padding(root, 10, 10)
 	local title = Kit.Heading("🛠️ Build Mode", 20)
 	title.Parent = root
-	local close = Kit.Button("Done", { Style = "Accent", Size = UDim2.fromOffset(70, 30), TextSize = 14, OnClick = function()
-		BuildController.Exit()
-	end })
+	local close = Kit.Button("Done", {
+		Style = "Accent",
+		Size = UDim2.fromOffset(70, 30),
+		TextSize = 14,
+		OnClick = function()
+			BuildController.Exit()
+		end,
+	})
 	close.Position = UDim2.new(1, -70, 0, -2)
 	close.Parent = root
 	local searchBox = Kit.TextBox("🔍 Search…", { Size = UDim2.new(1, 0, 0, 32) })
@@ -690,15 +762,22 @@ local function buildPanel()
 	local cats = Kit.Scroll({ Horizontal = true, Size = UDim2.new(1, 0, 0, 34), Position = UDim2.fromOffset(0, 74) })
 	cats.Parent = root
 	Kit.List(cats, "X", 4)
-	local catIds = { { Id = "All", Name = "All", Icon = "✨" }, { Id = "Favorites", Name = "Favourites", Icon = "★" } }
+	local catIds =
+		{ { Id = "All", Name = "All", Icon = "✨" }, { Id = "Favorites", Name = "Favourites", Icon = "★" } }
 	for _, cat in Placeables.Categories do
 		table.insert(catIds, cat)
 	end
 	for i, cat in catIds do
-		local b = Kit.Button(cat.Icon, { Style = "Secondary", Size = UDim2.fromOffset(34, 30), TextSize = 16, LayoutOrder = i, OnClick = function()
-			category = cat.Id
-			refreshCatalog()
-		end })
+		local b = Kit.Button(cat.Icon, {
+			Style = "Secondary",
+			Size = UDim2.fromOffset(34, 30),
+			TextSize = 16,
+			LayoutOrder = i,
+			OnClick = function()
+				category = cat.Id
+				refreshCatalog()
+			end,
+		})
 		Kit.AttachTooltip(b, function()
 			return { { Text = cat.Name } }
 		end)
@@ -708,7 +787,12 @@ local function buildPanel()
 	Kit.List(list, "Y", 4)
 	list.Parent = root
 	catalogList = list
-	local insp = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0.5, -70), Position = UDim2.new(0, 0, 0.5, 60), Parent = root })
+	local insp = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0.5, -70),
+		Position = UDim2.new(0, 0, 0.5, 60),
+		Parent = root,
+	})
 	Kit.List(insp, "Y", 6)
 	inspector = insp
 	-- Status line along the bottom (right of the catalog), tool buttons above it.
@@ -721,14 +805,22 @@ local function buildPanel()
 	label.Size = UDim2.fromScale(1, 1)
 	label.Parent = bar
 	statusLabel = label
-	local toolbar = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(0, 40), AutomaticSize = Enum.AutomaticSize.X, AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, 0, 0, -8), Parent = bar })
+	local toolbar = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, 40),
+		AutomaticSize = Enum.AutomaticSize.X,
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, 0, 0, -8),
+		Parent = bar,
+	})
 	Kit.List(toolbar, "X", 6)
 	Kit.IconButton("↶", "Undo (Ctrl+Z)", BuildController.Undo).Parent = toolbar
 	Kit.IconButton("↷", "Redo (Ctrl+Y)", BuildController.Redo).Parent = toolbar
 	Kit.IconButton("🎨", "Copy style from an object (I)", copyStyle).Parent = toolbar
 	Kit.IconButton("✋", "Stop placing (select objects to move)", function()
 		BuildController.Select(nil)
-	end).Parent = toolbar
+	end).Parent =
+		toolbar
 	panel = root
 	Kit.Pop(root)
 	Kit.RepaintGradients(root)
@@ -776,9 +868,17 @@ function BuildController.Enter(itemId: string?)
 	BuildController.Select(itemId)
 	Net.Send("MenuState", false)
 	C.Tutorial.Hint("Build")
-	ContextActionService:BindAction("EvergroveBuildMovement", function()
-		return Enum.ContextActionResult.Sink
-	end, false, Enum.PlayerActions.CharacterForward, Enum.PlayerActions.CharacterBackward, Enum.PlayerActions.CharacterLeft, Enum.PlayerActions.CharacterRight)
+	ContextActionService:BindAction(
+		"EvergroveBuildMovement",
+		function()
+			return Enum.ContextActionResult.Sink
+		end,
+		false,
+		Enum.PlayerActions.CharacterForward,
+		Enum.PlayerActions.CharacterBackward,
+		Enum.PlayerActions.CharacterLeft,
+		Enum.PlayerActions.CharacterRight
+	)
 end
 
 function BuildController.Exit()
@@ -825,12 +925,20 @@ function BuildController.Start()
 		if not active or UserInputService:GetFocusedTextBox() then
 			return
 		end
-		local ctrl = UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
+		local ctrl = UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)
+			or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
 		local shift = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
 		local key = input.KeyCode
-		if (input.UserInputType == Enum.UserInputType.MouseButton1 or key == Enum.KeyCode.ButtonR2 or input.UserInputType == Enum.UserInputType.Touch) and not processed then
+		if
+			(
+				input.UserInputType == Enum.UserInputType.MouseButton1
+				or key == Enum.KeyCode.ButtonR2
+				or input.UserInputType == Enum.UserInputType.Touch
+			) and not processed
+		then
 			if input.UserInputType == Enum.UserInputType.Touch then
-				touchPoint = Vector2.new(input.Position.X, input.Position.Y) + game:GetService("GuiService"):GetGuiInset()
+				touchPoint = Vector2.new(input.Position.X, input.Position.Y)
+					+ game:GetService("GuiService"):GetGuiInset()
 			end
 			click()
 			local d = currentDef()
@@ -857,7 +965,8 @@ function BuildController.Start()
 		elseif key == Enum.KeyCode.LeftBracket or key == Enum.KeyCode.RightBracket then
 			local d = currentDef()
 			if d and d.Scale then
-				scale = math.clamp(scale + (if key == Enum.KeyCode.RightBracket then 0.1 else -0.1), d.Scale[1], d.Scale[2])
+				scale =
+					math.clamp(scale + (if key == Enum.KeyCode.RightBracket then 0.1 else -0.1), d.Scale[1], d.Scale[2])
 			end
 		elseif key == Enum.KeyCode.PageUp or key == Enum.KeyCode.PageDown then
 			lift = math.clamp(lift + (if key == Enum.KeyCode.PageUp then 0.5 else -0.5), 0, 12)
@@ -874,7 +983,11 @@ function BuildController.Start()
 		end
 	end)
 	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch or input.KeyCode == Enum.KeyCode.ButtonR2 then
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+			or input.KeyCode == Enum.KeyCode.ButtonR2
+		then
 			painting = false
 			lastPaintKey = ""
 		end
@@ -900,7 +1013,9 @@ function BuildController.Start()
 			if UserInputService:IsKeyDown(Enum.KeyCode.A) then
 				move += Vector3.new(-1, 0, 0)
 			end
-			if UserInputService:IsKeyDown(Enum.KeyCode.D) and not UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+			if
+				UserInputService:IsKeyDown(Enum.KeyCode.D) and not UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)
+			then
 				move += Vector3.new(1, 0, 0)
 			end
 			if UserInputService:IsKeyDown(Enum.KeyCode.Z) then
@@ -922,7 +1037,11 @@ function BuildController.Start()
 			camFocus += rotated * dt * (30 + camZoom * 0.6)
 			if origin then
 				local o = origin :: Vector3
-				camFocus = Vector3.new(math.clamp(camFocus.X, o.X - 20, o.X + 260), camFocus.Y, math.clamp(camFocus.Z, o.Z - 70, o.Z + 260))
+				camFocus = Vector3.new(
+					math.clamp(camFocus.X, o.X - 20, o.X + 260),
+					camFocus.Y,
+					math.clamp(camFocus.Z, o.Z - 70, o.Z + 260)
+				)
 			end
 		end
 		local camera = workspace.CurrentCamera

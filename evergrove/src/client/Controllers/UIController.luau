@@ -125,7 +125,14 @@ function UI.Init()
 	C.Settings.Changed:Connect(function(key)
 		if key == "UIScale" then
 			rescale()
-		elseif key == "UITheme" or key == "HighContrast" or key == "Colorblind" or key == "TextScale" or key == "ReducedMotion" or key == "SimpleUI" then
+		elseif
+			key == "UITheme"
+			or key == "HighContrast"
+			or key == "Colorblind"
+			or key == "TextScale"
+			or key == "ReducedMotion"
+			or key == "SimpleUI"
+		then
 			applyTheme()
 		end
 	end)

@@ -98,7 +98,11 @@ function SoilService.Fertilize(owner: Player, key: string, fertId: string, actor
 	if not tile or not fert then
 		return false, "Till the soil first"
 	end
-	local needsCrop = fert.Quality ~= nil or fert.Speed ~= nil or fert.Retain ~= nil or fert.Mutations ~= nil or fert.AllMutations ~= nil
+	local needsCrop = fert.Quality ~= nil
+		or fert.Speed ~= nil
+		or fert.Retain ~= nil
+		or fert.Mutations ~= nil
+		or fert.AllMutations ~= nil
 	-- Compost is pure soil food: it works on empty soil too.
 	if fertId == "compost" then
 		needsCrop = false
@@ -178,7 +182,11 @@ local function dawn()
 					if env and env.Sprinkler > 0 then
 						tile.W = 100
 					end
-					if tile.Idle and now - tile.Idle > Soil.RevertDays * GameTime.DAY and not (tile.Am and #tile.Am > 0) then
+					if
+						tile.Idle
+						and now - tile.Idle > Soil.RevertDays * GameTime.DAY
+						and not (tile.Am and #tile.Am > 0)
+					then
 						table.insert(toRemove, key)
 					end
 				end

@@ -7,12 +7,36 @@ return {
 		Levels = {
 			None = { Name = "No Visitors", Icon = "🚫", Description = "Nobody can enter your farm." },
 			View = { Name = "View Only", Icon = "👀", Description = "Visitors can walk around and look." },
-			Crops = { Name = "Help With Crops", Icon = "💧", Description = "Visitors can water, fertilize and cure pests." },
-			Animals = { Name = "Feed Animals", Icon = "🐔", Description = "Visitors can feed, pet and brush animals." },
-			Machines = { Name = "Use Machines", Icon = "⚙️", Description = "Visitors can load machines with their own items and collect for you." },
-			Harvest = { Name = "Harvest", Icon = "🧺", Description = "Visitors can harvest crops. The harvest goes to YOUR mail." },
-			Build = { Name = "Build", Icon = "🛠️", Description = "Visitors can move and place decorations (not sell or remove buildings)." },
-			Trusted = { Name = "Full Trusted Access", Icon = "🤝", Description = "Everything except selling your items or buying land." },
+			Crops = {
+				Name = "Help With Crops",
+				Icon = "💧",
+				Description = "Visitors can water, fertilize and cure pests.",
+			},
+			Animals = {
+				Name = "Feed Animals",
+				Icon = "🐔",
+				Description = "Visitors can feed, pet and brush animals.",
+			},
+			Machines = {
+				Name = "Use Machines",
+				Icon = "⚙️",
+				Description = "Visitors can load machines with their own items and collect for you.",
+			},
+			Harvest = {
+				Name = "Harvest",
+				Icon = "🧺",
+				Description = "Visitors can harvest crops. The harvest goes to YOUR mail.",
+			},
+			Build = {
+				Name = "Build",
+				Icon = "🛠️",
+				Description = "Visitors can move and place decorations (not sell or remove buildings).",
+			},
+			Trusted = {
+				Name = "Full Trusted Access",
+				Icon = "🤝",
+				Description = "Everything except selling your items or buying land.",
+			},
 		},
 		Default = "View",
 		-- Friends of the owner get this level by default (owners can override per player).
@@ -35,17 +59,65 @@ return {
 		CreateCost = 25000,
 		-- Shared upgrades bought with contributed coins/items (cosmetic + small quality-of-life).
 		Upgrades = {
-			{ Id = "banner", Name = "Guild Banner", Icon = "🚩", Cost = 50000, Description = "A banner in the Co-op Hall and on members' farms." },
-			{ Id = "hall_decor", Name = "Hall Decor", Icon = "🏮", Cost = 150000, Description = "Lanterns and flowers in the Co-op Hall." },
-			{ Id = "shared_chest", Name = "Shared Chest", Icon = "🧰", Cost = 250000, Description = "A cross-server chest all members can use." },
-			{ Id = "emblem", Name = "Golden Emblem", Icon = "🏅", Cost = 500000, Description = "A golden emblem on every member's nameplate." },
-			{ Id = "statue", Name = "Founders' Statue", Icon = "🗽", Cost = 1500000, Description = "A statue of your founders in the village." },
+			{
+				Id = "banner",
+				Name = "Guild Banner",
+				Icon = "🚩",
+				Cost = 50000,
+				Description = "A banner in the Co-op Hall and on members' farms.",
+			},
+			{
+				Id = "hall_decor",
+				Name = "Hall Decor",
+				Icon = "🏮",
+				Cost = 150000,
+				Description = "Lanterns and flowers in the Co-op Hall.",
+			},
+			{
+				Id = "shared_chest",
+				Name = "Shared Chest",
+				Icon = "🧰",
+				Cost = 250000,
+				Description = "A cross-server chest all members can use.",
+			},
+			{
+				Id = "emblem",
+				Name = "Golden Emblem",
+				Icon = "🏅",
+				Cost = 500000,
+				Description = "A golden emblem on every member's nameplate.",
+			},
+			{
+				Id = "statue",
+				Name = "Founders' Statue",
+				Icon = "🗽",
+				Cost = 1500000,
+				Description = "A statue of your founders in the village.",
+			},
 		},
 		-- Weekly objectives: contributions from all members add up.
 		Weekly = {
-			{ Id = "g_harvest", Text = "Harvest 5,000 crops together", Stat = "CropsHarvested", Goal = 5000, Reward = { Coins = 5000, GuildPoints = 100 } },
-			{ Id = "g_fish", Text = "Catch 500 fish together", Stat = "FishCaught", Goal = 500, Reward = { Coins = 4000, GuildPoints = 80 } },
-			{ Id = "g_artisan", Text = "Make 1,000 artisan goods together", Stat = "ArtisanMade", Goal = 1000, Reward = { Coins = 6000, GuildPoints = 120 } },
+			{
+				Id = "g_harvest",
+				Text = "Harvest 5,000 crops together",
+				Stat = "CropsHarvested",
+				Goal = 5000,
+				Reward = { Coins = 5000, GuildPoints = 100 },
+			},
+			{
+				Id = "g_fish",
+				Text = "Catch 500 fish together",
+				Stat = "FishCaught",
+				Goal = 500,
+				Reward = { Coins = 4000, GuildPoints = 80 },
+			},
+			{
+				Id = "g_artisan",
+				Text = "Make 1,000 artisan goods together",
+				Stat = "ArtisanMade",
+				Goal = 1000,
+				Reward = { Coins = 6000, GuildPoints = 120 },
+			},
 		},
 		ContributionPoints = 1, -- guild points per 1000 coins of contributed value
 	},

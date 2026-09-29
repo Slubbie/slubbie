@@ -232,8 +232,17 @@ function EconomyService.ShopEntries(player: Player, shopId: string): { any }
 	end
 	if shop.AllDecor then
 		for _, placeable in Placeables.List do
-			local decorCategory = placeable.Category ~= "Building" and placeable.Category ~= "Machine" and placeable.Category ~= "Automation" and placeable.Category ~= "Storage" and placeable.Category ~= "Utility" and placeable.Category ~= "Trophy"
-			if decorCategory and placeable.Price and (not placeable.Seasonal or placeable.Seasonal == info.SeasonId) then
+			local decorCategory = placeable.Category ~= "Building"
+				and placeable.Category ~= "Machine"
+				and placeable.Category ~= "Automation"
+				and placeable.Category ~= "Storage"
+				and placeable.Category ~= "Utility"
+				and placeable.Category ~= "Trophy"
+			if
+				decorCategory
+				and placeable.Price
+				and (not placeable.Seasonal or placeable.Seasonal == info.SeasonId)
+			then
 				table.insert(entries, { Id = placeable.Id, Level = placeable.Level })
 			end
 		end
@@ -263,7 +272,14 @@ function EconomyService.ShopEntries(player: Player, shopId: string): { any }
 				locked = entry.Hearts .. " hearts with " .. Registry.Npcs[owner].Name
 			end
 			local left = if entry.Stock then math.max(0, entry.Stock - stockUsed(profile, shopId, entry.Id)) else nil
-			table.insert(out, { Id = entry.Id, Price = price, Currency = entry.Currency or "Coins", Locked = locked, Left = left, Mats = def.Placeable and def.Placeable.Mats })
+			table.insert(out, {
+				Id = entry.Id,
+				Price = price,
+				Currency = entry.Currency or "Coins",
+				Locked = locked,
+				Left = left,
+				Mats = def.Placeable and def.Placeable.Mats,
+			})
 		end
 	end
 	return out
@@ -277,16 +293,17 @@ local function shopGet(player: Player, shopId: string)
 	if not S.NPC.Near(player, shop.Owner) then
 		return false, "Talk to " .. Registry.Npcs[shop.Owner].Name .. " to shop"
 	end
-	return true, {
-		Id = shop.Id,
-		Name = shop.Name,
-		Icon = shop.Icon,
-		Open = isOpen(shop),
-		Entries = EconomyService.ShopEntries(player, shopId),
-		Buys = shop.Buys,
-		Services = shop.Services,
-		Hours = shop.Hours,
-	}
+	return true,
+		{
+			Id = shop.Id,
+			Name = shop.Name,
+			Icon = shop.Icon,
+			Open = isOpen(shop),
+			Entries = EconomyService.ShopEntries(player, shopId),
+			Buys = shop.Buys,
+			Services = shop.Services,
+			Hours = shop.Hours,
+		}
 end
 
 local function shopBuy(player: Player, shopId: string, itemId: string, qty: number)
@@ -385,7 +402,12 @@ local function stallSet(player: Player, slot: number, ref: string, count: number
 	end
 	local value = ItemUtil.UnitValue(stack)
 	if price < math.floor(value * STALL.MinPrice) or price > math.ceil(value * STALL.MaxPrice) then
-		return false, string.format("Price must be between %d and %d", math.floor(value * STALL.MinPrice), math.ceil(value * STALL.MaxPrice))
+		return false,
+			string.format(
+				"Price must be between %d and %d",
+				math.floor(value * STALL.MinPrice),
+				math.ceil(value * STALL.MaxPrice)
+			)
 	end
 	local taken = S.Inventory.TakeFromSlot(player, ref, count)
 	if not taken then
@@ -459,7 +481,11 @@ local function stallBuy(player: Player, ownerUserId: number, slot: number, qty: 
 	EconomyService.AddCoins(owner, math.floor(total * (1 - fee)), "Stall sale")
 	S.Inventory.Add(player, bought, { Source = owner.DisplayName .. "'s stall" })
 	S.Data.AddStat(owner, "StallSales", qty)
-	S.Notify.Toast(owner, player.DisplayName .. " bought " .. qty .. "× " .. ItemUtil.DisplayName(bought) .. " from your stall!", "Success")
+	S.Notify.Toast(
+		owner,
+		player.DisplayName .. " bought " .. qty .. "× " .. ItemUtil.DisplayName(bought) .. " from your stall!",
+		"Success"
+	)
 	-- Both sides changed hands: save both promptly.
 	task.spawn(S.Data.SaveNow, owner)
 	task.spawn(S.Data.SaveNow, player)

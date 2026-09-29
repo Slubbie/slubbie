@@ -43,8 +43,18 @@ function Picker.Open(options: Options)
 		return
 	end
 	local containerName = options.Container or "inv"
-	local container = if containerName == "inv" then profile.Inventory else (profile.Storage and profile.Storage[(string.gsub(containerName, "^chest:", ""))])
-	local shade = Kit.new("TextButton", { AutoButtonColor = false, Text = "", BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.45, Size = UDim2.fromScale(1, 1), ZIndex = 80, Parent = layer })
+	local container = if containerName == "inv"
+		then profile.Inventory
+		else (profile.Storage and profile.Storage[(string.gsub(containerName, "^chest:", ""))])
+	local shade = Kit.new("TextButton", {
+		AutoButtonColor = false,
+		Text = "",
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.45,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 80,
+		Parent = layer,
+	})
 	local panel = Kit.Panel({ Size = UDim2.fromOffset(560, 440), Shadow = true })
 	panel.AnchorPoint = Vector2.new(0.5, 0.5)
 	panel.Position = UDim2.fromScale(0.5, 0.5)
@@ -57,7 +67,8 @@ function Picker.Open(options: Options)
 		shade:Destroy()
 		Kit.HideTooltip()
 	end
-	local closeButton = Kit.Button("✕", { Style = "Danger", Size = UDim2.fromOffset(32, 32), Sound = "UIClose", OnClick = close })
+	local closeButton =
+		Kit.Button("✕", { Style = "Danger", Size = UDim2.fromOffset(32, 32), Sound = "UIClose", OnClick = close })
 	closeButton.Position = UDim2.new(1, -32, 0, -2)
 	closeButton.Parent = panel
 	local search = Kit.TextBox("🔍 Search…", { Size = UDim2.new(1, 0, 0, 32) })
@@ -90,7 +101,14 @@ function Picker.Open(options: Options)
 			return
 		end
 		for i, entry in entries do
-			local row = Kit.new("TextButton", { AutoButtonColor = false, Text = "", Size = UDim2.new(1, -8, 0, 52), LayoutOrder = i, Selectable = true, Parent = list })
+			local row = Kit.new("TextButton", {
+				AutoButtonColor = false,
+				Text = "",
+				Size = UDim2.new(1, -8, 0, 52),
+				LayoutOrder = i,
+				Selectable = true,
+				Parent = list,
+			})
 			Kit.Paint(row, "BackgroundColor3", "PanelAlt")
 			Kit.Corner(row, 8)
 			local slot = Kit.ItemSlot(44)
@@ -98,13 +116,19 @@ function Picker.Open(options: Options)
 			slot.Button.Active = false
 			slot.Button.Parent = row
 			slot.Set(entry.Stack)
-			local name = Kit.Label(entry.Name .. (if entry.Stack.N > 1 then "  ×" .. entry.Stack.N else ""), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
+			local name = Kit.Label(
+				entry.Name .. (if entry.Stack.N > 1 then "  ×" .. entry.Stack.N else ""),
+				{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+			)
 			name.Position = UDim2.fromOffset(56, 6)
 			name.Size = UDim2.new(1, -64, 0, 20)
 			name.TextColor3 = Theme.RarityColor(ItemUtil.Rarity(entry.Stack))
 			name.Parent = row
 			local note = options.Note and options.Note(entry.Stack, entry.Def)
-			local sub = Kit.Label(note or (entry.Def.Category .. (if entry.Stack.L then "  ·  🔒 locked" else "")), { Size = Theme.Sizes.Tiny, Color = "SubText" })
+			local sub = Kit.Label(
+				note or (entry.Def.Category .. (if entry.Stack.L then "  ·  🔒 locked" else "")),
+				{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+			)
 			sub.Position = UDim2.fromOffset(56, 27)
 			sub.Size = UDim2.new(1, -64, 0, 16)
 			sub.Parent = row

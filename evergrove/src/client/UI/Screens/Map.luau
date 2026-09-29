@@ -76,15 +76,41 @@ return {
 			local holder = Kit.Panel({ Size = UDim2.fromOffset(side + 16, side + 16), Color = "Inset" })
 			holder.Parent = content
 			Kit.Padding(holder, 8, 8)
-			mapFrame = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ClipsDescendants = true, Parent = holder })
+			mapFrame = Kit.new(
+				"Frame",
+				{ BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ClipsDescendants = true, Parent = holder }
+			)
 			local aspect = Kit.new("UIAspectRatioConstraint", { AspectRatio = spanX / spanZ, Parent = mapFrame })
 			aspect.DominantAxis = Enum.DominantAxis.Width
 			-- Regions
 			for _, region in Regions.List do
 				local unlocked = unlockedText(profile, region)
-				local circle = Kit.new("TextButton", { AutoButtonColor = false, Text = "", BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5), Position = toMap(region.Center), Size = UDim2.fromScale(region.Radius * 2 / spanX, region.Radius * 2 / spanZ), BackgroundColor3 = region.MapColor, BackgroundTransparency = if unlocked then 0.35 else 0.75, ZIndex = 2, Parent = mapFrame })
+				local circle = Kit.new("TextButton", {
+					AutoButtonColor = false,
+					Text = "",
+					BorderSizePixel = 0,
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = toMap(region.Center),
+					Size = UDim2.fromScale(region.Radius * 2 / spanX, region.Radius * 2 / spanZ),
+					BackgroundColor3 = region.MapColor,
+					BackgroundTransparency = if unlocked then 0.35 else 0.75,
+					ZIndex = 2,
+					Parent = mapFrame,
+				})
 				Kit.new("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = circle })
-				local label = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 16), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Text = region.Icon .. " " .. region.Name, Font = Theme.Fonts.Bold, TextSize = 11, TextColor3 = Color3.new(1, 1, 1), TextStrokeTransparency = 0.3, ZIndex = 3, Parent = circle })
+				local label = Kit.new("TextLabel", {
+					BackgroundTransparency = 1,
+					Size = UDim2.new(1, 0, 0, 16),
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.fromScale(0.5, 0.5),
+					Text = region.Icon .. " " .. region.Name,
+					Font = Theme.Fonts.Bold,
+					TextSize = 11,
+					TextColor3 = Color3.new(1, 1, 1),
+					TextStrokeTransparency = 0.3,
+					ZIndex = 3,
+					Parent = circle,
+				})
 				label.TextTransparency = if unlocked then 0 else 0.4
 				circle.Activated:Connect(function()
 					selected = { Region = region }
@@ -96,31 +122,77 @@ return {
 				local origin = lot.Origin
 				local center = origin + Vector3.new(120, 0, 100)
 				local mine = Players.LocalPlayer:GetAttribute("Lot") == lot.Id
-				local square = Kit.new("Frame", { BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5), Position = toMap(center), Size = UDim2.fromScale(240 / spanX, 280 / spanZ), BackgroundColor3 = if mine then Color3.fromRGB(255, 214, 90) else Color3.fromRGB(150, 190, 110), BackgroundTransparency = 0.3, ZIndex = 4, Parent = mapFrame })
+				local square = Kit.new("Frame", {
+					BorderSizePixel = 0,
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = toMap(center),
+					Size = UDim2.fromScale(240 / spanX, 280 / spanZ),
+					BackgroundColor3 = if mine then Color3.fromRGB(255, 214, 90) else Color3.fromRGB(150, 190, 110),
+					BackgroundTransparency = 0.3,
+					ZIndex = 4,
+					Parent = mapFrame,
+				})
 				Kit.Corner(square, 3)
 				if mine then
-					Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Text = "🏡", TextScaled = true, ZIndex = 5, Parent = square })
+					Kit.new("TextLabel", {
+						BackgroundTransparency = 1,
+						Size = UDim2.fromScale(1, 1),
+						Text = "🏡",
+						TextScaled = true,
+						ZIndex = 5,
+						Parent = square,
+					})
 				end
 			end
 			-- Signposts
 			for _, point in World.Travel do
 				local found = profile and profile.Travel and profile.Travel[point.Id]
-				local b = Kit.new("TextButton", { AutoButtonColor = true, Text = if found then "🪧" else "·", TextScaled = true, Font = Theme.Fonts.Body, AnchorPoint = Vector2.new(0.5, 0.5), Position = toMap(point.Position), Size = UDim2.fromOffset(if found then 22 else 10, if found then 22 else 10), BackgroundTransparency = 1, ZIndex = 6, TextColor3 = Color3.new(1, 1, 1), Parent = mapFrame })
+				local b = Kit.new("TextButton", {
+					AutoButtonColor = true,
+					Text = if found then "🪧" else "·",
+					TextScaled = true,
+					Font = Theme.Fonts.Body,
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = toMap(point.Position),
+					Size = UDim2.fromOffset(if found then 22 else 10, if found then 22 else 10),
+					BackgroundTransparency = 1,
+					ZIndex = 6,
+					TextColor3 = Color3.new(1, 1, 1),
+					Parent = mapFrame,
+				})
 				b.Activated:Connect(function()
 					selected = { Point = point }
 					render()
 				end)
 				Kit.AttachTooltip(b, function()
-					return { { Text = if found then point.Name else "Undiscovered signpost", Bold = true }, { Text = if found then (if travelMode then "Click to travel" else "Discovered") else "Walk near it to discover it", Color = "SubText", Size = Theme.Sizes.Tiny } }
+					return {
+						{ Text = if found then point.Name else "Undiscovered signpost", Bold = true },
+						{
+							Text = if found
+								then (if travelMode then "Click to travel" else "Discovered")
+								else "Walk near it to discover it",
+							Color = "SubText",
+							Size = Theme.Sizes.Tiny,
+						},
+					}
 				end)
 			end
 			-- Detail panel
-			local right = Kit.Panel({ Size = UDim2.new(1, -(side + 28), 1, 0), Position = UDim2.fromOffset(side + 28, 0), Color = "PanelAlt" })
+			local right = Kit.Panel({
+				Size = UDim2.new(1, -(side + 28), 1, 0),
+				Position = UDim2.fromOffset(side + 28, 0),
+				Color = "PanelAlt",
+			})
 			right.Parent = content
 			Kit.Padding(right, 12, 14)
 			Kit.List(right, "Y", 8)
 			if travelMode then
-				local tip = Kit.Label("🪧 Fast travel: " .. Kit.Money(World.TravelCost) .. " per trip (free with the Cartographer perk).", { Size = Theme.Sizes.Small, Color = "Accent", Wrap = true })
+				local tip = Kit.Label(
+					"🪧 Fast travel: "
+						.. Kit.Money(World.TravelCost)
+						.. " per trip (free with the Cartographer perk).",
+					{ Size = Theme.Sizes.Small, Color = "Accent", Wrap = true }
+				)
 				tip.Parent = right
 			end
 			if selected and selected.Region then
@@ -133,11 +205,19 @@ return {
 				d.LayoutOrder = 2
 				d.Parent = right
 				local weather = WeatherMath.Def(WeatherMath.ForRegion(WeatherMath.Current(), region))
-				local w = Kit.Label("Weather now: " .. (if weather then weather.Icon .. " " .. weather.Name else "?") .. (if region.Hazard then "\n⚠️ " .. region.Hazard.Text else ""), { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+				local w = Kit.Label(
+					"Weather now: "
+						.. (if weather then weather.Icon .. " " .. weather.Name else "?")
+						.. (if region.Hazard then "\n⚠️ " .. region.Hazard.Text else ""),
+					{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+				)
 				w.LayoutOrder = 3
 				w.Parent = right
 				if not unlocked then
-					local l = Kit.Label("🔒 " .. (how or "Locked"), { Size = Theme.Sizes.Small, Color = "Warn", Wrap = true })
+					local l = Kit.Label(
+						"🔒 " .. (how or "Locked"),
+						{ Size = Theme.Sizes.Small, Color = "Warn", Wrap = true }
+					)
 					l.LayoutOrder = 4
 					l.Parent = right
 				end
@@ -158,11 +238,21 @@ return {
 					if point.Region == region.Id then
 						order += 1
 						local found = profile and profile.Travel and profile.Travel[point.Id]
-						local b = Kit.Button((if found then "🪧 " else "❔ ") .. (if found then point.Name else "Undiscovered signpost"), { Style = if found and travelMode then "Primary" else "Secondary", Size = UDim2.new(1, 0, 0, 34), TextSize = Theme.Sizes.Tiny, LayoutOrder = order, OnClick = function()
-							if found and travelMode then
-								travel(point)
-							end
-						end })
+						local b = Kit.Button(
+							(if found then "🪧 " else "❔ ")
+								.. (if found then point.Name else "Undiscovered signpost"),
+							{
+								Style = if found and travelMode then "Primary" else "Secondary",
+								Size = UDim2.new(1, 0, 0, 34),
+								TextSize = Theme.Sizes.Tiny,
+								LayoutOrder = order,
+								OnClick = function()
+									if found and travelMode then
+										travel(point)
+									end
+								end,
+							}
+						)
 						b.Parent = right
 					end
 				end
@@ -174,16 +264,26 @@ return {
 				h.Parent = right
 				local region = Registry.Regions[point.Region]
 				if region then
-					local r = Kit.Label(region.Icon .. " " .. region.Name, { Size = Theme.Sizes.Small, Color = "SubText" })
+					local r =
+						Kit.Label(region.Icon .. " " .. region.Name, { Size = Theme.Sizes.Small, Color = "SubText" })
 					r.LayoutOrder = 2
 					r.Parent = right
 				end
 				if found and travelMode then
-					Kit.Button("Travel here (" .. Kit.Money(World.TravelCost) .. ")", { Style = "Accent", Size = UDim2.new(1, 0, 0, 40), LayoutOrder = 3, OnClick = function()
-						travel(point)
-					end }).Parent = right
+					Kit.Button("Travel here (" .. Kit.Money(World.TravelCost) .. ")", {
+						Style = "Accent",
+						Size = UDim2.new(1, 0, 0, 40),
+						LayoutOrder = 3,
+						OnClick = function()
+							travel(point)
+						end,
+					}).Parent =
+						right
 				elseif not found then
-					local l = Kit.Label("Walk near this signpost to add it to your map.", { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+					local l = Kit.Label(
+						"Walk near this signpost to add it to your map.",
+						{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+					)
 					l.LayoutOrder = 3
 					l.Parent = right
 				end
@@ -194,7 +294,14 @@ return {
 						count += 1
 					end
 				end
-				local l = Kit.Label("Select a region or signpost.\n\n🪧 " .. count .. " / " .. #World.Travel .. " signposts discovered.\n🟡 You  ·  ⚪ other farmers  ·  🏡 your farm", { Size = Theme.Sizes.Small, Color = "SubText", Wrap = true })
+				local l = Kit.Label(
+					"Select a region or signpost.\n\n🪧 "
+						.. count
+						.. " / "
+						.. #World.Travel
+						.. " signposts discovered.\n🟡 You  ·  ⚪ other farmers  ·  🏡 your farm",
+					{ Size = Theme.Sizes.Small, Color = "SubText", Wrap = true }
+				)
 				l.LayoutOrder = 1
 				l.Parent = right
 				if travelMode then
@@ -202,9 +309,16 @@ return {
 					for _, point in World.Travel do
 						if profile and profile.Travel and profile.Travel[point.Id] then
 							order += 1
-							Kit.Button("🪧 " .. point.Name, { Style = "Secondary", Size = UDim2.new(1, 0, 0, 32), TextSize = Theme.Sizes.Tiny, LayoutOrder = order, OnClick = function()
-								travel(point)
-							end }).Parent = right
+							Kit.Button("🪧 " .. point.Name, {
+								Style = "Secondary",
+								Size = UDim2.new(1, 0, 0, 32),
+								TextSize = Theme.Sizes.Tiny,
+								LayoutOrder = order,
+								OnClick = function()
+									travel(point)
+								end,
+							}).Parent =
+								right
 						end
 					end
 				end
@@ -223,11 +337,32 @@ return {
 							local dot = dots[other]
 							if not dot or not dot.Parent then
 								local me = other == Players.LocalPlayer
-								local d = Kit.new("Frame", { BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(if me then 12 else 8, if me then 12 else 8), BackgroundColor3 = if me then Color3.fromRGB(255, 220, 60) else Color3.fromRGB(240, 240, 240), ZIndex = 8, Parent = mapFrame })
+								local d = Kit.new("Frame", {
+									BorderSizePixel = 0,
+									AnchorPoint = Vector2.new(0.5, 0.5),
+									Size = UDim2.fromOffset(if me then 12 else 8, if me then 12 else 8),
+									BackgroundColor3 = if me
+										then Color3.fromRGB(255, 220, 60)
+										else Color3.fromRGB(240, 240, 240),
+									ZIndex = 8,
+									Parent = mapFrame,
+								})
 								Kit.new("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = d })
 								Kit.new("UIStroke", { Thickness = 1.5, Color = Color3.new(0, 0, 0), Parent = d })
 								if not me then
-									Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(100, 12), Position = UDim2.fromOffset(8, -4), Text = other.DisplayName, TextSize = 10, Font = Theme.Fonts.Bold, TextColor3 = Color3.new(1, 1, 1), TextStrokeTransparency = 0.3, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 8, Parent = d })
+									Kit.new("TextLabel", {
+										BackgroundTransparency = 1,
+										Size = UDim2.fromOffset(100, 12),
+										Position = UDim2.fromOffset(8, -4),
+										Text = other.DisplayName,
+										TextSize = 10,
+										Font = Theme.Fonts.Bold,
+										TextColor3 = Color3.new(1, 1, 1),
+										TextStrokeTransparency = 0.3,
+										TextXAlignment = Enum.TextXAlignment.Left,
+										ZIndex = 8,
+										Parent = d,
+									})
 								end
 								dots[other] = d
 								dot = d

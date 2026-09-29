@@ -84,7 +84,13 @@ local function complete(player: Player, profile: any, project: any)
 	S.Data.AddStat(player, "ProjectsDone")
 	S.Quest.Progress(player, "Project", project.Id, 1)
 	S.Skill.AddXP(player, "Trading", 200)
-	S.Notify.Banner(player, project.Icon .. " " .. project.Name .. " complete!", "Unlocked: " .. table.concat(project.Unlocks, ", "), "Town", project.Icon)
+	S.Notify.Banner(
+		player,
+		project.Icon .. " " .. project.Name .. " complete!",
+		"Unlocked: " .. table.concat(project.Unlocks, ", "),
+		"Town",
+		project.Icon
+	)
 	S.NPC.RefreshVisibility(player)
 	TownService.ProjectDone:Fire(player, project.Id)
 end

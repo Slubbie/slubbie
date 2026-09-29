@@ -48,8 +48,23 @@ local List: { Festival } = {
 		Weather = "Sunny",
 		Music = "Festival",
 		Activities = {
-			{ Kind = "Scavenger", Id = "egg_hunt", Name = "Egg Hunt", Icon = "🥚", Count = 24, Tokens = 5, Model = "Egg" },
-			{ Kind = "Contest", Id = "flower_show", Name = "Flower Show", Icon = "🌷", Accept = { "#Flower" }, Scoring = { Quality = 35, Size = 10, Rarity = 20, Mutations = 30, Care = 5 } },
+			{
+				Kind = "Scavenger",
+				Id = "egg_hunt",
+				Name = "Egg Hunt",
+				Icon = "🥚",
+				Count = 24,
+				Tokens = 5,
+				Model = "Egg",
+			},
+			{
+				Kind = "Contest",
+				Id = "flower_show",
+				Name = "Flower Show",
+				Icon = "🌷",
+				Accept = { "#Flower" },
+				Scoring = { Quality = 35, Size = 10, Rarity = 20, Mutations = 30, Care = 5 },
+			},
 		},
 		Shop = {
 			{ Id = "spring_arch", Price = 60 },
@@ -61,7 +76,14 @@ local List: { Festival } = {
 		},
 		Challenges = {
 			{ Id = "sf_eggs", Text = "Find 10 eggs", Type = "Scavenger", Count = 10, Tokens = 30 },
-			{ Id = "sf_flowers", Text = "Harvest 10 flowers today", Type = "Harvest", Target = "#Flower", Count = 10, Tokens = 25 },
+			{
+				Id = "sf_flowers",
+				Text = "Harvest 10 flowers today",
+				Type = "Harvest",
+				Target = "#Flower",
+				Count = 10,
+				Tokens = 25,
+			},
 		},
 		Prizes = {
 			First = { Coins = 8000, Tokens = 150, Items = { { "blue_ribbon_plaque", 1 } }, Title = "Flower Champion" },
@@ -81,7 +103,14 @@ local List: { Festival } = {
 		Decor = "Ranch",
 		Music = "Festival",
 		Activities = {
-			{ Kind = "Contest", Id = "livestock", Name = "Best in Show", Icon = "🎀", Accept = { "Animal" }, Scoring = { Quality = 20, Size = 20, Rarity = 30, Mutations = 0, Care = 30 } },
+			{
+				Kind = "Contest",
+				Id = "livestock",
+				Name = "Best in Show",
+				Icon = "🎀",
+				Accept = { "Animal" },
+				Scoring = { Quality = 20, Size = 20, Rarity = 30, Mutations = 0, Care = 30 },
+			},
 		},
 		Shop = {
 			{ Id = "treat", Price = 6 },
@@ -121,7 +150,14 @@ local List: { Festival } = {
 		},
 		Challenges = {
 			{ Id = "fd_catch", Text = "Catch 12 fish", Type = "Catch", Count = 12, Tokens = 40 },
-			{ Id = "fd_rare", Text = "Catch a Rare or better fish", Type = "Catch", Target = "@Rare", Count = 1, Tokens = 50 },
+			{
+				Id = "fd_rare",
+				Text = "Catch a Rare or better fish",
+				Type = "Catch",
+				Target = "@Rare",
+				Count = 1,
+				Tokens = 50,
+			},
 		},
 		Prizes = {
 			First = { Coins = 12000, Tokens = 180, Items = { { "fishing_trophy", 1 } }, Title = "Derby Champion" },
@@ -141,7 +177,14 @@ local List: { Festival } = {
 		Decor = "Summer",
 		Music = "Festival",
 		Activities = {
-			{ Kind = "Contest", Id = "cookoff", Name = "Cook-Off", Icon = "👨‍🍳", Accept = { "#Cooked" }, Scoring = { Quality = 40, Size = 0, Rarity = 35, Mutations = 15, Care = 10 } },
+			{
+				Kind = "Contest",
+				Id = "cookoff",
+				Name = "Cook-Off",
+				Icon = "👨‍🍳",
+				Accept = { "#Cooked" },
+				Scoring = { Quality = 40, Size = 0, Rarity = 35, Mutations = 15, Care = 10 },
+			},
 		},
 		Shop = {
 			{ Id = "bbq_grill", Price = 60 },
@@ -171,7 +214,15 @@ local List: { Festival } = {
 		Weather = "MeteorShower",
 		Music = "Night",
 		Activities = {
-			{ Kind = "Scavenger", Id = "star_hunt", Name = "Fallen Stars", Icon = "⭐", Count = 16, Tokens = 8, Model = "Star" },
+			{
+				Kind = "Scavenger",
+				Id = "star_hunt",
+				Name = "Fallen Stars",
+				Icon = "⭐",
+				Count = 16,
+				Tokens = 8,
+				Model = "Star",
+			},
 		},
 		Shop = {
 			{ Id = "star_lamp", Price = 90 },
@@ -196,8 +247,23 @@ local List: { Festival } = {
 		Weather = "Sunny",
 		Music = "Festival",
 		Activities = {
-			{ Kind = "Contest", Id = "giant_crop", Name = "Giant Crop Contest", Icon = "🏆", Accept = { "#Crop" }, Scoring = { Quality = 20, Size = 40, Rarity = 15, Mutations = 20, Care = 5 } },
-			{ Kind = "Scavenger", Id = "apple_bob", Name = "Apple Bobbing", Icon = "🍎", Count = 20, Tokens = 4, Model = "Apple" },
+			{
+				Kind = "Contest",
+				Id = "giant_crop",
+				Name = "Giant Crop Contest",
+				Icon = "🏆",
+				Accept = { "#Crop" },
+				Scoring = { Quality = 20, Size = 40, Rarity = 15, Mutations = 20, Care = 5 },
+			},
+			{
+				Kind = "Scavenger",
+				Id = "apple_bob",
+				Name = "Apple Bobbing",
+				Icon = "🍎",
+				Count = 20,
+				Tokens = 4,
+				Model = "Apple",
+			},
 		},
 		Shop = {
 			{ Id = "seed_golden_wheat", Price = 60, Stock = 5 },
@@ -208,7 +274,14 @@ local List: { Festival } = {
 		},
 		Challenges = {
 			{ Id = "hf_harvest", Text = "Harvest 40 crops today", Type = "Harvest", Count = 40, Tokens = 40 },
-			{ Id = "hf_quality", Text = "Harvest 10 Pristine or better crops", Type = "Harvest", Count = 10, Tokens = 60, Quality = 4 },
+			{
+				Id = "hf_quality",
+				Text = "Harvest 10 Pristine or better crops",
+				Type = "Harvest",
+				Count = 10,
+				Tokens = 60,
+				Quality = 4,
+			},
 		},
 		Prizes = {
 			First = { Coins = 20000, Tokens = 250, Items = { { "golden_pumpkin_statue", 1 } }, Title = "Harvest King" },
@@ -228,7 +301,16 @@ local List: { Festival } = {
 		Decor = "Autumn",
 		Music = "Festival",
 		Activities = {
-			{ Kind = "Scavenger", Id = "treasure", Name = "Buried Treasure", Icon = "🧰", Count = 12, Tokens = 12, Model = "Chest", Dig = true },
+			{
+				Kind = "Scavenger",
+				Id = "treasure",
+				Name = "Buried Treasure",
+				Icon = "🧰",
+				Count = 12,
+				Tokens = 12,
+				Model = "Chest",
+				Dig = true,
+			},
 		},
 		Shop = {
 			{ Id = "treasure_chest", Price = 60 },
@@ -252,8 +334,23 @@ local List: { Festival } = {
 		Weather = "Snow",
 		Music = "Winter",
 		Activities = {
-			{ Kind = "Scavenger", Id = "lanterns", Name = "Lantern Gathering", Icon = "🏮", Count = 20, Tokens = 6, Model = "Lantern" },
-			{ Kind = "Contest", Id = "winter_gift", Name = "Winter Gift Swap", Icon = "🎁", Accept = { "*" }, Scoring = { Quality = 30, Size = 0, Rarity = 40, Mutations = 30, Care = 0 } },
+			{
+				Kind = "Scavenger",
+				Id = "lanterns",
+				Name = "Lantern Gathering",
+				Icon = "🏮",
+				Count = 20,
+				Tokens = 6,
+				Model = "Lantern",
+			},
+			{
+				Kind = "Contest",
+				Id = "winter_gift",
+				Name = "Winter Gift Swap",
+				Icon = "🎁",
+				Accept = { "*" },
+				Scoring = { Quality = 30, Size = 0, Rarity = 40, Mutations = 30, Care = 0 },
+			},
 		},
 		Shop = {
 			{ Id = "seed_frost_orchid", Price = 120, Stock = 2 },
@@ -283,17 +380,23 @@ local List: { Festival } = {
 		Decor = "Winter",
 		Music = "Festival",
 		Activities = {
-			{ Kind = "Race", Id = "frost_race", Name = "Village Dash", Icon = "🏁", Checkpoints = {
-				Vector3.new(0, 0, 30),
-				Vector3.new(-100, 0, 0),
-				Vector3.new(-106, 0, -106),
-				Vector3.new(0, 0, -150),
-				Vector3.new(106, 0, -106),
-				Vector3.new(150, 0, 0),
-				Vector3.new(106, 0, 106),
-				Vector3.new(0, 0, 150),
-				Vector3.new(0, 0, 30),
-			} },
+			{
+				Kind = "Race",
+				Id = "frost_race",
+				Name = "Village Dash",
+				Icon = "🏁",
+				Checkpoints = {
+					Vector3.new(0, 0, 30),
+					Vector3.new(-100, 0, 0),
+					Vector3.new(-106, 0, -106),
+					Vector3.new(0, 0, -150),
+					Vector3.new(106, 0, -106),
+					Vector3.new(150, 0, 0),
+					Vector3.new(106, 0, 106),
+					Vector3.new(0, 0, 150),
+					Vector3.new(0, 0, 30),
+				},
+			},
 		},
 		Shop = {
 			{ Id = "speed_potion", Price = 12 },

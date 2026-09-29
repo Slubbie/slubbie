@@ -31,7 +31,14 @@ export type Sound = {
 	Rolloff: number?,
 }
 
-local function s(id: string, volume: number, pitch: any, group: string, caption: string?, extra: { [string]: any }?): Sound
+local function s(
+	id: string,
+	volume: number,
+	pitch: any,
+	group: string,
+	caption: string?,
+	extra: { [string]: any }?
+): Sound
 	local def: any = { Id = id, Volume = volume, Pitch = pitch, Group = group, Caption = caption }
 	for k, v in pairs(extra or {}) do
 		def[k] = v

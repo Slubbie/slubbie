@@ -108,7 +108,14 @@ end
 
 -- Minigame ---------------------------------------------------------------------------------------------------------
 
-local function fishMotion(behavior: string, difficulty: number, t: number, current: number, dt: number, memory: any): number
+local function fishMotion(
+	behavior: string,
+	difficulty: number,
+	t: number,
+	current: number,
+	dt: number,
+	memory: any
+): number
 	local speed = 0.25 + difficulty / 100 * 1.4
 	if behavior == "Smooth" then
 		return 0.5 + 0.38 * math.sin(t * speed * 1.6)
@@ -139,26 +146,56 @@ local function runMinigame()
 	root.Parent = C.UI.Layer("HUD")
 	ui = root
 	Kit.Pop(root)
-	local well = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.new(0, 60, 1, -60), Position = UDim2.fromOffset(20, 40), Parent = root })
+	local well = Kit.new(
+		"Frame",
+		{ BorderSizePixel = 0, Size = UDim2.new(0, 60, 1, -60), Position = UDim2.fromOffset(20, 40), Parent = root }
+	)
 	Kit.Paint(well, "BackgroundColor3", "Info")
 	well.BackgroundTransparency = 0.4
 	Kit.Corner(well, 10)
-	local zone = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.new(1, -8, cast.Zone, 0), Position = UDim2.new(0, 4, 1 - cast.Zone, 0), Parent = well })
+	local zone = Kit.new("Frame", {
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, -8, cast.Zone, 0),
+		Position = UDim2.new(0, 4, 1 - cast.Zone, 0),
+		Parent = well,
+	})
 	Kit.Paint(zone, "BackgroundColor3", "Good")
 	zone.BackgroundTransparency = 0.25
 	Kit.Corner(zone, 8)
-	local fish = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0, 0.5), Text = if cast.Legend then "🐉" else "🐟", TextScaled = true, Font = Theme.Fonts.Body, ZIndex = 5, Parent = well })
-	local progress = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.new(0, 16, 1, -60), Position = UDim2.fromOffset(100, 40), Parent = root })
+	local fish = Kit.new("TextLabel", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 34),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		Text = if cast.Legend then "🐉" else "🐟",
+		TextScaled = true,
+		Font = Theme.Fonts.Body,
+		ZIndex = 5,
+		Parent = well,
+	})
+	local progress = Kit.new(
+		"Frame",
+		{ BorderSizePixel = 0, Size = UDim2.new(0, 16, 1, -60), Position = UDim2.fromOffset(100, 40), Parent = root }
+	)
 	Kit.Paint(progress, "BackgroundColor3", "Inset")
 	Kit.Corner(progress, 8)
-	local fill = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.fromScale(1, GAME.StartProgress), AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0, 1), Parent = progress })
+	local fill = Kit.new("Frame", {
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, GAME.StartProgress),
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Parent = progress,
+	})
 	Kit.Paint(fill, "BackgroundColor3", "Accent")
 	Kit.Corner(fill, 8)
 	local title = Kit.Label("Reel it in!", { Align = "Center", Font = Theme.Fonts.Heading, Size = 16 })
 	title.Size = UDim2.new(1, 0, 0, 30)
 	title.Position = UDim2.fromOffset(0, 6)
 	title.Parent = root
-	local hint = Kit.Label(if C.Settings.PrimaryInput() == "Touch" then "Hold the screen" else "Hold click / Space", { Align = "Center", Size = 11, Color = "SubText" })
+	local hint = Kit.Label(
+		if C.Settings.PrimaryInput() == "Touch" then "Hold the screen" else "Hold click / Space",
+		{ Align = "Center", Size = 11, Color = "SubText" }
+	)
 	hint.Size = UDim2.new(1, 0, 0, 18)
 	hint.Position = UDim2.new(0, 0, 1, -20)
 	hint.Parent = root
@@ -268,7 +305,13 @@ function FishingController.Cast(position: Vector3)
 			if processed and input.UserInputType ~= Enum.UserInputType.Touch then
 				return
 			end
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch or input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonR2 or input.KeyCode == Enum.KeyCode.ButtonA then
+			if
+				input.UserInputType == Enum.UserInputType.MouseButton1
+				or input.UserInputType == Enum.UserInputType.Touch
+				or input.KeyCode == Enum.KeyCode.Space
+				or input.KeyCode == Enum.KeyCode.ButtonR2
+				or input.KeyCode == Enum.KeyCode.ButtonA
+			then
 				hooked = true
 			end
 		end)

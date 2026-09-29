@@ -206,7 +206,13 @@ function Genetics.AnimalRarity(speciesId: string, genes: AnimalGenes): string
 end
 
 -- Breed two animals of the same species.
-function Genetics.Breed(speciesId: string, a: AnimalGenes, b: AnimalGenes, random: Random, mutationBonus: number?): AnimalGenes
+function Genetics.Breed(
+	speciesId: string,
+	a: AnimalGenes,
+	b: AnimalGenes,
+	random: Random,
+	mutationBonus: number?
+): AnimalGenes
 	local species = speciesById[speciesId]
 	local function pick(pair: { string }): string
 		return pair[random:NextInteger(1, #pair)]
@@ -238,7 +244,11 @@ function Genetics.Breed(speciesId: string, a: AnimalGenes, b: AnimalGenes, rando
 end
 
 -- Punnett-square odds of each visible coat/pattern from two parents.
-function Genetics.BreedOdds(speciesId: string, a: AnimalGenes, b: AnimalGenes): { Coat: { [string]: number }, Pattern: { [string]: number } }
+function Genetics.BreedOdds(
+	speciesId: string,
+	a: AnimalGenes,
+	b: AnimalGenes
+): { Coat: { [string]: number }, Pattern: { [string]: number } }
 	local species = speciesById[speciesId]
 	local out = { Coat = {}, Pattern = {} }
 	for _, x in a.Coat do

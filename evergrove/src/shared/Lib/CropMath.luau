@@ -267,7 +267,8 @@ function CropMath.MutationChance(mutation: any, cs: any, env: Env, weatherId: st
 		return 0
 	end
 	local weather = WeatherMath.Def(weatherId)
-	local weatherMult = (weather.Mutations[mutation.Id] or 1) * ((mutation.Weather and mutation.Weather[weatherId]) or 1)
+	local weatherMult = (weather.Mutations[mutation.Id] or 1)
+		* ((mutation.Weather and mutation.Weather[weatherId]) or 1)
 	if env.Indoor then
 		weatherMult = 1 + (weatherMult - 1) * 0.5
 	end
@@ -396,7 +397,8 @@ export type Events = {
 
 -- Advance a crop from t0 to t1. Mutates tile and cs. Returns what happened.
 function CropMath.Advance(tile: any, cs: any, env: Env, t0: number, t1: number, random: Random?): Events
-	local events: Events = { Ripened = false, Mutations = {}, Combos = {}, Afflicted = nil, Stage = CropMath.StageOf(cs.P or 0) }
+	local events: Events =
+		{ Ripened = false, Mutations = {}, Combos = {}, Afflicted = nil, Stage = CropMath.StageOf(cs.P or 0) }
 	local crop = Registry.Crops[cs.Id]
 	if not crop or t1 <= t0 then
 		cs.T = math.max(cs.T or t0, t1)
@@ -497,7 +499,9 @@ function CropMath.Advance(tile: any, cs: any, env: Env, t0: number, t1: number, 
 					for id, aff in Soil.Afflictions do
 						local protected = env.Tags[aff.Protect] == true
 						if not protected then
-							local c = aff.ChancePerHour * (aff.Seasons[info.SeasonId] or 1) * (aff.Weather[weatherId] or 1)
+							local c = aff.ChancePerHour
+								* (aff.Seasons[info.SeasonId] or 1)
+								* (aff.Weather[weatherId] or 1)
 							c *= if id == "Pests" then env.PestMult else env.BlightMult
 							c *= math.max(0.1, 1 - Genetics.Hardiness(cs.G) * 2)
 							if env.Indoor then

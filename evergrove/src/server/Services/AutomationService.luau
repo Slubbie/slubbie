@@ -152,7 +152,10 @@ local function runFarmbots(player: Player, profile: any, farm: any)
 					local tile = profile.Farm.Tiles[key]
 					if not tile and crop then
 						-- Till only when there's something to plant.
-						if S.Farm.Tillable(player, gx, gz) and S.Inventory.SiloCountOf(player, "seed_" .. cropId) > 0 then
+						if
+							S.Farm.Tillable(player, gx, gz)
+							and S.Inventory.SiloCountOf(player, "seed_" .. cropId) > 0
+						then
 							if S.Soil.Till(player, gx, gz, 1) then
 								left -= 1
 								tile = profile.Farm.Tiles[key]
@@ -213,7 +216,11 @@ local function runCollectors(player: Player, profile: any): number
 						for _, stack in S.Animal.Harvest(player, aid, animal.Rd) do
 							local leftover = S.Inventory.SiloAdd(player, stack)
 							if leftover > 0 then
-								S.Inventory.Add(player, ItemUtil.Split(stack, leftover), { Source = "Product Collector", Silent = true })
+								S.Inventory.Add(
+									player,
+									ItemUtil.Split(stack, leftover),
+									{ Source = "Product Collector", Silent = true }
+								)
 							end
 							collected += stack.N
 						end
@@ -316,7 +323,11 @@ local function runDock(player: Player, profile: any)
 	if count > 0 then
 		S.Data.Changed(player, "Silo")
 		S.Data.AddStat(player, "DockSales", total)
-		S.Notify.Toast(player, string.format("🚢 The shipping dock sold %s items for %s.", Format.Commas(count), Format.Coins(total)), "Success")
+		S.Notify.Toast(
+			player,
+			string.format("🚢 The shipping dock sold %s items for %s.", Format.Commas(count), Format.Coins(total)),
+			"Success"
+		)
 	end
 end
 
@@ -341,7 +352,8 @@ local function setRules(player: Player, rules: any)
 		local list = {}
 		for _, spec in rules.Sell do
 			if type(spec) == "string" and #spec <= 48 and #list < MAX_SELL_RULES then
-				local valid = Registry.Items[spec] ~= nil or (string.sub(spec, 1, 1) == "#" and #Registry.WithTag(string.sub(spec, 2)) > 0)
+				local valid = Registry.Items[spec] ~= nil
+					or (string.sub(spec, 1, 1) == "#" and #Registry.WithTag(string.sub(spec, 2)) > 0)
 				if valid and not table.find(list, spec) then
 					table.insert(list, spec)
 				end
@@ -432,7 +444,8 @@ function AutomationService.Start()
 				local ok, err = pcall(function()
 					local fed, hungry = runFeeders(player, profile)
 					if fed > 0 or hungry > 0 then
-						local text = string.format("🥣 Auto-feeders fed %d animal%s.", fed, if fed == 1 then "" else "s")
+						local text =
+							string.format("🥣 Auto-feeders fed %d animal%s.", fed, if fed == 1 then "" else "s")
 						if hungry > 0 then
 							text ..= string.format(" %d went hungry — stock your silo with feed!", hungry)
 						end

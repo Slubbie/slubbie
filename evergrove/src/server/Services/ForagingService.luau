@@ -137,7 +137,8 @@ local function reroll(day: number)
 			spot.Part:SetAttribute("Item", forageFor(region, day, spot.Index, info))
 			spot.Part:SetAttribute("Day", day)
 		elseif spot.Kind == "Dig" then
-			local active = RNG.Hash("dig", spot.Region, day, spot.Index) < Gathering.DigSpotsPerRegion / (Gathering.DigSpotsPerRegion + 3)
+			local active = RNG.Hash("dig", spot.Region, day, spot.Index)
+				< Gathering.DigSpotsPerRegion / (Gathering.DigSpotsPerRegion + 3)
 			spot.Part:SetAttribute("Active", active)
 			spot.Part:SetAttribute("Day", day)
 		end
@@ -268,7 +269,14 @@ local function collect(player: Player, spotId: string)
 			end
 		end
 		if #options > 0 then
-			S.Inventory.Give(player, "seed_" .. options[random:NextInteger(1, #options)], 1, nil, nil, { Source = "Wild Seeds" })
+			S.Inventory.Give(
+				player,
+				"seed_" .. options[random:NextInteger(1, #options)],
+				1,
+				nil,
+				nil,
+				{ Source = "Wild Seeds" }
+			)
 		end
 	end
 	questDrops(player, "Forage", spot.Region, spot.Position)
@@ -304,7 +312,8 @@ local function catchBug(player: Player, spotId: string)
 	bugCaught[player][spotId] = window
 	local def = Registry.Bugs[bugId]
 	local tier = S.Tool.Tier(player, "net")
-	local chance = math.clamp(0.55 + tier * 0.08 + Stats.Effect(profile, "NetRadius") * 0.05 - def.Speed * 0.04, 0.15, 0.98)
+	local chance =
+		math.clamp(0.55 + tier * 0.08 + Stats.Effect(profile, "NetRadius") * 0.05 - def.Speed * 0.04, 0.15, 0.98)
 	local character = player.Character
 	if character then
 		character:SetAttribute("Act", "Net@" .. string.format("%.2f", os.clock()))
@@ -363,7 +372,8 @@ function ForagingService.Dig(player: Player, spotId: string): (boolean, string?)
 		end
 	end
 	for _, id in found do
-		local stack = ItemUtil.New(id, if id == "clay" or id == "sand" or id == "worm" then random:NextInteger(1, 3) else 1)
+		local stack =
+			ItemUtil.New(id, if id == "clay" or id == "sand" or id == "worm" then random:NextInteger(1, 3) else 1)
 		S.Inventory.Add(player, stack, { Source = "Dig spot", Position = spot.Position })
 		S.Collection.OnItem(player, stack)
 	end

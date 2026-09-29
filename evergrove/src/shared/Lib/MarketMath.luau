@@ -105,7 +105,16 @@ function MarketMath.HotItems(day: number): { string }
 		local index = 1 + (RNG.HashInt(SEED, "hot", day, attempts) % #tradable)
 		local id = tradable[index]
 		local def = Registry.Items[id]
-		if not used[id] and def and (def.Category == "Crop" or def.Category == "Artisan" or def.Category == "Fish" or def.Category == "AnimalProduct") then
+		if
+			not used[id]
+			and def
+			and (
+				def.Category == "Crop"
+				or def.Category == "Artisan"
+				or def.Category == "Fish"
+				or def.Category == "AnimalProduct"
+			)
+		then
 			used[id] = true
 			table.insert(picks, id)
 		end

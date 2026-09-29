@@ -35,7 +35,15 @@ local FILTERS = {
 	{ Id = "Warm", Icon = "🌅", Tint = Color3.fromRGB(255, 232, 205), Saturation = 0.1, Contrast = 0.05 },
 	{ Id = "Cool", Icon = "❄️", Tint = Color3.fromRGB(215, 232, 255), Saturation = -0.05, Contrast = 0.05 },
 	{ Id = "Vivid", Icon = "🌈", Saturation = 0.35, Contrast = 0.12 },
-	{ Id = "Dreamy", Icon = "☁️", Tint = Color3.fromRGB(255, 235, 250), Saturation = -0.1, Contrast = -0.1, Brightness = 0.06, Bloom = true },
+	{
+		Id = "Dreamy",
+		Icon = "☁️",
+		Tint = Color3.fromRGB(255, 235, 250),
+		Saturation = -0.1,
+		Contrast = -0.1,
+		Brightness = 0.06,
+		Bloom = true,
+	},
 	{ Id = "Vintage", Icon = "📜", Tint = Color3.fromRGB(240, 220, 180), Saturation = -0.35, Contrast = 0.08 },
 	{ Id = "Noir", Icon = "🎞️", Saturation = -1, Contrast = 0.25 },
 }
@@ -192,24 +200,41 @@ local function buildToolbar()
 	bar.Position = UDim2.new(0.5, 0, 1, -14)
 	Kit.Padding(bar, 8, 12)
 	Kit.List(bar, "Y", 6, "Center")
-	local title = Kit.Label("📷 Photo mode  ·  H hides this bar  ·  use Roblox's screenshot button to save", { Size = Theme.Sizes.Tiny, Color = "SubText", Align = "Center" })
+	local title = Kit.Label(
+		"📷 Photo mode  ·  H hides this bar  ·  use Roblox's screenshot button to save",
+		{ Size = Theme.Sizes.Tiny, Color = "SubText", Align = "Center" }
+	)
 	title.AutomaticSize = Enum.AutomaticSize.X
 	title.Size = UDim2.fromOffset(0, 16)
 	title.Parent = bar
-	local row = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(0, 40), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 1, Parent = bar })
+	local row = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, 40),
+		AutomaticSize = Enum.AutomaticSize.X,
+		LayoutOrder = 1,
+		Parent = bar,
+	})
 	Kit.List(row, "X", 6, "Center")
 	-- Filters
 	local filterButton: TextButton
-	filterButton = Kit.Button(FILTERS[filterIndex].Icon .. " " .. FILTERS[filterIndex].Id, { Style = "Secondary", Size = UDim2.fromOffset(130, 38), TextSize = Theme.Sizes.Small, OnClick = function()
-		filterIndex = filterIndex % #FILTERS + 1
-		applyFilter()
-		filterButton.Text = FILTERS[filterIndex].Icon .. " " .. FILTERS[filterIndex].Id
-	end })
+	filterButton = Kit.Button(FILTERS[filterIndex].Icon .. " " .. FILTERS[filterIndex].Id, {
+		Style = "Secondary",
+		Size = UDim2.fromOffset(130, 38),
+		TextSize = Theme.Sizes.Small,
+		OnClick = function()
+			filterIndex = filterIndex % #FILTERS + 1
+			applyFilter()
+			filterButton.Text = FILTERS[filterIndex].Icon .. " " .. FILTERS[filterIndex].Id
+		end,
+	})
 	filterButton.Parent = row
 	local dofButton, _ = Kit.Toggle(false, function(on)
 		setDof(on)
 	end)
-	local dofWrap = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(110, 38), LayoutOrder = 1, Parent = row })
+	local dofWrap = Kit.new(
+		"Frame",
+		{ BackgroundTransparency = 1, Size = UDim2.fromOffset(110, 38), LayoutOrder = 1, Parent = row }
+	)
 	local dofLabel = Kit.Label("Focus", { Size = Theme.Sizes.Tiny })
 	dofLabel.Size = UDim2.fromOffset(50, 38)
 	dofLabel.Parent = dofWrap
@@ -218,7 +243,10 @@ local function buildToolbar()
 	local vigButton, _ = Kit.Toggle(false, function(on)
 		setVignette(on)
 	end)
-	local vigWrap = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(130, 38), LayoutOrder = 2, Parent = row })
+	local vigWrap = Kit.new(
+		"Frame",
+		{ BackgroundTransparency = 1, Size = UDim2.fromOffset(130, 38), LayoutOrder = 2, Parent = row }
+	)
 	local vigLabel = Kit.Label("Vignette", { Size = Theme.Sizes.Tiny })
 	vigLabel.Size = UDim2.fromOffset(70, 38)
 	vigLabel.Parent = vigWrap
@@ -234,19 +262,35 @@ local function buildToolbar()
 	end)
 	reset.LayoutOrder = 3
 	reset.Parent = row
-	local exit = Kit.Button("Done", { Style = "Accent", Size = UDim2.fromOffset(80, 38), TextSize = Theme.Sizes.Small, OnClick = function()
-		PhotoController.Toggle()
-	end })
+	local exit = Kit.Button("Done", {
+		Style = "Accent",
+		Size = UDim2.fromOffset(80, 38),
+		TextSize = Theme.Sizes.Small,
+		OnClick = function()
+			PhotoController.Toggle()
+		end,
+	})
 	exit.LayoutOrder = 4
 	exit.Parent = row
 	-- Emotes
-	local emotes = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(0, 36), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, Parent = bar })
+	local emotes = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, 36),
+		AutomaticSize = Enum.AutomaticSize.X,
+		LayoutOrder = 2,
+		Parent = bar,
+	})
 	Kit.List(emotes, "X", 4, "Center")
 	table.clear(emoteButtons)
 	for i, emote in Social.Emotes do
-		local b = Kit.IconButton(emote.Icon, emote.Name .. (if emote.Pack and not ownsEmote(emote) then " (emote pack)" else ""), function()
-			PhotoController.Emote(emote.Id)
-		end, 34)
+		local b = Kit.IconButton(
+			emote.Icon,
+			emote.Name .. (if emote.Pack and not ownsEmote(emote) then " (emote pack)" else ""),
+			function()
+				PhotoController.Emote(emote.Id)
+			end,
+			34
+		)
 		b.LayoutOrder = i
 		if not ownsEmote(emote) then
 			b.TextTransparency = 0.5
@@ -307,7 +351,17 @@ function PhotoController.Toggle()
 	pitch = math.asin(math.clamp(look.Y, -1, 1))
 	roll = 0
 	releaseCamera = C.Camera.Take("Photo")
-	ContextActionService:BindActionAtPriority("EvergrovePhoto", sink, false, Enum.ContextActionPriority.High.Value, Enum.PlayerActions.CharacterForward, Enum.PlayerActions.CharacterBackward, Enum.PlayerActions.CharacterLeft, Enum.PlayerActions.CharacterRight, Enum.PlayerActions.CharacterJump)
+	ContextActionService:BindActionAtPriority(
+		"EvergrovePhoto",
+		sink,
+		false,
+		Enum.ContextActionPriority.High.Value,
+		Enum.PlayerActions.CharacterForward,
+		Enum.PlayerActions.CharacterBackward,
+		Enum.PlayerActions.CharacterLeft,
+		Enum.PlayerActions.CharacterRight,
+		Enum.PlayerActions.CharacterJump
+	)
 	for _, name in { "Windows", "Overlay" } do
 		C.UI.Layer(name).Visible = false
 	end
@@ -373,7 +427,11 @@ function PhotoController.Start()
 			local function key(code: Enum.KeyCode): number
 				return if UserInputService:IsKeyDown(code) then 1 else 0
 			end
-			move = Vector3.new(key(Enum.KeyCode.D) - key(Enum.KeyCode.A), key(Enum.KeyCode.E) - key(Enum.KeyCode.Q), key(Enum.KeyCode.S) - key(Enum.KeyCode.W))
+			move = Vector3.new(
+				key(Enum.KeyCode.D) - key(Enum.KeyCode.A),
+				key(Enum.KeyCode.E) - key(Enum.KeyCode.Q),
+				key(Enum.KeyCode.S) - key(Enum.KeyCode.W)
+			)
 			roll += (key(Enum.KeyCode.Z) - key(Enum.KeyCode.X)) * dt * 0.8
 		end
 		for _, state in UserInputService:GetGamepadState(Enum.UserInputType.Gamepad1) do

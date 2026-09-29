@@ -26,7 +26,15 @@ local VISUAL_ATTRS = { "C", "S", "R", "M", "Wb", "Dn", "Af", "Nm", "Pr" }
 local ICON_RANGE = 70
 local SWAY_RANGE = 55
 
-type Entry = { Tile: BasePart, Model: Model?, Key: string, Icon: BillboardGui?, Dirty: boolean, Base: CFrame?, Phase: number }
+type Entry = {
+	Tile: BasePart,
+	Model: Model?,
+	Key: string,
+	Icon: BillboardGui?,
+	Dirty: boolean,
+	Base: CFrame?,
+	Phase: number,
+}
 
 local entries: { [BasePart]: Entry } = {}
 local folder: Folder
@@ -158,7 +166,15 @@ local function track(tile: Instance)
 	if not tile:IsA("BasePart") or entries[tile] then
 		return
 	end
-	local entry: Entry = { Tile = tile, Model = nil, Key = "", Icon = nil, Dirty = true, Base = nil, Phase = ((tile:GetAttribute("X") or 0) :: number) * 0.37 + ((tile:GetAttribute("Z") or 0) :: number) * 0.61 }
+	local entry: Entry = {
+		Tile = tile,
+		Model = nil,
+		Key = "",
+		Icon = nil,
+		Dirty = true,
+		Base = nil,
+		Phase = ((tile:GetAttribute("X") or 0) :: number) * 0.37 + ((tile:GetAttribute("Z") or 0) :: number) * 0.61,
+	}
 	entries[tile] = entry
 	tile.AttributeChanged:Connect(function(name)
 		if table.find(VISUAL_ATTRS, name) then

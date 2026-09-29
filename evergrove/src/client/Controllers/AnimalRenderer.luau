@@ -64,7 +64,13 @@ local function allele(list: { any }, id: string?): any
 end
 
 local function signature(anchor: BasePart): string
-	return table.concat({ tostring(anchor:GetAttribute("Sp")), tostring(anchor:GetAttribute("Coat")), tostring(anchor:GetAttribute("Pattern")), tostring(anchor:GetAttribute("Size")), tostring(anchor:GetAttribute("Baby")) }, "|")
+	return table.concat({
+		tostring(anchor:GetAttribute("Sp")),
+		tostring(anchor:GetAttribute("Coat")),
+		tostring(anchor:GetAttribute("Pattern")),
+		tostring(anchor:GetAttribute("Size")),
+		tostring(anchor:GetAttribute("Baby")),
+	}, "|")
 end
 
 -- Where the animal should be heading right now.
@@ -78,7 +84,10 @@ local function chooseTarget(entry: Entry, window: number): Vector3
 	local h1 = RNG.Hash(entry.Aid, window, 1)
 	local h2 = RNG.Hash(entry.Aid, window, 2)
 	local weather = WeatherMath.Def(C.Lighting.Weather())
-	local outside = a:GetAttribute("Outside") == true and not C.Lighting.IsNight() and weather.Animals >= 0 and not weather.Hazard
+	local outside = a:GetAttribute("Outside") == true
+		and not C.Lighting.IsNight()
+		and weather.Animals >= 0
+		and not weather.Hazard
 	local center = a.Position
 	if species and species.Id == "bee" then
 		local angle = h1 * math.pi * 2 + os.clock() * 0.2
@@ -145,7 +154,8 @@ local function updateLabels(entry: Entry)
 	entry.Bubble.Adornee = body
 	local rarity = a:GetAttribute("Rare") or "Common"
 	local label = entry.Tag:FindFirstChild("Name") :: TextLabel
-	label.Text = (a:GetAttribute("Nm") or "") .. (if a:GetAttribute("Baby") then " 🍼" elseif a:GetAttribute("Preg") then " 🤰" else "")
+	label.Text = (a:GetAttribute("Nm") or "")
+		.. (if a:GetAttribute("Baby") then " 🍼" elseif a:GetAttribute("Preg") then " 🤰" else "")
 	label.TextColor3 = if rarity ~= "Common" then C.UI.Theme.RarityColor(rarity) else Color3.new(1, 1, 1)
 	local species = speciesById[a:GetAttribute("Sp") or ""]
 	local icon = entry.Bubble:FindFirstChild("Icon") :: TextLabel
@@ -193,7 +203,14 @@ local function build(entry: Entry)
 	end
 	local coat = allele(species.Coats, a:GetAttribute("Coat"))
 	local pattern = allele(species.Patterns, a:GetAttribute("Pattern"))
-	local ok, model, rig = pcall(AnimalModels.Build, species, coat, pattern, a:GetAttribute("Size") or 1, { Baby = a:GetAttribute("Baby") == true })
+	local ok, model, rig = pcall(
+		AnimalModels.Build,
+		species,
+		coat,
+		pattern,
+		a:GetAttribute("Size") or 1,
+		{ Baby = a:GetAttribute("Baby") == true }
+	)
 	if not ok then
 		warn("[Evergrove] Animal model failed:", model)
 		return
@@ -260,7 +277,9 @@ local function pose(entry: Entry, t: number, moving: boolean)
 	local root = CFrame.new(entry.Position) * CFrame.Angles(0, entry.Yaw, 0)
 	local species = speciesById[tostring(entry.Anchor:GetAttribute("Sp") or "")]
 	local hover = species and species.Model.Hover
-	local bob = if hover then math.sin(t * 2 + entry.Phase) * 0.3 else (if moving then math.abs(math.sin(t * 10)) * 0.08 else 0)
+	local bob = if hover
+		then math.sin(t * 2 + entry.Phase) * 0.3
+		else (if moving then math.abs(math.sin(t * 10)) * 0.08 else 0)
 	root *= CFrame.new(0, bob, 0)
 	local walk = if moving then math.sin(t * 10 + entry.Phase) * 0.6 else 0
 	local grazing = not moving and (t + entry.Phase) % 9 < 3
@@ -320,7 +339,11 @@ local function step(dt: number)
 				if species and species.Id == "bee" then
 					entry.Position = Vector3.new(entry.Position.X, target.Y, entry.Position.Z)
 				elseif dist < ANIMATE_RANGE then
-					entry.Position = Vector3.new(entry.Position.X, groundY(entry.Position, anchor.Position.Y) + 0.05, entry.Position.Z)
+					entry.Position = Vector3.new(
+						entry.Position.X,
+						groundY(entry.Position, anchor.Position.Y) + 0.05,
+						entry.Position.Z
+					)
 				end
 				if dist < ANIMATE_RANGE or moving then
 					pose(entry, t, moving)

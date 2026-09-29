@@ -237,7 +237,14 @@ function InventoryService.Add(player: Player, stack: Stack, options: AddOptions?
 end
 
 -- Convenience: give by id.
-function InventoryService.Give(player: Player, id: string, count: number, quality: number?, mutations: { string }?, opts: AddOptions?)
+function InventoryService.Give(
+	player: Player,
+	id: string,
+	count: number,
+	quality: number?,
+	mutations: { string }?,
+	opts: AddOptions?
+)
 	if count <= 0 then
 		return 0, 0
 	end
@@ -401,9 +408,29 @@ local function move(player: Player, from: string, to: string, count: number?)
 end
 
 local CATEGORY_ORDER = {
-	Tool = 1, Seed = 2, Crop = 3, Fertilizer = 4, Supply = 5, Bait = 6, Fish = 7, AnimalProduct = 8,
-	Artisan = 9, Food = 10, Potion = 11, Ingredient = 12, Feed = 13, Forage = 14, Bug = 15, Material = 16,
-	Mineral = 17, Gem = 18, Artifact = 19, Treasure = 20, Placeable = 21, Book = 22, Special = 23,
+	Tool = 1,
+	Seed = 2,
+	Crop = 3,
+	Fertilizer = 4,
+	Supply = 5,
+	Bait = 6,
+	Fish = 7,
+	AnimalProduct = 8,
+	Artisan = 9,
+	Food = 10,
+	Potion = 11,
+	Ingredient = 12,
+	Feed = 13,
+	Forage = 14,
+	Bug = 15,
+	Material = 16,
+	Mineral = 17,
+	Gem = 18,
+	Artifact = 19,
+	Treasure = 20,
+	Placeable = 21,
+	Book = 22,
+	Special = 23,
 }
 
 local function sortContainer(player: Player, containerName: string)

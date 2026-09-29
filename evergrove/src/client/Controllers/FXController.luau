@@ -45,10 +45,14 @@ function FX.Burst(position: Vector3, color: Color3, count: number, kind: string?
 	end
 	local att = anchorAt(position, 3)
 	local e = Instance.new("ParticleEmitter")
-	e.Texture = if kind == "Smoke" then "rbxasset://textures/particles/smoke_main.dds" else "rbxasset://textures/particles/sparkles_main.dds"
+	e.Texture = if kind == "Smoke"
+		then "rbxasset://textures/particles/smoke_main.dds"
+		else "rbxasset://textures/particles/sparkles_main.dds"
 	e.Color = ColorSequence.new(color)
 	e.LightEmission = if kind == "Smoke" then 0 else 0.7
-	e.Size = if kind == "Smoke" then NumberSequence.new(1.2, 3) else NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 0) })
+	e.Size = if kind == "Smoke"
+		then NumberSequence.new(1.2, 3)
+		else NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 0) })
 	e.Transparency = NumberSequence.new(if kind == "Smoke" then 0.4 else 0, 1)
 	e.Speed = NumberRange.new((speed or 8) * 0.5, speed or 8)
 	e.SpreadAngle = Vector2.new(180, 180)
@@ -85,8 +89,16 @@ function FX.Text(position: Vector3, text: string, color: Color3?, size: number?,
 	label.Text = text
 	label.Parent = gui
 	local d = duration or 1.4
-	TweenService:Create(part, TweenInfo.new(d, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = part.Position + Vector3.new(0, 3, 0) }):Play()
-	TweenService:Create(label, TweenInfo.new(d * 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, d * 0.5), { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	TweenService:Create(
+		part,
+		TweenInfo.new(d, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Position = part.Position + Vector3.new(0, 3, 0) }
+	):Play()
+	TweenService:Create(
+		label,
+		TweenInfo.new(d * 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, d * 0.5),
+		{ TextTransparency = 1, TextStrokeTransparency = 1 }
+	):Play()
 	task.delay(d + 0.1, function()
 		part:Destroy()
 	end)
@@ -164,7 +176,11 @@ local function drones(from: Vector3, targets: { Vector3 })
 			light.Parent = drone
 			local up = from + Vector3.new(0, 10, 0)
 			drone.Position = from + Vector3.new(0, 3, 0)
-			local t1 = TweenService:Create(drone, TweenInfo.new(0.8, Enum.EasingStyle.Sine), { Position = target + Vector3.new(0, 4, 0) })
+			local t1 = TweenService:Create(
+				drone,
+				TweenInfo.new(0.8, Enum.EasingStyle.Sine),
+				{ Position = target + Vector3.new(0, 4, 0) }
+			)
 			t1:Play()
 			t1.Completed:Wait()
 			FX.Burst(target + Vector3.new(0, 1, 0), Color3.fromRGB(180, 240, 140), 6)
@@ -246,7 +262,11 @@ handlers.Harvest = function(p)
 			FX.Text(pos + Vector3.new(0, 2, 0), "Premium!", Color3.fromRGB(255, 215, 90), 22)
 		end)
 	end
-	FX.Burst(pos + Vector3.new(0, 1, 0), if crop then crop.Visual.Fruit else Color3.new(1, 1, 1), if rare then 40 else 12)
+	FX.Burst(
+		pos + Vector3.new(0, 1, 0),
+		if crop then crop.Visual.Fruit else Color3.new(1, 1, 1),
+		if rare then 40 else 12
+	)
 	C.Audio.PlayAt(if rare then "HarvestRare" else "Harvest", pos)
 	C.Audio.PlayAt("HarvestPop", pos)
 	if rare and p.By == player.UserId then
@@ -256,7 +276,13 @@ end
 
 handlers.Mutation = function(p)
 	local def = ItemUtil.MutationDef(p.Id)
-	FX.Text(p.Position, (def and def.Icon or "✨") .. " " .. (def and def.Name or p.Id) .. "!", Color3.fromRGB(210, 180, 255), 26, 2.2)
+	FX.Text(
+		p.Position,
+		(def and def.Icon or "✨") .. " " .. (def and def.Name or p.Id) .. "!",
+		Color3.fromRGB(210, 180, 255),
+		26,
+		2.2
+	)
 	FX.Burst(p.Position + Vector3.new(0, 1.5, 0), Color3.fromRGB(210, 180, 255), 30, nil, 10)
 	C.Audio.PlayAt("HarvestRare", p.Position)
 end
@@ -318,10 +344,19 @@ handlers.Open = function(p)
 	local names = {}
 	for _, stack in p.Items or {} do
 		local def = Registry.Items[stack.Id]
-		table.insert(names, (def and def.Icon or "") .. " " .. (stack.N or 1) .. "× " .. (def and def.Name or stack.Id))
+		table.insert(
+			names,
+			(def and def.Icon or "") .. " " .. (stack.N or 1) .. "× " .. (def and def.Name or stack.Id)
+		)
 	end
 	local container = Registry.Items[p.Id]
-	C.Notify.Banner((container and container.Icon or "🎁") .. " Opened " .. (container and container.Name or "it") .. "!", table.concat(names, "   "), nil, "Discovery", 4)
+	C.Notify.Banner(
+		(container and container.Icon or "🎁") .. " Opened " .. (container and container.Name or "it") .. "!",
+		table.concat(names, "   "),
+		nil,
+		"Discovery",
+		4
+	)
 end
 
 handlers.LevelUp = function(p)
@@ -414,7 +449,16 @@ handlers.Catch = function(p)
 	FX.Burst(p.Position, Color3.fromRGB(170, 210, 255), 30, nil, 12)
 	C.Audio.PlayAt("FishCaught", p.Position)
 	local def = Registry.Items[p.Item]
-	FX.Text(p.Position, (def and def.Icon or "🐟") .. " " .. (def and def.Name or "") .. (if p.Size then string.format("  %.1f cm", p.Size) else ""), qualityColor(p.Q), if p.Legend then 34 else 24, 2.4)
+	FX.Text(
+		p.Position,
+		(def and def.Icon or "🐟")
+			.. " "
+			.. (def and def.Name or "")
+			.. (if p.Size then string.format("  %.1f cm", p.Size) else ""),
+		qualityColor(p.Q),
+		if p.Legend then 34 else 24,
+		2.4
+	)
 	if p.Legend then
 		FX.ScreenFlash(Color3.fromRGB(255, 210, 120))
 	end
@@ -451,7 +495,11 @@ handlers.Meteor = function(p)
 	rock.Color = Color3.fromRGB(255, 160, 80)
 	rock.Position = start
 	rock.Parent = folder
-	local tween = TweenService:Create(rock, TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = p.Position })
+	local tween = TweenService:Create(
+		rock,
+		TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+		{ Position = p.Position }
+	)
 	tween:Play()
 	tween.Completed:Connect(function()
 		rock:Destroy()

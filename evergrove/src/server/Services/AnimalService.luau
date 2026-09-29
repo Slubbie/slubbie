@@ -333,14 +333,22 @@ end
 local function freeHome(profile: any, species: any, preferred: string?): string?
 	if preferred then
 		local def = homeDef(profile, preferred)
-		if def and def.Function.Home == species.Home and AnimalService.Residents(profile, preferred) < def.Function.Capacity then
+		if
+			def
+			and def.Function.Home == species.Home
+			and AnimalService.Residents(profile, preferred) < def.Function.Capacity
+		then
 			return preferred
 		end
 		return nil
 	end
 	for uid in profile.Farm.Placed do
 		local def = homeDef(profile, uid)
-		if def and def.Function.Home == species.Home and AnimalService.Residents(profile, uid) < def.Function.Capacity then
+		if
+			def
+			and def.Function.Home == species.Home
+			and AnimalService.Residents(profile, uid) < def.Function.Capacity
+		then
 			return uid
 		end
 	end
@@ -348,12 +356,38 @@ local function freeHome(profile: any, species: any, preferred: string?): string?
 end
 
 local function randomName(): string
-	local names = { "Clover", "Biscuit", "Maple", "Pepper", "Hazel", "Juniper", "Poppy", "Nutmeg", "Willow", "Pip", "Button", "Sprout", "Daisy", "Mochi", "Fern", "Truffle", "Barley", "Olive", "Pumpkin", "Cocoa" }
+	local names = {
+		"Clover",
+		"Biscuit",
+		"Maple",
+		"Pepper",
+		"Hazel",
+		"Juniper",
+		"Poppy",
+		"Nutmeg",
+		"Willow",
+		"Pip",
+		"Button",
+		"Sprout",
+		"Daisy",
+		"Mochi",
+		"Fern",
+		"Truffle",
+		"Barley",
+		"Olive",
+		"Pumpkin",
+		"Cocoa",
+	}
 	return names[random:NextInteger(1, #names)]
 end
 
 -- Add an animal (bought, bred, quest reward). Returns aid or nil, reason.
-function AnimalService.Grant(player: Player, speciesId: string, genes: any?, opts: { Home: string?, Name: string?, Source: string? }?): (string?, string?)
+function AnimalService.Grant(
+	player: Player,
+	speciesId: string,
+	genes: any?,
+	opts: { Home: string?, Name: string?, Source: string? }?
+): (string?, string?)
 	local profile = S.Data.Get(player)
 	local species = speciesById[speciesId]
 	if not profile or not species then
@@ -364,7 +398,9 @@ function AnimalService.Grant(player: Player, speciesId: string, genes: any?, opt
 	if not home then
 		return nil, "You need a " .. species.Home .. " with space for a " .. species.Name
 	end
-	local g = if genes and Genetics.ValidAnimal(speciesId, genes) then genes else Genetics.RandomAnimal(speciesId, random)
+	local g = if genes and Genetics.ValidAnimal(speciesId, genes)
+		then genes
+		else Genetics.RandomAnimal(speciesId, random)
 	local pers = RNG.WeightedEntry(Animals.Personalities, function(p)
 		return p.Weight
 	end, random:NextNumber())
@@ -386,7 +422,12 @@ function AnimalService.Grant(player: Player, speciesId: string, genes: any?, opt
 	S.Data.Changed(player, "Farm", "Animals")
 	AnimalService.Render(player, aid)
 	local phenotype = Genetics.Phenotype(speciesId, g)
-	S.Collection.Discover(player, "Animals", speciesId .. ":" .. phenotype.Coat.Id, { Rarity = Genetics.AnimalRarity(speciesId, g) })
+	S.Collection.Discover(
+		player,
+		"Animals",
+		speciesId .. ":" .. phenotype.Coat.Id,
+		{ Rarity = Genetics.AnimalRarity(speciesId, g) }
+	)
 	S.Data.MaxStat(player, "AnimalsOwned", AnimalService.Count(profile))
 	S.Data.AddStat(player, "AnimalsOwnedTotal")
 	return aid, nil
@@ -420,7 +461,13 @@ local function buy(player: Player, speciesId: string, homeUid: string)
 	end
 	S.Quest.Progress(player, "BuyAnimal", speciesId, 1)
 	S.Data.AddStat(player, "AnimalsBought")
-	S.Notify.Banner(player, "Welcome home, " .. profile.Farm.Animals[aid].Nm .. "!", "Your new " .. species.Name .. " is settling into its " .. species.Home .. ".", "Animal", species.Icon)
+	S.Notify.Banner(
+		player,
+		"Welcome home, " .. profile.Farm.Animals[aid].Nm .. "!",
+		"Your new " .. species.Name .. " is settling into its " .. species.Home .. ".",
+		"Animal",
+		species.Icon
+	)
 	return true, aid
 end
 
@@ -474,7 +521,8 @@ local function feed(actor: Player, profile: any, animal: any, today: number): (b
 	end
 	animal.Fed = today
 	animal.Prem = used == "animal_feed" or nil
-	animal.Hap = math.clamp((animal.Hap or 0) + Animals.FeedHappiness * (if used == "animal_feed" then 1.4 else 1), 0, 100)
+	animal.Hap =
+		math.clamp((animal.Hap or 0) + Animals.FeedHappiness * (if used == "animal_feed" then 1.4 else 1), 0, 100)
 	return true
 end
 
@@ -534,7 +582,11 @@ local function act(actor: Player, aid: string, action: string)
 			return false, "Your bag is full"
 		end
 		for _, stack in stacks do
-			S.Inventory.Add(owner, stack, { Source = animal.Nm, Position = S.Building.WorldPosition(owner, animal.Home) })
+			S.Inventory.Add(
+				owner,
+				stack,
+				{ Source = animal.Nm, Position = S.Building.WorldPosition(owner, animal.Home) }
+			)
 		end
 		if actor ~= owner then
 			S.Notify.Toast(owner, actor.DisplayName .. " collected products from " .. animal.Nm .. " for you.", "Info")
@@ -738,7 +790,9 @@ function AnimalService.SellValue(profile: any, animal: any): number
 	local rarity = Genetics.AnimalRarity(animal.Sp, animal.G)
 	local rarityMult = ({ Common = 1, Uncommon = 1.3, Rare = 2, Epic = 3.5, Legendary = 6, Mythic = 10 })[rarity] or 1
 	local friend = 1 + (animal.Fr or 0) / Animals.MaxFriendship
-	return math.floor(species.Price * Animals.SellFraction * friend * rarityMult * (1 + Stats.Effect(profile, "AnimalValue")))
+	return math.floor(
+		species.Price * Animals.SellFraction * friend * rarityMult * (1 + Stats.Effect(profile, "AnimalValue"))
+	)
 end
 
 local function sell(player: Player, aid: string)
@@ -791,7 +845,19 @@ function AnimalService.Deliver(player: Player, profile: any, animal: any)
 	S.Quest.Progress(player, "Breed", animal.Sp, 1)
 	S.Skill.AddXP(player, "Ranching", 40)
 	local phenotype = Genetics.Phenotype(animal.Sp, preg.G)
-	S.Notify.Banner(player, "A baby " .. species.Name .. " was born!", "Say hello to " .. baby.Nm .. " — " .. phenotype.Coat.Name .. " coat, " .. phenotype.Pattern.Name .. " pattern.", "Animal", species.Icon)
+	S.Notify.Banner(
+		player,
+		"A baby " .. species.Name .. " was born!",
+		"Say hello to "
+			.. baby.Nm
+			.. " — "
+			.. phenotype.Coat.Name
+			.. " coat, "
+			.. phenotype.Pattern.Name
+			.. " pattern.",
+		"Animal",
+		species.Icon
+	)
 	AnimalService.Born:Fire(player, aid)
 end
 

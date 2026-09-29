@@ -14,13 +14,25 @@ local Theme = require(UI.Theme)
 local Describe = require(UI.Describe)
 local C = require(UI.Parent.Controllers)
 
-local TIER_COLOR = { Bronze = Color3.fromRGB(205, 127, 50), Silver = Color3.fromRGB(200, 205, 215), Gold = Color3.fromRGB(255, 205, 60), Platinum = Color3.fromRGB(170, 230, 255) }
+local TIER_COLOR = {
+	Bronze = Color3.fromRGB(205, 127, 50),
+	Silver = Color3.fromRGB(200, 205, 215),
+	Gold = Color3.fromRGB(255, 205, 60),
+	Platinum = Color3.fromRGB(170, 230, 255),
+}
 
 local function rewardText(reward: any): string
 	local parts = Describe.Rewards(reward)
 	for _, key in { "Banner", "Frame", "Effect" } do
 		if reward[key] then
-			table.insert(parts, (({ Banner = "🚩", Frame = "🖼️", Effect = "✨" }) :: any)[key] .. " " .. key .. ": " .. string.gsub(reward[key], "_", " "))
+			table.insert(
+				parts,
+				(({ Banner = "🚩", Frame = "🖼️", Effect = "✨" }) :: any)[key]
+					.. " "
+					.. key
+					.. ": "
+					.. string.gsub(reward[key], "_", " ")
+			)
 		end
 	end
 	return table.concat(parts, "  ·  ")
@@ -46,23 +58,40 @@ return {
 					got += 1
 				end
 			end
-			local top = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Parent = content })
+			local top =
+				Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Parent = content })
 			local progress = Kit.Progress({ Size = UDim2.new(1, -330, 0, 18), Color = "Accent" })
 			progress.Frame.Position = UDim2.fromOffset(0, 8)
 			progress.Frame.Parent = top
 			progress.Set(got / total, "🏅 " .. got .. " / " .. total, false)
-			local chips = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(320, 34), Position = UDim2.new(1, -320, 0, 0), Parent = top })
+			local chips = Kit.new("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.fromOffset(320, 34),
+				Position = UDim2.new(1, -320, 0, 0),
+				Parent = top,
+			})
 			Kit.List(chips, "X", 6, "Right")
 			for i, name in { "All", "In progress", "Earned" } do
-				local b = Kit.Button(name, { Style = if filter == name then "Primary" else "Secondary", Size = UDim2.fromOffset(100, 32), TextSize = Theme.Sizes.Tiny, LayoutOrder = i, OnClick = function()
-					filter = name
-					render()
-				end })
+				local b = Kit.Button(name, {
+					Style = if filter == name then "Primary" else "Secondary",
+					Size = UDim2.fromOffset(100, 32),
+					TextSize = Theme.Sizes.Tiny,
+					LayoutOrder = i,
+					OnClick = function()
+						filter = name
+						render()
+					end,
+				})
 				b.Parent = chips
 			end
 			local grid = Kit.Scroll({ Size = UDim2.new(1, 0, 1, -44), Position = UDim2.fromOffset(0, 44) })
 			grid.Parent = content
-			local layout = Kit.new("UIGridLayout", { CellSize = UDim2.new(0.5, -6, 0, 96), CellPadding = UDim2.fromOffset(10, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = grid })
+			local layout = Kit.new("UIGridLayout", {
+				CellSize = UDim2.new(0.5, -6, 0, 96),
+				CellPadding = UDim2.fromOffset(10, 10),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Parent = grid,
+			})
 			layout.FillDirectionMaxCells = 2
 			for i, def in Achievements.List do
 				local done = earned[def.Id] ~= nil
@@ -79,19 +108,35 @@ return {
 							stroke.Thickness = 2
 						end
 					end
-					local icon = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(52, 52), Text = if secret then "❔" else def.Icon, TextScaled = true, Font = Theme.Fonts.Body, Parent = card })
+					local icon = Kit.new("TextLabel", {
+						BackgroundTransparency = 1,
+						Size = UDim2.fromOffset(52, 52),
+						Text = if secret then "❔" else def.Icon,
+						TextScaled = true,
+						Font = Theme.Fonts.Body,
+						Parent = card,
+					})
 					icon.TextTransparency = if done then 0 else 0.45
-					local name = Kit.Label((if secret then "Secret achievement" else def.Name) .. "  ·  " .. def.Tier, { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
+					local name = Kit.Label(
+						(if secret then "Secret achievement" else def.Name) .. "  ·  " .. def.Tier,
+						{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+					)
 					name.TextColor3 = TIER_COLOR[def.Tier] or name.TextColor3
 					name.Position = UDim2.fromOffset(60, 0)
 					name.Size = UDim2.new(1, -60, 0, 20)
 					name.Parent = card
-					local desc = Kit.Label(if secret then "Keep playing to discover it." else def.Description, { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+					local desc = Kit.Label(
+						if secret then "Keep playing to discover it." else def.Description,
+						{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+					)
 					desc.Position = UDim2.fromOffset(60, 20)
 					desc.Size = UDim2.new(1, -60, 0, 0)
 					desc.Parent = card
 					if not secret then
-						local reward = Kit.Label("🎁 " .. rewardText(def.Reward), { Size = Theme.Sizes.Tiny, Color = "Accent", Wrap = true })
+						local reward = Kit.Label(
+							"🎁 " .. rewardText(def.Reward),
+							{ Size = Theme.Sizes.Tiny, Color = "Accent", Wrap = true }
+						)
 						reward.Position = UDim2.fromOffset(60, 44)
 						reward.Size = UDim2.new(1, -60, 0, 0)
 						reward.Parent = card
@@ -106,7 +151,8 @@ return {
 							return { { Text = Format.Commas(math.floor(value)) .. " / " .. Format.Commas(def.Goal) } }
 						end)
 					elseif done then
-						local when = Kit.Label("✔ Earned", { Size = Theme.Sizes.Tiny, Color = "Good", Align = "Right" })
+						local when =
+							Kit.Label("✔ Earned", { Size = Theme.Sizes.Tiny, Color = "Good", Align = "Right" })
 						when.Size = UDim2.new(0, 100, 0, 14)
 						when.Position = UDim2.new(1, -100, 1, -14)
 						when.Parent = card

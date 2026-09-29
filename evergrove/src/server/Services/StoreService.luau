@@ -171,7 +171,8 @@ end
 
 -- Equipping ---------------------------------------------------------------------------------------------------------
 
-local SLOT_PREFIX = { Banner = true, Frame = true, Effect = true, Nameplate = true, Companion = true, Music = true, Emote = true }
+local SLOT_PREFIX =
+	{ Banner = true, Frame = true, Effect = true, Nameplate = true, Companion = true, Music = true, Emote = true }
 
 local function owns(profile: any, slot: string, id: string): boolean
 	if slot == "Title" then

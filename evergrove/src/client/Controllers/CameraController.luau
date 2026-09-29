@@ -132,7 +132,10 @@ function CameraController.Start()
 		if mode ~= "Farm" or processed then
 			return
 		end
-		if input.UserInputType == Enum.UserInputType.MouseWheel and not UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+		if
+			input.UserInputType == Enum.UserInputType.MouseWheel
+			and not UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
+		then
 			farmZoom = math.clamp(farmZoom - input.Position.Z * 4, 22, 90)
 		elseif input.KeyCode == Enum.KeyCode.Thumbstick2 then
 			farmYaw -= input.Position.X * 0.05
@@ -158,7 +161,11 @@ function CameraController.Start()
 		if shakeTime > 0 then
 			shakeTime -= dt
 			local m = shakeMagnitude * math.clamp(shakeTime * 3, 0, 1)
-			camera.CFrame *= CFrame.Angles(math.rad((math.random() - 0.5) * m * 4), math.rad((math.random() - 0.5) * m * 4), 0)
+			camera.CFrame *= CFrame.Angles(
+				math.rad((math.random() - 0.5) * m * 4),
+				math.rad((math.random() - 0.5) * m * 4),
+				0
+			)
 			if shakeTime <= 0 then
 				shakeMagnitude = 0
 			end

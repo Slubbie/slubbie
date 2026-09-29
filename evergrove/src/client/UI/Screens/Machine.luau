@@ -64,8 +64,18 @@ return {
 		end
 
 		local header = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 56), Parent = content })
-		local columns = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -110), Position = UDim2.fromOffset(0, 60), Parent = content })
-		local footer = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 44), Position = UDim2.new(0, 0, 1, -44), Parent = content })
+		local columns = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 1, -110),
+			Position = UDim2.fromOffset(0, 60),
+			Parent = content,
+		})
+		local footer = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 44),
+			Position = UDim2.new(0, 0, 1, -44),
+			Parent = content,
+		})
 
 		render = function()
 			Kit.Clear(header)
@@ -79,7 +89,18 @@ return {
 			local machine = Registry.Machines[data.Machine]
 			win.Title.Text = machine.Icon .. "  " .. machine.Name
 			local stars = string.rep("★", data.Level) .. string.rep("☆", data.MaxLevel - data.Level)
-			local title = Kit.Label(stars .. "   ·   speed ×" .. string.format("%.2f", data.Speed) .. "   ·   " .. #data.Queue .. " / " .. data.QueueSize .. " queued" .. (if data.Blocked then "   ·   ⚠️ output full" else ""), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = if data.Blocked then "Warn" else "Text" })
+			local title = Kit.Label(
+				stars
+					.. "   ·   speed ×"
+					.. string.format("%.2f", data.Speed)
+					.. "   ·   "
+					.. #data.Queue
+					.. " / "
+					.. data.QueueSize
+					.. " queued"
+					.. (if data.Blocked then "   ·   ⚠️ output full" else ""),
+				{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = if data.Blocked then "Warn" else "Text" }
+			)
 			title.Parent = header
 			local desc = Kit.Label(machine.Description, { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
 			desc.Position = UDim2.fromOffset(0, 22)
@@ -101,20 +122,31 @@ return {
 				if job then
 					local input = Registry.Items[job.I]
 					local output = Registry.Items[job.O]
-					local line = Kit.Label((if input then input.Icon else "?") .. " → " .. (if output then output.Icon .. " " .. output.Name else job.O) .. (if job.N > 1 then " ×" .. job.N else ""), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold })
+					local line = Kit.Label(
+						(if input then input.Icon else "?")
+							.. " → "
+							.. (if output then output.Icon .. " " .. output.Name else job.O)
+							.. (if job.N > 1 then " ×" .. job.N else ""),
+						{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold }
+					)
 					line.Size = UDim2.new(1, -34, 0, 20)
 					line.Parent = card
 					local bar = Kit.Progress({ Size = UDim2.new(1, -34, 0, 14), Color = "Accent" })
 					bar.Frame.Position = UDim2.fromOffset(0, 26)
 					bar.Frame.Parent = card
 					progressBars[i] = bar
-					local cancel = Kit.Button("✕", { Style = "Ghost", Size = UDim2.fromOffset(28, 28), TextSize = 13, OnClick = function()
-						Kit.Confirm("Cancel this job?", "The ingredients go back to your bag.", function(yes)
-							if yes then
-								act("MachineCancel", i)
-							end
-						end, "Cancel job")
-					end })
+					local cancel = Kit.Button("✕", {
+						Style = "Ghost",
+						Size = UDim2.fromOffset(28, 28),
+						TextSize = 13,
+						OnClick = function()
+							Kit.Confirm("Cancel this job?", "The ingredients go back to your bag.", function(yes)
+								if yes then
+									act("MachineCancel", i)
+								end
+							end, "Cancel job")
+						end,
+					})
 					cancel.Position = UDim2.new(1, -28, 0, 0)
 					cancel.Parent = card
 				else
@@ -124,7 +156,8 @@ return {
 			end
 
 			-- Options ---------------------------------------------------------------------------------------------
-			local middle = Kit.Panel({ Size = UDim2.new(0.38, -6, 1, 0), Position = UDim2.new(0.34, 6, 0, 0), Color = "PanelAlt" })
+			local middle =
+				Kit.Panel({ Size = UDim2.new(0.38, -6, 1, 0), Position = UDim2.new(0.34, 6, 0, 0), Color = "PanelAlt" })
 			middle.Parent = columns
 			Kit.Padding(middle, 8, 10)
 			Kit.Heading("📥 Load from your bag", 16).Parent = middle
@@ -135,7 +168,9 @@ return {
 			if #data.Options == 0 then
 				local names = {}
 				for _, recipe in machine.Recipes do
-					local name = if recipe.In.Id then (Registry.Items[recipe.In.Id] and Registry.Items[recipe.In.Id].Name or recipe.In.Id) else ("any " .. tostring(recipe.In.Tag))
+					local name = if recipe.In.Id
+						then (Registry.Items[recipe.In.Id] and Registry.Items[recipe.In.Id].Name or recipe.In.Id)
+						else ("any " .. tostring(recipe.In.Tag))
 					if not table.find(names, name) then
 						table.insert(names, name)
 					end
@@ -143,7 +178,10 @@ return {
 						break
 					end
 				end
-				Kit.Empty("Nothing in your bag fits. The " .. machine.Name .. " takes: " .. table.concat(names, ", ") .. ".").Parent = options
+				Kit.Empty(
+					"Nothing in your bag fits. The " .. machine.Name .. " takes: " .. table.concat(names, ", ") .. "."
+				).Parent =
+					options
 			end
 			for i, option in data.Options do
 				local input = Registry.Items[option.Id]
@@ -155,7 +193,13 @@ return {
 				slot.Button.Active = false
 				slot.Set({ Id = option.Id, N = option.Have, Q = option.Q, M = option.M })
 				slot.Button.Parent = card
-				local text = option.Need .. "× " .. (if input then input.Name else option.Id) .. "  →  " .. option.N .. "× " .. (if output then output.Name else option.Out)
+				local text = option.Need
+					.. "× "
+					.. (if input then input.Name else option.Id)
+					.. "  →  "
+					.. option.N
+					.. "× "
+					.. (if output then output.Name else option.Out)
 				local line = Kit.Label(text, { Size = Theme.Sizes.Tiny, Font = Theme.Fonts.Bold, Wrap = true })
 				line.Position = UDim2.fromOffset(52, 0)
 				line.Size = UDim2.new(1, -130, 0, 0)
@@ -165,28 +209,48 @@ return {
 					local e = Registry.Items[extra.Id]
 					table.insert(extras, (if e then e.Icon else "") .. extra.N)
 				end
-				local sub = Kit.Label("⏱️ " .. Format.Duration(option.Time) .. (if #extras > 0 then "  ·  + " .. table.concat(extras, " ") else "") .. (if output then "  ·  " .. Kit.Money(ItemUtil.UnitValue({ Id = option.Out, N = 1, Q = option.Q, M = option.M })) else ""), { Size = Theme.Sizes.Tiny, Color = "SubText" })
+				local sub = Kit.Label(
+					"⏱️ "
+						.. Format.Duration(option.Time)
+						.. (if #extras > 0 then "  ·  + " .. table.concat(extras, " ") else "")
+						.. (
+							if output
+								then "  ·  " .. Kit.Money(
+									ItemUtil.UnitValue({ Id = option.Out, N = 1, Q = option.Q, M = option.M })
+								)
+								else ""
+						),
+					{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+				)
 				sub.Position = UDim2.fromOffset(52, 34)
 				sub.Size = UDim2.new(1, -130, 0, 16)
 				sub.Parent = card
 				local maxTimes = math.min(free, math.floor(option.Have / math.max(option.Need, 1)))
-				local add = Kit.Button("Add", { Style = "Primary", Size = UDim2.fromOffset(70, 32), TextSize = Theme.Sizes.Small, OnClick = function()
-					if maxTimes < 1 then
-						C.Notify.Toast(if free < 1 then "The queue is full" else "You need " .. option.Need .. " for one batch", "Info")
-						return
-					end
-					if maxTimes == 1 then
-						if act("MachineQueue", option.Ref, 1) then
-							C.Audio.PlayUI("MachineStart")
+				local add = Kit.Button("Add", {
+					Style = "Primary",
+					Size = UDim2.fromOffset(70, 32),
+					TextSize = Theme.Sizes.Small,
+					OnClick = function()
+						if maxTimes < 1 then
+							C.Notify.Toast(
+								if free < 1 then "The queue is full" else "You need " .. option.Need .. " for one batch",
+								"Info"
+							)
+							return
 						end
-					else
-						Kit.AskNumber("How many batches?", maxTimes, maxTimes, function(n)
-							if n and act("MachineQueue", option.Ref, n) then
+						if maxTimes == 1 then
+							if act("MachineQueue", option.Ref, 1) then
 								C.Audio.PlayUI("MachineStart")
 							end
-						end)
-					end
-				end })
+						else
+							Kit.AskNumber("How many batches?", maxTimes, maxTimes, function(n)
+								if n and act("MachineQueue", option.Ref, n) then
+									C.Audio.PlayUI("MachineStart")
+								end
+							end)
+						end
+					end,
+				})
 				add.Position = UDim2.new(1, -72, 0, 18)
 				add.Parent = card
 				Kit.SetEnabled(add, maxTimes >= 1)
@@ -198,7 +262,8 @@ return {
 			end
 
 			-- Output -----------------------------------------------------------------------------------------------
-			local right = Kit.Panel({ Size = UDim2.new(0.28, -6, 1, 0), Position = UDim2.new(0.72, 6, 0, 0), Color = "PanelAlt" })
+			local right =
+				Kit.Panel({ Size = UDim2.new(0.28, -6, 1, 0), Position = UDim2.new(0.72, 6, 0, 0), Color = "PanelAlt" })
 			right.Parent = columns
 			Kit.Padding(right, 8, 10)
 			local outCount = 0
@@ -206,7 +271,12 @@ return {
 				outCount += stack.N
 			end
 			Kit.Heading("📦 Ready (" .. outCount .. " / " .. data.OutputSize .. ")", 16).Parent = right
-			local grid = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, -76), Position = UDim2.fromOffset(0, 28), Parent = right })
+			local grid = Kit.new("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, 0, 1, -76),
+				Position = UDim2.fromOffset(0, 28),
+				Parent = right,
+			})
 			Kit.Grid(grid, 52, 6)
 			for i, stack in data.Output do
 				local slot = Kit.ItemSlot(52)
@@ -214,11 +284,15 @@ return {
 				slot.Set(stack)
 				slot.Button.Parent = grid
 			end
-			local collect = Kit.Button("Collect all", { Style = "Good", Size = UDim2.new(1, 0, 0, 40), OnClick = function()
-				if act("MachineCollect") then
-					C.Audio.PlayUI("ItemPickup")
-				end
-			end })
+			local collect = Kit.Button("Collect all", {
+				Style = "Good",
+				Size = UDim2.new(1, 0, 0, 40),
+				OnClick = function()
+					if act("MachineCollect") then
+						C.Audio.PlayUI("ItemPickup")
+					end
+				end,
+			})
 			collect.Position = UDim2.new(0, 0, 1, -42)
 			collect.Parent = right
 			Kit.SetEnabled(collect, #data.Output > 0)
@@ -232,13 +306,30 @@ return {
 					local m = Registry.Items[mat.Id]
 					table.insert(mats, mat.N .. " " .. (if m then m.Icon else mat.Id))
 				end
-				local up = Kit.Button("⬆️ Upgrade to ★" .. (data.Level + 1) .. " · " .. Kit.Money(data.UpgradeCost) .. (if #mats > 0 then " + " .. table.concat(mats, ", ") else ""), { Style = "Accent", Size = UDim2.fromOffset(0, 40), TextSize = Theme.Sizes.Small, OnClick = function()
-					Kit.Confirm("Upgrade the " .. machine.Name .. "?", "Faster jobs, more queue slots and more output storage.", function(yes)
-						if yes and act("MachineUpgrade") then
-							C.Audio.PlayUI("LevelUp")
-						end
-					end, "Upgrade")
-				end })
+				local up = Kit.Button(
+					"⬆️ Upgrade to ★"
+						.. (data.Level + 1)
+						.. " · "
+						.. Kit.Money(data.UpgradeCost)
+						.. (if #mats > 0 then " + " .. table.concat(mats, ", ") else ""),
+					{
+						Style = "Accent",
+						Size = UDim2.fromOffset(0, 40),
+						TextSize = Theme.Sizes.Small,
+						OnClick = function()
+							Kit.Confirm(
+								"Upgrade the " .. machine.Name .. "?",
+								"Faster jobs, more queue slots and more output storage.",
+								function(yes)
+									if yes and act("MachineUpgrade") then
+										C.Audio.PlayUI("LevelUp")
+									end
+								end,
+								"Upgrade"
+							)
+						end,
+					}
+				)
 				up.AutomaticSize = Enum.AutomaticSize.X
 				Kit.Padding(up, 0, 14)
 				up.Parent = footer
@@ -248,7 +339,10 @@ return {
 				maxed.Parent = footer
 			end
 			if data.Logistics and isOwner then
-				local autoWrap = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(190, 40), LayoutOrder = 2, Parent = footer })
+				local autoWrap = Kit.new(
+					"Frame",
+					{ BackgroundTransparency = 1, Size = UDim2.fromOffset(190, 40), LayoutOrder = 2, Parent = footer }
+				)
 				local label = Kit.Label("🤖 Auto (silo)", { Size = Theme.Sizes.Small })
 				label.Size = UDim2.fromOffset(120, 40)
 				label.Parent = autoWrap
@@ -279,7 +373,10 @@ return {
 				choice.LayoutOrder = 3
 				choice.Parent = footer
 			elseif isOwner then
-				local hint = Kit.Label("Build a Logistics Hub to let machines pull from and push to your silo automatically.", { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+				local hint = Kit.Label(
+					"Build a Logistics Hub to let machines pull from and push to your silo automatically.",
+					{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+				)
 				hint.Size = UDim2.fromOffset(360, 40)
 				hint.LayoutOrder = 2
 				hint.Parent = footer
@@ -300,7 +397,13 @@ return {
 						local fraction = math.clamp(elapsed / math.max(job.D, 1), 0, 1)
 						if bar then
 							if i == 1 or elapsed > 0 then
-								bar.Set(fraction, if fraction >= 1 then (if data.Blocked then "waiting for space" else "done!") else Format.Duration(math.max(0, job.D - elapsed)), false)
+								bar.Set(
+									fraction,
+									if fraction >= 1
+										then (if data.Blocked then "waiting for space" else "done!")
+										else Format.Duration(math.max(0, job.D - elapsed)),
+									false
+								)
 							else
 								bar.Set(0, "starts in " .. Format.Duration(-elapsed), false)
 							end

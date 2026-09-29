@@ -92,7 +92,12 @@ local List: { Mutation } = {
 		Rarity = "Rare",
 		Base = 0.0012,
 		Group = "Coat",
-		Visual = { Color = Color3.fromRGB(255, 200, 60), Material = "Foil", Light = Color3.fromRGB(255, 210, 110), Particles = "Sparkle" },
+		Visual = {
+			Color = Color3.fromRGB(255, 200, 60),
+			Material = "Foil",
+			Light = Color3.fromRGB(255, 210, 110),
+			Particles = "Sparkle",
+		},
 	},
 	{
 		Id = "Crystalized",
@@ -233,7 +238,12 @@ local List: { Mutation } = {
 		Base = 0.00005,
 		Night = 2,
 		Regions = { Skyreach = 8, CelestialBeacon = 4 },
-		Visual = { Color = Color3.fromRGB(150, 120, 255), Neon = true, Particles = "Stars", Light = Color3.fromRGB(170, 150, 255) },
+		Visual = {
+			Color = Color3.fromRGB(150, 120, 255),
+			Neon = true,
+			Particles = "Stars",
+			Light = Color3.fromRGB(170, 150, 255),
+		},
 	},
 	{
 		Id = "Moonkissed",
@@ -323,7 +333,12 @@ local Combos: { Combo } = {
 		Description = "Celestial light made solid. The rarest glow in the valley.",
 		Requires = { "Celestial", "Glowing", "Moonkissed" },
 		Value = 3,
-		Visual = { Particles = "Galaxy", Color = Color3.fromRGB(120, 90, 255), Light = Color3.fromRGB(150, 110, 255), Scale = 1.1 },
+		Visual = {
+			Particles = "Galaxy",
+			Color = Color3.fromRGB(120, 90, 255),
+			Light = Color3.fromRGB(150, 110, 255),
+			Scale = 1.1,
+		},
 	},
 	{
 		Id = "Glacial",

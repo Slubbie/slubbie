@@ -79,7 +79,12 @@ local function use(player: Player, ref: string)
 		if #learned == 0 then
 			S.Notify.Toast(player, "You already knew everything in this book.", "Info")
 		else
-			S.Notify.Banner(player, "📖 " .. def.Name, "Learned " .. #learned .. " new recipe" .. (if #learned > 1 then "s" else ""), "Recipe")
+			S.Notify.Banner(
+				player,
+				"📖 " .. def.Name,
+				"Learned " .. #learned .. " new recipe" .. (if #learned > 1 then "s" else ""),
+				"Recipe"
+			)
 		end
 		return true
 	elseif kind == "Open" then
@@ -91,7 +96,8 @@ local function use(player: Player, ref: string)
 			return false, "Unlock it first"
 		end
 		local luck = Stats.Effect(profile, "GeodeChance") * 0.2 + Stats.Effect(profile, "GemChance") * 0.2
-		local drops = ItemService.RollLoot(def.Loot, if def.Category == "Treasure" and def.Id ~= "geode" then 3 else 1, luck)
+		local drops =
+			ItemService.RollLoot(def.Loot, if def.Category == "Treasure" and def.Id ~= "geode" then 3 else 1, luck)
 		for _, drop in drops do
 			S.Inventory.Add(player, drop, { Source = def.Name })
 			S.Collection.OnItem(player, drop)

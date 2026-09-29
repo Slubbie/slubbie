@@ -14,7 +14,14 @@ local function fill(fn: () -> ())
 end
 
 -- A solid slab of `material` whose top surface is at `top`.
-function TerrainKit.Slab(center: Vector3, sizeX: number, sizeZ: number, depth: number, material: Enum.Material, top: number?)
+function TerrainKit.Slab(
+	center: Vector3,
+	sizeX: number,
+	sizeZ: number,
+	depth: number,
+	material: Enum.Material,
+	top: number?
+)
 	local y = (top or 0) - depth / 2
 	fill(function()
 		terrain:FillBlock(CFrame.new(center.X, y, center.Z), Vector3.new(sizeX, depth, sizeZ), material)
@@ -73,7 +80,11 @@ function TerrainKit.River(points: { Vector3 }, width: number, depth: number, ban
 				terrain:FillBlock(look * CFrame.new(0, -2, 0), Vector3.new(width + 12, 4, length + width), bank)
 			end
 			terrain:FillBlock(look * CFrame.new(0, 10, 0), Vector3.new(width, 20, length + width), Enum.Material.Air)
-			terrain:FillBlock(look * CFrame.new(0, -depth / 2, 0), Vector3.new(width, depth, length + width), Enum.Material.Water)
+			terrain:FillBlock(
+				look * CFrame.new(0, -depth / 2, 0),
+				Vector3.new(width, depth, length + width),
+				Enum.Material.Water
+			)
 		end)
 		-- Round joints so bends don't leave gaps.
 		fill(function()
@@ -101,7 +112,13 @@ function TerrainKit.Hill(center: Vector3, radius: number, height: number, materi
 end
 
 -- A flat raised plateau (observatory hill, ruins terraces).
-function TerrainKit.Plateau(center: Vector3, radius: number, height: number, material: Enum.Material, top: Enum.Material?)
+function TerrainKit.Plateau(
+	center: Vector3,
+	radius: number,
+	height: number,
+	material: Enum.Material,
+	top: Enum.Material?
+)
 	fill(function()
 		terrain:FillCylinder(CFrame.new(center.X, height / 2 - 2, center.Z), height + 4, radius, material)
 		terrain:FillCylinder(CFrame.new(center.X, height - 2, center.Z), 4, radius, top or material)
@@ -109,9 +126,21 @@ function TerrainKit.Plateau(center: Vector3, radius: number, height: number, mat
 end
 
 -- A hollow cave level: solid rock block with a carved chamber whose floor is at `floor`.
-function TerrainKit.Cave(center: Vector3, radius: number, floor: number, height: number, rock: Enum.Material, ground: Enum.Material, seed: number)
+function TerrainKit.Cave(
+	center: Vector3,
+	radius: number,
+	floor: number,
+	height: number,
+	rock: Enum.Material,
+	ground: Enum.Material,
+	seed: number
+)
 	fill(function()
-		terrain:FillBlock(CFrame.new(center.X, floor + height / 2, center.Z), Vector3.new(radius * 2 + 40, height + 40, radius * 2 + 40), rock)
+		terrain:FillBlock(
+			CFrame.new(center.X, floor + height / 2, center.Z),
+			Vector3.new(radius * 2 + 40, height + 40, radius * 2 + 40),
+			rock
+		)
 		terrain:FillCylinder(CFrame.new(center.X, floor + height / 2, center.Z), height, radius, Enum.Material.Air)
 		terrain:FillCylinder(CFrame.new(center.X, floor - 2, center.Z), 4, radius, ground)
 		local rng = Random.new(seed)
@@ -119,13 +148,27 @@ function TerrainKit.Cave(center: Vector3, radius: number, floor: number, height:
 		for _ = 1, 10 do
 			local a = rng:NextNumber(0, math.pi * 2)
 			local d = rng:NextNumber(radius * 0.7, radius * 1.05)
-			terrain:FillBall(Vector3.new(center.X + math.cos(a) * d, floor + height * 0.45, center.Z + math.sin(a) * d), rng:NextNumber(20, 34), Enum.Material.Air)
-			terrain:FillCylinder(CFrame.new(center.X + math.cos(a) * d, floor - 2, center.Z + math.sin(a) * d), 4, 24, ground)
+			terrain:FillBall(
+				Vector3.new(center.X + math.cos(a) * d, floor + height * 0.45, center.Z + math.sin(a) * d),
+				rng:NextNumber(20, 34),
+				Enum.Material.Air
+			)
+			terrain:FillCylinder(
+				CFrame.new(center.X + math.cos(a) * d, floor - 2, center.Z + math.sin(a) * d),
+				4,
+				24,
+				ground
+			)
 		end
 		for _ = 1, 7 do
 			local a = rng:NextNumber(0, math.pi * 2)
 			local d = rng:NextNumber(radius * 0.25, radius * 0.8)
-			terrain:FillCylinder(CFrame.new(center.X + math.cos(a) * d, floor + height / 2, center.Z + math.sin(a) * d), height, rng:NextNumber(5, 10), rock)
+			terrain:FillCylinder(
+				CFrame.new(center.X + math.cos(a) * d, floor + height / 2, center.Z + math.sin(a) * d),
+				height,
+				rng:NextNumber(5, 10),
+				rock
+			)
 		end
 	end)
 end

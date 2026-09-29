@@ -69,11 +69,7 @@ function WeatherMath.At(slot: number): string
 	local night = WeatherMath.SlotIsNight(slot)
 	local previous = basePick(slot - 1)
 	-- Rainbows like to follow rain during the day.
-	if
-		not night
-		and (previous == "Rain" or previous == "Thunderstorm")
-		and RNG.Hash(SEED, "rainbow", slot) < 0.12
-	then
+	if not night and (previous == "Rain" or previous == "Thunderstorm") and RNG.Hash(SEED, "rainbow", slot) < 0.12 then
 		return "RainbowMist"
 	end
 	if RNG.Hash(SEED, "persist", slot) < TimeConfig.WeatherPersistence and allowed(previous, night) then

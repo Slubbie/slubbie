@@ -263,9 +263,22 @@ local MODES = {
 }
 
 local MOOD_BY_BIOME = {
-	Farmland = "Farm", Village = "Village", Forest = "Forest", Wetlands = "River", Mountain = "Mountain",
-	Cave = "Cave", Crystal = "Crystal", Beach = "Beach", Desert = "Desert", Snow = "Snow", Ruins = "Ruins",
-	Hollow = "Hollow", Sky = "Sky", Valley = "Valley", Grove = "Grove", Glade = "Glade",
+	Farmland = "Farm",
+	Village = "Village",
+	Forest = "Forest",
+	Wetlands = "River",
+	Mountain = "Mountain",
+	Cave = "Cave",
+	Crystal = "Crystal",
+	Beach = "Beach",
+	Desert = "Desert",
+	Snow = "Snow",
+	Ruins = "Ruins",
+	Hollow = "Hollow",
+	Sky = "Sky",
+	Valley = "Valley",
+	Grove = "Grove",
+	Glade = "Glade",
 }
 
 local tonePool: { Sound } = {}
@@ -384,7 +397,14 @@ function Audio.Init()
 	end
 	applyVolumes()
 	C.Settings.Changed:Connect(function(key)
-		if key == "Master" or GROUP_SETTING.SFX == key or key == "Music" or key == "Ambient" or key == "WeatherVolume" or key == "UIVolume" then
+		if
+			key == "Master"
+			or GROUP_SETTING.SFX == key
+			or key == "Music"
+			or key == "Ambient"
+			or key == "WeatherVolume"
+			or key == "UIVolume"
+		then
 			applyVolumes()
 		end
 	end)

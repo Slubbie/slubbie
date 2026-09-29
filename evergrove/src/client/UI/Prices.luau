@@ -21,13 +21,21 @@ Prices.Snapshot = { Pressure = {} :: { [string]: number }, Event = 1, Weather = 
 
 function Prices.SetSnapshot(data: any)
 	if type(data) == "table" then
-		Prices.Snapshot = { Pressure = data.Pressure or {}, Event = data.Event or 1, Weather = data.Weather or "Sunny", At = os.clock() }
+		Prices.Snapshot = {
+			Pressure = data.Pressure or {},
+			Event = data.Event or 1,
+			Weather = data.Weather or "Sunny",
+			At = os.clock(),
+		}
 	end
 end
 
 function Prices.Factor(itemId: string): number
 	local snap = Prices.Snapshot
-	return MarketMath.Factor(itemId, { Time = GameTime.Now(), Weather = snap.Weather, Pressure = snap.Pressure[itemId] or 0, Event = snap.Event })
+	return MarketMath.Factor(
+		itemId,
+		{ Time = GameTime.Now(), Weather = snap.Weather, Pressure = snap.Pressure[itemId] or 0, Event = snap.Event }
+	)
 end
 
 local function sellerBonus(profile: any, def: any): number
@@ -79,7 +87,10 @@ function Prices.Unit(profile: any, stack: any, venue: string?, count: number?): 
 		return 0
 	end
 	local venueMult = if venue then Prices.VenueMultiplier(profile, venue, def, count or stack.N) else 1
-	return math.max(1, math.floor(ItemUtil.UnitValue(stack) * Prices.Factor(stack.Id) * sellerBonus(profile, def) * venueMult))
+	return math.max(
+		1,
+		math.floor(ItemUtil.UnitValue(stack) * Prices.Factor(stack.Id) * sellerBonus(profile, def) * venueMult)
+	)
 end
 
 -- "▲ 18%" style trend text vs. base value.

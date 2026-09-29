@@ -67,7 +67,9 @@ local function recordOf(player: Player, uid: string): (any?, any?, any?)
 end
 
 function MachineService.QueueSize(profile: any, state: any, machine: any): number
-	return machine.Queue + (state.Lv - 1) * MachinesConfig.LevelQueue + math.floor(Stats.Effect(profile, "MachineQueue"))
+	return machine.Queue
+		+ (state.Lv - 1) * MachinesConfig.LevelQueue
+		+ math.floor(Stats.Effect(profile, "MachineQueue"))
 end
 
 function MachineService.OutputSize(state: any, machine: any): number
@@ -139,7 +141,8 @@ end
 local function produce(player: Player, machine: any, state: any, job: any): any
 	local profile = S.Data.Get(player)
 	local quality = job.Q or 1
-	local upChance = MachinesConfig.QualityUpChance * (state.Lv - 1) + (if profile then Stats.Effect(profile, "QualityUp") else 0)
+	local upChance = MachinesConfig.QualityUpChance * (state.Lv - 1)
+		+ (if profile then Stats.Effect(profile, "QualityUp") else 0)
 	if random:NextNumber() < upChance then
 		quality = math.min(quality + 1, 6)
 	end
@@ -299,7 +302,18 @@ local function snapshot(owner: Player, uid: string, record: any, machine: any, v
 			local key = ItemUtil.Key(stack)
 			if recipe and not seen[key] and (recipe.Level or 1) <= state.Lv then
 				seen[key] = true
-				table.insert(options, { Ref = "inv:" .. ref, Id = stack.Id, Q = stack.Q, M = stack.M, Have = stack.N, Need = recipe.In.N, Out = outId, N = recipe.N or 1, Time = recipe.Time / speed, Extra = recipe.Extra })
+				table.insert(options, {
+					Ref = "inv:" .. ref,
+					Id = stack.Id,
+					Q = stack.Q,
+					M = stack.M,
+					Have = stack.N,
+					Need = recipe.In.N,
+					Out = outId,
+					N = recipe.N or 1,
+					Time = recipe.Time / speed,
+					Extra = recipe.Extra,
+				})
 			end
 		end
 	end
@@ -345,7 +359,16 @@ end
 
 -- Put `times` jobs into a machine using `source` stacks. `take(count)` removes
 -- input items and returns the stack taken; `takeExtra(id, n)` removes extras.
-local function enqueue(owner: Player, record: any, machine: any, sample: any, times: number, take: (number) -> any?, takeExtra: (string, number) -> boolean, haveExtra: (string, number) -> boolean): (number, string?)
+local function enqueue(
+	owner: Player,
+	record: any,
+	machine: any,
+	sample: any,
+	times: number,
+	take: (number) -> any?,
+	takeExtra: (string, number) -> boolean,
+	haveExtra: (string, number) -> boolean
+): (number, string?)
 	local profile = S.Data.Get(owner)
 	local state = record.M
 	local recipe, outId = Registry.MachineRecipe(machine.Id, sample.Id)
@@ -482,9 +505,17 @@ local function collect(actor: Player, uid: string)
 	advance(owner, record, machine, now())
 	S.Data.Changed(owner, "Farm", "Placed")
 	publish(owner, uid, record, machine)
-	S.Notify.Toast(actor, string.format("Collected %d item%s from the %s", collected, if collected == 1 then "" else "s", machine.Name), "Success")
+	S.Notify.Toast(
+		actor,
+		string.format("Collected %d item%s from the %s", collected, if collected == 1 then "" else "s", machine.Name),
+		"Success"
+	)
 	if actor ~= owner then
-		S.Notify.Toast(owner, actor.DisplayName .. " collected " .. collected .. " goods from your " .. machine.Name .. " for you.", "Info")
+		S.Notify.Toast(
+			owner,
+			actor.DisplayName .. " collected " .. collected .. " goods from your " .. machine.Name .. " for you.",
+			"Info"
+		)
 	end
 	S.Tutorial.Event(actor, "Collect")
 	if #remaining > 0 then
@@ -495,7 +526,11 @@ end
 
 -- Refund one job's inputs.
 local function refund(player: Player, job: any, source: string)
-	S.Inventory.Add(player, { Id = job.I, N = job.In or 1, Q = job.Q, M = job.M, G = job.G }, { Source = source, Silent = true })
+	S.Inventory.Add(
+		player,
+		{ Id = job.I, N = job.In or 1, Q = job.Q, M = job.M, G = job.G },
+		{ Source = source, Silent = true }
+	)
 	for _, extra in job.X or {} do
 		S.Inventory.Give(player, extra.Id, extra.N, nil, nil, { Source = source, Silent = true })
 	end

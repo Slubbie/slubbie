@@ -115,7 +115,17 @@ local function breedAnimals(player: Player, aidA: string, aidB: string)
 	S.Animal.Render(player, aidA)
 	S.Notify.FX(position, "Animal", { Aid = aidA, Kind = "Hearts" }, 120)
 	local species = S.Animal.Species(a.Sp)
-	S.Notify.Toast(player, string.format("💞 %s and %s are expecting! The baby %s arrives in about %s.", a.Nm, b.Nm, species.Name, Format.Duration(Animals.GestationHours * HOUR)), "Success")
+	S.Notify.Toast(
+		player,
+		string.format(
+			"💞 %s and %s are expecting! The baby %s arrives in about %s.",
+			a.Nm,
+			b.Nm,
+			species.Name,
+			Format.Duration(Animals.GestationHours * HOUR)
+		),
+		"Success"
+	)
 	return true, { Due = a.Preg.Due }
 end
 
@@ -134,7 +144,13 @@ local function hybridChance(hybrid: any, profile: any): number
 	local t = GameTime.Now()
 	local weather = WeatherMath.Current(t)
 	local info = GameTime.Info(t)
-	if hybrid.Weather and (hybrid.Weather == weather or (hybrid.Weather == "Windy" and (WeatherMath.Def(weather).Visual.Wind or 0) >= 0.5)) then
+	if
+		hybrid.Weather
+		and (
+			hybrid.Weather == weather
+			or (hybrid.Weather == "Windy" and (WeatherMath.Def(weather).Visual.Wind or 0) >= 0.5)
+		)
+	then
 		chance *= HYBRID_WEATHER_MULT
 	end
 	if hybrid.Season and hybrid.Season == info.SeasonId then
@@ -218,7 +234,13 @@ local function seedBreed(player: Player, refA: string, refB: string)
 		local crop = Registry.Crops[string.sub(result.Id, 6)]
 		S.Data.AddStat(player, "HybridsMade")
 		S.Collection.Discover(player, "Crops", crop.Id, { Hybrid = true })
-		S.Notify.Banner(player, "Hybrid breakthrough!", "You created " .. crop.Name .. " seeds!", "Discovery", crop.Icon)
+		S.Notify.Banner(
+			player,
+			"Hybrid breakthrough!",
+			"You created " .. crop.Name .. " seeds!",
+			"Discovery",
+			crop.Icon
+		)
 	end
 	return true, { Seed = result, Hybrid = hybridMade, Score = Genetics.GeneScore(result.G) }
 end

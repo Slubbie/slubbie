@@ -29,60 +29,116 @@ local REACTION = {
 
 -- Service → { label, handler(npcId) }.
 local SERVICES: { [string]: { Label: string, Icon: string, Open: (string) -> () } } = {
-	ToolUpgrade = { Label = "Upgrade tools", Icon = "⚒️", Open = function()
-		C.Windows.Open("Tools")
-	end },
-	CrackGeode = { Label = "Crack geodes", Icon = "🪨", Open = function()
-		Picker.Open({
-			Title = "Crack a geode",
-			Filter = function(_, def)
-				return def.Use == "Open" and (def.Tags.Geode == true or string.find(def.Id, "geode") ~= nil)
-			end,
-			Empty = "You have no geodes. Find them while mining.",
-			OnPick = function(ref)
-				local ok, err = Net.Request("InvUse", ref)
-				if not ok then
-					C.Notify.Toast(tostring(err), "Warning")
-				end
-			end,
-		})
-	end },
-	Land = { Label = "Buy land", Icon = "🗺️", Open = function()
-		C.Windows.Open("Land")
-	end },
-	House = { Label = "House upgrades", Icon = "🏠", Open = function()
-		C.Windows.Open("House")
-	end },
-	Animals = { Label = "Adopt animals", Icon = "🐄", Open = function()
-		C.Windows.Open("AnimalShop")
-	end },
-	SeedBreeding = { Label = "Cross-breed seeds", Icon = "🧬", Open = function()
-		C.Windows.Open("SeedBreed")
-	end },
-	GeneScan = { Label = "Read seed genes", Icon = "🔬", Open = function()
-		C.Windows.Open("SeedBreed", { Tab = "Scan" })
-	end },
-	Orders = { Label = "Special orders", Icon = "📋", Open = function()
-		C.Windows.Open("Market", { Tab = "Contracts" })
-	end },
-	Donate = { Label = "Museum", Icon = "🏛️", Open = function()
-		C.Windows.Open("Collection", { Tab = "Museum" })
-	end },
-	CollectorContracts = { Label = "Collector requests", Icon = "🧾", Open = function()
-		C.Windows.Open("Market", { Tab = "Contracts" })
-	end },
-	Maps = { Label = "Maps & travel", Icon = "🧭", Open = function()
-		C.Windows.Open("Map")
-	end },
-	TownProjects = { Label = "Town projects", Icon = "🏗️", Open = function()
-		C.Windows.Open("Projects")
-	end },
-	Festivals = { Label = "Festivals", Icon = "🎪", Open = function()
-		C.Windows.Open("Calendar", { Tab = "Festivals" })
-	end },
-	Export = { Label = "Export crates", Icon = "🚢", Open = function()
-		C.Windows.Open("Market", { Tab = "Export" })
-	end },
+	ToolUpgrade = {
+		Label = "Upgrade tools",
+		Icon = "⚒️",
+		Open = function()
+			C.Windows.Open("Tools")
+		end,
+	},
+	CrackGeode = {
+		Label = "Crack geodes",
+		Icon = "🪨",
+		Open = function()
+			Picker.Open({
+				Title = "Crack a geode",
+				Filter = function(_, def)
+					return def.Use == "Open" and (def.Tags.Geode == true or string.find(def.Id, "geode") ~= nil)
+				end,
+				Empty = "You have no geodes. Find them while mining.",
+				OnPick = function(ref)
+					local ok, err = Net.Request("InvUse", ref)
+					if not ok then
+						C.Notify.Toast(tostring(err), "Warning")
+					end
+				end,
+			})
+		end,
+	},
+	Land = {
+		Label = "Buy land",
+		Icon = "🗺️",
+		Open = function()
+			C.Windows.Open("Land")
+		end,
+	},
+	House = {
+		Label = "House upgrades",
+		Icon = "🏠",
+		Open = function()
+			C.Windows.Open("House")
+		end,
+	},
+	Animals = {
+		Label = "Adopt animals",
+		Icon = "🐄",
+		Open = function()
+			C.Windows.Open("AnimalShop")
+		end,
+	},
+	SeedBreeding = {
+		Label = "Cross-breed seeds",
+		Icon = "🧬",
+		Open = function()
+			C.Windows.Open("SeedBreed")
+		end,
+	},
+	GeneScan = {
+		Label = "Read seed genes",
+		Icon = "🔬",
+		Open = function()
+			C.Windows.Open("SeedBreed", { Tab = "Scan" })
+		end,
+	},
+	Orders = {
+		Label = "Special orders",
+		Icon = "📋",
+		Open = function()
+			C.Windows.Open("Market", { Tab = "Contracts" })
+		end,
+	},
+	Donate = {
+		Label = "Museum",
+		Icon = "🏛️",
+		Open = function()
+			C.Windows.Open("Collection", { Tab = "Museum" })
+		end,
+	},
+	CollectorContracts = {
+		Label = "Collector requests",
+		Icon = "🧾",
+		Open = function()
+			C.Windows.Open("Market", { Tab = "Contracts" })
+		end,
+	},
+	Maps = {
+		Label = "Maps & travel",
+		Icon = "🧭",
+		Open = function()
+			C.Windows.Open("Map")
+		end,
+	},
+	TownProjects = {
+		Label = "Town projects",
+		Icon = "🏗️",
+		Open = function()
+			C.Windows.Open("Projects")
+		end,
+	},
+	Festivals = {
+		Label = "Festivals",
+		Icon = "🎪",
+		Open = function()
+			C.Windows.Open("Calendar", { Tab = "Festivals" })
+		end,
+	},
+	Export = {
+		Label = "Export crates",
+		Icon = "🚢",
+		Open = function()
+			C.Windows.Open("Market", { Tab = "Export" })
+		end,
+	},
 }
 
 local active: { Push: (string, any) -> () }? = nil
@@ -117,7 +173,14 @@ function Screen.Build(win, ctx)
 	portrait.Parent = content
 	Kit.Padding(portrait, 10, 10)
 	Kit.List(portrait, "Y", 6, "Center")
-	local face = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(110, 110), Text = npc.Icon, TextScaled = true, Font = Theme.Fonts.Body, Parent = portrait })
+	local face = Kit.new("TextLabel", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(110, 110),
+		Text = npc.Icon,
+		TextScaled = true,
+		Font = Theme.Fonts.Body,
+		Parent = portrait,
+	})
 	face.LayoutOrder = 1
 	local role = Kit.Label(npc.Role, { Size = Theme.Sizes.Small, Color = "SubText", Align = "Center", Wrap = true })
 	role.LayoutOrder = 2
@@ -134,21 +197,38 @@ function Screen.Build(win, ctx)
 
 	local function renderHearts(h: number)
 		local full = math.floor(h)
-		heartLabel.Text = string.rep("❤", math.min(full, NPCs.MaxHearts)) .. string.rep("♡", math.max(0, NPCs.MaxHearts - full))
+		heartLabel.Text = string.rep("❤", math.min(full, NPCs.MaxHearts))
+			.. string.rep("♡", math.max(0, NPCs.MaxHearts - full))
 		heartLabel.TextScaled = true
 		heartLabel.Size = UDim2.new(1, 0, 0, 20)
-		heartBar.Set(h - full, if full >= NPCs.MaxHearts then "Best friends" else string.format("%d%% to ❤ %d", (h - full) * 100, full + 1))
+		heartBar.Set(
+			h - full,
+			if full >= NPCs.MaxHearts
+				then "Best friends"
+				else string.format("%d%% to ❤ %d", (h - full) * 100, full + 1)
+		)
 		local profile = C.State.Data()
 		local entry = profile and profile.Friendship and profile.Friendship[npcId]
 		local week = math.floor(GameTime.Info().Day / 7)
 		local gifts = if entry and entry.GW == week then entry.GC or 0 else 0
 		local birthday = payload.Birthday
-		meta.Text = (if birthday then "🎂 Birthday today! Gifts count ×" .. NPCs.BirthdayMultiplier .. "\n" else "") .. "🎁 Gifts this week: " .. gifts .. " / " .. NPCs.GiftsPerWeek .. "\n🎂 Birthday: " .. Describe.SeasonDay(npc.Birthday[1], npc.Birthday[2])
+		meta.Text = (if birthday then "🎂 Birthday today! Gifts count ×" .. NPCs.BirthdayMultiplier .. "\n" else "")
+			.. "🎁 Gifts this week: "
+			.. gifts
+			.. " / "
+			.. NPCs.GiftsPerWeek
+			.. "\n🎂 Birthday: "
+			.. Describe.SeasonDay(npc.Birthday[1], npc.Birthday[2])
 	end
 	renderHearts(hearts)
 
 	-- Speech column
-	local right = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, -202, 1, 0), Position = UDim2.fromOffset(202, 0), Parent = content })
+	local right = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -202, 1, 0),
+		Position = UDim2.fromOffset(202, 0),
+		Parent = content,
+	})
 	local bubble = Kit.Panel({ Size = UDim2.new(1, 0, 0, 150), Color = "Inset" })
 	bubble.Parent = right
 	Kit.Padding(bubble, 12, 14)
@@ -167,11 +247,19 @@ function Screen.Build(win, ctx)
 	more.Position = UDim2.new(0, 0, 1, -12)
 	more.Visible = false
 	more.Parent = bubble
-	local advanceButton = Kit.new("TextButton", { BackgroundTransparency = 1, Text = "", Size = UDim2.fromScale(1, 1), ZIndex = 5, Parent = bubble })
+	local advanceButton = Kit.new(
+		"TextButton",
+		{ BackgroundTransparency = 1, Text = "", Size = UDim2.fromScale(1, 1), ZIndex = 5, Parent = bubble }
+	)
 
 	local options = Kit.Scroll({ Size = UDim2.new(1, 0, 1, -162), Position = UDim2.fromOffset(0, 162) })
 	options.Parent = right
-	local grid = Kit.new("UIGridLayout", { CellSize = UDim2.new(0.5, -5, 0, 42), CellPadding = UDim2.fromOffset(8, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = options })
+	local grid = Kit.new("UIGridLayout", {
+		CellSize = UDim2.new(0.5, -5, 0, 42),
+		CellPadding = UDim2.fromOffset(8, 8),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = options,
+	})
 	grid.FillDirectionMaxCells = 2
 
 	-- Typewriter queue
@@ -282,17 +370,25 @@ function Screen.Build(win, ctx)
 					for _, o in (quest and quest.Objectives) or {} do
 						table.insert(objectives, "• " .. Describe.Objective(o))
 					end
-					Kit.Confirm(offer.Name, offer.Description .. "\n\n" .. table.concat(objectives, "\n") .. (if #rewards > 0 then "\n\nRewards: " .. table.concat(rewards, ", ") else ""), function(yes)
-						if yes then
-							local ok, err = Net.Request("QuestAccept", offer.Id)
-							if ok then
-								say(quest and quest.Start or { "Wonderful, thank you!" })
-							else
-								C.Notify.Toast(tostring(err), "Warning")
+					Kit.Confirm(
+						offer.Name,
+						offer.Description
+							.. "\n\n"
+							.. table.concat(objectives, "\n")
+							.. (if #rewards > 0 then "\n\nRewards: " .. table.concat(rewards, ", ") else ""),
+						function(yes)
+							if yes then
+								local ok, err = Net.Request("QuestAccept", offer.Id)
+								if ok then
+									say(quest and quest.Start or { "Wonderful, thank you!" })
+								else
+									C.Notify.Toast(tostring(err), "Warning")
+								end
+								renderOptions()
 							end
-							renderOptions()
-						end
-					end, "Accept")
+						end,
+						"Accept"
+					)
 				end)
 			end
 		end
@@ -311,9 +407,14 @@ function Screen.Build(win, ctx)
 				Note = function(stack, def)
 					-- Only show preferences the player has discovered through gifting.
 					local profile2 = C.State.Data()
-					local known = profile2 and profile2.Friendship and profile2.Friendship[npcId] and profile2.Friendship[npcId].Known
+					local known = profile2
+						and profile2.Friendship
+						and profile2.Friendship[npcId]
+						and profile2.Friendship[npcId].Known
 					local pref = known and known[stack.Id]
-					return if pref then (REACTION[pref] and REACTION[pref].Icon .. " " .. pref or pref) else def.Category
+					return if pref
+						then (REACTION[pref] and REACTION[pref].Icon .. " " .. pref or pref)
+						else def.Category
 				end,
 				OnPick = function(ref)
 					local ok, result = Net.Request("NpcGift", npcId, ref)
@@ -322,7 +423,15 @@ function Screen.Build(win, ctx)
 						return
 					end
 					local reaction = REACTION[result.Reaction] or REACTION.Neutral
-					C.Notify.Toast(reaction.Icon .. " " .. npc.Name .. ": " .. reaction.Text .. (if result.Points > 0 then " (+" .. result.Points .. ")" else ""), if result.Points > 0 then "Success" else "Info")
+					C.Notify.Toast(
+						reaction.Icon
+							.. " "
+							.. npc.Name
+							.. ": "
+							.. reaction.Text
+							.. (if result.Points > 0 then " (+" .. result.Points .. ")" else ""),
+						if result.Points > 0 then "Success" else "Info"
+					)
 					if result.Reaction == "Love" then
 						C.Audio.PlayUI("Discovery")
 					end
@@ -337,14 +446,25 @@ function Screen.Build(win, ctx)
 		end)
 		if payload.Shop then
 			local shop = Registry.Shops[payload.Shop]
-			option(nextOrder(), (if shop then shop.Icon else "🛒") .. " " .. (if payload.Open == false then "Shop (closed)" else "Shop"), "Primary", function()
-				if payload.Open == false then
-					local hours = shop and shop.Hours
-					C.Notify.Toast("The shop is closed" .. (if hours then " — open " .. hours[1] .. ":00 to " .. hours[2] .. ":00" else ""), "Info")
-					return
+			option(
+				nextOrder(),
+				(if shop then shop.Icon else "🛒")
+					.. " "
+					.. (if payload.Open == false then "Shop (closed)" else "Shop"),
+				"Primary",
+				function()
+					if payload.Open == false then
+						local hours = shop and shop.Hours
+						C.Notify.Toast(
+							"The shop is closed"
+								.. (if hours then " — open " .. hours[1] .. ":00 to " .. hours[2] .. ":00" else ""),
+							"Info"
+						)
+						return
+					end
+					C.Windows.Open("Shop", { Shop = payload.Shop, Npc = npcId })
 				end
-				C.Windows.Open("Shop", { Shop = payload.Shop, Npc = npcId })
-			end)
+			)
 		end
 		for _, service in payload.Services or {} do
 			local def = SERVICES[service]

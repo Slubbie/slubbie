@@ -92,7 +92,13 @@ local Types: { [string]: WeatherType } = {
 		Icon = "⛅",
 		Description = "Soft grey skies. Soil dries a little slower.",
 		Drain = 0.8,
-		Visual = { Cover = 0.72, Density = 0.55, Wind = 0.35, Brightness = 0.85, CloudColor = Color3.fromRGB(220, 224, 230) },
+		Visual = {
+			Cover = 0.72,
+			Density = 0.55,
+			Wind = 0.35,
+			Brightness = 0.85,
+			CloudColor = Color3.fromRGB(220, 224, 230),
+		},
 		Audio = { Loop = "Breeze", Volume = 0.4 },
 	}),
 	Rain = weather({

@@ -65,7 +65,13 @@ function SkillService.AddXP(player: Player, skillId: string, amount: number)
 		S.Quest.Progress(player, "Reach", skillId, 0)
 		local estateAfter = Stats.EstateLevel(profile)
 		if estateAfter > estateBefore then
-			S.Notify.Banner(player, "Estate level " .. estateAfter, "New buildings and land are available.", "Estate", "🏡")
+			S.Notify.Banner(
+				player,
+				"Estate level " .. estateAfter,
+				"New buildings and land are available.",
+				"Estate",
+				"🏡"
+			)
 			S.Player.UpdateNametag(player)
 			S.Quest.Refresh(player)
 		end
@@ -91,7 +97,12 @@ local function unlock(player: Player, skillId: string, nodeId: string)
 	-- One branch per tier.
 	if node.Branch then
 		for _, other in skill.Tree do
-			if other.Tier == node.Tier and other.Branch and other.Branch ~= node.Branch and (entry.Nodes[other.Id] or 0) > 0 then
+			if
+				other.Tier == node.Tier
+				and other.Branch
+				and other.Branch ~= node.Branch
+				and (entry.Nodes[other.Id] or 0) > 0
+			then
 				return false, "You chose the other path for this tier (respec to change)"
 			end
 		end

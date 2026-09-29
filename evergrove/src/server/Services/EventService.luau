@@ -54,7 +54,12 @@ local races: { [Player]: { Activity: string, Start: number, Next: number, Last: 
 local function festivalAt(t: number): (any?, string?)
 	local info = GameTime.Info(t)
 	for _, def in Festivals.List do
-		if info.Season == def.Season and info.DayOfSeason == def.Day and info.Hour >= def.Hours[1] and info.Hour < def.Hours[2] then
+		if
+			info.Season == def.Season
+			and info.DayOfSeason == def.Day
+			and info.Hour >= def.Hours[1]
+			and info.Hour < def.Hours[2]
+		then
 			return def, def.Id .. "_" .. info.Day
 		end
 	end
@@ -104,7 +109,8 @@ local function stateFor(profile: any): any?
 	end
 	local st = profile.Festival
 	if type(st) ~= "table" or st.Key ~= active.Key then
-		st = { Key = active.Key, Entries = {}, Found = {}, Ch = {}, Done = {}, Bought = {}, Best = {}, Attended = false }
+		st =
+			{ Key = active.Key, Entries = {}, Found = {}, Ch = {}, Done = {}, Bought = {}, Best = {}, Attended = false }
 		profile.Festival = st
 	end
 	return st
@@ -137,11 +143,17 @@ local function top(boardKey: string, n: number, ascending: boolean): { { UserId:
 	local map = sortedMap("Festival_" .. boardKey)
 	if map then
 		local ok, range = pcall(function()
-			return (map :: MemoryStoreSortedMap):GetRangeAsync(if ascending then Enum.SortDirection.Ascending else Enum.SortDirection.Descending, n)
+			return (map :: MemoryStoreSortedMap):GetRangeAsync(
+				if ascending then Enum.SortDirection.Ascending else Enum.SortDirection.Descending,
+				n
+			)
 		end)
 		if ok and type(range) == "table" and #range > 0 then
 			for _, entry in range do
-				table.insert(out, { UserId = tonumber(entry.key) or 0, Value = tonumber(entry.sortKey) or 0, Meta = entry.value })
+				table.insert(
+					out,
+					{ UserId = tonumber(entry.key) or 0, Value = tonumber(entry.sortKey) or 0, Meta = entry.value }
+				)
 			end
 			return out
 		end
@@ -210,7 +222,11 @@ function EventService.Progress(player: Player, kind: string, target: string?, co
 				if st.Ch[ch.Id] >= ch.Count then
 					st.Done[ch.Id] = true
 					S.Economy.AddTokens(player, ch.Tokens)
-					S.Notify.Toast(player, string.format("🎟️ Challenge complete: %s (+%d tokens)", ch.Text, ch.Tokens), "Success")
+					S.Notify.Toast(
+						player,
+						string.format("🎟️ Challenge complete: %s (+%d tokens)", ch.Text, ch.Tokens),
+						"Success"
+					)
 				end
 			end
 		end
@@ -241,8 +257,17 @@ function EventService.OnCatch(player: Player, fishId: string, size: number, qual
 			if st and size > (st.Best[a.Id] or 0) then
 				st.Best[a.Id] = math.floor(size * 10) / 10
 				S.Data.Changed(player, "Festival")
-				submit(active.Key .. "_" .. a.Id, player.UserId, st.Best[a.Id], { Name = player.DisplayName, Item = fishId, Q = quality })
-				S.Notify.Toast(player, string.format("🐟 New derby best: %s (%.1f cm)!", Registry.Items[fishId].Name, size), "Success")
+				submit(
+					active.Key .. "_" .. a.Id,
+					player.UserId,
+					st.Best[a.Id],
+					{ Name = player.DisplayName, Item = fishId, Q = quality }
+				)
+				S.Notify.Toast(
+					player,
+					string.format("🐟 New derby best: %s (%.1f cm)!", Registry.Items[fishId].Name, size),
+					"Success"
+				)
 			end
 		end
 	end
@@ -322,7 +347,13 @@ local function enter(player: Player, st: any, a: any, payload: any, previewOnly:
 	if entry.Kind == "Animal" then
 		label = { Name = player.DisplayName, Animal = entry.Animal.Nm, Sp = entry.Animal.Sp }
 	else
-		label = { Name = player.DisplayName, Item = entry.Stack.Id, Q = entry.Stack.Q, M = entry.Stack.M, S = entry.Stack.S }
+		label = {
+			Name = player.DisplayName,
+			Item = entry.Stack.Id,
+			Q = entry.Stack.Q,
+			M = entry.Stack.M,
+			S = entry.Stack.S,
+		}
 	end
 	local current = active :: Active
 	st.Entries[a.Id] = { Score = score, Points = points, Label = label }
@@ -333,7 +364,11 @@ local function enter(player: Player, st: any, a: any, payload: any, previewOnly:
 		S.Economy.AddTokens(player, entryPrize.Tokens)
 	end
 	S.Data.AddStat(player, "ContestEntries")
-	S.Notify.Toast(player, string.format("Entered %s with a score of %.1f / 100. Results when the festival ends!", a.Name, score), "Success")
+	S.Notify.Toast(
+		player,
+		string.format("Entered %s with a score of %.1f / 100. Results when the festival ends!", a.Name, score),
+		"Success"
+	)
 	return true, { Score = score, Points = points }
 end
 
@@ -535,7 +570,11 @@ local function finalize(def: any, key: string)
 					S.Mail.SendTo(winner.UserId, {
 						From = "Festival Committee",
 						Subject = string.format("%s — %s place in %s!", def.Name, PLACES[rank], a.Name),
-						Body = string.format("Congratulations! Your entry placed %s in the %s. Here are your prizes.", string.lower(PLACES[rank]), a.Name),
+						Body = string.format(
+							"Congratulations! Your entry placed %s in the %s. Here are your prizes.",
+							string.lower(PLACES[rank]),
+							a.Name
+						),
 						Coins = prize.Coins,
 						Tokens = prize.Tokens,
 						Items = if #items > 0 then items else nil,
@@ -556,7 +595,10 @@ local function finalize(def: any, key: string)
 				local names = {}
 				for rank, winner in winners do
 					local name = (type(winner.Meta) == "table" and winner.Meta.Name) or ("#" .. winner.UserId)
-					local value = if a.Kind == "Race" then Format.Duration(winner.Value) elseif a.Kind == "Derby" then string.format("%.1f cm", winner.Value) else string.format("%.1f pts", winner.Value)
+					local value = if a.Kind == "Race"
+						then Format.Duration(winner.Value)
+						elseif a.Kind == "Derby" then string.format("%.1f cm", winner.Value)
+						else string.format("%.1f pts", winner.Value)
 					table.insert(names, string.format("%s %s (%s)", ({ "🥇", "🥈", "🥉" })[rank], name, value))
 				end
 				S.Notify.BannerAll(a.Icon .. " " .. a.Name .. " results", table.concat(names, "   "), "Festival")
@@ -619,7 +661,11 @@ local function tick()
 				S.Data.Changed(player, "Festival")
 				S.Data.AddStat(player, "FestivalsAttended")
 				S.Economy.AddTokens(player, ATTEND_TOKENS)
-				S.Notify.Toast(player, "🎟️ Welcome to the " .. active.Def.Name .. "! Here are " .. ATTEND_TOKENS .. " tokens.", "Success")
+				S.Notify.Toast(
+					player,
+					"🎟️ Welcome to the " .. active.Def.Name .. "! Here are " .. ATTEND_TOKENS .. " tokens.",
+					"Success"
+				)
 			end
 		end
 	end

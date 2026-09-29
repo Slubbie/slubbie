@@ -51,7 +51,13 @@ local function finish(player: Player, profile: any, skipped: boolean)
 	S.Economy.GrantReward(player, { Coins = Tutorial.RewardCoins, Items = items }, "Tutorial")
 	S.Quest.Refresh(player)
 	if not skipped then
-		S.Notify.Banner(player, "Tutorial complete!", "The valley is yours to explore. Mabel left you a little gift.", "Tutorial", "🌱")
+		S.Notify.Banner(
+			player,
+			"Tutorial complete!",
+			"The valley is yours to explore. Mabel left you a little gift.",
+			"Tutorial",
+			"🌱"
+		)
 	end
 end
 

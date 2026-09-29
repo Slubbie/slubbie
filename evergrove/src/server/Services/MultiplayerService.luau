@@ -106,7 +106,16 @@ end
 
 -- Public profiles ---------------------------------------------------------------------------------------------------
 
-local PUBLIC_STATS = { "CropsHarvested", "FishCaught", "AnimalProducts", "ArtisanMade", "ContestWins", "SecretsFound", "CoinsEarned", "QuestsCompleted" }
+local PUBLIC_STATS = {
+	"CropsHarvested",
+	"FishCaught",
+	"AnimalProducts",
+	"ArtisanMade",
+	"ContestWins",
+	"SecretsFound",
+	"CoinsEarned",
+	"QuestsCompleted",
+}
 
 local function profileCard(viewer: Player, userId: number)
 	local target = Players:GetPlayerByUserId(userId)
@@ -129,24 +138,25 @@ local function profileCard(viewer: Player, userId: number)
 	for _ in profile.Achievements do
 		achievements += 1
 	end
-	return true, {
-		UserId = target.UserId,
-		Name = target.DisplayName,
-		Estate = Stats.EstateLevel(profile),
-		Title = profile.Cosmetics.Equipped.Title,
-		Frame = profile.Cosmetics.Equipped.Frame,
-		Banner = profile.Cosmetics.Equipped.Banner,
-		FarmName = profile.Farm.Name,
-		Bio = profile.Public.Bio,
-		Skills = skills,
-		Stats = stats,
-		Showcase = profile.Showcase,
-		Collection = Collections.TotalPercent(profile.Collection),
-		Achievements = achievements,
-		Guild = profile.Guild.Name,
-		PlayDays = math.floor((os.time() - (profile.Created or os.time())) / 86400),
-		Permission = if viewer ~= target then S.Permission.LevelFor(target, viewer) else "Trusted",
-	}
+	return true,
+		{
+			UserId = target.UserId,
+			Name = target.DisplayName,
+			Estate = Stats.EstateLevel(profile),
+			Title = profile.Cosmetics.Equipped.Title,
+			Frame = profile.Cosmetics.Equipped.Frame,
+			Banner = profile.Cosmetics.Equipped.Banner,
+			FarmName = profile.Farm.Name,
+			Bio = profile.Public.Bio,
+			Skills = skills,
+			Stats = stats,
+			Showcase = profile.Showcase,
+			Collection = Collections.TotalPercent(profile.Collection),
+			Achievements = achievements,
+			Guild = profile.Guild.Name,
+			PlayDays = math.floor((os.time() - (profile.Created or os.time())) / 86400),
+			Permission = if viewer ~= target then S.Permission.LevelFor(target, viewer) else "Trusted",
+		}
 end
 
 local function profileSet(player: Player, field: string, value: any)

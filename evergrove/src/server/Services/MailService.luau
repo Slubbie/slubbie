@@ -42,7 +42,8 @@ export type Mail = {
 }
 
 local function hasAttachments(mail: any): boolean
-	return not mail.Claimed and ((mail.Items and #mail.Items > 0) or (mail.Coins or 0) > 0 or (mail.Tokens or 0) > 0 or mail.Title ~= nil)
+	return not mail.Claimed
+		and ((mail.Items and #mail.Items > 0) or (mail.Coins or 0) > 0 or (mail.Tokens or 0) > 0 or mail.Title ~= nil)
 end
 
 local function promote(profile: any)

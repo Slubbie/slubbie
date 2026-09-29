@@ -82,16 +82,115 @@ local rig: Part
 local emitters: { [string]: ParticleEmitter } = {}
 
 local PARTICLE_DEFS: { [string]: { [string]: any } } = {
-	Rain = { Texture = "rbxasset://textures/particles/sparkles_main.dds", Lifetime = NumberRange.new(0.6, 0.8), Speed = NumberRange.new(80, 95), Size = NumberSequence.new(0.12), Color = ColorSequence.new(Color3.fromRGB(190, 210, 235)), Transparency = NumberSequence.new(0.35), Stretch = true, Rate = 900 },
-	Snow = { Texture = "rbxasset://textures/particles/sparkles_main.dds", Lifetime = NumberRange.new(4, 6), Speed = NumberRange.new(6, 10), Size = NumberSequence.new(0.35), Color = ColorSequence.new(Color3.new(1, 1, 1)), Transparency = NumberSequence.new(0.1), Rate = 400, Spread = 25 },
-	Hail = { Texture = "rbxasset://textures/particles/sparkles_main.dds", Lifetime = NumberRange.new(0.8, 1), Speed = NumberRange.new(60, 70), Size = NumberSequence.new(0.3), Color = ColorSequence.new(Color3.fromRGB(230, 240, 255)), Transparency = NumberSequence.new(0), Rate = 250 },
-	Leaves = { Texture = "rbxasset://textures/particles/sparkles_main.dds", Lifetime = NumberRange.new(3, 5), Speed = NumberRange.new(10, 18), Size = NumberSequence.new(0.5), Color = ColorSequence.new(Color3.fromRGB(150, 180, 80), Color3.fromRGB(210, 140, 60)), Transparency = NumberSequence.new(0.1), Rate = 40, Spread = 60, Wind = true },
-	Pollen = { Texture = "rbxasset://textures/particles/sparkles_main.dds", Lifetime = NumberRange.new(5, 8), Speed = NumberRange.new(1, 3), Size = NumberSequence.new(0.18), Color = ColorSequence.new(Color3.fromRGB(255, 240, 150)), Transparency = NumberSequence.new(0.2), Rate = 120, Spread = 180, Light = 0.6 },
-	Sand = { Texture = "rbxasset://textures/particles/smoke_main.dds", Lifetime = NumberRange.new(2, 3), Speed = NumberRange.new(30, 40), Size = NumberSequence.new(3, 6), Color = ColorSequence.new(Color3.fromRGB(220, 190, 140)), Transparency = NumberSequence.new(0.7, 1), Rate = 120, Spread = 30, Wind = true },
-	Heat = { Texture = "rbxasset://textures/particles/smoke_main.dds", Lifetime = NumberRange.new(2, 3), Speed = NumberRange.new(1, 2), Size = NumberSequence.new(4, 8), Color = ColorSequence.new(Color3.fromRGB(255, 230, 200)), Transparency = NumberSequence.new(0.92, 1), Rate = 30, Spread = 180 },
-	Frost = { Texture = "rbxasset://textures/particles/sparkles_main.dds", Lifetime = NumberRange.new(3, 5), Speed = NumberRange.new(1, 3), Size = NumberSequence.new(0.2), Color = ColorSequence.new(Color3.fromRGB(200, 230, 255)), Transparency = NumberSequence.new(0.2), Rate = 90, Spread = 180, Light = 0.8 },
-	Arcane = { Texture = "rbxasset://textures/particles/sparkles_main.dds", Lifetime = NumberRange.new(2, 4), Speed = NumberRange.new(4, 10), Size = NumberSequence.new(0.35), Color = ColorSequence.new(Color3.fromRGB(190, 120, 255), Color3.fromRGB(90, 220, 255)), Transparency = NumberSequence.new(0.1), Rate = 160, Spread = 180, Light = 1 },
-	Rainbow = { Texture = "rbxasset://textures/particles/sparkles_main.dds", Lifetime = NumberRange.new(3, 5), Speed = NumberRange.new(1, 2), Size = NumberSequence.new(0.25), Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 120, 120)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 255, 160)), ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 150, 255)) }), Transparency = NumberSequence.new(0.2), Rate = 80, Spread = 180, Light = 1 },
+	Rain = {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Lifetime = NumberRange.new(0.6, 0.8),
+		Speed = NumberRange.new(80, 95),
+		Size = NumberSequence.new(0.12),
+		Color = ColorSequence.new(Color3.fromRGB(190, 210, 235)),
+		Transparency = NumberSequence.new(0.35),
+		Stretch = true,
+		Rate = 900,
+	},
+	Snow = {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Lifetime = NumberRange.new(4, 6),
+		Speed = NumberRange.new(6, 10),
+		Size = NumberSequence.new(0.35),
+		Color = ColorSequence.new(Color3.new(1, 1, 1)),
+		Transparency = NumberSequence.new(0.1),
+		Rate = 400,
+		Spread = 25,
+	},
+	Hail = {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Lifetime = NumberRange.new(0.8, 1),
+		Speed = NumberRange.new(60, 70),
+		Size = NumberSequence.new(0.3),
+		Color = ColorSequence.new(Color3.fromRGB(230, 240, 255)),
+		Transparency = NumberSequence.new(0),
+		Rate = 250,
+	},
+	Leaves = {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Lifetime = NumberRange.new(3, 5),
+		Speed = NumberRange.new(10, 18),
+		Size = NumberSequence.new(0.5),
+		Color = ColorSequence.new(Color3.fromRGB(150, 180, 80), Color3.fromRGB(210, 140, 60)),
+		Transparency = NumberSequence.new(0.1),
+		Rate = 40,
+		Spread = 60,
+		Wind = true,
+	},
+	Pollen = {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Lifetime = NumberRange.new(5, 8),
+		Speed = NumberRange.new(1, 3),
+		Size = NumberSequence.new(0.18),
+		Color = ColorSequence.new(Color3.fromRGB(255, 240, 150)),
+		Transparency = NumberSequence.new(0.2),
+		Rate = 120,
+		Spread = 180,
+		Light = 0.6,
+	},
+	Sand = {
+		Texture = "rbxasset://textures/particles/smoke_main.dds",
+		Lifetime = NumberRange.new(2, 3),
+		Speed = NumberRange.new(30, 40),
+		Size = NumberSequence.new(3, 6),
+		Color = ColorSequence.new(Color3.fromRGB(220, 190, 140)),
+		Transparency = NumberSequence.new(0.7, 1),
+		Rate = 120,
+		Spread = 30,
+		Wind = true,
+	},
+	Heat = {
+		Texture = "rbxasset://textures/particles/smoke_main.dds",
+		Lifetime = NumberRange.new(2, 3),
+		Speed = NumberRange.new(1, 2),
+		Size = NumberSequence.new(4, 8),
+		Color = ColorSequence.new(Color3.fromRGB(255, 230, 200)),
+		Transparency = NumberSequence.new(0.92, 1),
+		Rate = 30,
+		Spread = 180,
+	},
+	Frost = {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Lifetime = NumberRange.new(3, 5),
+		Speed = NumberRange.new(1, 3),
+		Size = NumberSequence.new(0.2),
+		Color = ColorSequence.new(Color3.fromRGB(200, 230, 255)),
+		Transparency = NumberSequence.new(0.2),
+		Rate = 90,
+		Spread = 180,
+		Light = 0.8,
+	},
+	Arcane = {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Lifetime = NumberRange.new(2, 4),
+		Speed = NumberRange.new(4, 10),
+		Size = NumberSequence.new(0.35),
+		Color = ColorSequence.new(Color3.fromRGB(190, 120, 255), Color3.fromRGB(90, 220, 255)),
+		Transparency = NumberSequence.new(0.1),
+		Rate = 160,
+		Spread = 180,
+		Light = 1,
+	},
+	Rainbow = {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Lifetime = NumberRange.new(3, 5),
+		Speed = NumberRange.new(1, 2),
+		Size = NumberSequence.new(0.25),
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 120, 120)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 255, 160)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 150, 255)),
+		}),
+		Transparency = NumberSequence.new(0.2),
+		Rate = 80,
+		Spread = 180,
+		Light = 1,
+	},
 }
 
 local function buildRig()
@@ -164,7 +263,8 @@ local function updateAurora(on: boolean, t: number)
 	for i, p in auroraParts do
 		local phase = p:GetAttribute("Phase") or 0
 		local wave = math.sin(t * 0.25 + phase)
-		p.CFrame = CFrame.new(cam.X + (i - 3.5) * 60, 420 + wave * 20, cam.Z - 600) * CFrame.Angles(0, math.sin(t * 0.1 + phase) * 0.3, math.rad(10 + wave * 5))
+		p.CFrame = CFrame.new(cam.X + (i - 3.5) * 60, 420 + wave * 20, cam.Z - 600)
+			* CFrame.Angles(0, math.sin(t * 0.1 + phase) * 0.3, math.rad(10 + wave * 5))
 		p.Color = Color3.fromHSV((0.38 + 0.12 * math.sin(t * 0.07 + phase)) % 1, 0.7, 1)
 		p.Transparency = 0.7 + 0.15 * math.sin(t * 0.3 + phase * 2)
 	end
@@ -172,7 +272,8 @@ end
 
 local function meteor()
 	local cam = workspace.CurrentCamera.CFrame.Position
-	local start = cam + Vector3.new(random:NextNumber(-500, 500), random:NextNumber(300, 450), random:NextNumber(-600, -200))
+	local start = cam
+		+ Vector3.new(random:NextNumber(-500, 500), random:NextNumber(300, 450), random:NextNumber(-600, -200))
 	local dir = Vector3.new(random:NextNumber(-1, 1), -0.35, random:NextNumber(-0.3, 0.3)).Unit
 	local p = Instance.new("Part")
 	p.Anchored = true
@@ -197,7 +298,14 @@ local function setRainbow(on: boolean)
 	if on and not rainbowModel then
 		local m = Instance.new("Model")
 		m.Name = "Rainbow"
-		local colors = { Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 170, 70), Color3.fromRGB(255, 240, 90), Color3.fromRGB(110, 220, 110), Color3.fromRGB(90, 160, 255), Color3.fromRGB(160, 110, 240) }
+		local colors = {
+			Color3.fromRGB(255, 90, 90),
+			Color3.fromRGB(255, 170, 70),
+			Color3.fromRGB(255, 240, 90),
+			Color3.fromRGB(110, 220, 110),
+			Color3.fromRGB(90, 160, 255),
+			Color3.fromRGB(160, 110, 240),
+		}
 		for band, color in colors do
 			for seg = 0, 23 do
 				local a = seg / 24 * math.pi
@@ -211,7 +319,8 @@ local function setRainbow(on: boolean)
 				p.Color = color
 				p.Transparency = 0.65
 				p.Size = Vector3.new(12, 80, 2)
-				p.CFrame = CFrame.new(math.cos(a) * r, math.sin(a) * r - 80, -900) * CFrame.Angles(0, 0, a - math.pi / 2)
+				p.CFrame = CFrame.new(math.cos(a) * r, math.sin(a) * r - 80, -900)
+					* CFrame.Angles(0, 0, a - math.pi / 2)
 				p.Parent = m
 			end
 		end
@@ -229,7 +338,9 @@ local flash = 0
 function LightingController.Lightning(position: Vector3?)
 	local gentle = C.Settings.Get("ReducedFlashing") == true
 	flash = if gentle then 0.6 else 2.5
-	local delay = if position then (workspace.CurrentCamera.CFrame.Position - position).Magnitude / 340 else random:NextNumber(0.4, 2.2)
+	local delay = if position
+		then (workspace.CurrentCamera.CFrame.Position - position).Magnitude / 340
+		else random:NextNumber(0.4, 2.2)
 	task.delay(math.min(delay, 4), function()
 		C.Audio.PlayUI("Thunder")
 	end)
@@ -304,7 +415,9 @@ local function applyProjects()
 				if ok then
 					local s = Instance.new("Model")
 					s.Name = "Scaffold"
-					for _, corner in { Vector3.new(-1, 0, -1), Vector3.new(1, 0, -1), Vector3.new(-1, 0, 1), Vector3.new(1, 0, 1) } do
+					for _, corner in
+						{ Vector3.new(-1, 0, -1), Vector3.new(1, 0, -1), Vector3.new(-1, 0, 1), Vector3.new(1, 0, 1) }
+					do
 						local pole = Instance.new("Part")
 						pole.Anchored = true
 						pole.Size = Vector3.new(0.8, size.Y, 0.8)
@@ -423,7 +536,8 @@ local function step(dt: number)
 		end
 	else
 		Lighting.Brightness = ease("Brightness", 2.2 * bright + flash, 0.6, dt)
-		Lighting.OutdoorAmbient = ease("Ambient", season.Ambient:Lerp(Color3.fromRGB(70, 74, 100), if night then 0.55 else 0), 0.6, dt)
+		Lighting.OutdoorAmbient =
+			ease("Ambient", season.Ambient:Lerp(Color3.fromRGB(70, 74, 100), if night then 0.55 else 0), 0.6, dt)
 		Lighting.Ambient = ease("IndoorAmbient", Color3.fromRGB(70, 66, 60), 0.6, dt)
 		if atmosphere then
 			atmosphere.Density = ease("Density", math.clamp(0.26 + v.Fog * 0.45 * intensity, 0, 0.8), 0.4, dt)
@@ -433,7 +547,12 @@ local function step(dt: number)
 	end
 	if grade then
 		grade.TintColor = ease("Tint", season.Tint:Lerp(v.Tint, 0.6), 0.5, dt)
-		grade.Saturation = ease("Saturation", season.Saturation + (if weather == "RainbowMist" or weather == "PollenBloom" then 0.15 else 0), 0.5, dt)
+		grade.Saturation = ease(
+			"Saturation",
+			season.Saturation + (if weather == "RainbowMist" or weather == "PollenBloom" then 0.15 else 0),
+			0.5,
+			dt
+		)
 		grade.Enabled = C.Settings.Get("PostFX") ~= false
 	end
 	if clouds then
@@ -497,7 +616,12 @@ local function updateFestivalDecor()
 	if on and not festivalDecor then
 		local m = Instance.new("Model")
 		m.Name = "FestivalBunting"
-		local colors = { Color3.fromRGB(240, 90, 90), Color3.fromRGB(250, 200, 70), Color3.fromRGB(110, 190, 240), Color3.fromRGB(130, 210, 120) }
+		local colors = {
+			Color3.fromRGB(240, 90, 90),
+			Color3.fromRGB(250, 200, 70),
+			Color3.fromRGB(110, 190, 240),
+			Color3.fromRGB(130, 210, 120),
+		}
 		for ring = 1, 2 do
 			local r = 30 + ring * 12
 			for i = 0, 47 do
@@ -509,7 +633,8 @@ local function updateFestivalDecor()
 				p.Size = Vector3.new(0.1, 1.4, 1.2)
 				p.Color = colors[i % #colors + 1]
 				p.Material = Enum.Material.Fabric
-				p.CFrame = CFrame.new(math.cos(a) * r, 12 + math.sin(i) * 0.6, 18 + math.sin(a) * r) * CFrame.Angles(math.pi, a, 0)
+				p.CFrame = CFrame.new(math.cos(a) * r, 12 + math.sin(i) * 0.6, 18 + math.sin(a) * r)
+					* CFrame.Angles(math.pi, a, 0)
 				p.Parent = m
 			end
 		end

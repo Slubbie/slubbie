@@ -84,11 +84,26 @@ end
 
 -- Cylinder standing upright (Roblox cylinders lie along X, so we rotate them).
 function Kit.Cyl(model: Model, height: number, diameter: number, cf: CFrame, color: Color3, opts: Opts?): BasePart
-	return make(model, "Cylinder", Vector3.new(height, diameter, diameter), cf * CFrame.Angles(0, 0, math.rad(90)), color, opts)
+	return make(
+		model,
+		"Cylinder",
+		Vector3.new(height, diameter, diameter),
+		cf * CFrame.Angles(0, 0, math.rad(90)),
+		color,
+		opts
+	)
 end
 
 -- Cylinder lying along the given axis ("X" or "Z").
-function Kit.CylFlat(model: Model, length: number, diameter: number, cf: CFrame, color: Color3, axis: string?, opts: Opts?): BasePart
+function Kit.CylFlat(
+	model: Model,
+	length: number,
+	diameter: number,
+	cf: CFrame,
+	color: Color3,
+	axis: string?,
+	opts: Opts?
+): BasePart
 	local rot = if axis == "Z" then CFrame.Angles(0, math.rad(90), 0) else CFrame.new()
 	return make(model, "Cylinder", Vector3.new(length, diameter, diameter), cf * rot, color, opts)
 end
@@ -98,12 +113,33 @@ function Kit.Wedge(model: Model, size: Vector3, cf: CFrame, color: Color3, opts:
 end
 
 -- A gabled roof over a W×D rectangle whose eaves sit at height h.
-function Kit.Roof(model: Model, w: number, d: number, h: number, rise: number, color: Color3, overhang: number?, opts: Opts?)
+function Kit.Roof(
+	model: Model,
+	w: number,
+	d: number,
+	h: number,
+	rise: number,
+	color: Color3,
+	overhang: number?,
+	opts: Opts?
+)
 	local o = overhang or 1
 	local half = (w + o * 2) / 2
 	local depth = d + o * 2
-	Kit.Wedge(model, Vector3.new(depth, rise, half), CFrame.new(-half / 2, h + rise / 2, 0) * CFrame.Angles(0, math.rad(90), 0), color, opts)
-	Kit.Wedge(model, Vector3.new(depth, rise, half), CFrame.new(half / 2, h + rise / 2, 0) * CFrame.Angles(0, math.rad(-90), 0), color, opts)
+	Kit.Wedge(
+		model,
+		Vector3.new(depth, rise, half),
+		CFrame.new(-half / 2, h + rise / 2, 0) * CFrame.Angles(0, math.rad(90), 0),
+		color,
+		opts
+	)
+	Kit.Wedge(
+		model,
+		Vector3.new(depth, rise, half),
+		CFrame.new(half / 2, h + rise / 2, 0) * CFrame.Angles(0, math.rad(-90), 0),
+		color,
+		opts
+	)
 end
 
 function Kit.Light(part: BasePart, color: Color3, range: number?, brightness: number?, shadows: boolean?)
@@ -173,7 +209,13 @@ function Kit.Particles(part: BasePart, kind: string, color: Color3?, rate: numbe
 end
 
 -- Interaction prompt (drawn by the client's custom prompt UI).
-function Kit.Prompt(part: BasePart, kind: string, action: string, objectText: string?, distance: number?): ProximityPrompt
+function Kit.Prompt(
+	part: BasePart,
+	kind: string,
+	action: string,
+	objectText: string?,
+	distance: number?
+): ProximityPrompt
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "Prompt"
 	prompt.ActionText = action

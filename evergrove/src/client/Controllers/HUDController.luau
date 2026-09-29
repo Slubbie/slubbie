@@ -35,7 +35,17 @@ local HUD = {}
 local player = Players.LocalPlayer
 local HOTBAR = 9 -- inventory slots 1-9 (matches the server)
 local ROMAN = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII" }
-local BUFF_ICONS = { Speed = "🏃", Focus = "🎯", Luck = "🍀", Fishing = "🎣", Mining = "⛏️", Warmth = "🔥", Cool = "❄️", Light = "💡", Friendship = "💞" }
+local BUFF_ICONS = {
+	Speed = "🏃",
+	Focus = "🎯",
+	Luck = "🍀",
+	Fishing = "🎣",
+	Mining = "⛏️",
+	Warmth = "🔥",
+	Cool = "❄️",
+	Light = "💡",
+	Friendship = "💞",
+}
 
 local layer: Frame
 local root: Frame
@@ -97,7 +107,10 @@ local function buildClock()
 	panel.Position = UDim2.fromOffset(14, 10)
 	panel.BackgroundTransparency = 0.06
 	Kit.Padding(panel, 6, 12)
-	local button = Kit.new("TextButton", { BackgroundTransparency = 1, Text = "", Size = UDim2.fromScale(1, 1), ZIndex = 5, Parent = panel })
+	local button = Kit.new(
+		"TextButton",
+		{ BackgroundTransparency = 1, Text = "", Size = UDim2.fromScale(1, 1), ZIndex = 5, Parent = panel }
+	)
 	button.Activated:Connect(function()
 		C.Windows.Toggle("Calendar")
 	end)
@@ -120,7 +133,13 @@ local function buildClock()
 	region.Position = UDim2.fromOffset(0, 64)
 	region.Size = UDim2.new(1, 0, 0, 14)
 	region.Parent = panel
-	local track = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.new(1, 0, 0, 3), Position = UDim2.new(0, 0, 1, -2), BackgroundTransparency = 0.3, Parent = panel })
+	local track = Kit.new("Frame", {
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, 3),
+		Position = UDim2.new(0, 0, 1, -2),
+		BackgroundTransparency = 0.3,
+		Parent = panel,
+	})
 	Kit.Paint(track, "BackgroundColor3", "Inset")
 	local day = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.fromScale(0, 1), Parent = track })
 	Kit.Paint(day, "BackgroundColor3", "Accent")
@@ -131,7 +150,12 @@ local function buildClock()
 		for _, entry in WeatherMath.Forecast(4) do
 			local def = WeatherMath.Def(entry.Weather)
 			local hour = GameTime.HourOf(entry.Start)
-			table.insert(lines, { Text = Format.Clock(hour, C.Settings.Get("Clock24")) .. "  " .. (def and (def.Icon .. " " .. def.Name) or entry.Weather), Size = Theme.Sizes.Small })
+			table.insert(lines, {
+				Text = Format.Clock(hour, C.Settings.Get("Clock24"))
+					.. "  "
+					.. (def and (def.Icon .. " " .. def.Name) or entry.Weather),
+				Size = Theme.Sizes.Small,
+			})
 		end
 		table.insert(lines, { Text = "Click for the calendar (U)", Color = "SubText", Size = Theme.Sizes.Tiny })
 		return lines
@@ -150,13 +174,25 @@ local function updateClock()
 	end
 	local info = GameTime.Info()
 	clock.Time.Text = Format.Clock(info.Hour, C.Settings.Get("Clock24"))
-	clock.Date.Text = string.format("%s %s %d · %s · Year %d", (require(Shared.Config.Seasons) :: any)[info.Season].Icon, info.SeasonName, info.DayOfSeason, GameTime.WEEKDAYS[info.Weekday], info.Year)
+	clock.Date.Text = string.format(
+		"%s %s %d · %s · Year %d",
+		(require(Shared.Config.Seasons) :: any)[info.Season].Icon,
+		info.SeasonName,
+		info.DayOfSeason,
+		GameTime.WEEKDAYS[info.Weekday],
+		info.Year
+	)
 	local weatherId = C.Lighting.Weather()
 	local def = WeatherMath.Def(weatherId)
-	clock.Weather.Text = (if def then def.Icon .. " " .. def.Name else weatherId) .. (if info.FullMoon and info.IsNight then "  🌕 Full moon" else "")
+	clock.Weather.Text = (if def then def.Icon .. " " .. def.Name else weatherId)
+		.. (if info.FullMoon and info.IsNight then "  🌕 Full moon" else "")
 	local region = C.Lighting.Region()
 	clock.Region.Text = "📍 " .. (if region then region.Name else "Evergrove")
-	clock.Sun.Text = if info.IsNight then (if info.FullMoon then "🌕" else "🌙") elseif info.Hour < 8 then "🌅" elseif info.Hour > 18 then "🌇" else "☀️"
+	clock.Sun.Text = if info.IsNight
+		then (if info.FullMoon then "🌕" else "🌙")
+		elseif info.Hour < 8 then "🌅"
+		elseif info.Hour > 18 then "🌇"
+		else "☀️"
 	clock.Day.Size = UDim2.fromScale(info.Hour / 24, 1)
 end
 
@@ -177,7 +213,14 @@ local MENU = {
 }
 
 local function buildTopRight()
-	local column = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(620, 100), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -14, 0, 10), Name = "TopRight", Parent = root })
+	local column = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(620, 100),
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -14, 0, 10),
+		Name = "TopRight",
+		Parent = root,
+	})
 	local money = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 36), Parent = column })
 	Kit.List(money, "X", 8, "Right")
 	local coins
@@ -186,12 +229,24 @@ local function buildTopRight()
 	tokens, tokensLabel = pill(money, "Tokens", 96)
 	tokens.LayoutOrder = 1
 	Kit.AttachTooltip(coins, function()
-		return { { Text = "Coins", Bold = true }, { Text = "Earned by selling, quests and contracts.", Color = "SubText", Size = Theme.Sizes.Small } }
+		return {
+			{ Text = "Coins", Bold = true },
+			{ Text = "Earned by selling, quests and contracts.", Color = "SubText", Size = Theme.Sizes.Small },
+		}
 	end)
 	Kit.AttachTooltip(tokens, function()
-		return { { Text = "Festival tokens", Bold = true }, { Text = "Won at festivals; spent at festival stalls.", Color = "SubText", Size = Theme.Sizes.Small } }
+		return {
+			{ Text = "Festival tokens", Bold = true },
+			{ Text = "Won at festivals; spent at festival stalls.", Color = "SubText", Size = Theme.Sizes.Small },
+		}
 	end)
-	local row = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 46), Position = UDim2.fromOffset(0, 44), Name = "Menu", Parent = column })
+	local row = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 46),
+		Position = UDim2.fromOffset(0, 44),
+		Name = "Menu",
+		Parent = column,
+	})
 	Kit.List(row, "X", 6, "Right")
 	local compact = C.UI.IsCompact()
 	for i, entry in MENU do
@@ -208,7 +263,18 @@ local function buildTopRight()
 		button.LayoutOrder = i
 		button.Name = entry.Id
 		button.Parent = row
-		local badge = Kit.new("TextLabel", { Name = "Badge", Size = UDim2.fromOffset(20, 20), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(1, -4, 0, 4), Font = Theme.Fonts.Bold, TextSize = 12, Text = "", Visible = false, ZIndex = 4, Parent = button })
+		local badge = Kit.new("TextLabel", {
+			Name = "Badge",
+			Size = UDim2.fromOffset(20, 20),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.new(1, -4, 0, 4),
+			Font = Theme.Fonts.Bold,
+			TextSize = 12,
+			Text = "",
+			Visible = false,
+			ZIndex = 4,
+			Parent = button,
+		})
 		Kit.Paint(badge, "BackgroundColor3", "Bad")
 		badge.TextColor3 = Color3.new(1, 1, 1)
 		Kit.Corner(badge, 10)
@@ -318,7 +384,12 @@ function HUD.FlashCoins(amount: number)
 	end
 	local pillFrame = coinsLabel.Parent :: Frame
 	Kit.Pulse(pillFrame)
-	local float = Kit.Label((if amount >= 0 then "+" else "−") .. Format.Commas(math.abs(amount)), { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = if amount >= 0 then "Good" else "Bad", Align = "Right" })
+	local float = Kit.Label((if amount >= 0 then "+" else "−") .. Format.Commas(math.abs(amount)), {
+		Size = Theme.Sizes.Small,
+		Font = Theme.Fonts.Bold,
+		Color = if amount >= 0 then "Good" else "Bad",
+		Align = "Right",
+	})
 	float.Size = UDim2.fromOffset(150, 20)
 	float.AnchorPoint = Vector2.new(1, 0)
 	float.Position = UDim2.new(1, -14, 0, 48)
@@ -425,7 +496,14 @@ local function refreshXP()
 	frame.Visible = C.Settings.Get("ShowXPBar") ~= false
 	if need > 0 then
 		xpBar.Set(into / need)
-		xpLabel.Text = (if skill then skill.Icon .. " " .. skill.Name else lastSkill) .. " " .. level .. "  ·  " .. Format.Commas(into) .. " / " .. Format.Commas(need) .. " XP"
+		xpLabel.Text = (if skill then skill.Icon .. " " .. skill.Name else lastSkill)
+			.. " "
+			.. level
+			.. "  ·  "
+			.. Format.Commas(into)
+			.. " / "
+			.. Format.Commas(need)
+			.. " XP"
 	else
 		xpBar.Set(1)
 		xpLabel.Text = (if skill then skill.Icon .. " " .. skill.Name else lastSkill) .. " " .. level .. "  ·  MAX"
@@ -449,20 +527,39 @@ local function refreshBuffs()
 			chip.AutomaticSize = Enum.AutomaticSize.X
 			chip.LayoutOrder = order
 			Kit.Padding(chip, 0, 8)
-			local label = Kit.Label((BUFF_ICONS[id] or "✨") .. " " .. Format.Duration(remaining), { Size = Theme.Sizes.Tiny, Font = Theme.Fonts.Bold })
+			local label = Kit.Label(
+				(BUFF_ICONS[id] or "✨") .. " " .. Format.Duration(remaining),
+				{ Size = Theme.Sizes.Tiny, Font = Theme.Fonts.Bold }
+			)
 			label.Size = UDim2.fromOffset(0, 26)
 			label.AutomaticSize = Enum.AutomaticSize.X
 			label.Parent = chip
 			chip.Parent = buffRow
 			Kit.AttachTooltip(chip, function()
-				return { { Text = (BUFF_ICONS[id] or "✨") .. " " .. id .. " ×" .. string.format("%.2f", buff.Mult or 1), Bold = true }, { Text = Format.Duration(math.max(0, (buff.Until or 0) - GameTime.Now())) .. " left", Color = "SubText" } }
+				return {
+					{
+						Text = (BUFF_ICONS[id] or "✨") .. " " .. id .. " ×" .. string.format("%.2f", buff.Mult or 1),
+						Bold = true,
+					},
+					{
+						Text = Format.Duration(math.max(0, (buff.Until or 0) - GameTime.Now())) .. " left",
+						Color = "SubText",
+					},
+				}
 			end)
 		end
 	end
 end
 
 local function buildDock()
-	local dock = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(HOTBAR * 62, 150), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -8), Name = "Dock", Parent = root })
+	local dock = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(HOTBAR * 62, 150),
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -8),
+		Name = "Dock",
+		Parent = root,
+	})
 	-- Hint line
 	hintLabel = Kit.Label("", { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Align = "Center" })
 	hintLabel.Size = UDim2.new(1, 0, 0, 20)
@@ -476,20 +573,43 @@ local function buildDock()
 	heldLabel.Position = UDim2.fromOffset(0, -20)
 	heldLabel.TextStrokeTransparency = 0.6
 	heldLabel.Parent = dock
-	buffRow = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 26), Position = UDim2.fromOffset(0, 4), Name = "Buffs", Parent = dock })
+	buffRow = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 26),
+		Position = UDim2.fromOffset(0, 4),
+		Name = "Buffs",
+		Parent = dock,
+	})
 	Kit.List(buffRow, "X", 6, "Center")
 	-- Energy & water
-	local bars = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 18), Position = UDim2.fromOffset(0, 36), Parent = dock })
+	local bars = Kit.new(
+		"Frame",
+		{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 18), Position = UDim2.fromOffset(0, 36), Parent = dock }
+	)
 	energyBar = Kit.Progress({ Size = UDim2.new(0.5, -4, 1, 0), Color = "Good" })
 	energyBar.Frame.Parent = bars
 	waterBar = Kit.Progress({ Size = UDim2.new(0.5, -4, 1, 0), Color = "Info" })
 	waterBar.Frame.Position = UDim2.new(0.5, 4, 0, 0)
 	waterBar.Frame.Parent = bars
 	Kit.AttachTooltip(energyBar.Frame, function()
-		return { { Text = "Energy", Bold = true }, { Text = "Tools and actions use energy. Eat or drink to restore it; it also refills slowly over time, and grows with your skills and house.", Color = "SubText", Size = Theme.Sizes.Small, } }
+		return {
+			{ Text = "Energy", Bold = true },
+			{
+				Text = "Tools and actions use energy. Eat or drink to restore it; it also refills slowly over time, and grows with your skills and house.",
+				Color = "SubText",
+				Size = Theme.Sizes.Small,
+			},
+		}
 	end)
 	Kit.AttachTooltip(waterBar.Frame, function()
-		return { { Text = "Watering can", Bold = true }, { Text = "Refill at a well, pond or river with the can in hand.", Color = "SubText", Size = Theme.Sizes.Small } }
+		return {
+			{ Text = "Watering can", Bold = true },
+			{
+				Text = "Refill at a well, pond or river with the can in hand.",
+				Color = "SubText",
+				Size = Theme.Sizes.Small,
+			},
+		}
 	end)
 	-- XP
 	xpBar = Kit.Progress({ Size = UDim2.new(1, 0, 0, 6), Color = "Accent" })
@@ -501,16 +621,43 @@ local function buildDock()
 	xpLabel.TextStrokeTransparency = 0.7
 	xpLabel.Parent = dock
 	-- Slots
-	local row = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 58), Position = UDim2.new(0, 0, 1, -58), Name = "Hotbar", Parent = dock })
+	local row = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 58),
+		Position = UDim2.new(0, 0, 1, -58),
+		Name = "Hotbar",
+		Parent = dock,
+	})
 	Kit.List(row, "X", 6, "Center")
 	for i = 1, HOTBAR do
 		local slot = Kit.ItemSlot(56)
 		slot.Button.LayoutOrder = i
 		slot.Button.Name = "Slot" .. i
 		slot.Button.Parent = row
-		local key = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(14, 12), Position = UDim2.fromOffset(3, 40), Font = Theme.Fonts.Bold, TextSize = 10, Text = tostring(i), TextTransparency = 0.35, Name = "Key", Parent = slot.Button })
+		local key = Kit.new("TextLabel", {
+			BackgroundTransparency = 1,
+			Size = UDim2.fromOffset(14, 12),
+			Position = UDim2.fromOffset(3, 40),
+			Font = Theme.Fonts.Bold,
+			TextSize = 10,
+			Text = tostring(i),
+			TextTransparency = 0.35,
+			Name = "Key",
+			Parent = slot.Button,
+		})
 		Kit.Paint(key, "TextColor3", "SubText")
-		local tier = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(26, 12), Position = UDim2.new(1, -28, 0, 2), Font = Theme.Fonts.Bold, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Right, Text = "", Name = "Tier", ZIndex = 3, Parent = slot.Button })
+		local tier = Kit.new("TextLabel", {
+			BackgroundTransparency = 1,
+			Size = UDim2.fromOffset(26, 12),
+			Position = UDim2.new(1, -28, 0, 2),
+			Font = Theme.Fonts.Bold,
+			TextSize = 10,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			Text = "",
+			Name = "Tier",
+			ZIndex = 3,
+			Parent = slot.Button,
+		})
 		Kit.Paint(tier, "TextColor3", "Accent")
 		tierLabels[i] = tier
 		slot.Button.Activated:Connect(function()
@@ -565,9 +712,22 @@ end
 local trackerCollapsed = false
 
 local function buildTracker()
-	tracker = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(260, 0), AutomaticSize = Enum.AutomaticSize.Y, Name = "Tracker", Parent = root })
+	tracker = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(260, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Name = "Tracker",
+		Parent = root,
+	})
 	Kit.List(tracker, "Y", 4)
-	trackerHeader = Kit.new("TextButton", { AutoButtonColor = false, Text = "", Size = UDim2.new(1, 0, 0, 26), BackgroundTransparency = 0.25, LayoutOrder = 0, Parent = tracker })
+	trackerHeader = Kit.new("TextButton", {
+		AutoButtonColor = false,
+		Text = "",
+		Size = UDim2.new(1, 0, 0, 26),
+		BackgroundTransparency = 0.25,
+		LayoutOrder = 0,
+		Parent = tracker,
+	})
 	Kit.Paint(trackerHeader, "BackgroundColor3", "HeaderA")
 	Kit.Corner(trackerHeader, 8)
 	local title = Kit.Label("📜 Quests", { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = "HeaderText" })
@@ -580,7 +740,13 @@ local function buildTracker()
 		C.Audio.PlayUI("UIClick")
 		HUD.RefreshTracker()
 	end)
-	trackerList = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Parent = tracker })
+	trackerList = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 1,
+		Parent = tracker,
+	})
 	Kit.List(trackerList, "Y", 4)
 end
 
@@ -601,12 +767,18 @@ function HUD.RefreshTracker()
 	Kit.Clear(trackerList)
 	local tracked = (p.Quests and p.Quests.Tracked) or {}
 	local title = trackerHeader:FindFirstChild("Title") :: TextLabel
-	title.Text = "📜 Quests (" .. #tracked .. ")  " .. (if trackerCollapsed or mode == "Minimized" then "▸" else "▾")
+	title.Text = "📜 Quests ("
+		.. #tracked
+		.. ")  "
+		.. (if trackerCollapsed or mode == "Minimized" then "▸" else "▾")
 	if trackerCollapsed or mode == "Minimized" then
 		return
 	end
 	if #tracked == 0 then
-		local empty = Kit.Label("No tracked quests. Press J to pick some.", { Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true })
+		local empty = Kit.Label(
+			"No tracked quests. Press J to pick some.",
+			{ Size = Theme.Sizes.Tiny, Color = "SubText", Wrap = true }
+		)
 		empty.TextStrokeTransparency = 0.7
 		empty.Parent = trackerList
 		return
@@ -615,7 +787,15 @@ function HUD.RefreshTracker()
 		local quest = Registry.Quests[questId]
 		local state = p.Quests.Active[questId]
 		if quest and state then
-			local card = Kit.new("TextButton", { AutoButtonColor = false, Text = "", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 0.3, LayoutOrder = i, Parent = trackerList })
+			local card = Kit.new("TextButton", {
+				AutoButtonColor = false,
+				Text = "",
+				Size = UDim2.new(1, 0, 0, 0),
+				AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundTransparency = 0.3,
+				LayoutOrder = i,
+				Parent = trackerList,
+			})
 			Kit.Paint(card, "BackgroundColor3", "Panel")
 			Kit.Corner(card, 8)
 			Kit.Padding(card, 6, 8)
@@ -623,18 +803,29 @@ function HUD.RefreshTracker()
 			card.Activated:Connect(function()
 				C.Windows.Open("Quests", { Quest = questId })
 			end)
-			local name = Kit.Label((if state.Ready then "✔️ " else "") .. quest.Name, { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = if state.Ready then "Good" else "Text" })
+			local name = Kit.Label(
+				(if state.Ready then "✔️ " else "") .. quest.Name,
+				{ Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = if state.Ready then "Good" else "Text" }
+			)
 			name.Parent = card
 			if state.Ready then
 				local npc = quest.TurnIn and Registry.Npcs[quest.TurnIn]
-				local line = Kit.Label("Return to " .. (if npc then npc.Icon .. " " .. npc.Name else "the quest giver"), { Size = Theme.Sizes.Tiny, Color = "SubText" })
+				local line = Kit.Label(
+					"Return to " .. (if npc then npc.Icon .. " " .. npc.Name else "the quest giver"),
+					{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+				)
 				line.LayoutOrder = 1
 				line.Parent = card
 			else
 				for j, objective in quest.Objectives do
 					local cur, goal = Describe.Progress(p, objective, state.P and state.P[j])
 					local done = cur >= goal
-					local line = Kit.Label((if done then "☑ " else "☐ ") .. Describe.Objective(objective) .. (if goal > 1 then "  " .. Format.Short(cur) .. "/" .. Format.Short(goal) else ""), { Size = Theme.Sizes.Tiny, Color = if done then "Good" else "SubText", Wrap = true })
+					local line = Kit.Label(
+						(if done then "☑ " else "☐ ")
+							.. Describe.Objective(objective)
+							.. (if goal > 1 then "  " .. Format.Short(cur) .. "/" .. Format.Short(goal) else ""),
+						{ Size = Theme.Sizes.Tiny, Color = if done then "Good" else "SubText", Wrap = true }
+					)
 					line.LayoutOrder = j
 					line.Parent = card
 				end
@@ -689,12 +880,17 @@ local function updatePills()
 		label.AutomaticSize = Enum.AutomaticSize.X
 		label.Size = UDim2.fromOffset(0, 28)
 		label.Parent = frame
-		local home = Kit.Button("Go home", { Style = "Accent", Size = UDim2.fromOffset(90, 28), TextSize = Theme.Sizes.Tiny, OnClick = function()
-			local ok, err = Net.Request("GoHome")
-			if not ok then
-				C.Notify.Toast(tostring(err), "Warning")
-			end
-		end })
+		local home = Kit.Button("Go home", {
+			Style = "Accent",
+			Size = UDim2.fromOffset(90, 28),
+			TextSize = Theme.Sizes.Tiny,
+			OnClick = function()
+				local ok, err = Net.Request("GoHome")
+				if not ok then
+					C.Notify.Toast(tostring(err), "Warning")
+				end
+			end,
+		})
 		home.LayoutOrder = 1
 		home.Parent = frame
 		frame.Parent = topPills
@@ -707,7 +903,8 @@ local function updatePills()
 	if visitPill and owner then
 		local label = visitPill:FindFirstChild("Text") :: TextLabel
 		local farmName = owner:GetAttribute("FarmName")
-		label.Text = "🏡 Visiting " .. (if farmName and farmName ~= "" then tostring(farmName) else owner.DisplayName .. "'s farm")
+		label.Text = "🏡 Visiting "
+			.. (if farmName and farmName ~= "" then tostring(farmName) else owner.DisplayName .. "'s farm")
 	end
 	-- Festival?
 	local festivalId = ReplicatedStorage:GetAttribute("Festival")
@@ -717,7 +914,15 @@ local function updatePills()
 		frame.AutomaticSize = Enum.AutomaticSize.X
 		frame.LayoutOrder = 2
 		Kit.Padding(frame, 4, 14)
-		local button = Kit.new("TextButton", { BackgroundTransparency = 1, Text = (if def then def.Icon .. " " .. def.Name else "🎪 Festival") .. " — today! ▸", Font = Theme.Fonts.Bold, TextSize = Theme.Text(Theme.Sizes.Small), AutomaticSize = Enum.AutomaticSize.X, Size = UDim2.fromOffset(0, 28), Parent = frame })
+		local button = Kit.new("TextButton", {
+			BackgroundTransparency = 1,
+			Text = (if def then def.Icon .. " " .. def.Name else "🎪 Festival") .. " — today! ▸",
+			Font = Theme.Fonts.Bold,
+			TextSize = Theme.Text(Theme.Sizes.Small),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 28),
+			Parent = frame,
+		})
 		Kit.Paint(button, "TextColor3", "AccentText")
 		button.Activated:Connect(function()
 			C.Windows.Open("Festival")
@@ -759,9 +964,20 @@ function HUD.NodeHealth(nid: string, hp: number, max: number)
 		local _, size = model:GetBoundingBox()
 		gui.StudsOffsetWorldSpace = Vector3.new(0, size.Y / 2 + 1.5, 0)
 		gui.Adornee = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
-		local back = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(30, 30, 30), BackgroundTransparency = 0.3, Parent = gui })
+		local back = Kit.new("Frame", {
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, 1),
+			BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+			BackgroundTransparency = 0.3,
+			Parent = gui,
+		})
 		Kit.Corner(back, 6)
-		local fill = Kit.new("Frame", { BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(120, 220, 110), Parent = back })
+		local fill = Kit.new("Frame", {
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, 1),
+			BackgroundColor3 = Color3.fromRGB(120, 220, 110),
+			Parent = back,
+		})
 		Kit.Corner(fill, 6)
 		gui.Parent = C.UI.Root()
 		entry = { Gui = gui, Fill = fill, Until = 0 }
@@ -790,9 +1006,27 @@ local function buildTouch()
 	if touchCluster or not UserInputService.TouchEnabled then
 		return
 	end
-	local cluster = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(210, 210), AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -150, 1, -30), Name = "Touch", Parent = root })
+	local cluster = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(210, 210),
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, -150, 1, -30),
+		Name = "Touch",
+		Parent = root,
+	})
 	local function button(icon: string, tip: string, size: number, pos: UDim2, fn: () -> ())
-		local b = Kit.new("TextButton", { AutoButtonColor = false, Text = icon, Font = Theme.Fonts.Body, TextSize = math.floor(size * 0.45), Size = UDim2.fromOffset(size, size), AnchorPoint = Vector2.new(0.5, 0.5), Position = pos, BackgroundTransparency = 0.25, Name = tip, Parent = cluster })
+		local b = Kit.new("TextButton", {
+			AutoButtonColor = false,
+			Text = icon,
+			Font = Theme.Fonts.Body,
+			TextSize = math.floor(size * 0.45),
+			Size = UDim2.fromOffset(size, size),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = pos,
+			BackgroundTransparency = 0.25,
+			Name = tip,
+			Parent = cluster,
+		})
 		Kit.Paint(b, "BackgroundColor3", "Panel")
 		Kit.Corner(b, size // 2)
 		Kit.Stroke(b, "Stroke", 2)
@@ -830,7 +1064,8 @@ local function updateVisibility()
 	for _, name in { "Dock", "Tracker", "Touch" } do
 		local child = root:FindFirstChild(name)
 		if child and child:IsA("GuiObject") then
-			child.Visible = not building and (name ~= "Tracker" or (C.Settings.Get("QuestTracker") or "Expanded") ~= "Hidden")
+			child.Visible = not building
+				and (name ~= "Tracker" or (C.Settings.Get("QuestTracker") or "Expanded") ~= "Hidden")
 		end
 	end
 end
@@ -843,7 +1078,14 @@ function HUD.Start()
 	root = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Name = "HUD", Parent = layer })
 	buildClock()
 	buildTopRight()
-	topPills = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0, 520, 0, 36), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 10), Name = "Pills", Parent = root })
+	topPills = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(0, 520, 0, 36),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 10),
+		Name = "Pills",
+		Parent = root,
+	})
 	Kit.List(topPills, "X", 8, "Center")
 	buildTracker()
 	buildDock()

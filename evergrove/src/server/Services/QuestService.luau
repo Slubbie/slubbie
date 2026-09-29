@@ -23,7 +23,18 @@ local S = require(script.Parent)
 
 local QuestService = {}
 
-local ITEM_TYPES = { Harvest = true, Deliver = true, Sell = false, Craft = true, Process = true, Cook = true, Catch = true, Forage = true, Bug = true, Plant = true }
+local ITEM_TYPES = {
+	Harvest = true,
+	Deliver = true,
+	Sell = false,
+	Craft = true,
+	Process = true,
+	Cook = true,
+	Catch = true,
+	Forage = true,
+	Bug = true,
+	Plant = true,
+}
 
 -- Matching -------------------------------------------------------------------------------------------
 
@@ -102,7 +113,11 @@ function QuestService.Available(player: Player): { string }
 		return out
 	end
 	for _, quest in QuestsConfig.List do
-		if not profile.Quests.Active[quest.Id] and not profile.Quests.Done[quest.Id] and QuestService.RequirementsMet(player, profile, quest) then
+		if
+			not profile.Quests.Active[quest.Id]
+			and not profile.Quests.Done[quest.Id]
+			and QuestService.RequirementsMet(player, profile, quest)
+		then
 			table.insert(out, quest.Id)
 		end
 	end
@@ -265,7 +280,15 @@ local function dailyRewardScale(profile: any): number
 	return 1 + QuestsConfig.EstateScale * (Stats.EstateLevel(profile) - 1)
 end
 
-local function progressList(player: Player, profile: any, listName: string, kind: string, target: string?, count: number, meta: any?)
+local function progressList(
+	player: Player,
+	profile: any,
+	listName: string,
+	kind: string,
+	target: string?,
+	count: number,
+	meta: any?
+)
 	local list = profile.Quests[listName]
 	if not list or not list.List then
 		return
@@ -349,7 +372,13 @@ function QuestService.Progress(player: Player, kind: string, target: string?, co
 				local contributor = Players:GetPlayerByUserId(userId)
 				if contributor then
 					S.Economy.GrantReward(contributor, goal.Reward, goal.Name)
-					S.Notify.Banner(contributor, "Community goal complete!", goal.Name .. " — thanks for helping!", "Quest", "🤝")
+					S.Notify.Banner(
+						contributor,
+						"Community goal complete!",
+						goal.Name .. " — thanks for helping!",
+						"Quest",
+						"🤝"
+					)
 				end
 			end
 		end
@@ -383,7 +412,11 @@ function QuestService.DropsFor(player: Player, source: string, regionId: string?
 		return out
 	end
 	for _, drop in QuestsConfig.Drops do
-		if drop.Source == source and profile.Quests.Active[drop.Quest] and (not drop.Region or drop.Region == regionId) then
+		if
+			drop.Source == source
+			and profile.Quests.Active[drop.Quest]
+			and (not drop.Region or drop.Region == regionId)
+		then
 			local flag = "Drop_" .. drop.Quest .. "_" .. drop.Tag
 			if not profile.Unlocks[flag] and math.random() < drop.Chance then
 				profile.Unlocks[flag] = true
@@ -461,12 +494,18 @@ function QuestService.RefreshDaily(player: Player)
 	-- Daily requests follow the real (UTC) day so they don't churn every 20 minutes.
 	local realDay = math.floor(os.time() / 86400)
 	if profile.Quests.Daily.Day ~= realDay then
-		profile.Quests.Daily = { Day = realDay, List = makeList(player, profile, QuestsConfig.Daily, QuestsConfig.DailyCount, "daily" .. realDay) }
+		profile.Quests.Daily = {
+			Day = realDay,
+			List = makeList(player, profile, QuestsConfig.Daily, QuestsConfig.DailyCount, "daily" .. realDay),
+		}
 		S.Data.Changed(player, "Quests", "Daily")
 	end
 	local week = math.floor(realDay / 7)
 	if profile.Quests.Weekly.Week ~= week then
-		profile.Quests.Weekly = { Week = week, List = makeList(player, profile, QuestsConfig.Weekly, QuestsConfig.WeeklyCount, "weekly" .. week) }
+		profile.Quests.Weekly = {
+			Week = week,
+			List = makeList(player, profile, QuestsConfig.Weekly, QuestsConfig.WeeklyCount, "weekly" .. week),
+		}
 		S.Data.Changed(player, "Quests", "Weekly")
 	end
 end
@@ -484,7 +523,15 @@ function QuestService.CommunityState()
 	for _ in communityContributors do
 		contributors += 1
 	end
-	return { Id = goal.Id, Name = goal.Name, Progress = communityProgress, Goal = goal.Objective.Count, Contributors = contributors, Done = communityDone, Reward = goal.Reward }
+	return {
+		Id = goal.Id,
+		Name = goal.Name,
+		Progress = communityProgress,
+		Goal = goal.Objective.Count,
+		Contributors = contributors,
+		Done = communityDone,
+		Reward = goal.Reward,
+	}
 end
 
 -- Handlers ---------------------------------------------------------------------------------------------------------
@@ -555,11 +602,12 @@ function QuestService.Init()
 	Net.Handle("QuestTurnIn", turnIn)
 	Net.Handle("QuestTrack", track)
 	Net.Handle("BoardGet", function(player)
-		return true, {
-			Community = QuestService.CommunityState(),
-			Available = QuestService.Available(player),
-			Contracts = S.Market.ContractBoard(player),
-		}
+		return true,
+			{
+				Community = QuestService.CommunityState(),
+				Available = QuestService.Available(player),
+				Contracts = S.Market.ContractBoard(player),
+			}
 	end)
 end
 

@@ -35,12 +35,30 @@ local pulseTarget: GuiObject? = nil
 local seenHints: { [string]: boolean } = {}
 
 local HINTS = {
-	Chest = { Title = "Storage", Text = "Drag items between your backpack and the chest. Shift-click (or the ⇄ button) moves a whole stack; right-click splits one." },
-	Build = { Title = "Build mode", Text = "Pick something from the catalog, then click to place it. R rotates, T toggles free placement for decorations, Ctrl+Z undoes. Click an existing object to move it." },
-	Machine = { Title = "Artisan machines", Text = "Load ingredients into the queue and collect the goods when they're done. Machines keep working while you're away." },
-	Animals = { Title = "Animals", Text = "Pet, feed and brush your animals every day. Happy animals give better products — and they remember who cares for them." },
-	Fishing = { Title = "Fishing", Text = "Keep the fish inside the green bar: hold to raise it, release to let it fall. Better rods make the bar bigger." },
-	Visit = { Title = "Visiting", Text = "You're on someone else's farm. What you can do here depends on the permissions the owner gave you." },
+	Chest = {
+		Title = "Storage",
+		Text = "Drag items between your backpack and the chest. Shift-click (or the ⇄ button) moves a whole stack; right-click splits one.",
+	},
+	Build = {
+		Title = "Build mode",
+		Text = "Pick something from the catalog, then click to place it. R rotates, T toggles free placement for decorations, Ctrl+Z undoes. Click an existing object to move it.",
+	},
+	Machine = {
+		Title = "Artisan machines",
+		Text = "Load ingredients into the queue and collect the goods when they're done. Machines keep working while you're away.",
+	},
+	Animals = {
+		Title = "Animals",
+		Text = "Pet, feed and brush your animals every day. Happy animals give better products — and they remember who cares for them.",
+	},
+	Fishing = {
+		Title = "Fishing",
+		Text = "Keep the fish inside the green bar: hold to raise it, release to let it fall. Better rods make the bar bigger.",
+	},
+	Visit = {
+		Title = "Visiting",
+		Text = "You're on someone else's farm. What you can do here depends on the permissions the owner gave you.",
+	},
 }
 
 -- Helpers ---------------------------------------------------------------------------------------------------------------
@@ -161,9 +179,29 @@ local function ensureWorldGuide(label: string)
 	gui.LightInfluence = 0
 	gui.StudsOffsetWorldSpace = Vector3.new(0, 4, 0)
 	gui.Adornee = part
-	local arrow = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 44), Text = "⬇", TextScaled = true, Font = Theme.Fonts.Bold, TextColor3 = Color3.fromRGB(255, 225, 90), TextStrokeTransparency = 0.2, Name = "Arrow", Parent = gui })
+	local arrow = Kit.new("TextLabel", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 44),
+		Text = "⬇",
+		TextScaled = true,
+		Font = Theme.Fonts.Bold,
+		TextColor3 = Color3.fromRGB(255, 225, 90),
+		TextStrokeTransparency = 0.2,
+		Name = "Arrow",
+		Parent = gui,
+	})
 	arrow.TextStrokeColor3 = Color3.fromRGB(90, 60, 10)
-	Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 20), Position = UDim2.fromOffset(0, 46), Text = label, TextScaled = true, Font = Theme.Fonts.Bold, TextColor3 = Color3.new(1, 1, 1), TextStrokeTransparency = 0.3, Parent = gui })
+	Kit.new("TextLabel", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 20),
+		Position = UDim2.fromOffset(0, 46),
+		Text = label,
+		TextScaled = true,
+		Font = Theme.Fonts.Bold,
+		TextColor3 = Color3.new(1, 1, 1),
+		TextStrokeTransparency = 0.3,
+		Parent = gui,
+	})
 	gui.Parent = C.UI.Root()
 	local a1 = Instance.new("Attachment")
 	a1.Parent = part
@@ -178,7 +216,11 @@ local function ensureWorldGuide(label: string)
 	b.CurveSize0 = 4
 	b.CurveSize1 = -4
 	b.Color = ColorSequence.new(Color3.fromRGB(255, 230, 120))
-	b.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.9), NumberSequenceKeypoint.new(0.3, 0.35), NumberSequenceKeypoint.new(1, 0.2) })
+	b.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.9),
+		NumberSequenceKeypoint.new(0.3, 0.35),
+		NumberSequenceKeypoint.new(1, 0.2),
+	})
 	b.Parent = part
 	markerPart = part
 	marker = gui
@@ -262,7 +304,14 @@ local function buildCard(index: number, step: any)
 	Kit.Padding(panel, 12, 14)
 	Kit.List(panel, "Y", 6)
 	local speaker = step.Speaker and Registry.Npcs[step.Speaker]
-	local top = Kit.Label((if speaker then speaker.Icon .. " " .. speaker.Name .. "  ·  " else "🌱 ") .. "Step " .. index .. " of " .. #Tutorial.Steps, { Size = Theme.Sizes.Tiny, Color = "SubText" })
+	local top = Kit.Label(
+		(if speaker then speaker.Icon .. " " .. speaker.Name .. "  ·  " else "🌱 ")
+			.. "Step "
+			.. index
+			.. " of "
+			.. #Tutorial.Steps,
+		{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+	)
 	top.Parent = panel
 	local title = Kit.Heading(step.Title, 20)
 	title.LayoutOrder = 1
@@ -276,23 +325,39 @@ local function buildCard(index: number, step: any)
 		progress.Frame.LayoutOrder = 3
 		progress.Frame.Parent = panel
 	end
-	local buttons = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), LayoutOrder = 4, Parent = panel })
+	local buttons =
+		Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), LayoutOrder = 4, Parent = panel })
 	Kit.List(buttons, "X", 8, "Right")
-	local skip = Kit.Button("Skip tutorial", { Style = "Ghost", Size = UDim2.fromOffset(120, 32), TextSize = Theme.Sizes.Tiny, OnClick = function()
-		Kit.Confirm("Skip the tutorial?", "You'll still get Mabel's starter gift. You can always ask villagers for help.", function(yes)
-			if yes then
-				Net.Request("TutorialSkip")
-			end
-		end, "Skip")
-	end })
+	local skip = Kit.Button("Skip tutorial", {
+		Style = "Ghost",
+		Size = UDim2.fromOffset(120, 32),
+		TextSize = Theme.Sizes.Tiny,
+		OnClick = function()
+			Kit.Confirm(
+				"Skip the tutorial?",
+				"You'll still get Mabel's starter gift. You can always ask villagers for help.",
+				function(yes)
+					if yes then
+						Net.Request("TutorialSkip")
+					end
+				end,
+				"Skip"
+			)
+		end,
+	})
 	skip.Parent = buttons
 	if step.Wait == "Ack" then
-		local ok = Kit.Button(if index == #Tutorial.Steps then "Let's go!" else "Got it", { Style = "Accent", Size = UDim2.fromOffset(110, 32), TextSize = Theme.Sizes.Small, OnClick = function()
-			local done = Net.Request("TutorialAck", step.Id)
-			if done then
-				C.Audio.PlayUI("UIConfirm")
-			end
-		end })
+		local ok = Kit.Button(if index == #Tutorial.Steps then "Let's go!" else "Got it", {
+			Style = "Accent",
+			Size = UDim2.fromOffset(110, 32),
+			TextSize = Theme.Sizes.Small,
+			OnClick = function()
+				local done = Net.Request("TutorialAck", step.Id)
+				if done then
+					C.Audio.PlayUI("UIConfirm")
+				end
+			end,
+		})
 		ok.LayoutOrder = 1
 		ok.Parent = buttons
 	end
@@ -361,7 +426,8 @@ function TutorialController.Start()
 	RunService.Heartbeat:Connect(function(dt)
 		local arrow = marker and marker:FindFirstChild("Arrow") :: TextLabel?
 		if arrow then
-			arrow.Position = UDim2.fromOffset(0, if Kit.ReducedMotion then 0 else math.abs(math.sin(os.clock() * 3)) * -10)
+			arrow.Position =
+				UDim2.fromOffset(0, if Kit.ReducedMotion then 0 else math.abs(math.sin(os.clock() * 3)) * -10)
 		end
 		elapsed += dt
 		if elapsed < 0.2 then
@@ -374,11 +440,16 @@ function TutorialController.Start()
 			clearWorldGuide()
 			return
 		end
-		local label = if step.Target == "Tile" then "Your field" elseif step.Target == "Bin" then "Shipping bin" elseif step.Target == "Chest" then "Chest" elseif step.Target == "Well" then "Well" else (function()
-			local npcId = string.match(step.Target or "", "^Npc:(.+)$")
-			local npc = npcId and Registry.Npcs[npcId]
-			return if npc then npc.Name else ""
-		end)()
+		local label = if step.Target == "Tile"
+			then "Your field"
+			elseif step.Target == "Bin" then "Shipping bin"
+			elseif step.Target == "Chest" then "Chest"
+			elseif step.Target == "Well" then "Well"
+			else (function()
+				local npcId = string.match(step.Target or "", "^Npc:(.+)$")
+				local npc = npcId and Registry.Npcs[npcId]
+				return if npc then npc.Name else ""
+			end)()
 		ensureWorldGuide(label)
 		attachToCharacter()
 		local part = markerPart :: Part

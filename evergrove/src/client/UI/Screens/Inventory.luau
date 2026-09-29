@@ -39,8 +39,16 @@ local FILTERS = {
 	{ Id = "Produce", Icon = "🥕", Cats = { Crop = true, Forage = true, AnimalProduct = true } },
 	{ Id = "Fish & bugs", Icon = "🐟", Cats = { Fish = true, Bug = true, Bait = true } },
 	{ Id = "Goods", Icon = "🍯", Cats = { Artisan = true, Food = true, Potion = true, Ingredient = true } },
-	{ Id = "Materials", Icon = "🪵", Cats = { Material = true, Mineral = true, Gem = true, Fertilizer = true, Supply = true, Feed = true } },
-	{ Id = "Special", Icon = "🏺", Cats = { Artifact = true, Treasure = true, Placeable = true, Book = true, Special = true } },
+	{
+		Id = "Materials",
+		Icon = "🪵",
+		Cats = { Material = true, Mineral = true, Gem = true, Fertilizer = true, Supply = true, Feed = true },
+	},
+	{
+		Id = "Special",
+		Icon = "🏺",
+		Cats = { Artifact = true, Treasure = true, Placeable = true, Book = true, Special = true },
+	},
 }
 
 local function request(action: string, ...: any): (boolean, any)
@@ -118,15 +126,27 @@ return {
 		local connections: { RBXScriptConnection } = {}
 
 		-- Layout -------------------------------------------------------------------------------------------------
-		local left = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.56, -8, 1, 0), Parent = content })
-		local right = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.44, -8, 1, 0), Position = UDim2.new(0.56, 8, 0, 0), Parent = content })
+		local left =
+			Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.56, -8, 1, 0), Parent = content })
+		local right = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(0.44, -8, 1, 0),
+			Position = UDim2.new(0.56, 8, 0, 0),
+			Parent = content,
+		})
 
 		local toolbar = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Parent = left })
 		local search = Kit.TextBox("🔍 Search your bag…", { Size = UDim2.new(1, -170, 1, 0) })
 		search.Parent = toolbar
-		local sortButton = Kit.Button("Sort", { Style = "Secondary", Icon = "↕️", Size = UDim2.fromOffset(80, 34), TextSize = Theme.Sizes.Small, OnClick = function()
-			request("InvSort", "inv")
-		end })
+		local sortButton = Kit.Button("Sort", {
+			Style = "Secondary",
+			Icon = "↕️",
+			Size = UDim2.fromOffset(80, 34),
+			TextSize = Theme.Sizes.Small,
+			OnClick = function()
+				request("InvSort", "inv")
+			end,
+		})
 		sortButton.Position = UDim2.new(1, -164, 0, 0)
 		sortButton.Parent = toolbar
 		Kit.AttachTooltip(sortButton, function()
@@ -137,11 +157,19 @@ return {
 		valueLabel.Position = UDim2.new(1, -78, 0, 0)
 		valueLabel.Parent = toolbar
 
-		local chips = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 40), Parent = left })
+		local chips = Kit.new("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 30),
+			Position = UDim2.fromOffset(0, 40),
+			Parent = left,
+		})
 		Kit.List(chips, "X", 4)
 		local chipButtons = {}
 		for i, filter in FILTERS do
-			local chip = Kit.Button(filter.Icon, { Style = "Secondary", Size = UDim2.fromOffset(40, 30), TextSize = 15, LayoutOrder = i })
+			local chip = Kit.Button(
+				filter.Icon,
+				{ Style = "Secondary", Size = UDim2.fromOffset(40, 30), TextSize = 15, LayoutOrder = i }
+			)
 			chip.Parent = chips
 			chipButtons[i] = chip
 			Kit.AttachTooltip(chip, function()
@@ -157,7 +185,8 @@ return {
 		sizeLabel.Size = UDim2.new(1, 0, 0, 20)
 		sizeLabel.Parent = left
 
-		local carryBanner = Kit.Label("", { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = "Accent", Align = "Center" })
+		local carryBanner =
+			Kit.Label("", { Size = Theme.Sizes.Small, Font = Theme.Fonts.Bold, Color = "Accent", Align = "Center" })
 		carryBanner.Size = UDim2.new(1, 0, 0, 22)
 		carryBanner.Position = UDim2.new(0, 0, 0, -26)
 		carryBanner.Visible = false
@@ -173,7 +202,11 @@ return {
 			if cats and not cats[def.Category] then
 				return false
 			end
-			if query ~= "" and not string.find(string.lower(ItemUtil.DisplayName(stack)), query, 1, true) and not string.find(string.lower(def.Category), query, 1, true) then
+			if
+				query ~= ""
+				and not string.find(string.lower(ItemUtil.DisplayName(stack)), query, 1, true)
+				and not string.find(string.lower(def.Category), query, 1, true)
+			then
 				return false
 			end
 			return true
@@ -205,7 +238,10 @@ return {
 			carry = value
 			if value then
 				local stack = stackAt(value.Ref)
-				carryBanner.Text = "Moving " .. (if stack then ItemUtil.DisplayName(stack) else "item") .. (if value.Count then " ×" .. value.Count else "") .. " — choose a slot (B / Esc to cancel)"
+				carryBanner.Text = "Moving "
+					.. (if stack then ItemUtil.DisplayName(stack) else "item")
+					.. (if value.Count then " ×" .. value.Count else "")
+					.. " — choose a slot (B / Esc to cancel)"
 				carryBanner.Visible = true
 			else
 				carryBanner.Visible = false
@@ -251,7 +287,8 @@ return {
 				if not n then
 					return
 				end
-				local target = firstEmpty(containerName, if containerName == "inv" then HOTBAR + 1 else 1) or firstEmpty(containerName)
+				local target = firstEmpty(containerName, if containerName == "inv" then HOTBAR + 1 else 1)
+					or firstEmpty(containerName)
 				if not target then
 					C.Notify.Toast("No empty slot to split into", "Info")
 					return
@@ -285,13 +322,17 @@ return {
 			Kit.Clear(frame)
 			local stack = selectedRef and stackAt(selectedRef)
 			if not stack or not selectedRef then
-				local tip = Kit.Label("Select an item to see what it's worth, what it's used for, and what you can do with it.\n\nDrag to move · Shift-click to quick-move · Right-click to split · Double-click to use.", { Wrap = true, Color = "SubText", Size = Theme.Sizes.Small })
+				local tip = Kit.Label(
+					"Select an item to see what it's worth, what it's used for, and what you can do with it.\n\nDrag to move · Shift-click to quick-move · Right-click to split · Double-click to use.",
+					{ Wrap = true, Color = "SubText", Size = Theme.Sizes.Small }
+				)
 				tip.Parent = frame
 				return
 			end
 			local ref = selectedRef :: string
 			local def = Registry.Items[stack.Id]
-			local header = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 84), Parent = frame })
+			local header =
+				Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 84), Parent = frame })
 			local big = Kit.ItemSlot(80)
 			big.Button.Active = false
 			big.Set(stack)
@@ -302,12 +343,23 @@ return {
 			name.Size = UDim2.new(1, -92, 0, 26)
 			name.TextWrapped = true
 			name.Parent = header
-			local sub = Kit.Label(Theme.Rarity(ItemUtil.Rarity(stack)).Glyph .. " " .. ItemUtil.Rarity(stack) .. " · " .. def.Category .. (if stack.N > 1 then " · ×" .. stack.N else ""), { Size = Theme.Sizes.Small, Color = "SubText" })
+			local sub = Kit.Label(
+				Theme.Rarity(ItemUtil.Rarity(stack)).Glyph
+					.. " "
+					.. ItemUtil.Rarity(stack)
+					.. " · "
+					.. def.Category
+					.. (if stack.N > 1 then " · ×" .. stack.N else ""),
+				{ Size = Theme.Sizes.Small, Color = "SubText" }
+			)
 			sub.Position = UDim2.fromOffset(92, 34)
 			sub.Size = UDim2.new(1, -92, 0, 20)
 			sub.Parent = header
 			if ItemUtil.Sellable(stack) then
-				local worth = Kit.Label("Worth about " .. Kit.Money(ItemUtil.UnitValue(stack)) .. " each", { Size = Theme.Sizes.Small, Color = "Accent" })
+				local worth = Kit.Label(
+					"Worth about " .. Kit.Money(ItemUtil.UnitValue(stack)) .. " each",
+					{ Size = Theme.Sizes.Small, Color = "Accent" }
+				)
 				worth.Position = UDim2.fromOffset(92, 56)
 				worth.Size = UDim2.new(1, -92, 0, 20)
 				worth.Parent = header
@@ -318,7 +370,12 @@ return {
 			local lines = Kit.ItemTooltip(stack)
 			for i = 3, #lines do
 				local line = lines[i]
-				local label = Kit.Label(line.Text, { Size = line.Size or Theme.Sizes.Small, Wrap = true, Rich = true, Font = if line.Bold then Theme.Fonts.Bold else nil })
+				local label = Kit.Label(line.Text, {
+					Size = line.Size or Theme.Sizes.Small,
+					Wrap = true,
+					Rich = true,
+					Font = if line.Bold then Theme.Fonts.Bold else nil,
+				})
 				if typeof(line.Color) == "Color3" then
 					label.TextColor3 = line.Color :: Color3
 				elseif type(line.Color) == "string" then
@@ -332,22 +389,58 @@ return {
 				local tier = C.State.Get("Tools", def.Tool) or 1
 				local tierDef = family and family.Tiers[tier]
 				if tierDef then
-					local label = Kit.Label("Tier " .. tier .. " · " .. tierDef.Name .. " · area up to " .. tierDef.MaxArea .. "×" .. tierDef.MaxArea .. (if tierDef.Ability then "\n✨ " .. tierDef.Ability else ""), { Size = Theme.Sizes.Small, Wrap = true, Color = "Info" })
+					local label = Kit.Label(
+						"Tier "
+							.. tier
+							.. " · "
+							.. tierDef.Name
+							.. " · area up to "
+							.. tierDef.MaxArea
+							.. "×"
+							.. tierDef.MaxArea
+							.. (if tierDef.Ability then "\n✨ " .. tierDef.Ability else ""),
+						{ Size = Theme.Sizes.Small, Wrap = true, Color = "Info" }
+					)
 					label.LayoutOrder = 100
 					label.Parent = info
 				end
 			end
 			-- Actions
-			local actions = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 92), Position = UDim2.new(0, 0, 1, -92), Parent = frame })
-			local grid = Kit.new("UIGridLayout", { CellSize = UDim2.new(0.333, -6, 0, 40), CellPadding = UDim2.fromOffset(6, 6), SortOrder = Enum.SortOrder.LayoutOrder, Parent = actions })
+			local actions = Kit.new("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, 0, 0, 92),
+				Position = UDim2.new(0, 0, 1, -92),
+				Parent = frame,
+			})
+			local grid = Kit.new("UIGridLayout", {
+				CellSize = UDim2.new(0.333, -6, 0, 40),
+				CellPadding = UDim2.fromOffset(6, 6),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Parent = actions,
+			})
 			grid.FillDirectionMaxCells = 3
 			local order = 0
 			local function action(text: string, style: string, fn: () -> ())
 				order += 1
-				Kit.Button(text, { Style = style, TextSize = Theme.Sizes.Small, LayoutOrder = order, OnClick = fn }).Parent = actions
+				Kit.Button(text, { Style = style, TextSize = Theme.Sizes.Small, LayoutOrder = order, OnClick = fn }).Parent =
+					actions
 			end
-			if def.Use and def.Use ~= "Plant" and def.Use ~= "Fertilize" and def.Use ~= "Spray" and def.Use ~= "Amend" then
-				local verb = ({ Eat = "Eat", Drink = "Drink", Read = "Read", Open = "Open", Warp = "Warp", Totem = "Use", Place = "Place" })[def.Use] or "Use"
+			if
+				def.Use
+				and def.Use ~= "Plant"
+				and def.Use ~= "Fertilize"
+				and def.Use ~= "Spray"
+				and def.Use ~= "Amend"
+			then
+				local verb = ({
+					Eat = "Eat",
+					Drink = "Drink",
+					Read = "Read",
+					Open = "Open",
+					Warp = "Warp",
+					Totem = "Use",
+					Place = "Place",
+				})[def.Use] or "Use"
 				action(verb, "Primary", function()
 					useItem(ref)
 				end)
@@ -382,13 +475,19 @@ return {
 			if not def.NoTrash then
 				action("🗑️ Trash", "Danger", function()
 					local function confirm(count: number)
-						Kit.Confirm("Throw away?", "Throw away " .. count .. " × " .. ItemUtil.DisplayName(stack) .. "? This can't be undone.", function(yes)
-							if yes then
-								request("InvTrash", ref, count)
-								selectedRef = nil
-								refresh()
-							end
-						end, "Trash", true)
+						Kit.Confirm(
+							"Throw away?",
+							"Throw away " .. count .. " × " .. ItemUtil.DisplayName(stack) .. "? This can't be undone.",
+							function(yes)
+								if yes then
+									request("InvTrash", ref, count)
+									selectedRef = nil
+									refresh()
+								end
+							end,
+							"Trash",
+							true
+						)
 					end
 					if stack.N > 1 then
 						Kit.AskNumber("How many to trash?", stack.N, stack.N, function(n)
@@ -412,7 +511,10 @@ return {
 				moveTo(from, ref, count)
 				return
 			end
-			if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or UserInputService:IsKeyDown(Enum.KeyCode.RightShift) then
+			if
+				UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
+				or UserInputService:IsKeyDown(Enum.KeyCode.RightShift)
+			then
 				quickMove(ref)
 				return
 			end
@@ -444,9 +546,16 @@ return {
 				split(ref)
 			end)
 			slot.Button.InputBegan:Connect(function(input)
-				local isMouse = input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2
+				local isMouse = input.UserInputType == Enum.UserInputType.MouseButton1
+					or input.UserInputType == Enum.UserInputType.MouseButton2
 				if (isMouse or input.UserInputType == Enum.UserInputType.Touch) and stackAt(ref) then
-					drag = { Ref = ref, Half = input.UserInputType == Enum.UserInputType.MouseButton2, Start = Vector2.new(input.Position.X, input.Position.Y), Ghost = nil, Active = false }
+					drag = {
+						Ref = ref,
+						Half = input.UserInputType == Enum.UserInputType.MouseButton2,
+						Start = Vector2.new(input.Position.X, input.Position.Y),
+						Ghost = nil,
+						Active = false,
+					}
 				end
 			end)
 			return slot
@@ -470,14 +579,18 @@ return {
 				table.sort(entries, function(a, b)
 					return ItemUtil.DisplayName(a.Stack) < ItemUtil.DisplayName(b.Stack)
 				end)
-				local sub = Kit.Label(Format.Commas(total) .. " items stored · automation fills and uses it", { Size = Theme.Sizes.Tiny, Color = "SubText" })
+				local sub = Kit.Label(
+					Format.Commas(total) .. " items stored · automation fills and uses it",
+					{ Size = Theme.Sizes.Tiny, Color = "SubText" }
+				)
 				sub.Position = UDim2.fromOffset(0, 30)
 				sub.Parent = right
 				local list = Kit.Scroll({ Size = UDim2.new(1, 0, 1, -56), Position = UDim2.fromOffset(0, 56) })
 				list.Parent = right
 				Kit.List(list, "Y", 4)
 				if #entries == 0 then
-					Kit.Empty("The silo is empty. Collectors, drones and auto-harvesters store their goods here.").Parent = list
+					Kit.Empty("The silo is empty. Collectors, drones and auto-harvesters store their goods here.").Parent =
+						list
 				end
 				for i, entry in entries do
 					local row = Kit.Card(50)
@@ -487,13 +600,21 @@ return {
 					slot.Button.Active = false
 					slot.Set(entry.Stack)
 					slot.Button.Parent = row
-					local name = Kit.Label(ItemUtil.DisplayName(entry.Stack) .. "  ×" .. Format.Commas(entry.Stack.N), { Size = Theme.Sizes.Small })
+					local name = Kit.Label(
+						ItemUtil.DisplayName(entry.Stack) .. "  ×" .. Format.Commas(entry.Stack.N),
+						{ Size = Theme.Sizes.Small }
+					)
 					name.Position = UDim2.fromOffset(44, 6)
 					name.Size = UDim2.new(1, -140, 0, 20)
 					name.Parent = row
-					local take = Kit.Button("Take", { Style = "Secondary", Size = UDim2.fromOffset(80, 30), TextSize = Theme.Sizes.Small, OnClick = function()
-						request("InvMove", "silo:" .. entry.Key, "inv:0")
-					end })
+					local take = Kit.Button("Take", {
+						Style = "Secondary",
+						Size = UDim2.fromOffset(80, 30),
+						TextSize = Theme.Sizes.Small,
+						OnClick = function()
+							request("InvMove", "silo:" .. entry.Key, "inv:0")
+						end,
+					})
 					take.Position = UDim2.new(1, -84, 0, 2)
 					take.Parent = row
 				end
@@ -503,43 +624,78 @@ return {
 			if other then
 				local containerName = other :: string
 				local data, size = containerData(containerName)
-				local header = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Parent = right })
+				local header =
+					Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), Parent = right })
 				local title = Kit.Heading(containerTitle(containerName), 20)
 				title.Size = UDim2.new(1, -170, 1, 0)
 				title.Parent = header
-				local deposit = Kit.Button("Deposit matching", { Style = "Secondary", Size = UDim2.fromOffset(160, 32), TextSize = Theme.Sizes.Tiny, OnClick = function()
-					local ok, moved = request("InvStackAll", "inv", containerName)
-					if ok then
-						C.Notify.Toast("Stored " .. tostring(moved or 0) .. " items", "Success")
-					end
-				end })
+				local deposit = Kit.Button("Deposit matching", {
+					Style = "Secondary",
+					Size = UDim2.fromOffset(160, 32),
+					TextSize = Theme.Sizes.Tiny,
+					OnClick = function()
+						local ok, moved = request("InvStackAll", "inv", containerName)
+						if ok then
+							C.Notify.Toast("Stored " .. tostring(moved or 0) .. " items", "Success")
+						end
+					end,
+				})
 				deposit.Position = UDim2.new(1, -160, 0, 0)
 				deposit.Parent = header
 				Kit.AttachTooltip(deposit, function()
-					return { { Text = "Move everything in your backpack that this storage already holds (not the hotbar or locked items)." } }
+					return {
+						{
+							Text = "Move everything in your backpack that this storage already holds (not the hotbar or locked items).",
+						},
+					}
 				end)
-				local toolbar2 = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 40), Parent = right })
+				local toolbar2 = Kit.new("Frame", {
+					BackgroundTransparency = 1,
+					Size = UDim2.new(1, 0, 0, 30),
+					Position = UDim2.fromOffset(0, 40),
+					Parent = right,
+				})
 				Kit.List(toolbar2, "X", 6)
-				Kit.Button("Sort", { Style = "Secondary", Icon = "↕️", Size = UDim2.fromOffset(80, 30), TextSize = Theme.Sizes.Tiny, OnClick = function()
-					request("InvSort", containerName)
-				end }).Parent = toolbar2
-				Kit.Button("Take all", { Style = "Secondary", Size = UDim2.fromOffset(90, 30), TextSize = Theme.Sizes.Tiny, LayoutOrder = 1, OnClick = function()
-					local slots = (data and data.Slots) or {}
-					for key in slots do
-						request("InvQuick", containerName .. ":" .. key, "inv")
-					end
-				end }).Parent = toolbar2
+				Kit.Button("Sort", {
+					Style = "Secondary",
+					Icon = "↕️",
+					Size = UDim2.fromOffset(80, 30),
+					TextSize = Theme.Sizes.Tiny,
+					OnClick = function()
+						request("InvSort", containerName)
+					end,
+				}).Parent =
+					toolbar2
+				Kit.Button("Take all", {
+					Style = "Secondary",
+					Size = UDim2.fromOffset(90, 30),
+					TextSize = Theme.Sizes.Tiny,
+					LayoutOrder = 1,
+					OnClick = function()
+						local slots = (data and data.Slots) or {}
+						for key in slots do
+							request("InvQuick", containerName .. ":" .. key, "inv")
+						end
+					end,
+				}).Parent =
+					toolbar2
 				local used = 0
 				for _ in (data and data.Slots) or {} do
 					used += 1
 				end
-				local count = Kit.Label(used .. " / " .. size .. " slots", { Size = Theme.Sizes.Tiny, Color = "SubText" })
+				local count =
+					Kit.Label(used .. " / " .. size .. " slots", { Size = Theme.Sizes.Tiny, Color = "SubText" })
 				count.Size = UDim2.fromOffset(100, 30)
 				count.LayoutOrder = 2
 				count.Parent = toolbar2
 				local scroll = Kit.Scroll({ Size = UDim2.new(1, 0, 1, -78), Position = UDim2.fromOffset(0, 76) })
 				scroll.Parent = right
-				local gridFrame = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = scroll })
+				local gridFrame = Kit.new("Frame", {
+					BackgroundTransparency = 1,
+					Size = UDim2.new(1, -8, 0, 0),
+					AutomaticSize = Enum.AutomaticSize.Y,
+					Parent = scroll,
+				})
 				Kit.Grid(gridFrame, 54, 6)
 				for i = 1, size do
 					makeSlot(containerName .. ":" .. i, gridFrame, i)
@@ -547,7 +703,8 @@ return {
 				rightBody = nil
 				return
 			end
-			local details = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = right })
+			local details =
+				Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Parent = right })
 			rightBody = details
 		end
 
@@ -555,20 +712,43 @@ return {
 			Kit.Clear(bagScroll)
 			local profile = C.State.Data()
 			local size = profile and profile.Inventory.Size or 0
-			local hotLabel = Kit.Label("Hotbar", { Size = Theme.Sizes.Tiny, Color = "SubText", Font = Theme.Fonts.Bold })
+			local hotLabel =
+				Kit.Label("Hotbar", { Size = Theme.Sizes.Tiny, Color = "SubText", Font = Theme.Fonts.Bold })
 			hotLabel.LayoutOrder = 1
 			hotLabel.Parent = bagScroll
-			local hot = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2, Parent = bagScroll })
+			local hot = Kit.new("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, -8, 0, 0),
+				AutomaticSize = Enum.AutomaticSize.Y,
+				LayoutOrder = 2,
+				Parent = bagScroll,
+			})
 			Kit.Grid(hot, 54, 6)
 			for i = 1, math.min(HOTBAR, size) do
 				local slot = makeSlot("inv:" .. i, hot, i)
-				local key = Kit.new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(14, 12), Position = UDim2.fromOffset(3, 40), Font = Theme.Fonts.Bold, TextSize = 10, Text = tostring(i), TextTransparency = 0.35, Parent = slot.Button })
+				local key = Kit.new("TextLabel", {
+					BackgroundTransparency = 1,
+					Size = UDim2.fromOffset(14, 12),
+					Position = UDim2.fromOffset(3, 40),
+					Font = Theme.Fonts.Bold,
+					TextSize = 10,
+					Text = tostring(i),
+					TextTransparency = 0.35,
+					Parent = slot.Button,
+				})
 				Kit.Paint(key, "TextColor3", "SubText")
 			end
-			local packLabel = Kit.Label("Backpack", { Size = Theme.Sizes.Tiny, Color = "SubText", Font = Theme.Fonts.Bold })
+			local packLabel =
+				Kit.Label("Backpack", { Size = Theme.Sizes.Tiny, Color = "SubText", Font = Theme.Fonts.Bold })
 			packLabel.LayoutOrder = 3
 			packLabel.Parent = bagScroll
-			local pack = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 4, Parent = bagScroll })
+			local pack = Kit.new("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, -8, 0, 0),
+				AutomaticSize = Enum.AutomaticSize.Y,
+				LayoutOrder = 4,
+				Parent = bagScroll,
+			})
 			Kit.Grid(pack, 54, 6)
 			for i = HOTBAR + 1, size do
 				makeSlot("inv:" .. i, pack, i)
@@ -598,7 +778,11 @@ return {
 			local profile = C.State.Data()
 			valueLabel.Text = "≈ " .. Kit.Money(total)
 			local size = profile and profile.Inventory.Size or 0
-			sizeLabel.Text = used .. " / " .. size .. " slots used" .. (if size < 72 then " · bigger backpacks at Pip's General Store" else "")
+			sizeLabel.Text = used
+				.. " / "
+				.. size
+				.. " slots used"
+				.. (if size < 72 then " · bigger backpacks at Pip's General Store" else "")
 			for i, chip in chipButtons do
 				Kit.Paint(chip, "BackgroundColor3", if i == filterIndex then "HeaderA" else "PanelAlt")
 			end
@@ -659,75 +843,103 @@ return {
 			return nil
 		end
 
-		table.insert(connections, UserInputService.InputChanged:Connect(function(input)
-			local d = drag
-			if not d then
-				return
-			end
-			if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then
-				return
-			end
-			local position = Vector2.new(input.Position.X, input.Position.Y)
-			if not d.Active and (position - d.Start).Magnitude > 8 then
-				d.Active = true
-				local stack = stackAt(d.Ref)
-				local ghost = Kit.new("TextLabel", { BackgroundTransparency = 0.3, Size = UDim2.fromOffset(50, 50), AnchorPoint = Vector2.new(0.5, 0.5), Text = if stack then Kit.ItemIcon(stack.Id) else "", TextScaled = true, Font = Theme.Fonts.Body, ZIndex = 90, Parent = C.UI.Layer("Modal") })
-				Kit.Paint(ghost, "BackgroundColor3", "SlotHover")
-				Kit.Corner(ghost, 10)
-				d.Ghost = ghost
-				Kit.HideTooltip()
-			end
-			if d.Active and d.Ghost then
-				-- Input positions are already relative to the area below the top bar.
-				local scale = C.UI.Scale or 1
-				d.Ghost.Position = UDim2.fromOffset(position.X / scale, position.Y / scale)
-			end
-		end))
-		table.insert(connections, UserInputService.InputEnded:Connect(function(input)
-			local d = drag
-			if not d then
-				return
-			end
-			if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.MouseButton2 and input.UserInputType ~= Enum.UserInputType.Touch then
-				return
-			end
-			drag = nil
-			if d.Ghost then
-				d.Ghost:Destroy()
-			end
-			if not d.Active then
-				return
-			end
-			local target = slotUnder(Vector2.new(input.Position.X, input.Position.Y))
-			if target and target ~= d.Ref then
-				local count = nil
-				if d.Half then
-					local stack = stackAt(d.Ref)
-					count = if stack then math.max(1, math.floor(stack.N / 2)) else nil
+		table.insert(
+			connections,
+			UserInputService.InputChanged:Connect(function(input)
+				local d = drag
+				if not d then
+					return
 				end
-				moveTo(d.Ref, target, count)
-			end
-			-- Swallow the click that ends a drag.
-			task.defer(function()
-				if drag == nil then
-					lastClick.At = 0
+				if
+					input.UserInputType ~= Enum.UserInputType.MouseMovement
+					and input.UserInputType ~= Enum.UserInputType.Touch
+				then
+					return
+				end
+				local position = Vector2.new(input.Position.X, input.Position.Y)
+				if not d.Active and (position - d.Start).Magnitude > 8 then
+					d.Active = true
+					local stack = stackAt(d.Ref)
+					local ghost = Kit.new("TextLabel", {
+						BackgroundTransparency = 0.3,
+						Size = UDim2.fromOffset(50, 50),
+						AnchorPoint = Vector2.new(0.5, 0.5),
+						Text = if stack then Kit.ItemIcon(stack.Id) else "",
+						TextScaled = true,
+						Font = Theme.Fonts.Body,
+						ZIndex = 90,
+						Parent = C.UI.Layer("Modal"),
+					})
+					Kit.Paint(ghost, "BackgroundColor3", "SlotHover")
+					Kit.Corner(ghost, 10)
+					d.Ghost = ghost
+					Kit.HideTooltip()
+				end
+				if d.Active and d.Ghost then
+					-- Input positions are already relative to the area below the top bar.
+					local scale = C.UI.Scale or 1
+					d.Ghost.Position = UDim2.fromOffset(position.X / scale, position.Y / scale)
 				end
 			end)
-		end))
-		table.insert(connections, UserInputService.InputBegan:Connect(function(input)
-			if carry and (input.KeyCode == Enum.KeyCode.ButtonB or input.KeyCode == Enum.KeyCode.Escape) then
-				setCarry(nil)
-			end
-		end))
+		)
+		table.insert(
+			connections,
+			UserInputService.InputEnded:Connect(function(input)
+				local d = drag
+				if not d then
+					return
+				end
+				if
+					input.UserInputType ~= Enum.UserInputType.MouseButton1
+					and input.UserInputType ~= Enum.UserInputType.MouseButton2
+					and input.UserInputType ~= Enum.UserInputType.Touch
+				then
+					return
+				end
+				drag = nil
+				if d.Ghost then
+					d.Ghost:Destroy()
+				end
+				if not d.Active then
+					return
+				end
+				local target = slotUnder(Vector2.new(input.Position.X, input.Position.Y))
+				if target and target ~= d.Ref then
+					local count = nil
+					if d.Half then
+						local stack = stackAt(d.Ref)
+						count = if stack then math.max(1, math.floor(stack.N / 2)) else nil
+					end
+					moveTo(d.Ref, target, count)
+				end
+				-- Swallow the click that ends a drag.
+				task.defer(function()
+					if drag == nil then
+						lastClick.At = 0
+					end
+				end)
+			end)
+		)
+		table.insert(
+			connections,
+			UserInputService.InputBegan:Connect(function(input)
+				if carry and (input.KeyCode == Enum.KeyCode.ButtonB or input.KeyCode == Enum.KeyCode.Escape) then
+					setCarry(nil)
+				end
+			end)
+		)
 		-- Keep the drag ghost responsive between input events.
-		table.insert(connections, RunService.RenderStepped:Connect(function()
-			if drag and drag.Active and drag.Ghost and UserInputService.MouseEnabled then
-				local mouse = UserInputService:GetMouseLocation()
-				local scale = C.UI.Scale or 1
-				local inset = GuiService:GetGuiInset()
-				drag.Ghost.Position = UDim2.fromOffset(mouse.X / scale, (mouse.Y - inset.Y) / scale)
-			end
-		end))
+		table.insert(
+			connections,
+			RunService.RenderStepped:Connect(function()
+				if drag and drag.Active and drag.Ghost and UserInputService.MouseEnabled then
+					local mouse = UserInputService:GetMouseLocation()
+					local scale = C.UI.Scale or 1
+					local inset = GuiService:GetGuiInset()
+					drag.Ghost.Position = UDim2.fromOffset(mouse.X / scale, (mouse.Y - inset.Y) / scale)
+				end
+			end)
+		)
 
 		refresh()
 		if other and other ~= "silo" then

@@ -36,19 +36,31 @@ return {
 		end
 		box:GetPropertyChangedSignal("Text"):Connect(update)
 		update()
-		local row = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), LayoutOrder = 3, Parent = content })
+		local row = Kit.new(
+			"Frame",
+			{ BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), LayoutOrder = 3, Parent = content }
+		)
 		Kit.List(row, "X", 8, "Right")
-		Kit.Button("Clear", { Style = "Secondary", Size = UDim2.fromOffset(100, 38), OnClick = function()
-			box.Text = ""
-		end }).Parent = row
-		local save = Kit.Button("Save", { Style = "Primary", Size = UDim2.fromOffset(110, 38), OnClick = function()
-			local ok, err = Net.Request("BuildStyle", uid, { Tx = box.Text })
-			if ok then
-				ctx.Close()
-			else
-				C.Notify.Toast(tostring(err), "Warning")
-			end
-		end })
+		Kit.Button("Clear", {
+			Style = "Secondary",
+			Size = UDim2.fromOffset(100, 38),
+			OnClick = function()
+				box.Text = ""
+			end,
+		}).Parent =
+			row
+		local save = Kit.Button("Save", {
+			Style = "Primary",
+			Size = UDim2.fromOffset(110, 38),
+			OnClick = function()
+				local ok, err = Net.Request("BuildStyle", uid, { Tx = box.Text })
+				if ok then
+					ctx.Close()
+				else
+					C.Notify.Toast(tostring(err), "Warning")
+				end
+			end,
+		})
 		save.LayoutOrder = 1
 		save.Parent = row
 		task.defer(function()

@@ -46,7 +46,9 @@ local function view(trade: Trade, player: Player): any
 		local items = {}
 		for i, entry in offer.Items do
 			local stack = S.Inventory.Slot(p, entry.Ref)
-			items[i] = if stack then { Id = stack.Id, N = entry.N, Q = stack.Q, M = stack.M, S = stack.S, G = stack.G } else { Id = entry.Id, N = 0 }
+			items[i] = if stack
+				then { Id = stack.Id, N = entry.N, Q = stack.Q, M = stack.M, S = stack.S, G = stack.G }
+				else { Id = entry.Id, N = 0 }
 		end
 		return { Name = p.DisplayName, UserId = p.UserId, Items = items, Coins = offer.Coins, Ready = offer.Ready }
 	end
@@ -218,7 +220,13 @@ local function collect(player: Player, offer: Offer): ({ any }?, string?)
 	local stacks = {}
 	for _, entry in offer.Items do
 		local stack = S.Inventory.Slot(player, entry.Ref)
-		if not stack or stack.Id ~= entry.Id or ItemUtil.Key(stack) ~= entry.Key or stack.N < entry.N or not ItemUtil.Tradable(stack) then
+		if
+			not stack
+			or stack.Id ~= entry.Id
+			or ItemUtil.Key(stack) ~= entry.Key
+			or stack.N < entry.N
+			or not ItemUtil.Tradable(stack)
+		then
 			return nil, "An offered item changed"
 		end
 		table.insert(stacks, ItemUtil.Split(stack, entry.N))
@@ -268,7 +276,18 @@ local function execute(trade: Trade): (boolean, string?)
 	end
 	S.Data.AddStat(a, "TradesCompleted")
 	S.Data.AddStat(b, "TradesCompleted")
-	print(string.format("[Evergrove] Trade %d: %s (%d items, %d coins) <-> %s (%d items, %d coins)", trade.Id, a.Name, #takenA, coinsA, b.Name, #takenB, coinsB))
+	print(
+		string.format(
+			"[Evergrove] Trade %d: %s (%d items, %d coins) <-> %s (%d items, %d coins)",
+			trade.Id,
+			a.Name,
+			#takenA,
+			coinsA,
+			b.Name,
+			#takenB,
+			coinsB
+		)
+	)
 	task.spawn(S.Data.SaveNow, a)
 	task.spawn(S.Data.SaveNow, b)
 	return true, nil

@@ -127,7 +127,11 @@ local function get(player: Player)
 	out.Online = {}
 	for _, other in Players:GetPlayers() do
 		if other ~= player then
-			table.insert(out.Online, { UserId = tostring(other.UserId), Name = other.DisplayName, Level = PermissionService.LevelFor(player, other) })
+			table.insert(out.Online, {
+				UserId = tostring(other.UserId),
+				Name = other.DisplayName,
+				Level = PermissionService.LevelFor(player, other),
+			})
 		end
 	end
 	return true, out

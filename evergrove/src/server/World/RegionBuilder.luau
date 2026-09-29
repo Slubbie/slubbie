@@ -57,7 +57,13 @@ end
 
 local function rock(parent: Instance, p: Vector3, size: number, color: Color3?)
 	decor(parent, "Rock", CFrame.new(p) * CFrame.Angles(0, size, 0), function(m)
-		Kit.Ball(m, V(size * 1.3, size * 0.8, size), CFrame.new(0, size * 0.25, 0), color or C.Stone, { Material = M.Rock })
+		Kit.Ball(
+			m,
+			V(size * 1.3, size * 0.8, size),
+			CFrame.new(0, size * 0.25, 0),
+			color or C.Stone,
+			{ Material = M.Rock }
+		)
 	end)
 end
 
@@ -67,7 +73,13 @@ local function giantMushroom(parent: Instance, p: Vector3, h: number, cap: Color
 		local top = Kit.Ball(m, V(h * 0.9, h * 0.35, h * 0.9), CFrame.new(0, h, 0), cap, { Material = M.SmoothPlastic })
 		for i = 1, 5 do
 			local a = i * 1.25
-			local spot = Kit.Ball(m, V(h * 0.12, h * 0.05, h * 0.12), CFrame.new(math.cos(a) * h * 0.25, h + h * 0.14, math.sin(a) * h * 0.25), C.White, { Collide = false })
+			local spot = Kit.Ball(
+				m,
+				V(h * 0.12, h * 0.05, h * 0.12),
+				CFrame.new(math.cos(a) * h * 0.25, h + h * 0.14, math.sin(a) * h * 0.25),
+				C.White,
+				{ Collide = false }
+			)
 			spot.Material = M.Neon
 		end
 		Kit.Light(top, cap, h * 1.5, 0.8)
@@ -76,9 +88,21 @@ end
 
 local function crystal(parent: Instance, p: Vector3, h: number, color: Color3)
 	decor(parent, "Crystal", CFrame.new(p) * CFrame.Angles(0.2, h, 0.15), function(m)
-		local c = Kit.Box(m, V(h * 0.3, h, h * 0.3), CFrame.new(0, h * 0.45, 0) * CFrame.Angles(0, math.pi / 4, 0), color, { Material = M.Glass, Transparency = 0.2 })
+		local c = Kit.Box(
+			m,
+			V(h * 0.3, h, h * 0.3),
+			CFrame.new(0, h * 0.45, 0) * CFrame.Angles(0, math.pi / 4, 0),
+			color,
+			{ Material = M.Glass, Transparency = 0.2 }
+		)
 		Kit.Light(c, color, h * 2.5, 1.2)
-		Kit.Box(m, V(h * 0.18, h * 0.6, h * 0.18), CFrame.new(h * 0.25, h * 0.25, 0) * CFrame.Angles(0, 0, -0.4), color, { Material = M.Neon, Collide = false })
+		Kit.Box(
+			m,
+			V(h * 0.18, h * 0.6, h * 0.18),
+			CFrame.new(h * 0.25, h * 0.25, 0) * CFrame.Angles(0, 0, -0.4),
+			color,
+			{ Material = M.Neon, Collide = false }
+		)
 	end)
 end
 
@@ -86,11 +110,30 @@ local function pillar(parent: Instance, p: Vector3, h: number, broken: boolean)
 	decor(parent, "Pillar", CFrame.new(p) * CFrame.Angles(0, h, 0), function(m)
 		Kit.Box(m, V(4, 1, 4), CFrame.new(0, 0.5, 0), Color3.fromRGB(200, 190, 165), { Material = M.Limestone })
 		local height = if broken then h * 0.55 else h
-		Kit.Cyl(m, height, 2.6, CFrame.new(0, 1 + height / 2, 0), Color3.fromRGB(215, 205, 180), { Material = M.Limestone })
+		Kit.Cyl(
+			m,
+			height,
+			2.6,
+			CFrame.new(0, 1 + height / 2, 0),
+			Color3.fromRGB(215, 205, 180),
+			{ Material = M.Limestone }
+		)
 		if not broken then
-			Kit.Box(m, V(4, 1, 4), CFrame.new(0, 1.5 + height, 0), Color3.fromRGB(200, 190, 165), { Material = M.Limestone })
+			Kit.Box(
+				m,
+				V(4, 1, 4),
+				CFrame.new(0, 1.5 + height, 0),
+				Color3.fromRGB(200, 190, 165),
+				{ Material = M.Limestone }
+			)
 		else
-			Kit.Box(m, V(2.4, 1.2, 1.4), CFrame.new(3, 0.6, 1), Color3.fromRGB(215, 205, 180), { Material = M.Limestone })
+			Kit.Box(
+				m,
+				V(2.4, 1.2, 1.4),
+				CFrame.new(3, 0.6, 1),
+				Color3.fromRGB(215, 205, 180),
+				{ Material = M.Limestone }
+			)
 		end
 	end)
 end
@@ -100,7 +143,14 @@ local function cactus(parent: Instance, p: Vector3, h: number)
 		local green = Color3.fromRGB(80, 140, 70)
 		Kit.Cyl(m, h, 1.6, CFrame.new(0, h / 2, 0), green, { Material = M.Grass })
 		Kit.Cyl(m, h * 0.35, 1.1, CFrame.new(1.4, h * 0.55, 0), green, { Material = M.Grass })
-		Kit.Cyl(m, 1.4, 1.1, CFrame.new(0.8, h * 0.4, 0) * CFrame.Angles(0, 0, math.pi / 2), green, { Material = M.Grass })
+		Kit.Cyl(
+			m,
+			1.4,
+			1.1,
+			CFrame.new(0.8, h * 0.4, 0) * CFrame.Angles(0, 0, math.pi / 2),
+			green,
+			{ Material = M.Grass }
+		)
 	end)
 end
 
@@ -109,9 +159,23 @@ local function reeds(parent: Instance, p: Vector3, seed: number)
 		local rng = Random.new(seed)
 		for _ = 1, 6 do
 			local h = rng:NextNumber(3, 5)
-			local reed = Kit.Box(m, V(0.2, h, 0.2), CFrame.new(rng:NextNumber(-1.5, 1.5), h / 2, rng:NextNumber(-1.5, 1.5)) * CFrame.Angles(rng:NextNumber(-0.15, 0.15), 0, rng:NextNumber(-0.15, 0.15)), Color3.fromRGB(120, 140, 70), { Collide = false })
+			local reed = Kit.Box(
+				m,
+				V(0.2, h, 0.2),
+				CFrame.new(rng:NextNumber(-1.5, 1.5), h / 2, rng:NextNumber(-1.5, 1.5))
+					* CFrame.Angles(rng:NextNumber(-0.15, 0.15), 0, rng:NextNumber(-0.15, 0.15)),
+				Color3.fromRGB(120, 140, 70),
+				{ Collide = false }
+			)
 			reed:SetAttribute("Foliage", true)
-			Kit.Cyl(m, 0.8, 0.35, CFrame.new(reed.Position.X, h - 0.3, reed.Position.Z), Color3.fromRGB(100, 70, 45), { Collide = false })
+			Kit.Cyl(
+				m,
+				0.8,
+				0.35,
+				CFrame.new(reed.Position.X, h - 0.3, reed.Position.Z),
+				Color3.fromRGB(100, 70, 45),
+				{ Collide = false }
+			)
 		end
 	end)
 end
@@ -121,18 +185,40 @@ local function bigTree(parent: Instance, p: Vector3, scale: number, leaves: Colo
 		Kit.Cyl(m, 30 * scale, 8 * scale, CFrame.new(0, 15 * scale, 0), C.DarkWood, { Material = M.Wood })
 		for i = 1, 6 do
 			local a = i * math.pi / 3
-			Kit.Box(m, V(2.5 * scale, 2.5 * scale, 14 * scale), CFrame.new(math.cos(a) * 5 * scale, 1.2 * scale, math.sin(a) * 5 * scale) * CFrame.Angles(0, -a + math.pi / 2, 0.3), C.DarkWood, { Material = M.Wood, Name = "Root" })
+			Kit.Box(
+				m,
+				V(2.5 * scale, 2.5 * scale, 14 * scale),
+				CFrame.new(math.cos(a) * 5 * scale, 1.2 * scale, math.sin(a) * 5 * scale)
+					* CFrame.Angles(0, -a + math.pi / 2, 0.3),
+				C.DarkWood,
+				{ Material = M.Wood, Name = "Root" }
+			)
 		end
 		for i = 1, 7 do
 			local a = i * 0.9
-			Kit.Ball(m, V(18, 14, 18) * scale, CFrame.new(math.cos(a) * 8 * scale, (30 + (i % 3) * 4) * scale, math.sin(a) * 8 * scale), leaves, { Material = M.Grass, Collide = false, Name = "Leaves" })
+			Kit.Ball(
+				m,
+				V(18, 14, 18) * scale,
+				CFrame.new(math.cos(a) * 8 * scale, (30 + (i % 3) * 4) * scale, math.sin(a) * 8 * scale),
+				leaves,
+				{ Material = M.Grass, Collide = false, Name = "Leaves" }
+			)
 		end
 	end)
 end
 
 -- A lift platform. `id` is the lift's name ("mine_down"); `region` gates access
 -- (checked by PlayerService); `travel` marks a signpost as discovered on arrival.
-local function liftModel(parent: Instance, position: Vector3, label: string, id: string, lifts: { any }, arrive: Vector3, region: string, travel: string?)
+local function liftModel(
+	parent: Instance,
+	position: Vector3,
+	label: string,
+	id: string,
+	lifts: { any },
+	arrive: Vector3,
+	region: string,
+	travel: string?
+)
 	decor(parent, "Lift_" .. id, CFrame.new(position), function(m)
 		Kit.Box(m, V(10, 1, 10), CFrame.new(0, 0.5, 0), C.DarkMetal, { Material = M.DiamondPlate })
 		for _, sx in { -1, 1 } do
@@ -141,7 +227,14 @@ local function liftModel(parent: Instance, position: Vector3, label: string, id:
 			end
 		end
 		Kit.Box(m, V(10.5, 1, 10.5), CFrame.new(0, 14, 0), C.DarkMetal, { Material = M.Metal })
-		local wheel = Kit.Cyl(m, 0.8, 4, CFrame.new(0, 15.5, 0) * CFrame.Angles(math.pi / 2, 0, 0), C.Copper, { Material = M.Metal, Name = "Wheel" })
+		local wheel = Kit.Cyl(
+			m,
+			0.8,
+			4,
+			CFrame.new(0, 15.5, 0) * CFrame.Angles(math.pi / 2, 0, 0),
+			C.Copper,
+			{ Material = M.Metal, Name = "Wheel" }
+		)
 		wheel:SetAttribute("Anim", "Spinner")
 		local panel = Kit.Box(m, V(2, 3, 0.5), CFrame.new(4, 2.5, -4.9), C.Wood, { Name = "Panel" })
 		local prompt = Kit.Prompt(panel, "Lift", label, "Lift", 12)
@@ -195,7 +288,13 @@ builders.Glade = function(f, r, ctx)
 		local a = i / 9 * math.pi * 2
 		rock(f, V(-900 + math.cos(a) * 12, 0, 300 + math.sin(a) * 12), 1.8, Color3.fromRGB(200, 205, 215))
 	end
-	local fireflies = Kit.Box(f :: any, V(1, 1, 1), CFrame.new(r.Center + V(0, 6, 0)), C.White, { Transparency = 1, Collide = false, Name = "Fireflies" })
+	local fireflies = Kit.Box(
+		f :: any,
+		V(1, 1, 1),
+		CFrame.new(r.Center + V(0, 6, 0)),
+		C.White,
+		{ Transparency = 1, Collide = false, Name = "Fireflies" }
+	)
 	local e = Kit.Particles(fireflies, "Sparkle", Color3.fromRGB(230, 255, 150), 30)
 	e.SpreadAngle = Vector2.new(180, 180)
 	e.Speed = NumberRange.new(0.5, 2)
@@ -211,7 +310,11 @@ builders.Mountain = function(f, r, ctx)
 		local a = i / 14 * math.pi * 2
 		local d = r.Radius * rng:NextNumber(0.55, 0.95)
 		local p = r.Center + V(math.cos(a) * d, 0, math.sin(a) * d)
-		if (p - V(0, 0, -520)).Magnitude > 90 and (p - V(-200, 0, -780)).Magnitude > 150 and (p - V(150, 0, -640)).Magnitude > 60 then
+		if
+			(p - V(0, 0, -520)).Magnitude > 90
+			and (p - V(-200, 0, -780)).Magnitude > 150
+			and (p - V(150, 0, -640)).Magnitude > 60
+		then
 			TerrainKit.Hill(p, rng:NextNumber(50, 90), rng:NextNumber(40, 110), M.Rock, M.Snow)
 			table.insert(ctx.Exclusions, { Center = p, Radius = 60 })
 		end
@@ -222,7 +325,13 @@ builders.Mountain = function(f, r, ctx)
 	-- A cliff on the lake shore with a waterfall (and a cave behind it).
 	decor(f, "Waterfall", CFrame.new(-268, 20, -872) * CFrame.Angles(0, math.rad(35), 0), function(m)
 		Kit.Box(m, V(26, 22, 8), CFrame.new(0, 11, -6), C.DarkStone, { Material = M.Rock, Name = "Cliff" })
-		local sheet = Kit.Box(m, V(10, 20, 0.6), CFrame.new(0, 10, -1.6), C.Water, { Material = M.Glass, Transparency = 0.35, Collide = false, Name = "Falls" })
+		local sheet = Kit.Box(
+			m,
+			V(10, 20, 0.6),
+			CFrame.new(0, 10, -1.6),
+			C.Water,
+			{ Material = M.Glass, Transparency = 0.35, Collide = false, Name = "Falls" }
+		)
 		Kit.Particles(sheet, "Water", nil, 40).EmissionDirection = Enum.NormalId.Bottom
 		Kit.Box(m, V(6, 7, 3), CFrame.new(0, 3.5, -3.5), C.Black, { Collide = false, Name = "CaveMouth" })
 	end)
@@ -240,9 +349,17 @@ builders.Mountain = function(f, r, ctx)
 	TerrainKit.Plateau(V(-150, 0, -520), 44, 30, M.Rock, M.Grass)
 	decor(f, "Observatory", CFrame.new(-150, 30, -536), function(m)
 		Kit.Cyl(m, 12, 20, CFrame.new(0, 6, 0), C.Cream, { Material = M.Brick })
-		local dome = Kit.Ball(m, V(21, 21, 21), CFrame.new(0, 12, 0), Color3.fromRGB(150, 160, 190), { Material = M.Metal })
+		local dome =
+			Kit.Ball(m, V(21, 21, 21), CFrame.new(0, 12, 0), Color3.fromRGB(150, 160, 190), { Material = M.Metal })
 		dome.Name = "Dome"
-		local scope = Kit.Cyl(m, 10, 2, CFrame.new(3, 20, 0) * CFrame.Angles(0, 0, math.rad(-35)), C.DarkMetal, { Material = M.Metal })
+		local scope = Kit.Cyl(
+			m,
+			10,
+			2,
+			CFrame.new(3, 20, 0) * CFrame.Angles(0, 0, math.rad(-35)),
+			C.DarkMetal,
+			{ Material = M.Metal }
+		)
 		scope:SetAttribute("Anim", "Telescope")
 		Kit.Box(m, V(4, 7, 0.5), CFrame.new(0, 3.5, 10.2), C.DarkWood, { Name = "Door", Collide = false })
 	end)
@@ -267,7 +384,8 @@ builders.Mountain = function(f, r, ctx)
 		Kit.Box(m, V(16, 1.5, 1.5), CFrame.new(0, 12, 0), C.DarkWood, { Material = M.Wood })
 		local sign = Kit.Box(m, V(7, 2, 0.3), CFrame.new(0, 13.6, 0.2), C.Plank, { Collide = false })
 		Kit.Label(sign, "EMBERSTONE MINE", Enum.NormalId.Back)
-		local lantern = Kit.Ball(m, V(1, 1, 1), CFrame.new(-7, 10, 1), Color3.fromRGB(255, 190, 110), { Collide = false })
+		local lantern =
+			Kit.Ball(m, V(1, 1, 1), CFrame.new(-7, 10, 1), Color3.fromRGB(255, 190, 110), { Collide = false })
 		Kit.Glow(lantern, Color3.fromRGB(255, 190, 110))
 		Kit.Light(lantern, Color3.fromRGB(255, 190, 110), 18, 1.4)
 	end)
@@ -302,7 +420,16 @@ builders.Cave = function(f, r, ctx)
 		end
 	end)
 	liftModel(f, V(150, floor, -610), "Ascend", "mine_up", ctx.Lifts, V(150, 0, -612), "Mountains", "mine")
-	liftModel(f, V(200, floor, -560), "Deep Lift", "caverns_down", ctx.Lifts, V(150, -510, -600), "CrystalCaverns", "caverns")
+	liftModel(
+		f,
+		V(200, floor, -560),
+		"Deep Lift",
+		"caverns_down",
+		ctx.Lifts,
+		V(150, -510, -600),
+		"CrystalCaverns",
+		"caverns"
+	)
 	table.insert(ctx.Exclusions, { Center = V(150, floor, -610), Radius = 14 })
 	table.insert(ctx.Exclusions, { Center = V(200, floor, -560), Radius = 14 })
 	ctx.RayTop[r.Id] = floor + 30
@@ -336,7 +463,13 @@ builders.Beach = function(f, r, ctx)
 			local color = if i % 2 == 0 then C.White else C.Red
 			Kit.Cyl(m, 6, 9 - i * 0.6, CFrame.new(0, 3 + i * 6, 0), color, { Material = M.Concrete })
 		end
-		local lamp = Kit.Ball(m, V(5, 5, 5), CFrame.new(0, 39, 0), Color3.fromRGB(255, 240, 180), { Material = M.Glass, Transparency = 0.2 })
+		local lamp = Kit.Ball(
+			m,
+			V(5, 5, 5),
+			CFrame.new(0, 39, 0),
+			Color3.fromRGB(255, 240, 180),
+			{ Material = M.Glass, Transparency = 0.2 }
+		)
 		lamp:SetAttribute("NightGlow", true)
 		local beam = Instance.new("SpotLight")
 		beam.Range = 60
@@ -366,7 +499,13 @@ builders.Beach = function(f, r, ctx)
 				Kit.Cyl(m, 8, 1, CFrame.new(x, -3, z), C.DarkWood, { Material = M.Wood })
 			end
 		end
-		local boat = Kit.Box(m, V(8, 3, 16), CFrame.new(10, 0.5, 50), Color3.fromRGB(200, 90, 60), { Material = M.Wood, Name = "Boat" })
+		local boat = Kit.Box(
+			m,
+			V(8, 3, 16),
+			CFrame.new(10, 0.5, 50),
+			Color3.fromRGB(200, 90, 60),
+			{ Material = M.Wood, Name = "Boat" }
+		)
 		boat:SetAttribute("Anim", "Bob")
 	end)
 	table.insert(ctx.Exclusions, { Center = V(1100, 0, 1100), Radius = 430 })
@@ -377,7 +516,13 @@ builders.Beach = function(f, r, ctx)
 		local p = r.Center + V(math.cos(a) * d, 0, math.sin(a) * d)
 		if (p - V(1100, 0, 1100)).Magnitude > 440 then
 			decor(f, "Shell", CFrame.new(p + V(0, 0.2, 0)) * CFrame.Angles(0, a, 0), function(m)
-				Kit.Wedge(m, V(0.8, 0.5, 1), CFrame.new(), Color3.fromHSV(rng:NextNumber(0, 0.1), 0.3, 1), { Collide = false })
+				Kit.Wedge(
+					m,
+					V(0.8, 0.5, 1),
+					CFrame.new(),
+					Color3.fromHSV(rng:NextNumber(0, 0.1), 0.3, 1),
+					{ Collide = false }
+				)
 			end)
 		end
 	end
@@ -403,7 +548,13 @@ builders.Desert = function(f, r, ctx)
 	-- Giant skeleton landmark
 	decor(f, "Skeleton", CFrame.new(1450, 0, -380), function(m)
 		for i = 0, 9 do
-			Kit.Box(m, V(1.2, 8 - math.abs(i - 5), 1.2), CFrame.new(i * 3 - 14, 3, 0) * CFrame.Angles(0, 0, 0.15), C.Cream, { Material = M.Marble })
+			Kit.Box(
+				m,
+				V(1.2, 8 - math.abs(i - 5), 1.2),
+				CFrame.new(i * 3 - 14, 3, 0) * CFrame.Angles(0, 0, 0.15),
+				C.Cream,
+				{ Material = M.Marble }
+			)
 		end
 		Kit.Ball(m, V(8, 6, 10), CFrame.new(-18, 3, 0), C.Cream, { Material = M.Marble, Name = "Skull" })
 	end)
@@ -431,7 +582,13 @@ builders.Snow = function(f, r, ctx)
 		if builder then
 			builder(m, 20, 16, 14, {}, {})
 		end
-		local fire = Kit.Box(m, V(2, 1, 2), CFrame.new(0, 0.5, 11), Color3.fromRGB(255, 140, 50), { Collide = false, Name = "Campfire" })
+		local fire = Kit.Box(
+			m,
+			V(2, 1, 2),
+			CFrame.new(0, 0.5, 11),
+			Color3.fromRGB(255, 140, 50),
+			{ Collide = false, Name = "Campfire" }
+		)
 		Kit.Particles(fire, "Fire", nil, 20)
 		Kit.Light(fire, Color3.fromRGB(255, 160, 80), 24, 2)
 		fire:SetAttribute("Warmth", 18)
@@ -439,7 +596,13 @@ builders.Snow = function(f, r, ctx)
 	decor(f, "FrozenShrine", CFrame.new(-1020, 0, -1000), function(m)
 		for i = 1, 6 do
 			local a = i / 6 * math.pi * 2
-			Kit.Box(m, V(2, 10, 2), CFrame.new(math.cos(a) * 8, 5, math.sin(a) * 8) * CFrame.Angles(0, a, 0.1), Color3.fromRGB(180, 225, 255), { Material = M.Ice, Transparency = 0.2 })
+			Kit.Box(
+				m,
+				V(2, 10, 2),
+				CFrame.new(math.cos(a) * 8, 5, math.sin(a) * 8) * CFrame.Angles(0, a, 0.1),
+				Color3.fromRGB(180, 225, 255),
+				{ Material = M.Ice, Transparency = 0.2 }
+			)
 		end
 	end)
 	table.insert(ctx.Exclusions, { Center = V(-940, 0, -940), Radius = 90 })
@@ -462,9 +625,21 @@ builders.Ruins = function(f, r, ctx)
 	end)
 	decor(f, "VaultDoor", CFrame.new(800, 6, -760), function(m)
 		Kit.Box(m, V(12, 14, 3), CFrame.new(0, 7, 0), Color3.fromRGB(150, 140, 120), { Material = M.Limestone })
-		Kit.Box(m, V(7, 10, 0.5), CFrame.new(0, 5, -1.6), Color3.fromRGB(120, 110, 90), { Material = M.Slate, Name = "Door" })
+		Kit.Box(
+			m,
+			V(7, 10, 0.5),
+			CFrame.new(0, 5, -1.6),
+			Color3.fromRGB(120, 110, 90),
+			{ Material = M.Slate, Name = "Door" }
+		)
 		for i = 1, 4 do
-			local rune = Kit.Box(m, V(1.2, 1.2, 0.1), CFrame.new(-3 + (i - 1) * 2, 11.5, -1.6), Color3.fromRGB(120, 230, 255), { Collide = false, Name = "Rune" .. i })
+			local rune = Kit.Box(
+				m,
+				V(1.2, 1.2, 0.1),
+				CFrame.new(-3 + (i - 1) * 2, 11.5, -1.6),
+				Color3.fromRGB(120, 230, 255),
+				{ Collide = false, Name = "Rune" .. i }
+			)
 			rune.Material = M.Neon
 			rune.Transparency = 0.7
 		end
@@ -490,7 +665,13 @@ builders.Hollow = function(f, r, ctx)
 		for col = 0, 8 do
 			local p = V(-860 + col * 6, 0, 740 + row * 6)
 			decor(f, "DeadCrop", CFrame.new(p) * CFrame.Angles(0, rng:NextNumber(0, 6), 0.2), function(m)
-				Kit.Box(m, V(0.3, rng:NextNumber(1.5, 3), 0.3), CFrame.new(0, 1, 0), Color3.fromRGB(120, 100, 70), { Collide = false })
+				Kit.Box(
+					m,
+					V(0.3, rng:NextNumber(1.5, 3), 0.3),
+					CFrame.new(0, 1, 0),
+					Color3.fromRGB(120, 100, 70),
+					{ Collide = false }
+				)
 			end)
 		end
 	end
@@ -540,7 +721,13 @@ builders.Sky = function(f, r, ctx)
 		local a = i / 16 * math.pi * 2
 		decor(f, "Cloud", CFrame.new(c + V(math.cos(a) * 220, -60 - (i % 4) * 20, math.sin(a) * 220)), function(m)
 			for j = 1, 4 do
-				Kit.Ball(m, V(30, 16, 24), CFrame.new(j * 14 - 30, (j % 2) * 4, 0), C.White, { Transparency = 0.2, Collide = false })
+				Kit.Ball(
+					m,
+					V(30, 16, 24),
+					CFrame.new(j * 14 - 30, (j % 2) * 4, 0),
+					C.White,
+					{ Transparency = 0.2, Collide = false }
+				)
 			end
 		end)
 	end
@@ -566,7 +753,16 @@ end
 
 builders.Wetlands = function(f, r, ctx)
 	-- The Mossback river winds from the mountains past the village into the marsh.
-	local river = { V(330, 0, -520), V(290, 0, -300), V(262, 0, -150), V(250, 0, 40), V(300, 0, 200), V(420, 0, 290), V(560, 0, 320), V(660, 0, 260) }
+	local river = {
+		V(330, 0, -520),
+		V(290, 0, -300),
+		V(262, 0, -150),
+		V(250, 0, 40),
+		V(300, 0, 200),
+		V(420, 0, 290),
+		V(560, 0, 320),
+		V(660, 0, 260),
+	}
 	TerrainKit.River(river, 36, 10, M.Sand)
 	ctx.River = river
 	local rng = Random.new(131)
