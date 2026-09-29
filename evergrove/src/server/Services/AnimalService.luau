@@ -594,6 +594,15 @@ local function act(actor: Player, aid: string, action: string)
 	end
 	S.Data.Changed(owner, "Farm", "Animals")
 	AnimalService.Render(owner, aid)
+	if (animal.Fr or 0) >= Animals.MaxFriendship then
+		local best = 0
+		for _, other in profile.Farm.Animals do
+			if (other.Fr or 0) >= Animals.MaxFriendship then
+				best += 1
+			end
+		end
+		S.Data.MaxStat(owner, "MaxFriendAnimals", best)
+	end
 	local position = S.Building.WorldPosition(owner, animal.Home)
 	if position and fx then
 		S.Notify.FX(position, "Animal", { Aid = aid, Kind = fx, Sound = species.Sounds[1] }, 120)

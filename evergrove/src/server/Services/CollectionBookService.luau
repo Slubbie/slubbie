@@ -64,6 +64,12 @@ end
 
 -- Categorise an obtained item and record it.
 function CollectionBookService.OnItem(player: Player, stack: ItemUtil.Stack)
+	-- Rare-find achievements.
+	if stack.Id == "diamond" then
+		S.Data.AddStat(player, "DiamondsFound", stack.N)
+	elseif stack.Id == "prismatic_gem" then
+		S.Data.AddStat(player, "PrismaticFound", stack.N)
+	end
 	local categoryId, entryId = Collections.CategoryForItem(stack.Id)
 	if categoryId and entryId then
 		CollectionBookService.Discover(player, categoryId, entryId, { Quality = stack.Q or 1, Size = stack.S })

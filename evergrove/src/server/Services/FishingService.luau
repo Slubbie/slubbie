@@ -302,6 +302,9 @@ local function resolve(player: Player, castId: string, outcome: any)
 		end
 		S.Data.AddStat(player, "FishCaught")
 		S.Data.MaxStat(player, "BiggestFish", math.floor(size))
+		if outcome.Perfect == true then
+			S.Data.AddStat(player, "PerfectCatches")
+		end
 		if fish.Legendary then
 			S.Data.AddStat(player, "LegendaryFish")
 			profile.Unlocks["Legend_" .. fish.Id] = true

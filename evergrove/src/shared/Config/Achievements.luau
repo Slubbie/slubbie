@@ -49,7 +49,7 @@ a("perfect_10", "Flawless", "💯", "Harvest 10 Perfect crops.", "PerfectHarvest
 a("giant_crop", "It's Huge!", "🏔️", "Grow a crop over 100 kg.", "LargestCropKg", 100, "Silver", { Coins = 5000 })
 a("giant_crop_500", "Colossus", "🗻", "Grow a crop over 500 kg.", "LargestCropKg", 500, "Platinum", { Coins = 100000, Title = "Colossus Grower" })
 a("all_seasons", "Four Seasons", "🍂", "Harvest crops in every season.", "SeasonsHarvested", 4, "Silver", { Coins = 5000 })
-a("hybrid", "Mad Scientist", "🧪", "Breed a hybrid seed.", "HybridsBred", 1, "Silver", { Coins = 8000, Title = "Mad Scientist" })
+a("hybrid", "Mad Scientist", "🧪", "Breed a hybrid seed.", "HybridsMade", 1, "Silver", { Coins = 8000, Title = "Mad Scientist" })
 a("mythic_crop", "Myth Made Real", "🌈", "Harvest a Mythic crop.", "MythicHarvested", 1, "Platinum", { Coins = 100000, Title = "Mythmaker", Effect = "rainbow_aura" })
 
 -- Land & building
@@ -70,7 +70,7 @@ a("best_friends", "Best Friends", "💞", "Max out friendship with an animal.", 
 ladder("fish_", "Angler", "🎣", "FishCaught", { 25, 250, 2000, 10000 }, "Catch fish:", { { Coins = 500 }, { Coins = 5000, Title = "Angler" }, { Coins = 30000, Frame = "waves" }, { Coins = 150000, Title = "Master Angler" } })
 ladder("legend_", "Legend Seeker", "🐉", "LegendaryFish", { 1, 3, 6, 11 }, "Catch legendary fish:", { { Coins = 10000 }, { Coins = 30000 }, { Coins = 80000, Title = "Legend Seeker" }, { Coins = 250000, Title = "Tide Legend", Effect = "water_aura" } })
 a("perfect_catch", "Perfect Catch", "🎯", "Land 25 perfect catches.", "PerfectCatches", 25, "Silver", { Coins = 5000 })
-a("treasure_10", "Sunken Riches", "🧰", "Fish up 10 treasure chests.", "FishTreasure", 10, "Silver", { Coins = 5000 })
+a("treasure_10", "Sunken Riches", "🧰", "Fish up 10 treasure chests.", "TreasuresFished", 10, "Silver", { Coins = 5000 })
 
 -- Gathering
 ladder("mine_", "Miner", "⛏️", "RocksMined", { 100, 1000, 8000, 40000 }, "Break rocks:")

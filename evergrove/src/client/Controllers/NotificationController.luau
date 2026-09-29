@@ -365,6 +365,23 @@ function Notify.Init()
 			C.Tutorial.Show(payload.Step)
 		end
 	end)
+
+	-- Other server channels that surface through the interface.
+	local Screens = script.Parent.Parent:WaitForChild("UI"):WaitForChild("Screens")
+	Net.On("Trade", function(payload: any)
+		require(Screens.Trade).OnEvent(payload)
+	end)
+	Net.On("Festival", function(kind: string, payload: any)
+		if kind == "End" then
+			local def = payload and Registry.Festivals[payload.Id]
+			Notify.Toast((if def then def.Icon .. " " .. def.Name else "The festival") .. " has ended. Winners get their prizes by mail!", "Info")
+		end
+		C.Windows.Refresh("Festival")
+		C.Windows.Refresh("Calendar")
+	end)
+	Net.On("AdminLog", function(text: string)
+		require(Screens.Admin).Log(text)
+	end)
 end
 
 return Notify
