@@ -2007,7 +2007,15 @@ function Controller.State(): string
 	return state
 end
 
-function Controller.SetEnabled(enabled: boolean)
+-- Movement is frozen while any lock is held (menus, dialogue, countdowns...),
+-- so one system can never undo another's freeze.
+local locks: { [string]: boolean } = {}
+
+local function applyLocks()
+	local enabled = next(locks) == nil
+	if enabled == Controller.Enabled then
+		return
+	end
 	Controller.Enabled = enabled
 	Input.GameplayEnabled = enabled
 	if not enabled then
@@ -2016,6 +2024,19 @@ function Controller.SetEnabled(enabled: boolean)
 			releaseSwing(false)
 		end
 	end
+end
+
+function Controller.SetLock(name: string, locked: boolean)
+	if locked then
+		locks[name] = true
+	else
+		locks[name] = nil
+	end
+	applyLocks()
+end
+
+function Controller.SetEnabled(enabled: boolean)
+	Controller.SetLock("Default", not enabled)
 end
 
 -- Recompute effective stats (skills, ranked standardization, practice assists).

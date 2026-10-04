@@ -168,7 +168,7 @@ local function cleanup(reason: string)
 	Hazards.KillY = nil
 	Mechanisms.SetCourse(nil, 0)
 	Controller.SetMode(false, nil)
-	Controller.SetEnabled(true)
+	Controller.SetLock("Countdown", false)
 	Flow.EndRun()
 	Music.SetIntensity(0)
 	Ghosts.Clear()
@@ -262,15 +262,13 @@ local function onRun(info: any)
 
 	-- Countdown: hold still until the gun.
 	if Schedule.Now() < run.StartAt - 0.05 then
-		Controller.SetEnabled(false)
+		Controller.SetLock("Countdown", true)
 		Bus.Countdown:Fire(run.StartAt, run.Name)
 		task.spawn(function()
 			while CourseClient.Run == run and Schedule.Now() < run.StartAt do
 				task.wait()
 			end
-			if CourseClient.Run == run then
-				Controller.SetEnabled(true)
-			end
+			Controller.SetLock("Countdown", false)
 		end)
 	end
 	Ghosts.BeginRecording()
@@ -329,7 +327,6 @@ local function finish(run: Run)
 	run.Finishing = true
 	local elapsed = CourseClient.Elapsed()
 	local flow = Flow.RunScore()
-	Controller.SetEnabled(true)
 	task.spawn(function()
 		local ok, result = pcall(Net.Invoke, "Course.Checkpoint", "Finish", elapsed, flow)
 		if CourseClient.Run ~= run then

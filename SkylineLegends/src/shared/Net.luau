@@ -39,8 +39,6 @@ local ROUTES: { [string]: { number } } = {
 	["Skill.Respec"] = { 1, 2 },
 	["Shop.Buy"] = { 3, 6 },
 	["Shop.Equip"] = { 6, 12 },
-	["Achievement.Claim"] = { 4, 8 },
-	["Mastery.Claim"] = { 4, 8 },
 	-- World
 	["Travel.Go"] = { 1, 3 },
 	["Travel.Spawn"] = { 1, 3 },

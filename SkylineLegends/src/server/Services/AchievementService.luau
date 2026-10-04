@@ -17,6 +17,8 @@ local AchievementService = {}
 
 local pending: { [Player]: boolean } = {}
 
+local lastStatsPush: { [Player]: number } = {}
+
 local function check(player: Player)
 	local profile = DataService.Get(player)
 	if not profile then
@@ -51,6 +53,12 @@ local function check(player: Player)
 	end
 	if earnedAny then
 		DataService.Push(player, "Achievements")
+	end
+	-- Counters feed the journal's progress bars (at most once every few seconds).
+	local now = os.clock()
+	if now - (lastStatsPush[player] or 0) > 4 then
+		lastStatsPush[player] = now
+		DataService.Push(player, "Stats")
 	end
 end
 
@@ -92,6 +100,7 @@ function AchievementService.Start()
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		pending[player] = nil
+		lastStatsPush[player] = nil
 	end)
 end
 
