@@ -52,6 +52,9 @@ local Tags = {
 	LessonZone = "LessonZone", -- attributes LessonId
 	Board = "Board", -- attributes Kind (Race | Jobs | Courses | Leaderboard), District
 	Decor = "Decor",
+	-- Animated R6 rigs that aren't player characters (ghosts, NPCs). Attributes:
+	-- MS (movement state), MA (aux Vector3), MB (aux number), GV (velocity), Emote
+	Rig = "SkylineRig",
 	SurfaceIcon = "SurfaceIcon", -- billboard icons shown per accessibility setting
 }
 

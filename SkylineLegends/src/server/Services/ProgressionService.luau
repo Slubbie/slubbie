@@ -29,8 +29,26 @@ function ProgressionService.Level(player: Player): number
 	return (Leveling.FromXP(profile.XP))
 end
 
+-- Abilities lent for the duration of a mode (ranked kits, Spire floors, Dreamline lanes).
+local temporary: { [Player]: { [string]: boolean } } = {}
+
 function ProgressionService.Abilities(player: Player): { [string]: boolean }
-	return Abilities.ForLevel(ProgressionService.Level(player))
+	local set = Abilities.ForLevel(ProgressionService.Level(player))
+	local extra = temporary[player]
+	if extra then
+		for id, on in extra do
+			if on then
+				set[id] = true
+			end
+		end
+	end
+	return set
+end
+
+-- Lend abilities (or clear the loan with nil). The client is told so its movement matches.
+function ProgressionService.SetTemporary(player: Player, set: { [string]: boolean }?)
+	temporary[player] = set :: any
+	Net.Push(player, "Abilities.Temp", set)
 end
 
 function ProgressionService.HasAbility(player: Player, id: string): boolean
@@ -155,6 +173,9 @@ end
 function ProgressionService.Start()
 	DataService.Loaded:Connect(function(player)
 		updateAttributes(player)
+	end)
+	game:GetService("Players").PlayerRemoving:Connect(function(player)
+		temporary[player] = nil
 	end)
 
 	Net.Handle("Skill.Unlock", function(player, nodeId)

@@ -119,7 +119,7 @@ local REPORT = {
 
 local stats = Controller.Stats
 local abilities: { [string]: boolean } = {}
-local mode = { Standardized = false, Assists = {} :: { [string]: boolean } }
+local mode = { Standardized = false, Assists = {} :: { [string]: boolean }, Extra = nil :: { [string]: boolean }? }
 
 local humanoid: Humanoid? = nil
 local root: BasePart? = nil
@@ -2027,6 +2027,11 @@ function Controller.ApplyStats()
 	Controller.Perks = perks
 	Stamina.SetStats(newStats)
 	abilities = State.Abilities()
+	for id, on in mode.Extra or {} do
+		if on then
+			abilities[id] = true
+		end
+	end
 	if humanoid then
 		humanoid.JumpPower = newStats.JumpVelocity
 	end
@@ -2038,8 +2043,14 @@ function Controller.SetMode(standardized: boolean, assists: { [string]: boolean 
 	Controller.ApplyStats()
 end
 
-function Controller.Mode(): { Standardized: boolean, Assists: { [string]: boolean } }
+function Controller.Mode(): { Standardized: boolean, Assists: { [string]: boolean }, Extra: { [string]: boolean }? }
 	return mode
+end
+
+-- Abilities lent by the server for a mode (see ProgressionService.SetTemporary).
+function Controller.SetExtraAbilities(set: { [string]: boolean }?)
+	mode.Extra = set
+	Controller.ApplyStats()
 end
 
 function Controller.Has(ability: string): boolean
@@ -2149,6 +2160,9 @@ local function onCharacterAdded(newCharacter: Model)
 end
 
 function Controller.Start()
+	Net.Listen("Abilities.Temp", function(set)
+		Controller.SetExtraAbilities(if type(set) == "table" then set else nil)
+	end)
 	Input.Pressed:Connect(function(action)
 		if action == "Sprint" and Settings.Get("SprintMode") == "Toggle" then
 			sprintLatched = not sprintLatched

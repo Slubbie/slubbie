@@ -53,7 +53,6 @@ local ROUTES: { [string]: { number } } = {
 	["Quest.Abandon"] = { 2, 4 },
 	["Quest.Pin"] = { 4, 8 },
 	["Quest.Point"] = { 6, 12 },
-	["Quest.Damage"] = { 2, 4 },
 	["Quest.Claim"] = { 4, 8 },
 	["Contract.Take"] = { 2, 4 },
 	-- Modes
@@ -66,7 +65,6 @@ local ROUTES: { [string]: { number } } = {
 	["Relay.Join"] = { 2, 4 },
 	["Relay.Leave"] = { 2, 4 },
 	["Relay.Ready"] = { 2, 4 },
-	["Relay.Handoff"] = { 4, 8 },
 	["Tower.Enter"] = { 1, 3 },
 	["Tower.Floor"] = { 4, 8 },
 	["Tower.Leave"] = { 1, 3 },

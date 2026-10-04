@@ -26,7 +26,7 @@ Input.Rebound = Signal.new() -- ()
 -- False while menus are open: gameplay actions are ignored.
 Input.GameplayEnabled = true
 
-local GAMEPLAY = { Jump = true, Sprint = true, Crouch = true, Dash = true, Grapple = true, Retry = true, Emote = true }
+local GAMEPLAY = { Jump = true, Sprint = true, Crouch = true, Dash = true, Grapple = true, Retry = true, Emote = true, Mark = true }
 
 type ActionState = { Held: boolean, PressedAt: number, ReleasedAt: number, Sources: { [string]: boolean } }
 local actions: { [string]: ActionState } = {}
@@ -226,6 +226,7 @@ local TOUCH_LABEL = {
 	Dash = "Dash",
 	Grapple = "Hook",
 	Retry = "Retry",
+	Mark = "Mark",
 	Move = "Stick",
 }
 
