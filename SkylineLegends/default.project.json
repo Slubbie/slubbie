@@ -1,0 +1,57 @@
+{
+  "name": "SkylineLegends",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "EnableMouseLockOption": false,
+        "CameraMinZoomDistance": 6,
+        "CameraMaxZoomDistance": 42,
+        "CharacterUseJumpPower": true
+      },
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "StarterGui": {
+      "$properties": {
+        "ResetPlayerGuiOnSpawn": false
+      }
+    },
+    "Workspace": {
+      "$properties": {
+        "FallenPartsDestroyHeight": -2000,
+        "StreamingEnabled": false,
+        "Gravity": 180
+      }
+    },
+    "Players": {
+      "$properties": {
+        "CharacterAutoLoads": false
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Technology": "Future",
+        "GlobalShadows": true
+      }
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}

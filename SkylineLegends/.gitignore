@@ -1,0 +1,6 @@
+# Headless test scratch output
+tools/headless/.bundle.luau
+tools/headless/out/
+__pycache__/
+*.png
+sourcemap.json
