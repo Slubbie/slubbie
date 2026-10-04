@@ -74,7 +74,9 @@ local function discover(player: Player, id: any)
 	if not entry or not profile or profile.Discoveries[id] then
 		return
 	end
-	local radius = if entry.Kind == "Landmark" or entry.Kind == "Secret" then math.max(entry.Part.Size.Magnitude / 2, 12) + 8 else 12
+	local radius = if entry.Kind == "Landmark" or entry.Kind == "Secret"
+		then math.max(entry.Part.Size.Magnitude / 2, 12) + 8
+		else 12
 	if not MovementGuard.WasNear(player, entry.Part.Position, radius, 2) then
 		return
 	end

@@ -59,7 +59,9 @@ function PlayerService.SpawnFor(player: Player): CFrame
 		-- New runners start in the Training Yard.
 		return PlayerService.Spawns.Training or PlayerService.Spawns.Hub or CFrame.new(Districts.ById.Hub.Origin)
 	end
-	return PlayerService.Spawns[last] or PlayerService.Spawns.Hub or CFrame.new(Districts.ById.Hub.Origin + Vector3.new(0, 5, 0))
+	return PlayerService.Spawns[last]
+		or PlayerService.Spawns.Hub
+		or CFrame.new(Districts.ById.Hub.Origin + Vector3.new(0, 5, 0))
 end
 
 -- Nametag ------------------------------------------------------------------------

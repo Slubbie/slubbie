@@ -42,7 +42,13 @@ end
 
 -- On/off cycle with a warning period before each switch.
 -- Returns (on, warning, secondsUntilChange).
-function Schedule.Cycle(t: number, period: number, onFraction: number, phase: number?, warn: number?): (boolean, boolean, number)
+function Schedule.Cycle(
+	t: number,
+	period: number,
+	onFraction: number,
+	phase: number?,
+	warn: number?
+): (boolean, boolean, number)
 	local f = Schedule.Fraction(t, period, phase)
 	local onTime = period * onFraction
 	local now = f * period

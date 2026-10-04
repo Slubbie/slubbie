@@ -120,7 +120,12 @@ local function buildProfile(parent: Instance)
 	})
 	Kit.Padding(panel, 8, 12)
 	ui.LevelText = Kit.Label(panel, "Lv 1", 16, { Size = UDim2.new(1, 0, 0, 20), Font = Kit.Fonts.Bold })
-	ui.RankText = Kit.Label(panel, "", 13, { Position = UDim2.fromOffset(0, 18), Size = UDim2.new(1, 0, 0, 16), TextColor3 = C.Muted })
+	ui.RankText = Kit.Label(
+		panel,
+		"",
+		13,
+		{ Position = UDim2.fromOffset(0, 18), Size = UDim2.new(1, 0, 0, 16), TextColor3 = C.Muted }
+	)
 	ui.XPBar = Kit.Bar(panel, C.Accent, { Position = UDim2.fromOffset(0, 38), Size = UDim2.new(1, 0, 0, 6) })
 	ui.Currency = Kit.Label(panel, "", 13, {
 		Position = UDim2.fromOffset(0, 0),
@@ -141,8 +146,14 @@ local function buildFlow(parent: Instance)
 		Parent = parent,
 	})
 	ui.FlowTier = Kit.Label(panel, "", 15, { Size = UDim2.new(1, 0, 0, 20), Font = Kit.Fonts.Black })
-	ui.FlowBar = Kit.Bar(panel, rgb(120, 255, 200), { Position = UDim2.fromOffset(0, 22), Size = UDim2.new(1, 0, 0, 6) })
-	ui.FlowChain = Kit.Label(panel, "", 13, { Position = UDim2.fromOffset(0, 32), Size = UDim2.new(1, 0, 0, 34), TextColor3 = C.Muted, TextYAlignment = Enum.TextYAlignment.Top })
+	ui.FlowBar =
+		Kit.Bar(panel, rgb(120, 255, 200), { Position = UDim2.fromOffset(0, 22), Size = UDim2.new(1, 0, 0, 6) })
+	ui.FlowChain = Kit.Label(panel, "", 13, {
+		Position = UDim2.fromOffset(0, 32),
+		Size = UDim2.new(1, 0, 0, 34),
+		TextColor3 = C.Muted,
+		TextYAlignment = Enum.TextYAlignment.Top,
+	})
 	ui.Flow = panel
 end
 
@@ -182,7 +193,12 @@ local function buildRun(parent: Instance)
 		Visible = false,
 	})
 	Kit.Padding(panel, 8, 14)
-	ui.RunName = Kit.Label(panel, "", 14, { Size = UDim2.new(1, 0, 0, 18), TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C.Muted, Font = Kit.Fonts.Bold })
+	ui.RunName = Kit.Label(panel, "", 14, {
+		Size = UDim2.new(1, 0, 0, 18),
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextColor3 = C.Muted,
+		Font = Kit.Fonts.Bold,
+	})
 	ui.RunTimer = Kit.Label(panel, "0:00.00", 34, {
 		Position = UDim2.fromOffset(0, 18),
 		Size = UDim2.new(1, 0, 0, 40),
@@ -306,12 +322,19 @@ local function updateStamina()
 	ui.StaminaCost.Size = UDim2.fromScale(costFraction, 1)
 	ui.StaminaCost.Position = UDim2.fromScale(fraction - costFraction, 0)
 	ui.StaminaCost.Visible = name ~= nil and cost > 0
-	local status = if exhausted then "EXHAUSTED — rest on the ground" elseif denied then "NOT ENOUGH STAMINA" elseif fraction < 0.3 then "TIRED" else ""
+	local status = if exhausted
+		then "EXHAUSTED — rest on the ground"
+		elseif denied then "NOT ENOUGH STAMINA"
+		elseif fraction < 0.3 then "TIRED"
+		else ""
 	local costText = if name and cost > 0 then ("%s −%d"):format(name, math.floor(cost + 0.5)) else ""
 	ui.StaminaText.Text = if status ~= "" then status else costText
 	ui.StaminaText.TextColor3 = if status ~= "" then color else C.Muted
 	-- Hide when full and idle on the ground (clean screen), unless in a run.
-	local idle = fraction >= 0.999 and Controller.Info.State == "Ground" and Controller.Info.Speed < 1 and not CourseClient.Run
+	local idle = fraction >= 0.999
+		and Controller.Info.State == "Ground"
+		and Controller.Info.Speed < 1
+		and not CourseClient.Run
 	ui.StaminaHolder.Visible = not idle or os.clock() < deniedUntil
 end
 
@@ -351,7 +374,9 @@ local function updateProfile()
 	local level, into, needed = Leveling.FromXP(profile.XP or 0)
 	local rank = Progression.RankFor(level)
 	ui.LevelText.Text = ("Lv %d"):format(level)
-	ui.RankText.Text = if level >= 100 then rank.Name .. " · MAX" else ("%s · %s / %s XP"):format(rank.Name, Format.Number(into), Format.Number(needed))
+	ui.RankText.Text = if level >= 100
+		then rank.Name .. " · MAX"
+		else ("%s · %s / %s XP"):format(rank.Name, Format.Number(into), Format.Number(needed))
 	ui.RankText.TextColor3 = rank.Color
 	ui.XPBar.Set(if needed > 0 then into / needed else 1)
 	ui.Currency.Text = ("¢ %s   ✪ %d"):format(Format.Number(profile.Credits or 0), profile.Prestige or 0)
@@ -389,12 +414,23 @@ local function updateObjectives()
 				for _ in state.Progress or {} do
 					done += 1
 				end
-				local total = if step.Points then #step.Points elseif type(step.To) == "table" then #step.To else step.Count
+				local total = if step.Points
+					then #step.Points
+					elseif type(step.To) == "table" then #step.To
+					else step.Count
 				if total and total > 1 then
-					progress = ("  (%d/%d)"):format(if state.Progress and state.Progress.Count then state.Progress.Count else done, total)
+					progress = ("  (%d/%d)"):format(
+						if state.Progress and state.Progress.Count then state.Progress.Count else done,
+						total
+					)
 				end
 				local tag = if quest.Type == "Main" then "STORY" elseif quest.Type == "Expert" then "EXPERT" else "SIDE"
-				objectiveCard(tag .. " · " .. quest.Name, step.Text .. progress, if quest.Type == "Main" then C.Accent else C.Signal, order)
+				objectiveCard(
+					tag .. " · " .. quest.Name,
+					step.Text .. progress,
+					if quest.Type == "Main" then C.Accent else C.Signal,
+					order
+				)
 			end
 		end
 	end
@@ -437,9 +473,15 @@ local function updateWaypoint()
 			direction = Vector2.new(0, -1)
 		end
 		local unit = direction.Unit
-		local edge = center + unit * math.min(center.X - 60, center.Y - 60) / math.max(math.abs(unit.X), math.abs(unit.Y), 1e-3) * math.max(math.abs(unit.X), math.abs(unit.Y))
+		local edge = center
+			+ unit
+				* math.min(center.X - 60, center.Y - 60)
+				/ math.max(math.abs(unit.X), math.abs(unit.Y), 1e-3)
+				* math.max(math.abs(unit.X), math.abs(unit.Y))
 		marker.Position = UDim2.fromOffset(edge.X, edge.Y)
-		local arrow = if math.abs(unit.X) > math.abs(unit.Y) then (if unit.X > 0 then "▶" else "◀") else (if unit.Y > 0 then "▼" else "▲")
+		local arrow = if math.abs(unit.X) > math.abs(unit.Y)
+			then (if unit.X > 0 then "▶" else "◀")
+			else (if unit.Y > 0 then "▼" else "▲")
 		marker.Text = arrow .. "\n" .. text
 	end
 	marker.TextColor3 = if Settings.Get("HighContrast") then Color3.new(1, 1, 1) else C.Accent
@@ -457,7 +499,10 @@ local function updateRun()
 	else
 		ui.RunTimer.Text = Format.Time(elapsed)
 	end
-	local tag = if run.Mode == "Ranked" then "RANKED" elseif run.Mode == "Practice" then "PRACTICE" else string.upper(run.Mode)
+	local tag = if run.Mode == "Ranked"
+		then "RANKED"
+		elseif run.Mode == "Practice" then "PRACTICE"
+		else string.upper(run.Mode)
 	ui.RunName.Text = ("%s · %s"):format(run.Name, tag)
 	if os.clock() > splitFlashUntil then
 		ui.RunSplit.Text = ""
@@ -508,7 +553,11 @@ end
 
 local ACTION_HINTS: { [string]: (any) -> string? } = {
 	Ledge = function()
-		local text = ("[%s] Climb up   [%s] Drop   [%s] Shimmy"):format(Input.Glyph("Jump"), Input.Glyph("Crouch"), Input.Glyph("Move"))
+		local text = ("[%s] Climb up   [%s] Drop   [%s] Shimmy"):format(
+			Input.Glyph("Jump"),
+			Input.Glyph("Crouch"),
+			Input.Glyph("Move")
+		)
 		if Controller.Has("LedgeLeap") then
 			text ..= ("   Hold up + [%s] Leap"):format(Input.Glyph("Jump"))
 		end
@@ -518,7 +567,11 @@ local ACTION_HINTS: { [string]: (any) -> string? } = {
 		return ("[%s] Wall jump   [%s] Let go"):format(Input.Glyph("Jump"), Input.Glyph("Crouch"))
 	end,
 	Climb = function()
-		return ("[%s] Climb   [%s] Hop up   [%s] Let go"):format(Input.Glyph("Move"), Input.Glyph("Jump"), Input.Glyph("Crouch"))
+		return ("[%s] Climb   [%s] Hop up   [%s] Let go"):format(
+			Input.Glyph("Move"),
+			Input.Glyph("Jump"),
+			Input.Glyph("Crouch")
+		)
 	end,
 	Zipline = function()
 		return ("[%s] Jump off   [%s] Drop"):format(Input.Glyph("Jump"), Input.Glyph("Crouch"))
@@ -560,7 +613,12 @@ local function renderLesson(lesson: any, step: number, progress: number)
 		return
 	end
 	panel.Visible = true
-	Kit.Label(panel, "TRAINING · " .. string.upper(lesson.Name), 15, { Font = Kit.Fonts.Black, TextColor3 = C.Accent, Size = UDim2.new(1, 0, 0, 20) })
+	Kit.Label(
+		panel,
+		"TRAINING · " .. string.upper(lesson.Name),
+		15,
+		{ Font = Kit.Fonts.Black, TextColor3 = C.Accent, Size = UDim2.new(1, 0, 0, 20) }
+	)
 	local lock = LessonsClient.LockReason(lesson)
 	if lock then
 		Kit.Paragraph(panel, "🔒 " .. lock, 14, C.Warn)
@@ -573,7 +631,12 @@ local function renderLesson(lesson: any, step: number, progress: number)
 		if index == step and entry.Count and entry.Count > 1 then
 			count = (" (%d/%d)"):format(progress, entry.Count)
 		end
-		Kit.Paragraph(panel, ("%s %s%s"):format(mark, entry.Text, count), 14, if index < step then C.Good elseif index == step then C.Text else C.Faint)
+		Kit.Paragraph(
+			panel,
+			("%s %s%s"):format(mark, entry.Text, count),
+			14,
+			if index < step then C.Good elseif index == step then C.Text else C.Faint
+		)
 	end
 	if step > #lesson.Steps then
 		Kit.Paragraph(panel, "✓ Lesson complete! Try the next station.", 14, C.Good)
@@ -593,7 +656,12 @@ local function renderMode(kind: string?, data: any)
 		Kit.Label(panel, ("Record: %d"):format(best), 13, { TextColor3 = C.Muted })
 	elseif kind == "Race" and data and data.State == "Running" then
 		panel.Visible = true
-		Kit.Label(panel, "RACE · " .. tostring(data.CourseName), 15, { Font = Kit.Fonts.Black, TextColor3 = rgb(255, 120, 220) })
+		Kit.Label(
+			panel,
+			"RACE · " .. tostring(data.CourseName),
+			15,
+			{ Font = Kit.Fonts.Black, TextColor3 = rgb(255, 120, 220) }
+		)
 		for _, member in data.Members or {} do
 			local finished = nil
 			for _, result in data.Results or {} do
@@ -601,15 +669,31 @@ local function renderMode(kind: string?, data: any)
 					finished = result
 				end
 			end
-			local text = if finished then ("%d. %s  %s"):format(finished.Place, member.Name, Format.Time(finished.Seconds)) else ("—  %s  CP %d"):format(member.Name, raceProgress[member.UserId] or 0)
+			local text = if finished
+				then ("%d. %s  %s"):format(finished.Place, member.Name, Format.Time(finished.Seconds))
+				else ("—  %s  CP %d"):format(member.Name, raceProgress[member.UserId] or 0)
 			Kit.Label(panel, text, 14)
 		end
 	elseif kind == "Relay" and data and data.State == "Running" then
 		panel.Visible = true
-		Kit.Label(panel, "RELAY · " .. tostring(data.CourseName), 15, { Font = Kit.Fonts.Black, TextColor3 = rgb(255, 120, 220) })
+		Kit.Label(
+			panel,
+			"RELAY · " .. tostring(data.CourseName),
+			15,
+			{ Font = Kit.Fonts.Black, TextColor3 = rgb(255, 120, 220) }
+		)
 		for _, leg in data.Legs or {} do
 			local mark = if leg.Index < data.Leg then "✓" elseif leg.Index == data.Leg then "▶" else "·"
-			Kit.Label(panel, ("%s Leg %d: %s%s"):format(mark, leg.Index, leg.Name, if leg.Time then "  " .. Format.Time(leg.Time) else ""), 14)
+			Kit.Label(
+				panel,
+				("%s Leg %d: %s%s"):format(
+					mark,
+					leg.Index,
+					leg.Name,
+					if leg.Time then "  " .. Format.Time(leg.Time) else ""
+				),
+				14
+			)
 		end
 	else
 		panel.Visible = false
@@ -637,6 +721,9 @@ function Hud.Start()
 		deniedUntil = os.clock() + 0.7
 	end)
 	Bus.Split:Connect(function(index: number, seconds: number, delta: number?)
+		if Settings.Get("ShowSplits") == false then
+			return
+		end
 		splitFlashUntil = os.clock() + 2.5
 		if delta then
 			ui.RunSplit.Text = ("CP %d  %s  (%s)"):format(index, Format.Time(seconds), Format.Delta(delta))
@@ -667,7 +754,9 @@ function Hud.Start()
 	end)
 	Bus.Carry:Connect(function(carrying: boolean, fragile: boolean)
 		ui.Carry.Visible = carrying
-		ui.Carry.Text = if fragile then "📦 Carrying a FRAGILE package: no stumbles or falls" else "📦 Carrying a package"
+		ui.Carry.Text = if fragile
+			then "📦 Carrying a FRAGILE package: no stumbles or falls"
+			else "📦 Carrying a package"
 	end)
 	Bus.PageChanged:Connect(function(page)
 		gui.Enabled = page == nil

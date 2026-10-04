@@ -143,7 +143,12 @@ local function onFinished(player: Player, run: any, result: any)
 	local prestige = if first and floor % 5 == 0 then Progression.Prestige.TowerMilestone else 0
 	ProgressionService.Grant(player, { XP = xp, Credits = credits, Prestige = prestige }, nil, true)
 	if prestige > 0 then
-		Notify.Send(player, { Kind = "Unlock", Title = ("Spire milestone: floor %d"):format(floor), Prestige = prestige, Sound = "Unlock" })
+		Notify.Send(player, {
+			Kind = "Unlock",
+			Title = ("Spire milestone: floor %d"):format(floor),
+			Prestige = prestige,
+			Sound = "Unlock",
+		})
 	end
 	DataService.Push(player, "Tower")
 	DataService.MarkDirty(player)

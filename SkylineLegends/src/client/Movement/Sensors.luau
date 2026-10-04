@@ -50,7 +50,9 @@ function Sensors.Ground(root: BasePart, reach: number?): Ground?
 	local hit = cast(origin, Vector3.new(0, -(reach or 3.6), 0))
 	if not hit then
 		-- Edges: probe a ring of points so standing on a corner still counts.
-		for _, offset in { Vector3.new(0.8, 0, 0), Vector3.new(-0.8, 0, 0), Vector3.new(0, 0, 0.5), Vector3.new(0, 0, -0.5) } do
+		for _, offset in
+			{ Vector3.new(0.8, 0, 0), Vector3.new(-0.8, 0, 0), Vector3.new(0, 0, 0.5), Vector3.new(0, 0, -0.5) }
+		do
 			hit = cast(origin + root.CFrame:VectorToWorldSpace(offset), Vector3.new(0, -(reach or 3.6), 0))
 			if hit then
 				break
@@ -61,7 +63,13 @@ function Sensors.Ground(root: BasePart, reach: number?): Ground?
 		return nil
 	end
 	local part = hit.Instance :: BasePart
-	return { Part = part, Position = hit.Position, Normal = hit.Normal, Material = hit.Material, Distance = origin.Y - hit.Position.Y }
+	return {
+		Part = part,
+		Position = hit.Position,
+		Normal = hit.Normal,
+		Material = hit.Material,
+		Distance = origin.Y - hit.Position.Y,
+	}
 end
 
 -- Is there room above to stand up (after crouching or sliding)?
@@ -102,7 +110,12 @@ function Sensors.WallSide(root: BasePart, direction: Vector3, reach: number): Wa
 				if math.abs(normal:Dot(dir)) < 0.62 then
 					local distance = (h.Position - root.Position).Magnitude
 					if not best or distance < best.Distance then
-						best = { Part = h.Instance :: BasePart, Normal = normal, Position = h.Position, Distance = distance }
+						best = {
+							Part = h.Instance :: BasePart,
+							Normal = normal,
+							Position = h.Position,
+							Distance = distance,
+						}
 					end
 				end
 			end
@@ -122,7 +135,12 @@ function Sensors.WallNear(root: BasePart, reach: number): Wall?
 			local h = hit :: RaycastResult
 			local distance = (h.Position - root.Position).Magnitude
 			if not best or distance < best.Distance then
-				best = { Part = h.Instance :: BasePart, Normal = MathUtil.FlatUnit(h.Normal), Position = h.Position, Distance = distance }
+				best = {
+					Part = h.Instance :: BasePart,
+					Normal = MathUtil.FlatUnit(h.Normal),
+					Position = h.Position,
+					Distance = distance,
+				}
 			end
 		end
 	end
@@ -136,7 +154,12 @@ function Sensors.WallAhead(root: BasePart, direction: Vector3, reach: number): W
 		local hit = cast(root.Position + Vector3.new(0, dy, 0), dir * reach)
 		if isWall(hit) then
 			local h = hit :: RaycastResult
-			return { Part = h.Instance :: BasePart, Normal = MathUtil.FlatUnit(h.Normal), Position = h.Position, Distance = (h.Position - root.Position).Magnitude }
+			return {
+				Part = h.Instance :: BasePart,
+				Normal = MathUtil.FlatUnit(h.Normal),
+				Position = h.Position,
+				Distance = (h.Position - root.Position).Magnitude,
+			}
 		end
 	end
 	return nil
@@ -148,7 +171,12 @@ function Sensors.Climbable(root: BasePart, direction: Vector3, reach: number): W
 	for _, dy in { 0.6, -0.6, 1.6 } do
 		local hit = cast(root.Position + Vector3.new(0, dy, 0), dir * reach)
 		if hit and CollectionService:HasTag(hit.Instance, Tags.Climbable) and math.abs(hit.Normal.Y) < 0.5 then
-			return { Part = hit.Instance :: BasePart, Normal = MathUtil.FlatUnit(hit.Normal), Position = hit.Position, Distance = (hit.Position - root.Position).Magnitude }
+			return {
+				Part = hit.Instance :: BasePart,
+				Normal = MathUtil.FlatUnit(hit.Normal),
+				Position = hit.Position,
+				Distance = (hit.Position - root.Position).Magnitude,
+			}
 		end
 	end
 	return nil
@@ -181,7 +209,13 @@ function Sensors.Ledge(root: BasePart, direction: Vector3, reach: number, minAbo
 end
 
 -- Same as Ledge, probing from an arbitrary point (used to look for the next ledge from a hang).
-function Sensors.LedgeFrom(origin: Vector3, direction: Vector3, reach: number, minAbove: number, maxAbove: number): Ledge?
+function Sensors.LedgeFrom(
+	origin: Vector3,
+	direction: Vector3,
+	reach: number,
+	minAbove: number,
+	maxAbove: number
+): Ledge?
 	local dir = MathUtil.FlatUnit(direction)
 	local wallHit: RaycastResult? = nil
 	for _, dy in { 0.6, 1.6, -0.4 } do
@@ -250,7 +284,15 @@ export type Vault = {
 
 -- Low cover ahead: something between knee and chest height that can be vaulted
 -- (thin) or stepped onto (deep).
-function Sensors.Vault(root: BasePart, direction: Vector3, reach: number, minHeight: number, maxHeight: number, maxDepth: number, rootHeight: number): Vault?
+function Sensors.Vault(
+	root: BasePart,
+	direction: Vector3,
+	reach: number,
+	minHeight: number,
+	maxHeight: number,
+	maxDepth: number,
+	rootHeight: number
+): Vault?
 	local dir = MathUtil.FlatUnit(direction)
 	local feet = root.Position.Y - rootHeight
 	local knee = cast(Vector3.new(root.Position.X, feet + 1.1, root.Position.Z), dir * reach)
@@ -264,7 +306,10 @@ function Sensors.Vault(root: BasePart, direction: Vector3, reach: number, minHei
 	end
 	local normal = MathUtil.FlatUnit(hit.Normal)
 	local front = hit.Position
-	local top = cast(Vector3.new(front.X, feet + maxHeight + 0.5, front.Z) - normal * 0.4, Vector3.new(0, -(maxHeight + 0.5), 0))
+	local top = cast(
+		Vector3.new(front.X, feet + maxHeight + 0.5, front.Z) - normal * 0.4,
+		Vector3.new(0, -(maxHeight + 0.5), 0)
+	)
 	if not top or top.Normal.Y < 0.7 then
 		return nil
 	end
@@ -285,11 +330,21 @@ function Sensors.Vault(root: BasePart, direction: Vector3, reach: number, minHei
 	if depth <= maxDepth then
 		local landing = Vector3.new(front.X, feet, front.Z) - normal * (depth + 1.6)
 		-- Land on whatever is behind (or keep falling if nothing is).
-		local floor = cast(landing + Vector3.new(0, top.Position.Y - feet + 1, 0), Vector3.new(0, -(top.Position.Y - feet + 6), 0))
+		local floor = cast(
+			landing + Vector3.new(0, top.Position.Y - feet + 1, 0),
+			Vector3.new(0, -(top.Position.Y - feet + 6), 0)
+		)
 		if floor then
 			landing = floor.Position
 		end
-		return { Kind = "Vault", Front = front, TopY = top.Position.Y, Depth = depth, Landing = landing, Normal = normal }
+		return {
+			Kind = "Vault",
+			Front = front,
+			TopY = top.Position.Y,
+			Depth = depth,
+			Landing = landing,
+			Normal = normal,
+		}
 	end
 	-- Deep low block: step up onto it if there's room.
 	local standPoint = Vector3.new(front.X, top.Position.Y, front.Z) - normal * 1.6

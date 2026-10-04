@@ -209,7 +209,6 @@ function ProgressionService.Start()
 		DataService.Push(player, "Skills")
 		return true, nil
 	end)
-
 end
 
 return ProgressionService

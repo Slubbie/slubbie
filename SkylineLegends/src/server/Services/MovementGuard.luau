@@ -386,7 +386,11 @@ local function sample(player: Player, state: PlayerState)
 		local vertical = math.abs(delta.Y) / math.max(dt, 0.05)
 		if horizontal > MAX_PLAUSIBLE_SPEED or vertical > MAX_FALL_SPEED then
 			local allowance = state.Allowance
-			if allowance and now < allowance.Expires and (position - allowance.Position).Magnitude <= allowance.Radius then
+			if
+				allowance
+				and now < allowance.Expires
+				and (position - allowance.Position).Magnitude <= allowance.Radius
+			then
 				state.Allowance = nil
 			else
 				table.insert(state.Strikes, now)
@@ -423,7 +427,10 @@ local function onState(player: Player, stateName: any, aux: any, auxNumber: any)
 	end
 	character:SetAttribute("MS", stateName)
 	character:SetAttribute("MA", if typeof(aux) == "Vector3" and aux.Magnitude < 1e5 then aux else nil)
-	character:SetAttribute("MB", if type(auxNumber) == "number" and auxNumber == auxNumber then math.clamp(auxNumber, -1e4, 1e4) else nil)
+	character:SetAttribute(
+		"MB",
+		if type(auxNumber) == "number" and auxNumber == auxNumber then math.clamp(auxNumber, -1e4, 1e4) else nil
+	)
 end
 
 local function onAction(player: Player, action: any, value: any)
@@ -435,7 +442,11 @@ local function onAction(player: Player, action: any, value: any)
 	if not rule then
 		return
 	end
-	if rule.Ability and not Abilities.IsBasic(rule.Ability) and not ProgressionService.HasAbility(player, rule.Ability) then
+	if
+		rule.Ability
+		and not Abilities.IsBasic(rule.Ability)
+		and not ProgressionService.HasAbility(player, rule.Ability)
+	then
 		return
 	end
 	if not plausible(player, state, rule.Check) then

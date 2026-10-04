@@ -24,7 +24,11 @@ local Lessons: { Lesson } = {
 		Layout = "Gaps",
 		Steps = {
 			{ Text = "Hold Sprint and jump across the gap.", Action = "Jump" },
-			{ Text = "Jump just before you land to jump again instantly. Clear all three gaps.", Action = "Jump", Count = 3 },
+			{
+				Text = "Jump just before you land to jump again instantly. Clear all three gaps.",
+				Action = "Jump",
+				Count = 3,
+			},
 		},
 	},
 	{
@@ -78,7 +82,10 @@ local Lessons: { Lesson } = {
 		Input = "Jump",
 		Layout = "WallRun",
 		Steps = {
-			{ Text = "Sprint and jump toward the chevron wall at a shallow angle to run along it.", Action = "WallRun" },
+			{
+				Text = "Sprint and jump toward the chevron wall at a shallow angle to run along it.",
+				Action = "WallRun",
+			},
 			{ Text = "Press Jump during the run to leap off and reach the far platform.", Action = "WallJump" },
 		},
 	},
@@ -101,7 +108,11 @@ local Lessons: { Lesson } = {
 		Layout = "Beam",
 		Steps = {
 			{ Text = "Walk onto the beam. Steer against the sway shown under you.", Action = "Balance" },
-			{ Text = "If you slip, you'll catch the beam. Climb back up and finish the crossing.", Action = "Balance", Count = 2 },
+			{
+				Text = "If you slip, you'll catch the beam. Climb back up and finish the crossing.",
+				Action = "Balance",
+				Count = 2,
+			},
 		},
 	},
 	{
@@ -123,7 +134,10 @@ local Lessons: { Lesson } = {
 		Layout = "Lines",
 		Steps = {
 			{ Text = "Jump into the cable to ride the zipline.", Action = "Zipline" },
-			{ Text = "Jump off the line into the rope swing, then jump to release.", Chain = { "Zipline", "RopeSwing" } },
+			{
+				Text = "Jump off the line into the rope swing, then jump to release.",
+				Chain = { "Zipline", "RopeSwing" },
+			},
 		},
 	},
 	-- Advanced stations
@@ -183,7 +197,10 @@ local Lessons: { Lesson } = {
 		Input = "Jump",
 		Layout = "Stacked",
 		Steps = {
-			{ Text = "Hang from the ledge and press Jump with forward held to leap to the one above.", Action = "LedgeLeap" },
+			{
+				Text = "Hang from the ledge and press Jump with forward held to leap to the one above.",
+				Action = "LedgeLeap",
+			},
 			{ Text = "Leap up two ledges in a row.", Chain = { "LedgeLeap", "LedgeLeap" } },
 		},
 	},

@@ -120,7 +120,10 @@ function RecordService.Top(courseId: string, count: number?): { Entry }
 			local pages = board:GetSortedAsync(true, wanted)
 			for rank, item in pages:GetCurrentPage() do
 				local userId = tonumber(item.key) or 0
-				table.insert(entries, { UserId = userId, Name = nameFor(userId), Seconds = item.value / 100, Rank = rank })
+				table.insert(
+					entries,
+					{ UserId = userId, Name = nameFor(userId), Seconds = item.value / 100, Rank = rank }
+				)
 			end
 		end)
 		if not ok then
@@ -139,7 +142,10 @@ function RecordService.Top(courseId: string, count: number?): { Entry }
 		entries = {}
 		for rank = 1, math.min(wanted, #list) do
 			local item = list[rank]
-			table.insert(entries, { UserId = item.UserId, Name = nameFor(item.UserId), Seconds = item.Centis / 100, Rank = rank })
+			table.insert(
+				entries,
+				{ UserId = item.UserId, Name = nameFor(item.UserId), Seconds = item.Centis / 100, Rank = rank }
+			)
 		end
 	end
 	topCache[courseId] = { Time = os.clock(), Entries = entries }

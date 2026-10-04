@@ -110,7 +110,10 @@ local function onAction(action: string)
 	end
 	local falloff = FlowConfig.VarietyFalloff[math.min(repeats + 1, #FlowConfig.VarietyFalloff)]
 	-- Transitions: linking straight into the next move earns a bonus.
-	local transition = now - lastAction <= FlowConfig.TransitionWindow and #recent > 0 and action ~= "Land" and action ~= "Jump"
+	local transition = now - lastAction <= FlowConfig.TransitionWindow
+		and #recent > 0
+		and action ~= "Land"
+		and action ~= "Jump"
 	local points = base * falloff * (if transition then 1 + FlowConfig.TransitionBonus else 1)
 	lastAction = now
 	if action ~= "Land" and action ~= "Jump" then
@@ -168,7 +171,12 @@ function Flow.Start()
 				add(rate * dt, nil, false)
 			end
 			lastMomentum = now
-		elseif info.Speed >= FlowConfig.MomentumSpeed or info.State == "Air" or info.State == "Vault" or info.State == "Mantle" then
+		elseif
+			info.Speed >= FlowConfig.MomentumSpeed
+			or info.State == "Air"
+			or info.State == "Vault"
+			or info.State == "Mantle"
+		then
 			lastMomentum = now
 		end
 		if now - lastMomentum > FlowConfig.IdleGrace and Flow.Meter > 0 then
@@ -182,7 +190,11 @@ function Flow.Start()
 			end
 		end
 		-- The chain itself lapses after a long gap between moves.
-		if Flow.ChainCount > 0 and now - lastAction > FlowConfig.ChainGap * 2.5 and now - lastMomentum > FlowConfig.IdleGrace then
+		if
+			Flow.ChainCount > 0
+			and now - lastAction > FlowConfig.ChainGap * 2.5
+			and now - lastMomentum > FlowConfig.IdleGrace
+		then
 			Flow.ChainCount = 0
 			table.clear(Flow.Chain)
 		end

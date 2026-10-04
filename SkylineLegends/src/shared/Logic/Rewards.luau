@@ -50,7 +50,11 @@ function Rewards.Course(
 		add("Practice run", 10, 0)
 	else
 		if (record.Completions or 0) == 0 then
-			add("First completion", Progression.XP.FirstCompletion * factor, Progression.Credits.FirstCompletion * factor)
+			add(
+				"First completion",
+				Progression.XP.FirstCompletion * factor,
+				Progression.Credits.FirstCompletion * factor
+			)
 		else
 			local performance = math.clamp(thresholds[1] / math.max(result.Seconds, 1), 0.5, 1.6)
 			local scale = if repeatsThisSession < Rewards.RepeatFullRuns then 1 else Rewards.RepeatTailFactor

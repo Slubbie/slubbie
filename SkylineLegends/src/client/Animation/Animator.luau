@@ -919,7 +919,11 @@ local function stepRig(rig: Rig, t: number, dt: number)
 		rig.StateStart = os.clock()
 		if input.State == "Roll" then
 			overlay(rig, "X", 0.42, 1, 0, 1)
-		elseif rig.Kind ~= "Local" and (old == "Air" or old == "WallRun") and (input.State == "Ground" or input.State == "Slide") then
+		elseif
+			rig.Kind ~= "Local"
+			and (old == "Air" or old == "WallRun")
+			and (input.State == "Ground" or input.State == "Slide")
+		then
 			setLanding(rig, math.max(-rig.LastVelocity.Y, 0))
 		end
 	end
@@ -937,7 +941,11 @@ local function stepRig(rig: Rig, t: number, dt: number)
 
 	-- Head looks where the camera looks (local runner, on the ground).
 	local final = table.clone(pose)
-	if input.Look and (input.State == "Ground" or input.State == "Crouch" or input.State == "Air") and not rig.Emote then
+	if
+		input.Look
+		and (input.State == "Ground" or input.State == "Crouch" or input.State == "Air")
+		and not rig.Emote
+	then
 		local localLook = rig.Root.CFrame:VectorToObjectSpace(input.Look)
 		local yaw = math.clamp(math.deg(math.atan2(-localLook.X, -localLook.Z)), -55, 55)
 		local pitch = math.clamp(math.deg(math.asin(math.clamp(localLook.Y, -1, 1))), -30, 35)

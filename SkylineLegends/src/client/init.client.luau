@@ -19,6 +19,7 @@ local Mechanisms = require(script.World.Mechanisms)
 local Hazards = require(script.World.Hazards)
 local Atmosphere = require(script.World.Atmosphere)
 local Detail = require(script.World.Detail)
+local Icons = require(script.World.Icons)
 
 local Animator = require(script.Animation.Animator)
 local CameraController = require(script.Camera.CameraController)
@@ -67,6 +68,7 @@ start("Mechanisms", Mechanisms.Start)
 start("Hazards", Hazards.Start)
 start("Atmosphere", Atmosphere.Start)
 task.spawn(start, "Detail", Detail.Start)
+start("Icons", Icons.Start)
 
 start("Animator", Animator.Start)
 start("Camera", CameraController.Start)
@@ -103,6 +105,10 @@ end)
 -- Saving is off in Studio without API access: say so once, clearly.
 task.delay(4, function()
 	if State.Persistent == false then
-		Overlay.Banner("Progress won't be saved", "Enable Studio Access to API Services to test saving.", Color3.fromRGB(255, 176, 60))
+		Overlay.Banner(
+			"Progress won't be saved",
+			"Enable Studio Access to API Services to test saving.",
+			Color3.fromRGB(255, 176, 60)
+		)
 	end
 end)

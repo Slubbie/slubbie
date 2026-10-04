@@ -114,13 +114,29 @@ end
 
 -- Scripted paths -----------------------------------------------------------------------------
 
-function Body.StartPath(kind: string, from: CFrame, control: Vector3, to: CFrame, duration: number, exit: Vector3, phase: boolean?)
+function Body.StartPath(
+	kind: string,
+	from: CFrame,
+	control: Vector3,
+	to: CFrame,
+	duration: number,
+	exit: Vector3,
+	phase: boolean?
+)
 	Body.BeginHold()
 	if phase then
 		Body.SetGroup(Tags.Groups.PlayersPhase)
 	end
 	finished = nil
-	path = { From = from, Control = control, To = to, Duration = math.max(duration, 0.05), Elapsed = 0, Exit = exit, Kind = kind }
+	path = {
+		From = from,
+		Control = control,
+		To = to,
+		Duration = math.max(duration, 0.05),
+		Elapsed = 0,
+		Exit = exit,
+		Kind = kind,
+	}
 end
 
 function Body.PathKind(): string?

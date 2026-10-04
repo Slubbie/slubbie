@@ -105,7 +105,10 @@ end
 -- A pitched tone (semitones from the base ping), for cues and stingers.
 function Sfx.Tone(semitones: number, volume: number?, delay: number?, groupName: string?)
 	local function play()
-		Sfx.Play("Tone", { Pitch = 2 ^ (semitones / 12), Volume = volume or 0.35, Group = groupName or "Cues", Spread = 0 })
+		Sfx.Play(
+			"Tone",
+			{ Pitch = 2 ^ (semitones / 12), Volume = volume or 0.35, Group = groupName or "Cues", Spread = 0 }
+		)
 	end
 	if delay and delay > 0 then
 		task.delay(delay, play)

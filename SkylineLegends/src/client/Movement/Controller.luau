@@ -336,7 +336,10 @@ local function refreshCache()
 	local function near(tag: string, range: number): { BasePart }
 		local result = {}
 		for _, instance in CollectionService:GetTagged(tag) do
-			if instance:IsA("BasePart") and (instance.Position - position).Magnitude < range + instance.Size.Magnitude / 2 then
+			if
+				instance:IsA("BasePart")
+				and (instance.Position - position).Magnitude < range + instance.Size.Magnitude / 2
+			then
 				table.insert(result, instance)
 			end
 		end
@@ -496,7 +499,13 @@ local function stepWallRun(dt: number)
 		wallJump(wallNormal, wallTangent, wallSpeed)
 		return
 	end
-	if not hit or math.abs(hit.Normal.Y) > 0.35 or elapsed > stats.WallRunMaxTime or pullingAway or Input.Held("Crouch") then
+	if
+		not hit
+		or math.abs(hit.Normal.Y) > 0.35
+		or elapsed > stats.WallRunMaxTime
+		or pullingAway
+		or Input.Held("Crouch")
+	then
 		endWallRun()
 		return
 	end
@@ -514,7 +523,8 @@ local function stepWallRun(dt: number)
 	else
 		wallTangent = (wallTangent - wallNormal * wallTangent:Dot(wallNormal)).Unit
 	end
-	local gravity = stats.WallRunGravity + (stats.WallRunGravityEnd - stats.WallRunGravity) * math.clamp(elapsed / stats.WallRunMaxTime, 0, 1)
+	local gravity = stats.WallRunGravity
+		+ (stats.WallRunGravityEnd - stats.WallRunGravity) * math.clamp(elapsed / stats.WallRunMaxTime, 0, 1)
 	wallVy -= gravity * dt
 	wallSpeed = math.max(wallSpeed - 2 * dt, stats.WallRunMinSpeed)
 	if h.FloorMaterial ~= Enum.Material.Air and wallVy < 0 then
@@ -561,7 +571,8 @@ local function mantle(found: Sensors.Ledge)
 	local normal = found.Normal
 	local stand = point - normal * 1.6 + UP * (stats.RootHeight + 0.05)
 	local from = r.CFrame
-	local control = Vector3.new(from.Position.X, math.max(stand.Y + 0.8, from.Position.Y), from.Position.Z) - normal * 0.3
+	local control = Vector3.new(from.Position.X, math.max(stand.Y + 0.8, from.Position.Y), from.Position.Z)
+		- normal * 0.3
 	local to = CFrame.lookAt(stand, stand - normal)
 	Body.StartPath("Mantle", from, control, to, stats.MantleDuration, -normal * 8, true)
 	ledge = nil
@@ -584,7 +595,8 @@ local function tryLedge(v: Vector3, direction: Vector3?): boolean
 	if v.Y > stats.LedgeMaxRiseSpeed then
 		return false
 	end
-	local found = Sensors.Ledge(r, direction or lookDirection(), stats.LedgeReach, stats.LedgeMinAbove, stats.LedgeMaxAbove)
+	local found =
+		Sensors.Ledge(r, direction or lookDirection(), stats.LedgeReach, stats.LedgeMinAbove, stats.LedgeMaxAbove)
 	if not found then
 		return false
 	end
@@ -645,7 +657,15 @@ local function stepLedge(dt: number)
 			if probe and probe.TopY > current.TopY + 2 then
 				Stamina.Spend("LedgeLeap")
 				local target = hangCFrame(probe.Point, probe.Normal)
-				Body.StartPath("Leap", r.CFrame, r.Position + UP * (target.Y - r.Position.Y + 1.5), target, 0.32, Vector3.zero, false)
+				Body.StartPath(
+					"Leap",
+					r.CFrame,
+					r.Position + UP * (target.Y - r.Position.Y + 1.5),
+					target,
+					0.32,
+					Vector3.zero,
+					false
+				)
 				ledge = probe
 				ledgeNormal = probe.Normal
 				ledgeOffset = probe.Part.CFrame:PointToObjectSpace(probe.Point)
@@ -681,7 +701,13 @@ local function stepLedge(dt: number)
 			ledgeOffset = part.CFrame:PointToObjectSpace(point)
 			velocity = tangent * math.sign(lateral) * stats.ShimmySpeed
 			-- Re-check whether this stretch can be climbed.
-			local again = Sensors.Ledge(r, -ledgeNormal, stats.LedgeReach + 0.6, stats.LedgeMinAbove - 0.5, stats.LedgeMaxAbove + 0.5)
+			local again = Sensors.Ledge(
+				r,
+				-ledgeNormal,
+				stats.LedgeReach + 0.6,
+				stats.LedgeMinAbove - 0.5,
+				stats.LedgeMaxAbove + 0.5
+			)
 			current.CanMantle = again ~= nil and again.CanMantle
 		end
 	end
@@ -696,7 +722,15 @@ local function tryVault(direction: Vector3, speed: number): boolean
 	if not r or not has("Vault") then
 		return false
 	end
-	local found = Sensors.Vault(r, direction, stats.VaultReach + speed * 0.06, stats.VaultMinHeight, stats.VaultMaxHeight, stats.VaultMaxDepth, stats.RootHeight)
+	local found = Sensors.Vault(
+		r,
+		direction,
+		stats.VaultReach + speed * 0.06,
+		stats.VaultMinHeight,
+		stats.VaultMaxHeight,
+		stats.VaultMaxDepth,
+		stats.RootHeight
+	)
 	if not found then
 		return false
 	end
@@ -705,7 +739,9 @@ local function tryVault(direction: Vector3, speed: number): boolean
 	if found.Kind == "Vault" then
 		local exitSpeed = math.max(speed * stats.VaultExitBoost, stats.VaultExitMin)
 		local landing = found.Landing + UP * stats.RootHeight
-		local over = found.Front + forward * (found.Depth / 2) + UP * (found.TopY - found.Front.Y + stats.RootHeight * 0.75)
+		local over = found.Front
+			+ forward * (found.Depth / 2)
+			+ UP * (found.TopY - found.Front.Y + stats.RootHeight * 0.75)
 		local control = Vector3.new(over.X, found.TopY + stats.RootHeight * 0.9, over.Z)
 		local duration = stats.VaultDuration * math.clamp(20 / math.max(speed, 8), 0.75, 1.3)
 		local to = CFrame.lookAt(landing, landing + forward)
@@ -716,7 +752,15 @@ local function tryVault(direction: Vector3, speed: number): boolean
 		local stand = found.Landing + UP * (stats.RootHeight + 0.05)
 		local control = Vector3.new(from.Position.X, stand.Y + 0.5, from.Position.Z)
 		local to = CFrame.lookAt(stand, stand + forward)
-		Body.StartPath("Step", from, control, to, stats.LowMantleDuration, forward * math.max(speed * 0.8, stats.WalkSpeed), true)
+		Body.StartPath(
+			"Step",
+			from,
+			control,
+			to,
+			stats.LowMantleDuration,
+			forward * math.max(speed * 0.8, stats.WalkSpeed),
+			true
+		)
 		setState("Mantle")
 		fire("Mantle")
 	end
@@ -825,7 +869,8 @@ local function stepClimb(dt: number)
 		climbNormal = normal
 	elseif vertical > 0 then
 		-- Top of the climb: catch the ledge and go over.
-		local found = Sensors.Ledge(r, -climbNormal, stats.ClimbReach + 1, stats.LedgeMinAbove - 1.5, stats.LedgeMaxAbove + 1)
+		local found =
+			Sensors.Ledge(r, -climbNormal, stats.ClimbReach + 1, stats.LedgeMinAbove - 1.5, stats.LedgeMaxAbove + 1)
 		if found then
 			fire("Climb", now() - climbStart)
 			climbPart = nil
@@ -980,7 +1025,12 @@ local function stepBalance(dt: number, ground: Sensors.Ground?)
 	local wind = inZone(cache.Wind, r.Position)
 	if wind then
 		local force = wind:GetAttribute("Force")
-		local on = Schedule.Cycle(Schedule.Now(), wind:GetAttribute("Period") or 4, wind:GetAttribute("OnFraction") or 0.4, wind:GetAttribute("Phase") or 0)
+		local on = Schedule.Cycle(
+			Schedule.Now(),
+			wind:GetAttribute("Period") or 4,
+			wind:GetAttribute("OnFraction") or 0.4,
+			wind:GetAttribute("Phase") or 0
+		)
 		if on and typeof(force) == "Vector3" then
 			disturbance += force:Dot(side) * stats.BalanceWind
 		end
@@ -994,11 +1044,12 @@ local function stepBalance(dt: number, ground: Sensors.Ground?)
 		-- Slipped off: catch the beam if you have the stamina for it.
 		local fallSide = side * math.sign(sway)
 		local center = part.CFrame:PointToObjectSpace(r.Position)
-		local onAxis = part.CFrame * Vector3.new(
-			if part.Size.X > part.Size.Z then center.X else 0,
-			part.Size.Y / 2,
-			if part.Size.X > part.Size.Z then 0 else center.Z
-		)
+		local onAxis = part.CFrame
+			* Vector3.new(
+				if part.Size.X > part.Size.Z then center.X else 0,
+				part.Size.Y / 2,
+				if part.Size.X > part.Size.Z then 0 else center.Z
+			)
 		leaveBalance()
 		if Stamina.Value > 12 and has("LedgeGrab") then
 			local width = math.min(part.Size.X, part.Size.Z)
@@ -1320,7 +1371,13 @@ function land(v: Vector3)
 			enterGround(groundSpeed)
 		end
 	end
-	if ground and kind ~= "Heavy" and kind ~= "Hard" and airTime >= stats.PrecisionMinAir and Sensors.IsNarrow(ground.Part, stats.PrecisionMaxWidth) then
+	if
+		ground
+		and kind ~= "Heavy"
+		and kind ~= "Hard"
+		and airTime >= stats.PrecisionMinAir
+		and Sensors.IsNarrow(ground.Part, stats.PrecisionMaxWidth)
+	then
 		fire("PrecisionLand")
 		kind = if kind == "Roll" then kind else "Precision"
 	end
@@ -1351,7 +1408,13 @@ local function airActions(v: Vector3)
 		end
 		local move = h.MoveDirection
 		local ahead = Sensors.WallAhead(r, lookDirection(), 2.4)
-		if ahead and not wallClimbUsed and has("WallRun") and move:Dot(-ahead.Normal) > 0.7 and Flat(v):Dot(-ahead.Normal) >= stats.WallClimbMinSpeed then
+		if
+			ahead
+			and not wallClimbUsed
+			and has("WallRun")
+			and move:Dot(-ahead.Normal) > 0.7
+			and Flat(v):Dot(-ahead.Normal) >= stats.WallClimbMinSpeed
+		then
 			Input.Consume("Jump")
 			if enterWallClimb(ahead) then
 				return
@@ -1458,7 +1521,12 @@ local function stepAir(dt: number, v: Vector3, grounded: boolean)
 	local wind = inZone(cache.Wind, r.Position)
 	if wind then
 		local force = wind:GetAttribute("Force")
-		local on = Schedule.Cycle(Schedule.Now(), wind:GetAttribute("Period") or 4, wind:GetAttribute("OnFraction") or 0.4, wind:GetAttribute("Phase") or 0)
+		local on = Schedule.Cycle(
+			Schedule.Now(),
+			wind:GetAttribute("Period") or 4,
+			wind:GetAttribute("OnFraction") or 0.4,
+			wind:GetAttribute("Phase") or 0
+		)
 		if on and typeof(force) == "Vector3" then
 			airVel += Flat(force) * dt
 		end
@@ -1547,7 +1615,12 @@ local function stepGround(dt: number, v: Vector3, ground: Sensors.Ground?)
 		-- Running at a wall and jumping into it runs you up it.
 		local ahead = if moving then Sensors.WallAhead(r, move, 2.2) else nil
 		jump()
-		if ahead and has("WallRun") and move:Dot(-ahead.Normal) > 0.75 and math.max(speed, groundSpeed) >= stats.WallClimbMinSpeed then
+		if
+			ahead
+			and has("WallRun")
+			and move:Dot(-ahead.Normal) > 0.75
+			and math.max(speed, groundSpeed) >= stats.WallClimbMinSpeed
+		then
 			enterWallClimb(ahead)
 		end
 		return
@@ -1628,7 +1701,12 @@ local function stepGround(dt: number, v: Vector3, ground: Sensors.Ground?)
 	local wind = inZone(cache.Wind, r.Position)
 	if wind then
 		local force = wind:GetAttribute("Force")
-		local on = Schedule.Cycle(Schedule.Now(), wind:GetAttribute("Period") or 4, wind:GetAttribute("OnFraction") or 0.4, wind:GetAttribute("Phase") or 0)
+		local on = Schedule.Cycle(
+			Schedule.Now(),
+			wind:GetAttribute("Period") or 4,
+			wind:GetAttribute("OnFraction") or 0.4,
+			wind:GetAttribute("Phase") or 0
+		)
 		if on and typeof(force) == "Vector3" then
 			r.AssemblyLinearVelocity += Flat(force) * dt * 0.6
 		end
@@ -1835,7 +1913,8 @@ local function replicate()
 	Controller.Info.Aux = aux or Controller.Info.Aux
 	local t = now()
 	local changed = state ~= lastSent.State
-	local auxChanged = (aux and lastSent.Aux and (aux - lastSent.Aux).Magnitude > 0.5) or ((aux == nil) ~= (lastSent.Aux == nil))
+	local auxChanged = (aux and lastSent.Aux and (aux - lastSent.Aux).Magnitude > 0.5)
+		or ((aux == nil) ~= (lastSent.Aux == nil))
 	if changed or (auxChanged and t - lastSent.Time > 0.25) or (state == "Balance" and t - lastSent.Time > 0.3) then
 		lastSent.State = state
 		lastSent.Aux = aux
@@ -1874,7 +1953,12 @@ local function onHeartbeat(dt: number)
 	-- Steam vents launch you when active.
 	local vent = inZone(cache.Vents, r.Position)
 	if vent and now() - lastBounce > 0.5 then
-		local on = Schedule.Cycle(Schedule.Now(), vent:GetAttribute("Period") or 3.4, vent:GetAttribute("OnFraction") or 0.38, vent:GetAttribute("Phase") or 0)
+		local on = Schedule.Cycle(
+			Schedule.Now(),
+			vent:GetAttribute("Period") or 3.4,
+			vent:GetAttribute("OnFraction") or 0.38,
+			vent:GetAttribute("Phase") or 0
+		)
 		if on and not holding then
 			lastBounce = now()
 			jumpedSinceGround = true
@@ -1944,7 +2028,8 @@ local function onHeartbeat(dt: number)
 				table.insert(list, part)
 			end
 		end
-		Controller.Info.GrappleTarget = Sensors.Anchor(r, list, workspace.CurrentCamera.CFrame.LookVector, stats.GrappleRange, stats.GrappleCone)
+		Controller.Info.GrappleTarget =
+			Sensors.Anchor(r, list, workspace.CurrentCamera.CFrame.LookVector, stats.GrappleRange, stats.GrappleCone)
 	elseif not has("Grapple") then
 		Controller.Info.GrappleTarget = nil
 	end
@@ -2145,12 +2230,14 @@ local function onCharacterAdded(newCharacter: Model)
 	h.JumpPower = stats.JumpVelocity
 	h.WalkSpeed = stats.WalkSpeed
 	h.AutoJumpEnabled = false
-	for _, stateType in {
-		Enum.HumanoidStateType.FallingDown,
-		Enum.HumanoidStateType.Ragdoll,
-		Enum.HumanoidStateType.Climbing,
-		Enum.HumanoidStateType.Swimming,
-	} do
+	for _, stateType in
+		{
+			Enum.HumanoidStateType.FallingDown,
+			Enum.HumanoidStateType.Ragdoll,
+			Enum.HumanoidStateType.Climbing,
+			Enum.HumanoidStateType.Swimming,
+		}
+	do
 		h:SetStateEnabled(stateType, false)
 	end
 

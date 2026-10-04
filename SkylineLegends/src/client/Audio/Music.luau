@@ -106,7 +106,11 @@ local function tick()
 	local level = intensity + (if flowTier >= 3 then 1 else 0)
 
 	-- Bass on beats 1 and 3 (plus pickups when running).
-	if sixteenth == 0 or sixteenth == 8 or (level >= 1 and (sixteenth == 14 or sixteenth == 6) and rng:Next() < 0.5) then
+	if
+		sixteenth == 0
+		or sixteenth == 8
+		or (level >= 1 and (sixteenth == 14 or sixteenth == 6) and rng:Next() < 0.5)
+	then
 		play("Bass", Sounds.Tone, root - 12 + scaleNote(scale, chordRoot), 0.32)
 	end
 

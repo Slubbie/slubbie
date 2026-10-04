@@ -92,7 +92,12 @@ local function onInvite(player: Player, userId: any, kind: any)
 	end
 	invites[target] = invites[target] or {}
 	invites[target][player.UserId] = invite
-	Net.Push(target, "Social.Invite", { From = player.UserId, Name = player.DisplayName, Kind = invite.Kind, District = MovementGuard.District(player) })
+	Net.Push(target, "Social.Invite", {
+		From = player.UserId,
+		Name = player.DisplayName,
+		Kind = invite.Kind,
+		District = MovementGuard.District(player),
+	})
 	Notify.Toast(player, "Invite sent", target.DisplayName)
 end
 

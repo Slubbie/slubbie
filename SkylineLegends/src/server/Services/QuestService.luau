@@ -320,7 +320,12 @@ local function objective(player: Player, kind: string, amount: number, filter: (
 	refreshDaily(player, profile)
 	refreshWeekly(profile)
 	local changed = false
-	for _, entry in { { Data = profile.Daily, List = Quests.Daily, Kind = "Daily" }, { Data = profile.Weekly, List = Quests.Weekly, Kind = "Weekly" } } do
+	for _, entry in
+		{
+			{ Data = profile.Daily, List = Quests.Daily, Kind = "Daily" },
+			{ Data = profile.Weekly, List = Quests.Weekly, Kind = "Weekly" },
+		}
+	do
 		local data = entry.Data
 		for index, id in data.Picks do
 			local template = templateById(entry.List, id)
@@ -340,12 +345,17 @@ local function objective(player: Player, kind: string, amount: number, filter: (
 				changed = true
 				if data.Progress[id] >= target then
 					data.Done[id] = true
-					local reward = if entry.Kind == "Daily" then Quests.DailyRewards[template.Tier or index] or Quests.DailyRewards[1] else Quests.WeeklyReward
+					local reward = if entry.Kind == "Daily"
+						then Quests.DailyRewards[template.Tier or index] or Quests.DailyRewards[1]
+						else Quests.WeeklyReward
 					ProgressionService.Grant(player, reward, nil, true)
-					profile.Stats[if entry.Kind == "Daily" then "Dailies" else "Weeklies"] = (profile.Stats[if entry.Kind == "Daily" then "Dailies" else "Weeklies"] or 0) + 1
+					profile.Stats[if entry.Kind == "Daily" then "Dailies" else "Weeklies"] = (
+						profile.Stats[if entry.Kind == "Daily" then "Dailies" else "Weeklies"] or 0
+					) + 1
 					Notify.Send(player, {
 						Kind = "Quest",
-						Title = (if entry.Kind == "Daily" then "Daily complete: " else "Expedition complete: ") .. template.Text,
+						Title = (if entry.Kind == "Daily" then "Daily complete: " else "Expedition complete: ")
+							.. template.Text,
 						XP = reward.XP,
 						Credits = reward.Credits,
 						Prestige = reward.Prestige,
@@ -363,7 +373,12 @@ local function objective(player: Player, kind: string, amount: number, filter: (
 						if all then
 							data.Bonus = true
 							ProgressionService.Grant(player, Quests.DailyBonus, nil, true)
-							Notify.Send(player, { Kind = "Reward", Title = "All dailies done!", XP = Quests.DailyBonus.XP, Credits = Quests.DailyBonus.Credits })
+							Notify.Send(player, {
+								Kind = "Reward",
+								Title = "All dailies done!",
+								XP = Quests.DailyBonus.XP,
+								Credits = Quests.DailyBonus.Credits,
+							})
 						end
 					end
 				end
@@ -380,7 +395,12 @@ end
 -- Contracts: three offers per district board, refreshed on a timer or when taken.
 local function makeOffers(player: Player, profile: any, districtId: string): { any }
 	local offers = {}
-	local seed = Rotation.Hash(player.UserId, districtId, profile.Contracts.Completed or 0, math.floor(os.time() / Quests.ContractRefresh))
+	local seed = Rotation.Hash(
+		player.UserId,
+		districtId,
+		profile.Contracts.Completed or 0,
+		math.floor(os.time() / Quests.ContractRefresh)
+	)
 	local rng = Rotation.Rng(seed)
 	local spots = contractByDistrict[districtId] or {}
 	local courses = Courses.Of(districtId, "Course")
@@ -431,7 +451,13 @@ local function finishContract(player: Player, profile: any)
 		carrying[player] = nil
 	end
 	ProgressionService.Grant(player, contract.Reward, nil, true)
-	Notify.Send(player, { Kind = "Quest", Title = "Contract complete: " .. contract.Name, XP = contract.Reward.XP, Credits = contract.Reward.Credits, Sound = "Quest" })
+	Notify.Send(player, {
+		Kind = "Quest",
+		Title = "Contract complete: " .. contract.Name,
+		XP = contract.Reward.XP,
+		Credits = contract.Reward.Credits,
+		Sound = "Quest",
+	})
 	DataService.Push(player, "Contracts")
 	DataService.MarkDirty(player)
 	Events.ObjectiveCompleted:Fire(player, "Contract")
@@ -474,7 +500,11 @@ local function onPoint(player: Player, id: any)
 		forActive(player, kind, function(step, state)
 			if table.find(step.Points, id) and not state.Progress[id] then
 				state.Progress[id] = true
-				Notify.Send(player, { Kind = "Objective", Title = step.Text, Text = ("%d / %d"):format(countSet(state.Progress), #step.Points) })
+				Notify.Send(player, {
+					Kind = "Objective",
+					Title = step.Text,
+					Text = ("%d / %d"):format(countSet(state.Progress), #step.Points),
+				})
 				push(player)
 			end
 			return countSet(state.Progress) >= #step.Points
@@ -492,7 +522,10 @@ local function onPoint(player: Player, id: any)
 			Notify.Send(player, {
 				Kind = "Objective",
 				Title = "Package picked up",
-				Text = if step.Fragile then "Fragile! No stumbles or falls." elseif step.Time then ("You have %ds."):format(step.Time) else nil,
+				Text = if step.Fragile
+					then "Fragile! No stumbles or falls."
+					elseif step.Time then ("You have %ds."):format(step.Time)
+					else nil,
 			})
 			Net.Push(player, "Quest.Carry", questId, step.Fragile == true, step.Time)
 			push(player)
@@ -503,7 +536,11 @@ local function onPoint(player: Player, id: any)
 				return false
 			end
 			state.Progress[id] = true
-			Notify.Send(player, { Kind = "Objective", Title = "Delivered", Text = ("%d / %d"):format(countSet(state.Progress), #step.To) })
+			Notify.Send(player, {
+				Kind = "Objective",
+				Title = "Delivered",
+				Text = ("%d / %d"):format(countSet(state.Progress), #step.To),
+			})
 			push(player)
 			if countSet(state.Progress) >= #step.To then
 				carrying[player] = nil
@@ -545,7 +582,10 @@ local function onPoint(player: Player, id: any)
 				contract.Picked = true
 				carrying[player] = { Contract = true, Fragile = false, Expires = nil }
 				contract.Expires = now + contract.Time
-				Notify.Send(player, { Kind = "Objective", Title = "Parcel picked up", Text = ("%ds to deliver"):format(contract.Time) })
+				Notify.Send(
+					player,
+					{ Kind = "Objective", Title = "Parcel picked up", Text = ("%ds to deliver"):format(contract.Time) }
+				)
 				Net.Push(player, "Quest.Timer", contract.Time)
 				DataService.Push(player, "Contracts")
 			elseif id == contract.To and contract.Picked then
@@ -645,7 +685,7 @@ local function onTalk(player: Player, npcId: any): any
 			local state = profile.Quests.Active[questId]
 			local step = quest and state and quest.Steps[state.Step]
 			if quest and step and quest.Giver == npcId then
-				table.insert(response.Lines, "Still working on \"" .. quest.Name .. "\"? " .. step.Text .. ".")
+				table.insert(response.Lines, 'Still working on "' .. quest.Name .. '"? ' .. step.Text .. ".")
 				break
 			end
 		end
@@ -672,7 +712,10 @@ local function onAccept(player: Player, questId: any): (boolean, string?)
 	profile.Quests.Active[questId] = { Step = 1, Progress = {}, Started = os.time() }
 	pin(profile, questId)
 	push(player)
-	Notify.Send(player, { Kind = "Objective", Title = "New quest: " .. quest.Name, Text = quest.Steps[1].Text, Sound = "Quest" })
+	Notify.Send(
+		player,
+		{ Kind = "Objective", Title = "New quest: " .. quest.Name, Text = quest.Steps[1].Text, Sound = "Quest" }
+	)
 	checkStep(player, questId)
 	return true, nil
 end
@@ -719,7 +762,12 @@ local function onClaim(player: Player): any
 	refreshWeekly(profile)
 	DataService.Push(player, "Daily")
 	DataService.Push(player, "Weekly")
-	return { Daily = profile.Daily, Weekly = profile.Weekly, NextDay = Rotation.SecondsUntilNextDay(), NextWeek = Rotation.SecondsUntilNextWeek() }
+	return {
+		Daily = profile.Daily,
+		Weekly = profile.Weekly,
+		NextDay = Rotation.SecondsUntilNextDay(),
+		NextWeek = Rotation.SecondsUntilNextWeek(),
+	}
 end
 
 -- Contract board: (district) → offers; (district, index) → take; (nil) → abandon.
@@ -742,7 +790,11 @@ local function onContract(player: Player, districtId: any, index: any): any
 		contracts.Refresh = os.time() + Quests.ContractRefresh
 	end
 	if index == nil then
-		return { Offers = contracts.Offers[districtId], Active = contracts.Active, Refresh = contracts.Refresh - os.time() }
+		return {
+			Offers = contracts.Offers[districtId],
+			Active = contracts.Active,
+			Refresh = contracts.Refresh - os.time(),
+		}
 	end
 	if contracts.Active then
 		return { Error = "Finish or abandon your current contract first" }
@@ -777,7 +829,10 @@ local function onCourseFinished(player: Player, result: any)
 			return false
 		end
 		local record = profile.Courses[result.CourseId]
-		local medal = math.max(result.Medal or 0, if step.NoFalls or step.Shortcut or step.Flow then 0 else (record and record.Medal or 0))
+		local medal = math.max(
+			result.Medal or 0,
+			if step.NoFalls or step.Shortcut or step.Flow then 0 else (record and record.Medal or 0)
+		)
 		if (step.Medal or 0) > 0 and medal < step.Medal then
 			return false
 		end
@@ -815,7 +870,12 @@ local function onCourseFinished(player: Player, result: any)
 	end
 	-- Contracts: course certification.
 	local contract = profile.Contracts.Active
-	if contract and contract.Kind == "Course" and contract.Course == result.CourseId and (result.Medal or 0) >= (contract.Medal or 1) then
+	if
+		contract
+		and contract.Kind == "Course"
+		and contract.Course == result.CourseId
+		and (result.Medal or 0) >= (contract.Medal or 1)
+	then
 		finishContract(player, profile)
 	end
 end

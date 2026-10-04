@@ -116,14 +116,21 @@ function DistrictBuilder.FindClear(ctx: Context, radius: number, footprint: numb
 				local ab = b - a
 				local t = math.clamp((position - a):Dot(ab) / math.max(ab:Dot(ab), 1e-6), 0, 1)
 				local closest = a + ab * t
-				clearance = math.min(clearance, Vector3.new(position.X - closest.X, 0, position.Z - closest.Z).Magnitude - DistrictBuilder.CorridorHalfWidth)
+				clearance = math.min(
+					clearance,
+					Vector3.new(position.X - closest.X, 0, position.Z - closest.Z).Magnitude
+						- DistrictBuilder.CorridorHalfWidth
+				)
 			end
 			for _, building in ctx.Buildings do
 				local offset = Vector3.new(position.X - building.Center.X, 0, position.Z - building.Center.Z)
 				clearance = math.min(clearance, offset.Magnitude - building.Size.X / 2 - 4)
 			end
 			for _, taken in ctx.Taken do
-				clearance = math.min(clearance, (Vector3.new(position.X, 0, position.Z) - Vector3.new(taken.X, 0, taken.Z)).Magnitude - 60)
+				clearance = math.min(
+					clearance,
+					(Vector3.new(position.X, 0, position.Z) - Vector3.new(taken.X, 0, taken.Z)).Magnitude - 60
+				)
 			end
 			if clearance > bestClearance then
 				bestPosition, bestClearance = position, clearance
@@ -131,7 +138,13 @@ function DistrictBuilder.FindClear(ctx: Context, radius: number, footprint: numb
 		end
 	end
 	if bestClearance < footprint then
-		warn(("[World] %s landmark at radius %d has only %.0f studs clearance"):format(ctx.District.Id, radius, bestClearance))
+		warn(
+			("[World] %s landmark at radius %d has only %.0f studs clearance"):format(
+				ctx.District.Id,
+				radius,
+				bestClearance
+			)
+		)
 	end
 	table.insert(ctx.Taken, bestPosition)
 	-- Clear pocket buildings that would overlap the landmark.
@@ -150,14 +163,30 @@ end
 function DistrictBuilder.Cache(ctx: Context, index: number, position: Vector3)
 	local B = ctx.B
 	local id = ("cache_%s_%d"):format(string.lower(ctx.District.Id), index)
-	local crate = B:Box(CFrame.new(position + Vector3.new(0, 0.9, 0)) * CFrame.Angles(0, B:Rand(0, math.pi), 0), Vector3.new(2.2, 1.8, 1.6), Color3.fromRGB(196, 66, 58), Enum.Material.Fabric, {
-		Name = "CourierCache",
-		CanCollide = false,
-		Tag = Tags.Discovery,
-		Attrs = { Id = id, Kind = "Cache", District = ctx.District.Id, Title = "Courier Cache" },
-	})
-	B:Detail(crate.CFrame * CFrame.new(0, 0.95, 0), Vector3.new(2.3, 0.15, 1.7), Color3.fromRGB(255, 196, 92), Enum.Material.Metal)
-	local light = B:Detail(crate.CFrame * CFrame.new(0, 1.2, 0), Vector3.new(0.3, 0.3, 0.3), Color3.fromRGB(255, 220, 120), Enum.Material.Neon)
+	local crate = B:Box(
+		CFrame.new(position + Vector3.new(0, 0.9, 0)) * CFrame.Angles(0, B:Rand(0, math.pi), 0),
+		Vector3.new(2.2, 1.8, 1.6),
+		Color3.fromRGB(196, 66, 58),
+		Enum.Material.Fabric,
+		{
+			Name = "CourierCache",
+			CanCollide = false,
+			Tag = Tags.Discovery,
+			Attrs = { Id = id, Kind = "Cache", District = ctx.District.Id, Title = "Courier Cache" },
+		}
+	)
+	B:Detail(
+		crate.CFrame * CFrame.new(0, 0.95, 0),
+		Vector3.new(2.3, 0.15, 1.7),
+		Color3.fromRGB(255, 196, 92),
+		Enum.Material.Metal
+	)
+	local light = B:Detail(
+		crate.CFrame * CFrame.new(0, 1.2, 0),
+		Vector3.new(0.3, 0.3, 0.3),
+		Color3.fromRGB(255, 220, 120),
+		Enum.Material.Neon
+	)
 	B:Light(light, Color3.fromRGB(255, 200, 120), 7, 0.6)
 	B:Icon(crate, "▣", Color3.fromRGB(255, 210, 120), Vector3.new(0, 2.5, 0))
 end
@@ -170,13 +199,24 @@ function DistrictBuilder.Letter(ctx: Context, index: number, position: Vector3)
 	end
 	local B = ctx.B
 	local id = ("letter_%s_%d"):format(string.lower(ctx.District.Id), index)
-	local paper = B:Box(CFrame.new(position + Vector3.new(0, 0.6, 0)) * CFrame.Angles(math.rad(-20), B:Rand(0, math.pi), 0), Vector3.new(1.2, 0.08, 0.9), Color3.fromRGB(245, 235, 210), Enum.Material.SmoothPlastic, {
-		Name = "LostLetter",
-		CanCollide = false,
-		Tag = Tags.Discovery,
-		Attrs = { Id = id, Kind = "Letter", District = ctx.District.Id, Title = entry.Title, Text = entry.Text },
-	})
-	B:Detail(paper.CFrame * CFrame.new(0, 0.05, 0), Vector3.new(0.3, 0.02, 0.3), Color3.fromRGB(196, 66, 58), Enum.Material.SmoothPlastic)
+	local paper = B:Box(
+		CFrame.new(position + Vector3.new(0, 0.6, 0)) * CFrame.Angles(math.rad(-20), B:Rand(0, math.pi), 0),
+		Vector3.new(1.2, 0.08, 0.9),
+		Color3.fromRGB(245, 235, 210),
+		Enum.Material.SmoothPlastic,
+		{
+			Name = "LostLetter",
+			CanCollide = false,
+			Tag = Tags.Discovery,
+			Attrs = { Id = id, Kind = "Letter", District = ctx.District.Id, Title = entry.Title, Text = entry.Text },
+		}
+	)
+	B:Detail(
+		paper.CFrame * CFrame.new(0, 0.05, 0),
+		Vector3.new(0.3, 0.02, 0.3),
+		Color3.fromRGB(196, 66, 58),
+		Enum.Material.SmoothPlastic
+	)
 	B:Icon(paper, "✉", Color3.fromRGB(255, 240, 210), Vector3.new(0, 2, 0))
 end
 
@@ -216,15 +256,22 @@ local function board(ctx: Context, kind: string, title: string, cframe: CFrame, 
 	for _, x in { -2.6, 2.6 } do
 		B:Box(cframe * CFrame.new(x, 2.5, 0), Vector3.new(0.4, 5, 0.4), Color3.fromRGB(60, 50, 40), Enum.Material.Wood)
 	end
-	local panel = B:Box(cframe * CFrame.new(0, 4, 0), Vector3.new(5.6, 3, 0.3), Color3.fromRGB(35, 38, 48), Enum.Material.SmoothPlastic, {
-		Name = kind .. "Board",
-		Tag = Tags.Board,
-		Attrs = { Kind = kind, District = ctx.District.Id },
-	})
+	local panel = B:Box(
+		cframe * CFrame.new(0, 4, 0),
+		Vector3.new(5.6, 3, 0.3),
+		Color3.fromRGB(35, 38, 48),
+		Enum.Material.SmoothPlastic,
+		{
+			Name = kind .. "Board",
+			Tag = Tags.Board,
+			Attrs = { Kind = kind, District = ctx.District.Id },
+		}
+	)
 	B:Text(panel, Enum.NormalId.Front, title, { Color = color, Padding = 6 })
 	B:Text(panel, Enum.NormalId.Back, title, { Color = color, Padding = 6 })
 	B:Light(panel, color, 10, 0.6, "Surface", Enum.NormalId.Front)
-	local prompt = B:Prompt(panel, "Open", title, { Name = "BoardPrompt", Attrs = { Board = kind, District = ctx.District.Id } })
+	local prompt =
+		B:Prompt(panel, "Open", title, { Name = "BoardPrompt", Attrs = { Board = kind, District = ctx.District.Id } })
 	prompt.MaxActivationDistance = 10
 end
 
@@ -244,7 +291,12 @@ function DistrictBuilder.TravelGate(ctx: Context, cframe: CFrame)
 	})
 	field.Transparency = 0.3
 	B:Light(field, accent, 18, 1)
-	local sign = B:Detail(cframe * CFrame.new(0, 14.2, 0), Vector3.new(10, 2, 0.3), Color3.fromRGB(25, 28, 36), Enum.Material.SmoothPlastic)
+	local sign = B:Detail(
+		cframe * CFrame.new(0, 14.2, 0),
+		Vector3.new(10, 2, 0.3),
+		Color3.fromRGB(25, 28, 36),
+		Enum.Material.SmoothPlastic
+	)
 	B:Text(sign, Enum.NormalId.Front, "LIFT GATE", { Color = accent })
 	B:Text(sign, Enum.NormalId.Back, "LIFT GATE", { Color = accent })
 	B:Prompt(field, "Travel", "Lift Gate", { Name = "TravelPrompt", Attrs = { Board = "Travel" } })
@@ -255,10 +307,16 @@ local function startSign(ctx: Context, course: any, cframe: CFrame)
 	local B = ctx.B
 	local accent = ctx.District.Palette.Signal or Color3.new(1, 1, 1)
 	B:Box(cframe * CFrame.new(0, 2, 0), Vector3.new(0.5, 4, 0.5), Color3.fromRGB(60, 60, 66), Enum.Material.Metal)
-	local panel = B:Box(cframe * CFrame.new(0, 4.6, 0), Vector3.new(6, 3.2, 0.3), Color3.fromRGB(28, 30, 40), Enum.Material.SmoothPlastic, { Name = "CourseSign" })
+	local panel = B:Box(
+		cframe * CFrame.new(0, 4.6, 0),
+		Vector3.new(6, 3.2, 0.3),
+		Color3.fromRGB(28, 30, 40),
+		Enum.Material.SmoothPlastic,
+		{ Name = "CourseSign" }
+	)
 	local difficulty = string.rep("■", course.Difficulty) .. string.rep("□", 10 - course.Difficulty)
 	local kind = if course.Kind == "Room" then "CHALLENGE ROOM" elseif course.Kind == "Relay" then "RELAY" else "COURSE"
-	local text = ("<font size=\"34\"><b>%s</b></font>\n<font size=\"18\">%s · %s</font>\n<font size=\"18\">%s</font>"):format(
+	local text = ('<font size="34"><b>%s</b></font>\n<font size="18">%s · %s</font>\n<font size="18">%s</font>'):format(
 		string.upper(course.Name),
 		kind,
 		Courses.DifficultyNames[course.Difficulty],
@@ -311,7 +369,15 @@ local function estimateLength(course: any): number
 				total += seg[2] or 16
 			elseif kind == "Zip" then
 				total += (seg[2] or 50) + 12
-			elseif kind == "Balance" or kind == "Collapse" or kind == "Retract" or kind == "Conveyor" or kind == "Wind" or kind == "Ice" or kind == "LowGrav" then
+			elseif
+				kind == "Balance"
+				or kind == "Collapse"
+				or kind == "Retract"
+				or kind == "Conveyor"
+				or kind == "Wind"
+				or kind == "Ice"
+				or kind == "LowGrav"
+			then
 				total += (seg[2] or 24) + 14
 			elseif kind == "Grapple" then
 				total += 32 + ((seg[2] or 1) - 1) * 30 + 14
@@ -350,7 +416,10 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 		High = {},
 		Roofs = {},
 		Nooks = {},
-		Spawn = CFrame.lookAt(district.Origin + hubDir * 26 + Vector3.new(0, 3, 0), district.Origin + Vector3.new(0, 3, 0)),
+		Spawn = CFrame.lookAt(
+			district.Origin + hubDir * 26 + Vector3.new(0, 3, 0),
+			district.Origin + Vector3.new(0, 3, 0)
+		),
 		UsedHigh = 0,
 		UsedRoof = 0,
 		UsedNook = 0,
@@ -363,9 +432,27 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 	local gateCF = CFrame.lookAt(district.Origin + hubDir * (DistrictBuilder.PlazaRadius - 6), district.Origin)
 	DistrictBuilder.TravelGate(ctx, gateCF)
 	local side = hubDir:Cross(Vector3.yAxis)
-	board(ctx, "Race", "RACE BOARD", CFrame.lookAt(district.Origin + hubDir * 30 + side * 16, district.Origin), Color3.fromRGB(255, 120, 220))
-	board(ctx, "Jobs", "JOB BOARD", CFrame.lookAt(district.Origin + hubDir * 30 - side * 16, district.Origin), Color3.fromRGB(255, 210, 90))
-	board(ctx, "Courses", "COURSES", CFrame.lookAt(district.Origin - hubDir * 18, district.Origin), Color3.fromRGB(120, 230, 255))
+	board(
+		ctx,
+		"Race",
+		"RACE BOARD",
+		CFrame.lookAt(district.Origin + hubDir * 30 + side * 16, district.Origin),
+		Color3.fromRGB(255, 120, 220)
+	)
+	board(
+		ctx,
+		"Jobs",
+		"JOB BOARD",
+		CFrame.lookAt(district.Origin + hubDir * 30 - side * 16, district.Origin),
+		Color3.fromRGB(255, 210, 90)
+	)
+	board(
+		ctx,
+		"Courses",
+		"COURSES",
+		CFrame.lookAt(district.Origin - hubDir * 18, district.Origin),
+		Color3.fromRGB(120, 230, 255)
+	)
 
 	-- Course spokes, skipping the sector toward the hub (that's where the annex goes).
 	local spokeCourses = {}
@@ -399,10 +486,22 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 		local mid = (walkStart + walkEnd) / 2
 		local walkLength = (Vector3.new(walkEnd.X, 0, walkEnd.Z) - Vector3.new(walkStart.X, 0, walkStart.Z)).Magnitude
 		if math.abs(startY - ctx.Y) < 1 then
-			B:Box(CFrame.lookAt(mid, mid + dir) * CFrame.new(0, -1, 0), Vector3.new(8, 2, walkLength), module.CourseTheme.Trim, module.CourseTheme.SurfaceMaterial, { Name = "Approach" })
+			B:Box(
+				CFrame.lookAt(mid, mid + dir) * CFrame.new(0, -1, 0),
+				Vector3.new(8, 2, walkLength),
+				module.CourseTheme.Trim,
+				module.CourseTheme.SurfaceMaterial,
+				{ Name = "Approach" }
+			)
 		else
 			local slopeCF = CFrame.lookAt(mid, walkEnd + (walkEnd - walkStart).Unit)
-			B:Box(slopeCF * CFrame.new(0, -1, 0), Vector3.new(8, 2, (walkEnd - walkStart).Magnitude), module.CourseTheme.Trim, module.CourseTheme.SurfaceMaterial, { Name = "Approach" })
+			B:Box(
+				slopeCF * CFrame.new(0, -1, 0),
+				Vector3.new(8, 2, (walkEnd - walkStart).Magnitude),
+				module.CourseTheme.Trim,
+				module.CourseTheme.SurfaceMaterial,
+				{ Name = "Approach" }
+			)
 		end
 		startSign(ctx, course, startCF * CFrame.new(5.5, 0, -1) * CFrame.Angles(0, math.rad(180), 0))
 		local meta = CourseBuilder.Build(B, course, module.CourseTheme, startCF)
@@ -419,13 +518,33 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 		local mid = (annexStart + annexCenter) / 2
 		-- A covered walkway leading out to the annex hall (the travel gate sits beside it).
 		local walkway = CFrame.lookAt(mid, mid + hubDir) * CFrame.new(-14, -1, 0)
-		B:Box(walkway, Vector3.new(10, 2, (annexCenter - annexStart).Magnitude), module.CourseTheme.Trim, module.CourseTheme.SurfaceMaterial, { Name = "AnnexWalk" })
+		B:Box(
+			walkway,
+			Vector3.new(10, 2, (annexCenter - annexStart).Magnitude),
+			module.CourseTheme.Trim,
+			module.CourseTheme.SurfaceMaterial,
+			{ Name = "AnnexWalk" }
+		)
 		local hallCF = CFrame.lookAt(annexCenter - hubDir * 6, annexCenter) * CFrame.new(0, -1, 0)
-		B:Box(hallCF, Vector3.new(190, 2, 22), module.CourseTheme.Trim, module.CourseTheme.SurfaceMaterial, { Name = "AnnexHall" })
+		B:Box(
+			hallCF,
+			Vector3.new(190, 2, 22),
+			module.CourseTheme.Trim,
+			module.CourseTheme.SurfaceMaterial,
+			{ Name = "AnnexHall" }
+		)
 		if module.Annex then
 			module.Annex(B, ctx, CFrame.lookAt(annexCenter, annexCenter + hubDir))
 		end
-		local hallSign = B:Detail(CFrame.lookAt(annexCenter - hubDir * 16 + Vector3.new(0, 12, 0), annexCenter - hubDir * 40 + Vector3.new(0, 12, 0)), Vector3.new(30, 4, 0.4), Color3.fromRGB(25, 28, 36), Enum.Material.SmoothPlastic)
+		local hallSign = B:Detail(
+			CFrame.lookAt(
+				annexCenter - hubDir * 16 + Vector3.new(0, 12, 0),
+				annexCenter - hubDir * 40 + Vector3.new(0, 12, 0)
+			),
+			Vector3.new(30, 4, 0.4),
+			Color3.fromRGB(25, 28, 36),
+			Enum.Material.SmoothPlastic
+		)
 		B:Text(hallSign, Enum.NormalId.Front, "CHALLENGE ROOMS", { Color = district.Palette.Signal })
 		for index, course in rooms do
 			local lateral = (index - (#rooms + 1) / 2) * 62
@@ -447,26 +566,55 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 			local wallColor = module.RoomTheme.Wall
 			local wallMat = module.RoomTheme.WallMaterial
 			for _, sx in { -1, 1 } do
-				B:Box(center * CFrame.new(sx * sizeX / 2, 0, 0), Vector3.new(2, height, sizeZ), wallColor, wallMat, { Name = "RoomWall" })
+				B:Box(
+					center * CFrame.new(sx * sizeX / 2, 0, 0),
+					Vector3.new(2, height, sizeZ),
+					wallColor,
+					wallMat,
+					{ Name = "RoomWall" }
+				)
 			end
 			-- Far wall, and the near wall with a doorway level with the start platform.
-			B:Box(center * CFrame.new(0, 0, (min.Z - max.Z) / 2 - margin), Vector3.new(sizeX, height, 2), wallColor, wallMat, { Name = "RoomWall" })
+			B:Box(
+				center * CFrame.new(0, 0, (min.Z - max.Z) / 2 - margin),
+				Vector3.new(sizeX, height, 2),
+				wallColor,
+				wallMat,
+				{ Name = "RoomWall" }
+			)
 			local nearZ = max.Z + margin
 			local left, right = min.X - margin, max.X + margin
 			local top = floorY + height
 			local function nearPiece(x0: number, x1: number, y0: number, y1: number)
 				if x1 - x0 > 0.2 and y1 - y0 > 0.2 then
-					B:Box(roomOrigin * CFrame.new((x0 + x1) / 2, (y0 + y1) / 2, nearZ), Vector3.new(x1 - x0, y1 - y0, 2), wallColor, wallMat, { Name = "RoomWall" })
+					B:Box(
+						roomOrigin * CFrame.new((x0 + x1) / 2, (y0 + y1) / 2, nearZ),
+						Vector3.new(x1 - x0, y1 - y0, 2),
+						wallColor,
+						wallMat,
+						{ Name = "RoomWall" }
+					)
 				end
 			end
 			nearPiece(left, -5, floorY, top)
 			nearPiece(5, right, floorY, top)
 			nearPiece(-5, 5, 11, top)
 			nearPiece(-5, 5, floorY, -2)
-			B:Box(center * CFrame.new(0, height / 2 + 1, 0), Vector3.new(sizeX + 2, 2, sizeZ + 4), wallColor, wallMat, { Name = "RoomRoof" })
+			B:Box(
+				center * CFrame.new(0, height / 2 + 1, 0),
+				Vector3.new(sizeX + 2, 2, sizeZ + 4),
+				wallColor,
+				wallMat,
+				{ Name = "RoomRoof" }
+			)
 			-- Light strips along the ceiling.
 			for k = -1, 1 do
-				local strip = B:Detail(center * CFrame.new(k * sizeX / 4, height / 2 - 0.3, 0), Vector3.new(1, 0.3, sizeZ - 6), Color3.fromRGB(255, 245, 225), Enum.Material.Neon)
+				local strip = B:Detail(
+					center * CFrame.new(k * sizeX / 4, height / 2 - 0.3, 0),
+					Vector3.new(1, 0.3, sizeZ - 6),
+					Color3.fromRGB(255, 245, 225),
+					Enum.Material.Neon
+				)
 				B:Light(strip, Color3.fromRGB(255, 240, 220), 40, 1.2, "Spot", Enum.NormalId.Bottom)
 			end
 		end
@@ -517,9 +665,15 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 				local range = module.HeightRange or { -8, 14 }
 				local top = ctx.Y + math.floor(B:Rand(range[1], range[2]) / 2) * 2
 				local size = Vector3.new(width, 0, B:Rand(20, 32))
-				local cf = CFrame.lookAt(Vector3.new(position.X, top, position.Z), Vector3.new(district.Origin.X, top, district.Origin.Z))
+				local cf = CFrame.lookAt(
+					Vector3.new(position.X, top, position.Z),
+					Vector3.new(district.Origin.X, top, district.Origin.Z)
+				)
 				local spots = module.Building(B, ctx, cf, size)
-				table.insert(ctx.Buildings, { Center = Vector3.new(position.X, top, position.Z), Top = top, Size = size, Spots = spots })
+				table.insert(
+					ctx.Buildings,
+					{ Center = Vector3.new(position.X, top, position.Z), Top = top, Size = size, Spots = spots }
+				)
 				table.insert(ctx.Roofs, spots.Roof)
 				for _, p in spots.High do
 					table.insert(ctx.High, p)
@@ -555,7 +709,15 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 				if module.Connector then
 					module.Connector(B, ctx, p0, p1)
 				else
-					local beam = B:Beam(p0 - Vector3.new(0, 0.5, 0), p1 - Vector3.new(0, 0.5, 0), 1.3, 1, module.CourseTheme.Beam, module.CourseTheme.BeamMaterial, { Name = "Plank", Tag = Tags.Balance })
+					local beam = B:Beam(
+						p0 - Vector3.new(0, 0.5, 0),
+						p1 - Vector3.new(0, 0.5, 0),
+						1.3,
+						1,
+						module.CourseTheme.Beam,
+						module.CourseTheme.BeamMaterial,
+						{ Name = "Plank", Tag = Tags.Balance }
+					)
 					B:Icon(beam, "=", Color3.new(1, 1, 1), Vector3.new(0, 2, 0))
 				end
 			end
@@ -578,10 +740,26 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 		local dir = Vector3.new(building.Center.X - district.Origin.X, 0, building.Center.Z - district.Origin.Z).Unit
 		local a = Vector3.new(district.Origin.X, ctx.Y, district.Origin.Z) + dir * (DistrictBuilder.PlazaRadius - 2)
 		local b = Vector3.new(building.Center.X, building.Top, building.Center.Z) - dir * (building.Size.X / 2 - 1)
-		B:Beam(a - Vector3.new(0, 0.6, 0), b - Vector3.new(0, 0.6, 0), 4, 1.2, module.CourseTheme.Trim, module.CourseTheme.SurfaceMaterial, { Name = "Skybridge" })
+		B:Beam(
+			a - Vector3.new(0, 0.6, 0),
+			b - Vector3.new(0, 0.6, 0),
+			4,
+			1.2,
+			module.CourseTheme.Trim,
+			module.CourseTheme.SurfaceMaterial,
+			{ Name = "Skybridge" }
+		)
 		for _, s in { -1, 1 } do
 			local side2 = dir:Cross(Vector3.yAxis) * s * 2.2
-			B:Beam(a + side2 + Vector3.new(0, 1.6, 0), b + side2 + Vector3.new(0, 1.6, 0), 0.2, 0.2, module.CourseTheme.Trim, Enum.Material.Metal, { Decor = true, CanCollide = true })
+			B:Beam(
+				a + side2 + Vector3.new(0, 1.6, 0),
+				b + side2 + Vector3.new(0, 1.6, 0),
+				0.2,
+				0.2,
+				module.CourseTheme.Trim,
+				Enum.Material.Metal,
+				{ Decor = true, CanCollide = true }
+			)
 		end
 	end
 
@@ -595,13 +773,21 @@ function DistrictBuilder.Build(worldFolder: Instance, districtId: string, module
 	-- Contract drop-off points on rooftops.
 	for index = 1, 8 do
 		local roof = DistrictBuilder.TakeRoof(ctx)
-		B:Point(Tags.ContractPoint, ("%s_contract_%d"):format(string.lower(districtId), index), roof + Vector3.new(0, 1, 0))
+		B:Point(
+			Tags.ContractPoint,
+			("%s_contract_%d"):format(string.lower(districtId), index),
+			roof + Vector3.new(0, 1, 0)
+		)
 	end
 
 	module.Landmarks(B, ctx)
 	module.QuestPoints(B, ctx)
 	module.Skyline(B, ctx)
-	DistrictBuilder.QuestPoint(ctx, DistrictBuilder.Prefix[districtId] .. "_plaza", district.Origin + Vector3.new(0, 2, 0))
+	DistrictBuilder.QuestPoint(
+		ctx,
+		DistrictBuilder.Prefix[districtId] .. "_plaza",
+		district.Origin + Vector3.new(0, 2, 0)
+	)
 	return ctx, metas
 end
 

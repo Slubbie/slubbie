@@ -58,12 +58,13 @@ export type Run = {
 CourseClient.Run = nil :: Run?
 CourseClient.Assists = {} :: { [string]: boolean }
 
-local volumes: { Checkpoints: { [number]: BasePart }, Finish: BasePart?, Shortcuts: { BasePart }, Tokens: { [number]: BasePart } } = {
-	Checkpoints = {},
-	Finish = nil,
-	Shortcuts = {},
-	Tokens = {},
-}
+local volumes: { Checkpoints: { [number]: BasePart }, Finish: BasePart?, Shortcuts: { BasePart }, Tokens: { [number]: BasePart } } =
+	{
+		Checkpoints = {},
+		Finish = nil,
+		Shortcuts = {},
+		Tokens = {},
+	}
 local retryHeldSince: number? = nil
 local tokenStreak = 0
 local lastTokenAt = 0
@@ -190,7 +191,10 @@ local function loadGhosts(run: Run)
 	end
 	task.spawn(function()
 		local mode: string = run.Mode
-		local which = if choice == "Best" and mode == "Ranked" then "Ranked" elseif choice == "Last" then "Best" else choice
+		local which = if choice == "Best" and mode == "Ranked"
+			then "Ranked"
+			elseif choice == "Last" then "Best"
+			else choice
 		local ok = Ghosts.Load(run.CourseId, which)
 		if not ok and which ~= "Best" then
 			Ghosts.Load(run.CourseId, "Best")
@@ -366,7 +370,12 @@ local function step()
 	end
 	-- Finish (only after every checkpoint, and not for relay legs).
 	local finishPart = volumes.Finish
-	if not run.EndAt and finishPart and run.Checkpoint >= run.CheckpointCount and MathUtil.InBox(finishPart.CFrame, finishPart.Size, position, 1) then
+	if
+		not run.EndAt
+		and finishPart
+		and run.Checkpoint >= run.CheckpointCount
+		and MathUtil.InBox(finishPart.CFrame, finishPart.Size, position, 1)
+	then
 		finish(run)
 		return
 	end

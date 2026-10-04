@@ -179,13 +179,17 @@ function WorldBuilder.Build(): { [string]: any }
 			parts += 1
 		end
 	end
-	print(("[World] Built Meridian: %d parts, %d courses in %.2fs"):format(parts, (function()
-		local n = 0
-		for _ in WorldBuilder.Courses do
-			n += 1
-		end
-		return n
-	end)(), os.clock() - started))
+	print(("[World] Built Meridian: %d parts, %d courses in %.2fs"):format(
+		parts,
+		(function()
+			local n = 0
+			for _ in WorldBuilder.Courses do
+				n += 1
+			end
+			return n
+		end)(),
+		os.clock() - started
+	))
 	return WorldBuilder.Courses
 end
 

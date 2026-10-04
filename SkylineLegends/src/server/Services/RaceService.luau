@@ -60,7 +60,10 @@ local function summary(lobby: Lobby): { [string]: any }
 	end
 	local results = {}
 	for place, entry in lobby.Results do
-		table.insert(results, { Place = place, UserId = entry.Player.UserId, Name = entry.Player.DisplayName, Seconds = entry.Seconds })
+		table.insert(
+			results,
+			{ Place = place, UserId = entry.Player.UserId, Name = entry.Player.DisplayName, Seconds = entry.Seconds }
+		)
 	end
 	local course = Courses.ById[lobby.CourseId]
 	return {
@@ -129,7 +132,8 @@ local function settle(lobby: Lobby)
 			-- Larger fields pay a little more.
 			local scale = 1 + math.min(field - 1, 7) * 0.08
 			local xp = math.floor((if win then Progression.XP.RaceWin else Progression.XP.RaceFinish) * scale)
-			local credits = math.floor((if win then Progression.Credits.RaceWin else Progression.Credits.RaceFinish) * scale)
+			local credits =
+				math.floor((if win then Progression.Credits.RaceWin else Progression.Credits.RaceFinish) * scale)
 			if field < 2 then
 				xp, credits = math.floor(xp * 0.4), math.floor(credits * 0.4)
 			end

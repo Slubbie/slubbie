@@ -230,7 +230,11 @@ local function onCourseFinished(player: Player)
 			local n = 0
 			for id, record in profile.Courses do
 				local course = Courses.ById[id]
-				if course and (record.Medal or 0) >= (challenge.Medal or 1) and table.find(course.Focus, challenge.Focus) then
+				if
+					course
+					and (record.Medal or 0) >= (challenge.Medal or 1)
+					and table.find(course.Focus, challenge.Focus)
+				then
 					n += 1
 				end
 			end

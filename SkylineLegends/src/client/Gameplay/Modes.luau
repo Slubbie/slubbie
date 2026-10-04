@@ -209,7 +209,11 @@ function Modes.Start()
 			local previous = Modes.Endless
 			applyEndless(info)
 			if previous and info.Lives < previous.Lives then
-				Bus.Banner:Fire(("%d %s left"):format(info.Lives, if info.Lives == 1 then "life" else "lives"), nil, Color3.fromRGB(255, 140, 140))
+				Bus.Banner:Fire(
+					("%d %s left"):format(info.Lives, if info.Lives == 1 then "life" else "lives"),
+					nil,
+					Color3.fromRGB(255, 140, 140)
+				)
 			end
 		end
 	end)

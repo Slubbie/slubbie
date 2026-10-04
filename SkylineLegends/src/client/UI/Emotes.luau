@@ -45,7 +45,12 @@ local function open()
 		end
 	end
 	if #styles == 0 then
-		Kit.Label(wheel, "No emotes equipped. Visit your Locker.", 14, { Size = UDim2.fromOffset(300, 40), TextColor3 = C.Muted })
+		Kit.Label(
+			wheel,
+			"No emotes equipped. Visit your Locker.",
+			14,
+			{ Size = UDim2.fromOffset(300, 40), TextColor3 = C.Muted }
+		)
 	end
 	wheel.Visible = true
 end

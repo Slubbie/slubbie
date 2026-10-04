@@ -156,9 +156,15 @@ function Menu.Start()
 	})
 	Kit.List(rail, false, 6)
 	for index, page in ordered do
-		local button = Kit.Button(rail, page.Icon .. "  " .. page.Title, function()
-			Menu.Open(page.Id, nil)
-		end, "Secondary", { Size = UDim2.new(1, -10, 0, 40), LayoutOrder = index, TextXAlignment = Enum.TextXAlignment.Left })
+		local button = Kit.Button(
+			rail,
+			page.Icon .. "  " .. page.Title,
+			function()
+				Menu.Open(page.Id, nil)
+			end,
+			"Secondary",
+			{ Size = UDim2.new(1, -10, 0, 40), LayoutOrder = index, TextXAlignment = Enum.TextXAlignment.Left }
+		)
 		Kit.Padding(button, 0, 12)
 		navButtons[page.Id] = button
 	end
@@ -169,7 +175,13 @@ function Menu.Start()
 	})
 	Kit.Padding(panel, 18)
 	title = Kit.Label(panel, "", 26, { Font = Kit.Fonts.Black, Size = UDim2.new(1, -50, 0, 34), TextColor3 = C.Accent })
-	Kit.Button(panel, "✕", Menu.Close, "Ghost", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 0), Size = UDim2.fromOffset(38, 38) })
+	Kit.Button(
+		panel,
+		"✕",
+		Menu.Close,
+		"Ghost",
+		{ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 0), Size = UDim2.fromOffset(38, 38) }
+	)
 	content = Kit.new("Frame", {
 		Name = "Content",
 		Position = UDim2.fromOffset(0, 46),

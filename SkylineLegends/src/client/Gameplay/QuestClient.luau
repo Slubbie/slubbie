@@ -13,13 +13,22 @@ local Quests = require(ReplicatedStorage.Shared.Config.Quests)
 local Tags = require(ReplicatedStorage.Shared.Tags)
 
 local Bus = require(script.Parent.Parent.Core.Bus)
+local Input = require(script.Parent.Parent.Core.Input)
 local Settings = require(script.Parent.Parent.Core.Settings)
 local State = require(script.Parent.Parent.Core.State)
 local Controller = require(script.Parent.Parent.Movement.Controller)
 
 local QuestClient = {}
 
-local PREFIX = { Hub = "hub", Tinroof = "tin", Ironworks = "iron", Verdant = "ver", Gilded = "gil", Frostreach = "fro", Citadel = "cit" }
+local PREFIX = {
+	Hub = "hub",
+	Tinroof = "tin",
+	Ironworks = "iron",
+	Verdant = "ver",
+	Gilded = "gil",
+	Frostreach = "fro",
+	Citadel = "cit",
+}
 
 local pointParts: { [string]: BasePart } = {}
 local npcModels: { [string]: Model } = {}
@@ -329,7 +338,9 @@ local function updateBeacons()
 	if data then
 		for questId in data.Active do
 			local quest = Quests.ById[questId]
-			local color = if quest and quest.Type == "Main" then Color3.fromRGB(255, 200, 80) else Color3.fromRGB(120, 220, 255)
+			local color = if quest and quest.Type == "Main"
+				then Color3.fromRGB(255, 200, 80)
+				else Color3.fromRGB(120, 220, 255)
 			for _, id in wantedPoints(questId) do
 				wanted[id] = color
 			end
@@ -401,7 +412,10 @@ local function updateMarkers()
 			local label = gui:FindFirstChild("Mark") :: TextLabel?
 			if label then
 				label.Text = mark
-				label.TextColor3 = if mark == "!" then Color3.fromRGB(255, 205, 70) elseif mark == "?" then Color3.fromRGB(120, 230, 255) else Color3.fromRGB(200, 255, 200)
+				label.TextColor3 = if mark == "!"
+					then Color3.fromRGB(255, 205, 70)
+					elseif mark == "?" then Color3.fromRGB(120, 230, 255)
+					else Color3.fromRGB(200, 255, 200)
 			end
 		elseif gui then
 			gui:Destroy()
@@ -449,6 +463,24 @@ function QuestClient.Start()
 		Bus.Objective:Fire()
 	end)
 	State.On("XP", updateMarkers)
+	-- Cycle which pinned objective the waypoint follows.
+	Input.Pressed:Connect(function(action: string)
+		if action ~= "Pin" then
+			return
+		end
+		local data = profileQuests()
+		local pinned = data and data.Pinned or {}
+		if #pinned < 2 then
+			return
+		end
+		local questId = pinned[#pinned]
+		Net.Send("Quest.Pin", questId, false)
+		Net.Send("Quest.Pin", questId, true)
+		local quest = Quests.ById[questId]
+		if quest then
+			Bus.Banner:Fire("Tracking: " .. quest.Name, nil, Color3.fromRGB(255, 200, 80))
+		end
+	end)
 	local last = 0
 	RunService.Heartbeat:Connect(function()
 		checkPoints()

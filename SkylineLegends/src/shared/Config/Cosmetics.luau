@@ -918,7 +918,9 @@ title("title_relay", "Anchor Leg", "Rare", "Finish 10 relays")
 title("title_spire", "Spire Climber", "Epic", "Clear floor 25 of the Spire")
 title("title_dream", "Dreamwalker", "Epic", "Clear 50 Dreamline sections in one run")
 title("title_flow", "Seamless", "Epic", "Reach Legendary flow")
-for _, category in { "WallRunning", "PrecisionLanding", "Grappling", "FlowChains", "Groundwork", "Climbing", "Aerial", "Traverse" } do
+for _, category in
+	{ "WallRunning", "PrecisionLanding", "Grappling", "FlowChains", "Groundwork", "Climbing", "Aerial", "Traverse" }
+do
 	title(
 		"title_master_" .. string.lower(category),
 		"Grandmaster of " .. (string.gsub(category, "(%l)(%u)", "%1 %2")),

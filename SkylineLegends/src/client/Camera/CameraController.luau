@@ -220,7 +220,10 @@ local function step(dt: number)
 	if Settings.Get("CameraAssist") and os.clock() - lastManual > 1.1 and flat.Magnitude > 12 then
 		local look = Vector3.new(-math.sin(yaw), 0, -math.cos(yaw))
 		local alignment = look:Dot(flat.Unit)
-		if alignment > -0.25 and (info.State == "Ground" or info.State == "WallRun" or info.State == "Slide" or info.State == "Zipline") then
+		if
+			alignment > -0.25
+			and (info.State == "Ground" or info.State == "WallRun" or info.State == "Slide" or info.State == "Zipline")
+		then
 			local rate = math.clamp((flat.Magnitude - 12) / 30, 0, 1) * 1.6
 			local delta = angleDelta(yaw, yawFor(flat.Unit))
 			yaw += delta * math.min(rate * dt, 1)
@@ -267,7 +270,11 @@ local function step(dt: number)
 		)
 	end
 
-	local cframe = CFrame.new(focus + Vector3.new(0, dip, 0)) * rotation * CFrame.new(0, 0, actualDistance) * CFrame.Angles(0, 0, tilt) * shakeOffset
+	local cframe = CFrame.new(focus + Vector3.new(0, dip, 0))
+		* rotation
+		* CFrame.new(0, 0, actualDistance)
+		* CFrame.Angles(0, 0, tilt)
+		* shakeOffset
 	camera.CFrame = cframe
 	camera.Focus = CFrame.new(focus)
 	lastCFrame = cframe
@@ -326,7 +333,9 @@ function CameraController.Start()
 	UserInputService.InputChanged:Connect(onInputChanged)
 	UserInputService.InputBegan:Connect(function(input, processed)
 		if input.UserInputType == Enum.UserInputType.Touch and not processed then
-			local viewport = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1000, 600)
+			local viewport = if workspace.CurrentCamera
+				then workspace.CurrentCamera.ViewportSize
+				else Vector2.new(1000, 600)
 			-- The left of the screen belongs to the movement stick.
 			if input.Position.X > viewport.X * 0.35 then
 				cameraTouches[input] = true

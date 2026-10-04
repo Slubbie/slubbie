@@ -258,7 +258,13 @@ function Sections.Available(difficulty: number, abilities: { [string]: boolean }
 end
 
 -- Pick sections that fit a length budget and keep height change in bounds.
-function Sections.Fill(rng: Rotation.Rng, difficulty: number, abilities: { [string]: boolean }?, budget: number, maxRise: number): ({ any }, { string })
+function Sections.Fill(
+	rng: Rotation.Rng,
+	difficulty: number,
+	abilities: { [string]: boolean }?,
+	budget: number,
+	maxRise: number
+): ({ any }, { string })
 	local pool = Sections.Available(difficulty, abilities)
 	local segments, ids = {}, {}
 	local used, rise = 0, 0
@@ -266,7 +272,11 @@ function Sections.Fill(rng: Rotation.Rng, difficulty: number, abilities: { [stri
 	while used < budget * 0.6 and attempts < 30 do
 		attempts += 1
 		local section = rng:Pick(pool)
-		if used + section.Length <= budget and math.abs(rise + section.Rise) <= maxRise and not table.find(ids, section.Id) then
+		if
+			used + section.Length <= budget
+			and math.abs(rise + section.Rise) <= maxRise
+			and not table.find(ids, section.Id)
+		then
 			for _, seg in section.Make(rng, difficulty) do
 				table.insert(segments, seg)
 			end

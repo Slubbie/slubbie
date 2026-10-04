@@ -70,7 +70,8 @@ function DistrictService.Start()
 			return false, reason
 		end
 		lastTravel[player] = os.clock()
-		local destination = DistrictService.SpawnCFrame(districtId) + Vector3.new(math.random(-4, 4), 3.5, math.random(-4, 4))
+		local destination = DistrictService.SpawnCFrame(districtId)
+			+ Vector3.new(math.random(-4, 4), 3.5, math.random(-4, 4))
 		MovementGuard.AllowTeleport(player, destination.Position, 25)
 		local profile = DataService.Get(player)
 		if profile then

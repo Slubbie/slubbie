@@ -69,8 +69,22 @@ local function details(parent: Frame, districtId: string)
 	end
 	local total, finished, gold = medalSummary(districtId)
 	local foundAll, totalAll = Explore.Count(nil, districtId)
-	Kit.Paragraph(parent, ("Courses %d/%d finished · %d at gold or better\nDiscoveries %d/%d"):format(finished, total, gold, foundAll, totalAll), 14, C.Text)
-	local status = if not ok then "🔒 " .. tostring(reason) elseif visited then "✓ Visited" else "Unvisited — go and see it"
+	Kit.Paragraph(
+		parent,
+		("Courses %d/%d finished · %d at gold or better\nDiscoveries %d/%d"):format(
+			finished,
+			total,
+			gold,
+			foundAll,
+			totalAll
+		),
+		14,
+		C.Text
+	)
+	local status = if not ok
+		then "🔒 " .. tostring(reason)
+		elseif visited then "✓ Visited"
+		else "Unvisited — go and see it"
 	Kit.Paragraph(parent, status, 14, if ok then C.Good else C.Warn)
 	local note = Kit.Paragraph(parent, "", 13, C.Muted)
 	if ok then
@@ -115,7 +129,10 @@ return {
 		local profile = State.Profile
 		for _, district in Districts.Ordered() do
 			local ok = profile ~= nil and Access.District(State.Level(), profile.Quests.Completed, district.Id)
-			local visited = profile and profile.Districts and profile.Districts.Visited and profile.Districts.Visited[district.Id]
+			local visited = profile
+				and profile.Districts
+				and profile.Districts.Visited
+				and profile.Districts.Visited[district.Id]
 			-- Spoke from the hub.
 			if district.Id ~= "Hub" then
 				local a, b = project(hub.Origin), project(district.Origin)
@@ -140,16 +157,25 @@ return {
 				place()
 				canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(place)
 			end
-			local node = Kit.Button(canvas, "", function()
-				selected = district.Id
-				details(side, selected)
-			end, if selected == district.Id then "Primary" else "Secondary", {
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = project(district.Origin),
-				Size = UDim2.fromOffset(150, 52),
-				ZIndex = 3,
-			})
-			node.Text = ("%s\n%s"):format(district.Short, if not ok then "🔒 locked" elseif visited then "✓ visited" else "new")
+			local node = Kit.Button(
+				canvas,
+				"",
+				function()
+					selected = district.Id
+					details(side, selected)
+				end,
+				if selected == district.Id then "Primary" else "Secondary",
+				{
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = project(district.Origin),
+					Size = UDim2.fromOffset(150, 52),
+					ZIndex = 3,
+				}
+			)
+			node.Text = ("%s\n%s"):format(
+				district.Short,
+				if not ok then "🔒 locked" elseif visited then "✓ visited" else "new"
+			)
 			Kit.TextSize(node, 14)
 		end
 		-- You.

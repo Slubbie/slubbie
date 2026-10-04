@@ -38,7 +38,8 @@ local function itemCard(parent: Instance, item: Cosmetics.Item, profile: any, sh
 	if item.Colors and #item.Colors > 0 then
 		local swatches = Kit.Row(card, 16, 4)
 		for _, color in item.Colors do
-			local swatch = Kit.new("Frame", { Size = UDim2.fromOffset(16, 16), BackgroundColor3 = color, Parent = swatches })
+			local swatch =
+				Kit.new("Frame", { Size = UDim2.fromOffset(16, 16), BackgroundColor3 = color, Parent = swatches })
 			Kit.Corner(swatch, 4)
 		end
 	end
@@ -54,7 +55,9 @@ local function itemCard(parent: Instance, item: Cosmetics.Item, profile: any, sh
 			end)
 		end, if equipped then "Primary" else "Secondary", { Size = UDim2.new(1, 0, 0, 32) })
 	elseif shop and (item.Source == "Shop" or item.Source == "Prestige") then
-		local price = if item.Source == "Prestige" then ("✪ %d"):format(item.PrestigePrice or 0) else ("¢ %s"):format(Format.Number(item.Price or 0))
+		local price = if item.Source == "Prestige"
+			then ("✪ %d"):format(item.PrestigePrice or 0)
+			else ("¢ %s"):format(Format.Number(item.Price or 0))
 		Kit.Button(card, "Buy  " .. price, function()
 			task.spawn(function()
 				local ok, success, reason = pcall(Net.Invoke, "Shop.Buy", item.Id)
@@ -70,7 +73,12 @@ local function itemCard(parent: Instance, item: Cosmetics.Item, profile: any, sh
 			end)
 		end, "Primary", { Size = UDim2.new(1, 0, 0, 32) })
 	else
-		local how = if item.Source == "Reward" then (item.Unlock or "Earned in play") elseif item.District then ("Sold in " .. (Districts.ById[item.District] and Districts.ById[item.District].Name or item.District)) else "Sold at the Outfitters"
+		local how = if item.Source == "Reward"
+			then (item.Unlock or "Earned in play")
+			elseif item.District then (
+				"Sold in " .. (Districts.ById[item.District] and Districts.ById[item.District].Name or item.District)
+			)
+			else "Sold at the Outfitters"
 		Kit.Paragraph(card, "🔒 " .. how, 12, C.Faint)
 	end
 end
@@ -81,8 +89,22 @@ local function render(container: Frame, shop: boolean, district: string?)
 		return
 	end
 	local header = Kit.Row(container, 40, 8)
-	Kit.Label(header, ("¢ %s    ✪ %d"):format(Format.Number(profile.Credits or 0), profile.Prestige or 0), 18, { Font = Kit.Fonts.Black, Size = UDim2.fromOffset(240, 40), TextColor3 = C.Accent })
-	local message = Kit.Label(header, if shop and district then ("Stall stock: %s specials plus Guild staples"):format(Districts.ById[district] and Districts.ById[district].Short or district) else "", 13, { Size = UDim2.new(1, -250, 1, 0), TextColor3 = C.Muted })
+	Kit.Label(
+		header,
+		("¢ %s    ✪ %d"):format(Format.Number(profile.Credits or 0), profile.Prestige or 0),
+		18,
+		{ Font = Kit.Fonts.Black, Size = UDim2.fromOffset(240, 40), TextColor3 = C.Accent }
+	)
+	local message = Kit.Label(
+		header,
+		if shop and district
+			then ("Stall stock: %s specials plus Guild staples"):format(
+				Districts.ById[district] and Districts.ById[district].Short or district
+			)
+			else "",
+		13,
+		{ Size = UDim2.new(1, -250, 1, 0), TextColor3 = C.Muted }
+	)
 	local tabs = Kit.Scroll(container, {
 		Position = UDim2.fromOffset(0, 46),
 		Size = UDim2.new(1, 0, 0, 44),
@@ -91,14 +113,20 @@ local function render(container: Frame, shop: boolean, district: string?)
 	})
 	Kit.List(tabs, true, 6)
 	for _, name in Cosmetics.Categories do
-		Kit.Button(tabs, Cosmetics.CategoryNames[name] or name, function()
-			category = name
-			Kit.Clear(container)
-			render(container, shop, district)
-		end, "Secondary", {
-			Size = UDim2.fromOffset(140, 36),
-			BackgroundColor3 = if name == category then C.Accent:Lerp(C.PanelLight, 0.5) else C.PanelLight,
-		})
+		Kit.Button(
+			tabs,
+			Cosmetics.CategoryNames[name] or name,
+			function()
+				category = name
+				Kit.Clear(container)
+				render(container, shop, district)
+			end,
+			"Secondary",
+			{
+				Size = UDim2.fromOffset(140, 36),
+				BackgroundColor3 = if name == category then C.Accent:Lerp(C.PanelLight, 0.5) else C.PanelLight,
+			}
+		)
 	end
 	local grid = Kit.Scroll(container, { Position = UDim2.fromOffset(0, 98), Size = UDim2.new(1, 0, 1, -98) })
 	Kit.new("UIGridLayout", {
@@ -119,7 +147,7 @@ local function render(container: Frame, shop: boolean, district: string?)
 	for _, item in items do
 		local forSale = item.Source == "Shop" or item.Source == "Prestige"
 		local here = not district or item.District == nil or item.District == district
-		if (shop and forSale and here) or (not shop) then
+		if (shop and forSale and here) or not shop then
 			itemCard(grid, item, profile, shop, message)
 			shown += 1
 		end
@@ -128,7 +156,10 @@ local function render(container: Frame, shop: boolean, district: string?)
 		Kit.Paragraph(grid, "Nothing here yet.", 14, C.Faint)
 	end
 	if category == "Emote" and not shop then
-		message.Text = ("Emote wheel: %d / %d equipped. Press [Emote] to use them."):format(#(profile.Equipped.Emotes or {}), Cosmetics.MultiEquip.Emote)
+		message.Text = ("Emote wheel: %d / %d equipped. Press [Emote] to use them."):format(
+			#(profile.Equipped.Emotes or {}),
+			Cosmetics.MultiEquip.Emote
+		)
 	end
 end
 
@@ -150,7 +181,11 @@ Locker.Pages = {
 		Order = 6,
 		Sections = { "Inventory", "Equipped", "Credits", "Prestige" },
 		Build = function(container: Frame, args: any)
-			render(container, true, if type(args) == "table" and type(args.District) == "string" then args.District else nil)
+			render(
+				container,
+				true,
+				if type(args) == "table" and type(args.District) == "string" then args.District else nil
+			)
 		end,
 	},
 }

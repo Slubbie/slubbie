@@ -34,7 +34,7 @@ function Access.District(level: number, completed: { [string]: any }, districtId
 	local gate = Access.Gates[districtId]
 	if gate and not completed[gate] then
 		local quest = Quests.ById[gate]
-		return false, ("Complete \"%s\""):format(if quest then quest.Name else gate)
+		return false, ('Complete "%s"'):format(if quest then quest.Name else gate)
 	end
 	return true, nil
 end

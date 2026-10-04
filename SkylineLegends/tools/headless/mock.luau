@@ -443,10 +443,80 @@ local function valueType(name, fields)
 		return setmetatable(obj, mt)
 	end
 end
-Mock.Vector2 = { new = valueType("Vector2", { "X", "Y" }), zero = nil }
-Mock.Vector2.zero = Mock.Vector2.new(0, 0)
+-- Vector2 with real maths (the interface and camera code use it).
+local V2 = {}
+KIND[V2] = "Vector2"
+local function v2(x, y)
+	return setmetatable({ X = x or 0, Y = y or 0 }, V2)
+end
+V2.__index = function(v, key)
+	if key == "Magnitude" then
+		return math.sqrt(v.X * v.X + v.Y * v.Y)
+	elseif key == "Unit" then
+		local m = math.sqrt(v.X * v.X + v.Y * v.Y)
+		return if m == 0 then v2(0, 0) else v2(v.X / m, v.Y / m)
+	end
+	return V2[key]
+end
+V2.__add = function(a, b)
+	return v2(a.X + b.X, a.Y + b.Y)
+end
+V2.__sub = function(a, b)
+	return v2(a.X - b.X, a.Y - b.Y)
+end
+V2.__mul = function(a, b)
+	if type(a) == "number" then
+		return v2(a * b.X, a * b.Y)
+	elseif type(b) == "number" then
+		return v2(a.X * b, a.Y * b)
+	end
+	return v2(a.X * b.X, a.Y * b.Y)
+end
+V2.__div = function(a, b)
+	if type(b) == "number" then
+		return v2(a.X / b, a.Y / b)
+	end
+	return v2(a.X / b.X, a.Y / b.Y)
+end
+V2.__unm = function(a)
+	return v2(-a.X, -a.Y)
+end
+V2.__eq = function(a, b)
+	return a.X == b.X and a.Y == b.Y
+end
+function V2.Dot(a, b)
+	return a.X * b.X + a.Y * b.Y
+end
+function V2.Lerp(a, b, t)
+	return v2(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t)
+end
+Mock.Vector2 = { new = v2, zero = v2(0, 0), one = v2(1, 1) }
 Mock.UDim = { new = valueType("UDim", { "Scale", "Offset" }) }
-local udim2 = valueType("UDim2", { "XScale", "XOffset", "YScale", "YOffset" })
+local UD2 = {}
+KIND[UD2] = "UDim2"
+UD2.__index = UD2
+local function udim2(xs, xo, ys, yo)
+	return setmetatable({
+		X = Mock.UDim.new(xs or 0, xo or 0),
+		Y = Mock.UDim.new(ys or 0, yo or 0),
+		Width = Mock.UDim.new(xs or 0, xo or 0),
+		Height = Mock.UDim.new(ys or 0, yo or 0),
+	}, UD2)
+end
+UD2.__add = function(a, b)
+	return udim2(a.X.Scale + b.X.Scale, a.X.Offset + b.X.Offset, a.Y.Scale + b.Y.Scale, a.Y.Offset + b.Y.Offset)
+end
+UD2.__sub = function(a, b)
+	return udim2(a.X.Scale - b.X.Scale, a.X.Offset - b.X.Offset, a.Y.Scale - b.Y.Scale, a.Y.Offset - b.Y.Offset)
+end
+function UD2.Lerp(a, b, t)
+	return udim2(
+		a.X.Scale + (b.X.Scale - a.X.Scale) * t,
+		a.X.Offset + (b.X.Offset - a.X.Offset) * t,
+		a.Y.Scale + (b.Y.Scale - a.Y.Scale) * t,
+		a.Y.Offset + (b.Y.Offset - a.Y.Offset) * t
+	)
+end
 Mock.UDim2 = {
 	new = udim2,
 	fromOffset = function(x, y)
@@ -568,7 +638,23 @@ local CLASS_PARENT = {
 	UnreliableRemoteEvent = "Instance",
 	BindableEvent = "Instance",
 	Sound = "Instance",
+	SoundGroup = "Instance",
 	Humanoid = "Instance",
+	TextBox = "GuiObject",
+	Camera = "Instance",
+	Atmosphere = "Instance",
+	BloomEffect = "Instance",
+	ColorCorrectionEffect = "Instance",
+	SunRaysEffect = "Instance",
+	Clouds = "Instance",
+	Highlight = "Instance",
+	UIListLayout = "Instance",
+	UIGridLayout = "Instance",
+	UICorner = "Instance",
+	UIStroke = "Instance",
+	UIPadding = "Instance",
+	UIScale = "Instance",
+	Motor6D = "Instance",
 }
 
 local INSTANCE = {}
@@ -587,6 +673,93 @@ local PART_DEFAULTS = {
 	Reflectance = 0,
 	Massless = false,
 	CollisionGroup = "Default",
+}
+
+local function gray(v)
+	return Mock.Color3.new(v, v, v)
+end
+local CLASS_DEFAULTS = {
+	Lighting = {
+		Ambient = function()
+			return gray(0.27)
+		end,
+		OutdoorAmbient = function()
+			return gray(0.5)
+		end,
+		ColorShift_Top = function()
+			return gray(0)
+		end,
+		ColorShift_Bottom = function()
+			return gray(0)
+		end,
+		Brightness = 2,
+		ExposureCompensation = 0,
+		ClockTime = 14,
+		GlobalShadows = true,
+	},
+	Atmosphere = {
+		Density = 0.3,
+		Offset = 0.25,
+		Color = function()
+			return gray(0.78)
+		end,
+		Decay = function()
+			return gray(0.4)
+		end,
+		Glare = 0,
+		Haze = 0,
+	},
+	BloomEffect = { Intensity = 1, Size = 24, Threshold = 2 },
+	ColorCorrectionEffect = {
+		Brightness = 0,
+		Contrast = 0,
+		Saturation = 0,
+		TintColor = function()
+			return gray(1)
+		end,
+	},
+	SunRaysEffect = { Intensity = 0.25, Spread = 1 },
+	Clouds = {
+		Cover = 0.5,
+		Density = 0.7,
+		Color = function()
+			return gray(1)
+		end,
+	},
+	ParticleEmitter = { Rate = 20, Enabled = true },
+	Sound = { Volume = 0.5, PlaybackSpeed = 1, TimePosition = 0, Looped = false },
+	SoundGroup = { Volume = 0.5 },
+	Camera = { FieldOfView = 70 },
+	Humanoid = { WalkSpeed = 16, JumpPower = 50, Health = 100, PlatformStand = false, AutoRotate = true },
+	GuiObject = {
+		Visible = true,
+		BackgroundTransparency = 0,
+		Rotation = 0,
+		LayoutOrder = 0,
+		ZIndex = 1,
+		BackgroundColor3 = function()
+			return gray(0.5)
+		end,
+		Size = function()
+			return Mock.UDim2.new(0, 100, 0, 100)
+		end,
+		Position = function()
+			return Mock.UDim2.new(0, 0, 0, 0)
+		end,
+		AbsoluteSize = function()
+			return Mock.Vector2.new(400, 300)
+		end,
+		AbsolutePosition = function()
+			return Mock.Vector2.zero
+		end,
+		TextSize = 14,
+		Text = "",
+		TextTransparency = 0,
+		TextColor3 = function()
+			return gray(1)
+		end,
+	},
+	LayerCollector = { Enabled = true },
 }
 
 local function isA(className, wanted)
@@ -629,6 +802,19 @@ instanceMt.__index = function(inst, key)
 	if isA(rawget(inst, "_class"), "BasePart") and PART_DEFAULTS[key] ~= nil then
 		return PART_DEFAULTS[key]
 	end
+	-- Engine defaults for other classes (lighting, effects, GUI, sound...).
+	local class = rawget(inst, "_class")
+	while class do
+		local defaults = CLASS_DEFAULTS[class]
+		if defaults and defaults[key] ~= nil then
+			local value = defaults[key]
+			if type(value) == "function" then
+				value = value()
+			end
+			return value
+		end
+		class = CLASS_PARENT[class]
+	end
 	-- Unknown signal-like properties return inert signals.
 	if
 		string.sub(key, -5) == "Added"
@@ -645,6 +831,21 @@ instanceMt.__index = function(inst, key)
 		or key == "TriggerEnded"
 		or key == "PromptShown"
 		or key == "MouseButton1Click"
+		or key == "MouseEnter"
+		or key == "MouseLeave"
+		or key == "SelectionGained"
+		or key == "SelectionLost"
+		or key == "MouseButton2Click"
+		or key == "FocusLost"
+		or key == "Completed"
+		or string.sub(key, -8) == "Removing"
+		or string.sub(key, -7) == "Stepped"
+		or string.sub(key, -10) == "Simulation"
+		or string.sub(key, -5) == "Began"
+		or string.sub(key, -5) == "Ended"
+		or key == "Activated"
+		or key == "Chatted"
+		or key == "PromptTriggered"
 	then
 		local s = signal()
 		props[key] = s
@@ -893,6 +1094,11 @@ end
 function workspace.GetPartsInPart()
 	return {}
 end
+function workspace.BulkMoveTo(_, parts, cframes)
+	for index, part in parts do
+		part.CFrame = cframes[index]
+	end
+end
 function workspace.GetServerTimeNow()
 	return os.clock()
 end
@@ -1015,6 +1221,8 @@ for _, name in
 		"Teams",
 		"Debris",
 		"TextChatService",
+		"ProximityPromptService",
+		"HapticService",
 	}
 do
 	local service = newInstance(name)

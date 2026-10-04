@@ -20,7 +20,14 @@ local Sfx = require(script.Parent.Parent.Audio.Sfx)
 
 local LessonsClient = {}
 
-type Active = { Lesson: Lessons.Lesson, Zone: BasePart, Step: number, Count: number, Recent: { { Action: string, Time: number } }, Sent: boolean }
+type Active = {
+	Lesson: Lessons.Lesson,
+	Zone: BasePart,
+	Step: number,
+	Count: number,
+	Recent: { { Action: string, Time: number } },
+	Sent: boolean,
+}
 
 local zones: { BasePart } = {}
 local active: Active? = nil

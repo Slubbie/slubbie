@@ -53,14 +53,24 @@ Progression.Ranks = {
 		Blurb = "You see lines other runners miss.",
 	},
 	{ Level = 30, Name = "Free Runner", Color = Color3.fromRGB(255, 180, 70), Blurb = "No route is closed to you." },
-	{ Level = 40, Name = "Trailblazer", Color = Color3.fromRGB(255, 130, 70), Blurb = "Other runners follow your lines." },
+	{
+		Level = 40,
+		Name = "Trailblazer",
+		Color = Color3.fromRGB(255, 130, 70),
+		Blurb = "Other runners follow your lines.",
+	},
 	{
 		Level = 50,
 		Name = "Skyline Runner",
 		Color = Color3.fromRGB(255, 100, 120),
 		Blurb = "A name chalked on rooftops.",
 	},
-	{ Level = 60, Name = "Vanguard", Color = Color3.fromRGB(240, 90, 200), Blurb = "First into every forgotten tower." },
+	{
+		Level = 60,
+		Name = "Vanguard",
+		Color = Color3.fromRGB(240, 90, 200),
+		Blurb = "First into every forgotten tower.",
+	},
 	{ Level = 70, Name = "Ace", Color = Color3.fromRGB(190, 110, 255), Blurb = "Your splits are guild legend." },
 	{
 		Level = 80,

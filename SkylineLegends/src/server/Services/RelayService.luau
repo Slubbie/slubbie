@@ -51,11 +51,19 @@ end
 local function summary(team: Team): { [string]: any }
 	local members = {}
 	for _, member in team.Members do
-		table.insert(members, { UserId = member.UserId, Name = member.DisplayName, Ready = team.Ready[member] == true, Host = member == team.Host })
+		table.insert(members, {
+			UserId = member.UserId,
+			Name = member.DisplayName,
+			Ready = team.Ready[member] == true,
+			Host = member == team.Host,
+		})
 	end
 	local legs = {}
 	for index, leg in team.Legs do
-		table.insert(legs, { Index = index, UserId = leg.Runner.UserId, Name = leg.Runner.DisplayName, Time = team.LegTimes[index] })
+		table.insert(
+			legs,
+			{ Index = index, UserId = leg.Runner.UserId, Name = leg.Runner.DisplayName, Time = team.LegTimes[index] }
+		)
 	end
 	local course = Courses.ById[team.CourseId]
 	return {
@@ -185,7 +193,8 @@ local function finishRelay(team: Team, finalSeconds: number)
 		team.Ready[member] = false
 		local profile = DataService.Get(member)
 		if profile then
-			local record = profile.Courses[team.CourseId] or { Medal = 0, Completions = 0, Distinctions = {}, Tokens = {} }
+			local record = profile.Courses[team.CourseId]
+				or { Medal = 0, Completions = 0, Distinctions = {}, Tokens = {} }
 			profile.Courses[team.CourseId] = record
 			local first = (record.Completions or 0) == 0
 			record.Completions = (record.Completions or 0) + 1

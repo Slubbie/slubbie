@@ -6,3 +6,6 @@ sourcemap.json
 .DS_Store
 *.zip
 roblox.yml
+
+# Skyline Legends: keep the ready-to-open Studio place in the repo
+!SkylineLegends/build/SkylineLegends.rbxlx

@@ -40,7 +40,14 @@ local DREAM: Districts.Lighting = {
 	ShiftTop = rgb(255, 170, 240),
 	ShiftBottom = rgb(90, 110, 255),
 	Exposure = 0.25,
-	Atmosphere = { Density = 0.38, Offset = 0.3, Color = rgb(190, 150, 255), Decay = rgb(255, 150, 220), Glare = 0.6, Haze = 2.2 },
+	Atmosphere = {
+		Density = 0.38,
+		Offset = 0.3,
+		Color = rgb(190, 150, 255),
+		Decay = rgb(255, 150, 220),
+		Glare = 0.6,
+		Haze = 2.2,
+	},
 	Bloom = { Intensity = 0.9, Size = 30, Threshold = 1.2 },
 	Grade = { Brightness = 0.04, Contrast = 0.12, Saturation = 0.25, Tint = rgb(255, 235, 255) },
 	SunRays = 0.12,
@@ -126,7 +133,11 @@ local function makeEmitter(kind: string): ParticleEmitter
 		e.Color = ColorSequence.new(rgb(255, 240, 200))
 		e.LightEmission = 0.8
 		e.LightInfluence = 0
-		e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.3), NumberSequenceKeypoint.new(1, 1) })
+		e.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.3, 0.3),
+			NumberSequenceKeypoint.new(1, 1),
+		})
 		e.Size = NumberSequence.new(0.18)
 		e.Speed = NumberRange.new(0.4, 1.4)
 		e.Lifetime = NumberRange.new(4, 7)
@@ -191,7 +202,8 @@ local function apply(dt: number)
 	atmosphere.Color = atmosphere.Color:Lerp(a.Color, t)
 	atmosphere.Decay = atmosphere.Decay:Lerp(a.Decay, t)
 	atmosphere.Glare = lerpNumber(atmosphere.Glare, a.Glare, t)
-	atmosphere.Haze = lerpNumber(atmosphere.Haze, a.Haze + (if weatherKind == "Drizzle" or weatherKind == "Snow" then 0.8 else 0), t)
+	atmosphere.Haze =
+		lerpNumber(atmosphere.Haze, a.Haze + (if weatherKind == "Drizzle" or weatherKind == "Snow" then 0.8 else 0), t)
 	bloom.Intensity = lerpNumber(bloom.Intensity, l.Bloom.Intensity, t)
 	bloom.Size = lerpNumber(bloom.Size, l.Bloom.Size, t)
 	bloom.Threshold = lerpNumber(bloom.Threshold, l.Bloom.Threshold, t)
@@ -303,7 +315,10 @@ function Atmosphere.Start()
 		end
 		apply(dt)
 		if camera then
-			local offset = if weatherKind == "Embers" then Vector3.new(0, -30, 0) elseif weatherKind == "Motes" then Vector3.zero else Vector3.new(0, 34, 0)
+			local offset = if weatherKind == "Embers"
+				then Vector3.new(0, -30, 0)
+				elseif weatherKind == "Motes" then Vector3.zero
+				else Vector3.new(0, 34, 0)
 			weatherPart.Size = if weatherKind == "Motes" then Vector3.new(90, 40, 90) else Vector3.new(140, 1, 140)
 			weatherPart.CFrame = CFrame.new(camera.CFrame.Position + offset)
 			weatherPart.Parent = camera

@@ -64,12 +64,14 @@ fade.BorderSizePixel = 0
 fade.Parent = fadeGui
 
 local function fadeTo(transparency: number, seconds: number)
-	TweenService:Create(fade, TweenInfo.new(seconds, Enum.EasingStyle.Quad), { BackgroundTransparency = transparency }):Play()
+	TweenService:Create(fade, TweenInfo.new(seconds, Enum.EasingStyle.Quad), { BackgroundTransparency = transparency })
+		:Play()
 end
 
 -- Safe ground ------------------------------------------------------------------------------------
 
-local UNSAFE_TAGS = { Tags.Mover, Tags.Timed, Tags.Collapse, Tags.Hazard, Tags.BouncePad, Tags.Conveyor, Tags.Balance, Tags.SwitchGate }
+local UNSAFE_TAGS =
+	{ Tags.Mover, Tags.Timed, Tags.Collapse, Tags.Hazard, Tags.BouncePad, Tags.Conveyor, Tags.Balance, Tags.SwitchGate }
 
 local function isSafeFloor(part: BasePart): boolean
 	if not part.Anchored or not part.CanCollide then
@@ -104,7 +106,10 @@ local function recordSafeSpot()
 		last.Time = os.clock()
 		return
 	end
-	table.insert(safeSpots, { Position = position, Look = MathUtil.FlatUnit(root.CFrame.LookVector), Time = os.clock() })
+	table.insert(
+		safeSpots,
+		{ Position = position, Look = MathUtil.FlatUnit(root.CFrame.LookVector), Time = os.clock() }
+	)
 	if #safeSpots > SAFE_KEEP then
 		table.remove(safeSpots, 1)
 	end
@@ -117,7 +122,10 @@ local function bestSafeSpot(): CFrame?
 		local spot = safeSpots[i]
 		-- Spots from the last instant before a fall are often right on the lip.
 		if now - spot.Time > 0.4 or i == 1 then
-			return CFrame.lookAt(spot.Position + Vector3.new(0, 0.5, 0), spot.Position + Vector3.new(0, 0.5, 0) + spot.Look)
+			return CFrame.lookAt(
+				spot.Position + Vector3.new(0, 0.5, 0),
+				spot.Position + Vector3.new(0, 0.5, 0) + spot.Look
+			)
 		end
 	end
 	return nil

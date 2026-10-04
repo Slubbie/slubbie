@@ -30,7 +30,12 @@ local function questCard(parent: Instance, quest: Quests.Quest, profile: any)
 	if active then
 		for index, step in quest.Steps do
 			local stepMark = if index < active.Step then "✓" elseif index == active.Step then "▶" else "·"
-			Kit.Paragraph(card, ("%s %s"):format(stepMark, step.Text), 13, if index == active.Step then C.Text else C.Muted)
+			Kit.Paragraph(
+				card,
+				("%s %s"):format(stepMark, step.Text),
+				13,
+				if index == active.Step then C.Text else C.Muted
+			)
 		end
 		local row = Kit.Row(card, 38, 8)
 		local pinned = table.find(profile.Quests.Pinned or {}, quest.Id) ~= nil
@@ -44,7 +49,12 @@ local function questCard(parent: Instance, quest: Quests.Quest, profile: any)
 		end
 	elseif not done then
 		local giver = NPCs.ById[quest.Giver]
-		Kit.Paragraph(card, "Start: " .. quest.Start .. (if giver then (" (" .. giver.Name .. ")") else ""), 13, C.Muted)
+		Kit.Paragraph(
+			card,
+			"Start: " .. quest.Start .. (if giver then (" (" .. giver.Name .. ")") else ""),
+			13,
+			C.Muted
+		)
 		local steps = {}
 		for _, step in quest.Steps do
 			table.insert(steps, step.Text)
@@ -82,17 +92,30 @@ local function story(parent: Instance, profile: any)
 				if profile.Quests.Completed[quest.Id] then
 					done += 1
 				end
-				if profile.Quests.Completed[quest.Id] or profile.Quests.Active[quest.Id] or QuestClient.IsAvailable(quest) then
+				if
+					profile.Quests.Completed[quest.Id]
+					or profile.Quests.Active[quest.Id]
+					or QuestClient.IsAvailable(quest)
+				then
 					anyVisible = true
 				end
 			end
-			Kit.Label(parent, ("%s  ·  %d/%d"):format(Quests.ChapterNames[chapter] or ("Chapter " .. chapter), done, total), 18, {
-				Font = Kit.Fonts.Black,
-				TextColor3 = if done == total then C.Good elseif anyVisible then C.Accent else C.Faint,
-			})
+			Kit.Label(
+				parent,
+				("%s  ·  %d/%d"):format(Quests.ChapterNames[chapter] or ("Chapter " .. chapter), done, total),
+				18,
+				{
+					Font = Kit.Fonts.Black,
+					TextColor3 = if done == total then C.Good elseif anyVisible then C.Accent else C.Faint,
+				}
+			)
 			if anyVisible then
 				for _, quest in list do
-					if profile.Quests.Completed[quest.Id] or profile.Quests.Active[quest.Id] or QuestClient.IsAvailable(quest) then
+					if
+						profile.Quests.Completed[quest.Id]
+						or profile.Quests.Active[quest.Id]
+						or QuestClient.IsAvailable(quest)
+					then
 						questCard(parent, quest, profile)
 					end
 				end
@@ -105,16 +128,35 @@ end
 
 local function sideQuests(parent: Instance, profile: any)
 	for _, kind in { "Side", "Expert" } do
-		Kit.Label(parent, if kind == "Side" then "Side quests" else "Expert trials", 18, { Font = Kit.Fonts.Black, TextColor3 = C.Accent })
+		Kit.Label(
+			parent,
+			if kind == "Side" then "Side quests" else "Expert trials",
+			18,
+			{ Font = Kit.Fonts.Black, TextColor3 = C.Accent }
+		)
 		local shown = 0
 		for _, quest in Quests.List do
-			if quest.Type == kind and (profile.Quests.Completed[quest.Id] or profile.Quests.Active[quest.Id] or QuestClient.IsAvailable(quest)) then
+			if
+				quest.Type == kind
+				and (
+					profile.Quests.Completed[quest.Id]
+					or profile.Quests.Active[quest.Id]
+					or QuestClient.IsAvailable(quest)
+				)
+			then
 				questCard(parent, quest, profile)
 				shown += 1
 			end
 		end
 		if shown == 0 then
-			Kit.Paragraph(parent, if kind == "Side" then "Talk to the people of each district to find side work." else "Expert trials open once you've finished a district's chapter.", 13, C.Faint)
+			Kit.Paragraph(
+				parent,
+				if kind == "Side"
+					then "Talk to the people of each district to find side work."
+					else "Expert trials open once you've finished a district's chapter.",
+				13,
+				C.Faint
+			)
 		end
 	end
 end
@@ -129,7 +171,12 @@ local function rolling(parent: Instance)
 		end
 		status.Text = ""
 		local function section(title: string, block: any, list: { any }, resetIn: number)
-			Kit.Label(parent, ("%s  ·  resets in %s"):format(title, Format.Duration(resetIn)), 18, { Font = Kit.Fonts.Black, TextColor3 = C.Accent })
+			Kit.Label(
+				parent,
+				("%s  ·  resets in %s"):format(title, Format.Duration(resetIn)),
+				18,
+				{ Font = Kit.Fonts.Black, TextColor3 = C.Accent }
+			)
 			for _, id in block.Picks or {} do
 				local template = nil
 				for _, entry in list do
@@ -141,7 +188,12 @@ local function rolling(parent: Instance)
 					local card = Kit.Card(parent)
 					local done = block.Done and block.Done[id]
 					local progress = block.Progress and block.Progress[id] or 0
-					Kit.Label(card, (if done then "✓ " else "") .. template.Text, 15, { Font = Kit.Fonts.Bold, TextColor3 = if done then C.Good else C.Text })
+					Kit.Label(
+						card,
+						(if done then "✓ " else "") .. template.Text,
+						15,
+						{ Font = Kit.Fonts.Bold, TextColor3 = if done then C.Good else C.Text }
+					)
 					local bar = Kit.Bar(card, if done then C.Good else C.Signal)
 					bar.Set(if done then 1 else progress / (template.Count or 1))
 					Kit.Label(card, ("%d / %d"):format(progress, template.Count or 1), 12, { TextColor3 = C.Muted })
@@ -166,9 +218,19 @@ local function contracts(parent: Instance, profile: any)
 			task.spawn(pcall, Net.Invoke, "Contract.Take", nil)
 		end, "Ghost", { Size = UDim2.fromOffset(180, 34) })
 	else
-		Kit.Paragraph(parent, "No contract. Every district plaza has a job board with quick work for runners.", 14, C.Muted)
+		Kit.Paragraph(
+			parent,
+			"No contract. Every district plaza has a job board with quick work for runners.",
+			14,
+			C.Muted
+		)
 	end
-	Kit.Paragraph(parent, ("Contracts completed: %d"):format(profile.Contracts and profile.Contracts.Completed or 0), 13, C.Muted)
+	Kit.Paragraph(
+		parent,
+		("Contracts completed: %d"):format(profile.Contracts and profile.Contracts.Completed or 0),
+		13,
+		C.Muted
+	)
 end
 
 local function letters(parent: Instance, profile: any)
@@ -188,7 +250,12 @@ local function letters(parent: Instance, profile: any)
 		end
 	end
 	if found == 0 then
-		Kit.Paragraph(parent, "Lost letters are tucked away on rooftops in every district. Each tells part of what happened to the city.", 14, C.Muted)
+		Kit.Paragraph(
+			parent,
+			"Lost letters are tucked away on rooftops in every district. Each tells part of what happened to the city.",
+			14,
+			C.Muted
+		)
 	end
 end
 
@@ -222,18 +289,26 @@ return {
 			end
 		end
 		for _, name in { "Story", "Side", "Objectives", "Contracts", "Letters" } do
-			Kit.Button(tabs, name, function()
-				tab = name
-				for _, child in tabs:GetChildren() do
-					if child:IsA("TextButton") then
-						child.BackgroundColor3 = if child.Text == tab then C.Accent:Lerp(C.PanelLight, 0.5) else C.PanelLight
+			Kit.Button(
+				tabs,
+				name,
+				function()
+					tab = name
+					for _, child in tabs:GetChildren() do
+						if child:IsA("TextButton") then
+							child.BackgroundColor3 = if child.Text == tab
+								then C.Accent:Lerp(C.PanelLight, 0.5)
+								else C.PanelLight
+						end
 					end
-				end
-				render()
-			end, "Secondary", {
-				Size = UDim2.fromOffset(120, 36),
-				BackgroundColor3 = if name == tab then C.Accent:Lerp(C.PanelLight, 0.5) else C.PanelLight,
-			})
+					render()
+				end,
+				"Secondary",
+				{
+					Size = UDim2.fromOffset(120, 36),
+					BackgroundColor3 = if name == tab then C.Accent:Lerp(C.PanelLight, 0.5) else C.PanelLight,
+				}
+			)
 		end
 		render()
 	end,

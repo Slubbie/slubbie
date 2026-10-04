@@ -124,7 +124,8 @@ end
 
 function Touch.Start()
 	local gui = Root.Get("Touch")
-	frame = Kit.new("Frame", { Name = "Controls", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Parent = gui })
+	frame =
+		Kit.new("Frame", { Name = "Controls", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Parent = gui })
 	for _, spec in SPECS do
 		make(spec)
 	end

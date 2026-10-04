@@ -99,7 +99,14 @@ end
 
 -- Primitives --------------------------------------------------------------------------
 
-function Kit.Part(self: Builder, cframe: CFrame, size: Vector3, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Part(
+	self: Builder,
+	cframe: CFrame,
+	size: Vector3,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	local o = options or {}
 	local part = Instance.new((o.Class or "Part") :: any) :: BasePart
 	part.Name = o.Name or "Part"
@@ -157,43 +164,95 @@ function Kit.Part(self: Builder, cframe: CFrame, size: Vector3, color: Color3, m
 	return part
 end
 
-function Kit.Box(self: Builder, cframe: CFrame, size: Vector3, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Box(
+	self: Builder,
+	cframe: CFrame,
+	size: Vector3,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	return self:Part(cframe, size, color, material, options)
 end
 
-function Kit.Detail(self: Builder, cframe: CFrame, size: Vector3, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Detail(
+	self: Builder,
+	cframe: CFrame,
+	size: Vector3,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	local o = table.clone(options or {})
 	o.Decor = true
 	return self:Part(cframe, size, color, material, o)
 end
 
-function Kit.Wedge(self: Builder, cframe: CFrame, size: Vector3, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Wedge(
+	self: Builder,
+	cframe: CFrame,
+	size: Vector3,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	local o = table.clone(options or {})
 	o.Class = "WedgePart"
 	return self:Part(cframe, size, color, material, o)
 end
 
-function Kit.Ball(self: Builder, position: Vector3, diameter: number, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Ball(
+	self: Builder,
+	position: Vector3,
+	diameter: number,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	local o = table.clone(options or {})
 	o.Shape = Enum.PartType.Ball
 	return self:Part(CFrame.new(position), Vector3.one * diameter, color, material, o)
 end
 
 -- Cylinder whose axis runs along the CFrame's X axis (Roblox convention).
-function Kit.Cylinder(self: Builder, cframe: CFrame, length: number, diameter: number, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Cylinder(
+	self: Builder,
+	cframe: CFrame,
+	length: number,
+	diameter: number,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	local o = table.clone(options or {})
 	o.Shape = Enum.PartType.Cylinder
 	return self:Part(cframe, Vector3.new(length, diameter, diameter), color, material, o)
 end
 
 -- Upright cylinder (axis vertical) standing on `base`.
-function Kit.Column(self: Builder, base: Vector3, height: number, diameter: number, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Column(
+	self: Builder,
+	base: Vector3,
+	height: number,
+	diameter: number,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	local cframe = CFrame.new(base + Vector3.new(0, height / 2, 0)) * CFrame.Angles(0, 0, math.rad(90))
 	return self:Cylinder(cframe, height, diameter, color, material, options)
 end
 
 -- Cylinder from point a to point b.
-function Kit.Rod(self: Builder, a: Vector3, b: Vector3, diameter: number, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Rod(
+	self: Builder,
+	a: Vector3,
+	b: Vector3,
+	diameter: number,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	local offset = b - a
 	local length = math.max(offset.Magnitude, 0.05)
 	local up = if length > 0.05 and math.abs(offset.Unit.Y) > 0.99 then Vector3.xAxis else Vector3.yAxis
@@ -202,7 +261,16 @@ function Kit.Rod(self: Builder, a: Vector3, b: Vector3, diameter: number, color:
 end
 
 -- Box spanning from a to b (thin beam).
-function Kit.Beam(self: Builder, a: Vector3, b: Vector3, width: number, height: number, color: Color3, material: Enum.Material?, options: PartOptions?): BasePart
+function Kit.Beam(
+	self: Builder,
+	a: Vector3,
+	b: Vector3,
+	width: number,
+	height: number,
+	color: Color3,
+	material: Enum.Material?,
+	options: PartOptions?
+): BasePart
 	local offset = b - a
 	local length = math.max(offset.Magnitude, 0.05)
 	local up = if math.abs(offset.Unit.Y) > 0.95 then Vector3.xAxis else Vector3.yAxis
@@ -212,12 +280,26 @@ end
 
 -- Silhouette for distant viewing.
 function Kit.FarBox(self: Builder, cframe: CFrame, size: Vector3, color: Color3, material: Enum.Material?)
-	return self:Part(cframe, size, color, material, { Far = true, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false })
+	return self:Part(
+		cframe,
+		size,
+		color,
+		material,
+		{ Far = true, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false }
+	)
 end
 
 -- Decoration helpers ---------------------------------------------------------------------
 
-function Kit.Light(self: Builder, part: BasePart, color: Color3, range: number, brightness: number?, kind: string?, face: Enum.NormalId?): Light
+function Kit.Light(
+	self: Builder,
+	part: BasePart,
+	color: Color3,
+	range: number,
+	brightness: number?,
+	kind: string?,
+	face: Enum.NormalId?
+): Light
 	local light: Light
 	if kind == "Spot" then
 		local spot = Instance.new("SpotLight")
@@ -243,7 +325,13 @@ function Kit.Light(self: Builder, part: BasePart, color: Color3, range: number, 
 	return light
 end
 
-function Kit.Text(self: Builder, part: BasePart, face: Enum.NormalId, text: string, options: { [string]: any }?): SurfaceGui
+function Kit.Text(
+	self: Builder,
+	part: BasePart,
+	face: Enum.NormalId,
+	text: string,
+	options: { [string]: any }?
+): SurfaceGui
 	local o = options or {}
 	local gui = Instance.new("SurfaceGui")
 	gui.Face = face
@@ -307,7 +395,13 @@ function Kit.Icon(self: Builder, part: BasePart, glyph: string, color: Color3, o
 	return gui
 end
 
-function Kit.Prompt(self: Builder, part: BasePart, action: string, object: string, options: { [string]: any }?): ProximityPrompt
+function Kit.Prompt(
+	self: Builder,
+	part: BasePart,
+	action: string,
+	object: string,
+	options: { [string]: any }?
+): ProximityPrompt
 	local o = options or {}
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = action
@@ -342,7 +436,8 @@ function Kit.Emitter(self: Builder, parent: Instance, preset: string, color: Col
 		emitter.Speed = NumberRange.new(26, 34)
 		emitter.SpreadAngle = Vector2.new(8, 8)
 		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 2), NumberSequenceKeypoint.new(1, 7) })
-		emitter.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 1) })
+		emitter.Transparency =
+			NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 1) })
 		emitter.Drag = 1.5
 	elseif preset == "Smoke" then
 		emitter.Texture = SMOKE
@@ -351,7 +446,8 @@ function Kit.Emitter(self: Builder, parent: Instance, preset: string, color: Col
 		emitter.Speed = NumberRange.new(4, 7)
 		emitter.SpreadAngle = Vector2.new(10, 10)
 		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 4), NumberSequenceKeypoint.new(1, 14) })
-		emitter.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(1, 1) })
+		emitter.Transparency =
+			NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(1, 1) })
 		emitter.Acceleration = Vector3.new(2, 1, 0)
 	elseif preset == "Sparks" then
 		emitter.Texture = SPARKLE
@@ -369,7 +465,8 @@ function Kit.Emitter(self: Builder, parent: Instance, preset: string, color: Col
 		emitter.Speed = NumberRange.new(2, 5)
 		emitter.SpreadAngle = Vector2.new(60, 20)
 		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 5), NumberSequenceKeypoint.new(1, 12) })
-		emitter.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.55), NumberSequenceKeypoint.new(1, 1) })
+		emitter.Transparency =
+			NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.55), NumberSequenceKeypoint.new(1, 1) })
 	elseif preset == "Falls" then
 		emitter.Texture = SMOKE
 		emitter.Rate = 30
@@ -378,7 +475,8 @@ function Kit.Emitter(self: Builder, parent: Instance, preset: string, color: Col
 		emitter.SpreadAngle = Vector2.new(15, 5)
 		emitter.Acceleration = Vector3.new(0, -70, 0)
 		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 3), NumberSequenceKeypoint.new(1, 6) })
-		emitter.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(1, 0.9) })
+		emitter.Transparency =
+			NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(1, 0.9) })
 	elseif preset == "Updraft" then
 		emitter.Texture = SPARKLE
 		emitter.LightEmission = 1

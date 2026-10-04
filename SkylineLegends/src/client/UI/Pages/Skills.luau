@@ -33,8 +33,17 @@ return {
 		local ranks = profile.Skills or {}
 		local free = freePoints(profile)
 		local header = Kit.Row(container, 40, 12)
-		Kit.Label(header, ("Skill points: %d"):format(free), 18, { Font = Kit.Fonts.Black, Size = UDim2.fromOffset(220, 40), TextColor3 = if free > 0 then C.Accent else C.Muted })
-		local message = Kit.Label(header, "Upgrades apply in casual play; ranked runs and races use standard attributes.", 13, { Size = UDim2.new(1, -470, 1, 0), TextColor3 = C.Muted })
+		Kit.Label(header, ("Skill points: %d"):format(free), 18, {
+			Font = Kit.Fonts.Black,
+			Size = UDim2.fromOffset(220, 40),
+			TextColor3 = if free > 0 then C.Accent else C.Muted,
+		})
+		local message = Kit.Label(
+			header,
+			"Upgrades apply in casual play; ranked runs and races use standard attributes.",
+			13,
+			{ Size = UDim2.new(1, -470, 1, 0), TextColor3 = C.Muted }
+		)
 		Kit.Button(header, ("Respec (%d ¢)"):format(SkillTree.RespecCost), function()
 			task.spawn(function()
 				local ok, success, reason = pcall(Net.Invoke, "Skill.Respec")
@@ -49,8 +58,14 @@ return {
 			BackgroundColor3 = C.PanelLight,
 		})
 		Kit.Padding(detail, 10, 14)
-		local detailTitle = Kit.Label(detail, "Select a skill", 16, { Font = Kit.Fonts.Bold, Size = UDim2.new(1, 0, 0, 22) })
-		local detailText = Kit.Label(detail, "Abilities unlock with your level; skills refine how they feel.", 14, { Position = UDim2.fromOffset(0, 24), Size = UDim2.new(1, 0, 0, 40), TextColor3 = C.Muted, TextYAlignment = Enum.TextYAlignment.Top })
+		local detailTitle =
+			Kit.Label(detail, "Select a skill", 16, { Font = Kit.Fonts.Bold, Size = UDim2.new(1, 0, 0, 22) })
+		local detailText = Kit.Label(detail, "Abilities unlock with your level; skills refine how they feel.", 14, {
+			Position = UDim2.fromOffset(0, 24),
+			Size = UDim2.new(1, 0, 0, 40),
+			TextColor3 = C.Muted,
+			TextYAlignment = Enum.TextYAlignment.Top,
+		})
 
 		local columns = Kit.new("Frame", {
 			Position = UDim2.fromOffset(0, 50),
@@ -82,11 +97,20 @@ return {
 				local can, reason = SkillTree.CanUnlock(ranks, free, node.Id)
 				local maxed = rank >= node.MaxRank
 				local mark = if maxed then "✓" elseif can then "+" elseif rank > 0 then "◐" else "🔒"
-				local button = Kit.Button(column, ("%s %s  %d/%d"):format(mark, node.Name, rank, node.MaxRank), nil, if can then "Primary" else "Secondary", {
-					Size = UDim2.new(1, -8, 0, 44),
-					TextXAlignment = Enum.TextXAlignment.Left,
-					BackgroundColor3 = if maxed then branch.Color:Lerp(C.PanelLight, 0.6) elseif can then C.Accent else C.PanelLight,
-				})
+				local button = Kit.Button(
+					column,
+					("%s %s  %d/%d"):format(mark, node.Name, rank, node.MaxRank),
+					nil,
+					if can then "Primary" else "Secondary",
+					{
+						Size = UDim2.new(1, -8, 0, 44),
+						TextXAlignment = Enum.TextXAlignment.Left,
+						BackgroundColor3 = if maxed
+							then branch.Color:Lerp(C.PanelLight, 0.6)
+							elseif can then C.Accent
+							else C.PanelLight,
+					}
+				)
 				Kit.Padding(button, 0, 10)
 				if node.Capstone then
 					local stroke = button:FindFirstChildOfClass("UIStroke")
@@ -96,8 +120,17 @@ return {
 					end
 				end
 				local function describe()
-					detailTitle.Text = ("%s  ·  rank %d/%d  ·  %d point%s"):format(node.Name, rank, node.MaxRank, node.Cost, if node.Cost == 1 then "" else "s")
-					local status = if maxed then "Maxed." elseif can then "Click to learn the next rank." else (reason or "Locked")
+					detailTitle.Text = ("%s  ·  rank %d/%d  ·  %d point%s"):format(
+						node.Name,
+						rank,
+						node.MaxRank,
+						node.Cost,
+						if node.Cost == 1 then "" else "s"
+					)
+					local status = if maxed
+						then "Maxed."
+						elseif can then "Click to learn the next rank."
+						else (reason or "Locked")
 					detailText.Text = node.Description .. "  " .. status
 				end
 				button.MouseEnter:Connect(describe)

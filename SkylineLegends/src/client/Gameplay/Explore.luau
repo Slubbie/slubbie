@@ -90,7 +90,10 @@ function Explore.Start()
 				if spot.Small and found(spot.Id) and spot.Part.Transparency < 0.7 then
 					spot.Part.Transparency = 0.7
 				end
-				if not found(spot.Id) and (spot.Part.Position - position).Magnitude < spot.Part.Size.Magnitude / 2 + 200 then
+				if
+					not found(spot.Id)
+					and (spot.Part.Position - position).Magnitude < spot.Part.Size.Magnitude / 2 + 200
+				then
 					table.insert(nearby, spot)
 				end
 			end

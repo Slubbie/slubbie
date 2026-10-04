@@ -110,7 +110,9 @@ local function state(lane: Lane): { [string]: any }
 		Cleared = lane.Cleared,
 		Lives = lane.Lives,
 		KillY = lane.Ctx.MinY - 30,
-		Respawn = if lane.Cleared > 0 then lane.Ctx.Checkpoints[lane.Cleared].Spawn else Dreamline.LaneStart(lane.Index) * CFrame.new(0, 3.5, -8),
+		Respawn = if lane.Cleared > 0
+			then lane.Ctx.Checkpoints[lane.Cleared].Spawn
+			else Dreamline.LaneStart(lane.Index) * CFrame.new(0, 3.5, -8),
 		NextGate = if nextGate then nextGate.Volume.CFrame.Position else nil,
 		Difficulty = math.floor(difficultyAt(lane.Cleared) * 10) / 10,
 	}
@@ -140,7 +142,8 @@ local function finishRun(player: Player, reason: string)
 	end
 	Events.EndlessEnded:Fire(player, lane.Cleared)
 	Events.StatChanged:Fire(player, "EndlessBest")
-	local lobbyCF = CFrame.lookAt(Districts.Dreamline + Vector3.new(0, 3.5, 6), Districts.Dreamline + Vector3.new(0, 3.5, -60))
+	local lobbyCF =
+		CFrame.lookAt(Districts.Dreamline + Vector3.new(0, 3.5, 6), Districts.Dreamline + Vector3.new(0, 3.5, -60))
 	MovementGuard.AllowTeleport(player, lobbyCF.Position, 20)
 	Net.Push(player, "Endless.Ended", {
 		Reason = reason,
@@ -153,7 +156,12 @@ local function finishRun(player: Player, reason: string)
 		Lobby = lobbyCF,
 	})
 	if record and lane.Cleared >= 5 then
-		Notify.Send(player, { Kind = "Unlock", Title = "New Dreamline record", Text = ("%d sections"):format(lane.Cleared), Sound = "Medal" })
+		Notify.Send(player, {
+			Kind = "Unlock",
+			Title = "New Dreamline record",
+			Text = ("%d sections"):format(lane.Cleared),
+			Sound = "Medal",
+		})
 	end
 	-- Let the runner get clear before the lane dissolves.
 	local root = lane.Root
@@ -186,7 +194,14 @@ local function onStart(player: Player): (boolean, any)
 	local seed = Rotation.Hash(player.UserId, os.time())
 	local start = Dreamline.LaneStart(index)
 	local B = Kit.new(container, "Lane" .. index, { Signal = THEME.Signal }, seed)
-	local ctx = CourseBuilder.NewContext(B, THEME :: any, ("endless_%d_%d"):format(player.UserId, seed % 100000), 1, start, B.Core)
+	local ctx = CourseBuilder.NewContext(
+		B,
+		THEME :: any,
+		("endless_%d_%d"):format(player.UserId, seed % 100000),
+		1,
+		start,
+		B.Core
+	)
 	local lane: Lane = {
 		Index = index,
 		Root = B.Root,
@@ -270,7 +285,10 @@ local function onGate(player: Player, index: any)
 	lend(player, lane)
 	Net.Push(player, "Endless.State", state(lane))
 	if index % 10 == 0 then
-		Notify.Send(player, { Kind = "Toast", Title = ("%d sections!"):format(index), Text = "The Dreamline bends harder from here." })
+		Notify.Send(
+			player,
+			{ Kind = "Toast", Title = ("%d sections!"):format(index), Text = "The Dreamline bends harder from here." }
+		)
 	end
 end
 

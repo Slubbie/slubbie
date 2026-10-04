@@ -148,7 +148,14 @@ local function buildGloves(folder: Folder, character: Model, item: Cosmetics.Ite
 				piece(folder, arm, Vector3.new(1.12, 0.1, 1.12), CFrame.new(0, -0.6, 0), secondary)
 				piece(folder, arm, Vector3.new(1.12, 0.1, 1.12), CFrame.new(0, -0.82, 0), secondary)
 			else
-				piece(folder, arm, Vector3.new(0.9, 0.22, 0.1), CFrame.new(0, -0.85, -0.56), secondary, Enum.Material.Neon)
+				piece(
+					folder,
+					arm,
+					Vector3.new(0.9, 0.22, 0.1),
+					CFrame.new(0, -0.85, -0.56),
+					secondary,
+					Enum.Material.Neon
+				)
 			end
 		end
 	end
@@ -163,7 +170,14 @@ local function buildShoes(folder: Folder, character: Model, item: Cosmetics.Item
 			local height = if item.Style == "Boot" then 0.8 elseif item.Style == "HighTop" then 0.65 else 0.45
 			piece(folder, leg, Vector3.new(1.08, height, 1.14), CFrame.new(0, -1 + height / 2, -0.05), primary)
 			piece(folder, leg, Vector3.new(1.1, 0.14, 1.22), CFrame.new(0, -0.95, -0.06), secondary)
-			piece(folder, leg, Vector3.new(0.08, 0.2, 0.7), CFrame.new(0.55, -0.78, -0.05), secondary, Enum.Material.Neon)
+			piece(
+				folder,
+				leg,
+				Vector3.new(0.08, 0.2, 0.7),
+				CFrame.new(0.55, -0.78, -0.05),
+				secondary,
+				Enum.Material.Neon
+			)
 		end
 	end
 end
@@ -178,48 +192,143 @@ local function buildPack(folder: Folder, character: Model, item: Cosmetics.Item)
 	local style = item.Style
 	if style == "Satchel" then
 		piece(folder, torso, Vector3.new(1.2, 1.0, 0.45), CFrame.new(0.35, -0.25, 0.75), primary)
-		piece(folder, torso, Vector3.new(0.2, 2.5, 0.12), CFrame.new(0, 0.1, -0.6) * CFrame.Angles(0, 0, math.rad(40)), secondary)
+		piece(
+			folder,
+			torso,
+			Vector3.new(0.2, 2.5, 0.12),
+			CFrame.new(0, 0.1, -0.6) * CFrame.Angles(0, 0, math.rad(40)),
+			secondary
+		)
 	elseif style == "Courier" then
 		piece(folder, torso, Vector3.new(1.7, 1.3, 0.6), CFrame.new(0, 0, 0.82), primary)
 		piece(folder, torso, Vector3.new(1.74, 0.45, 0.64), CFrame.new(0, 0.48, 0.82), secondary)
 	elseif style == "Tank" then
 		for _, x in { -0.45, 0.45 } do
-			piece(folder, torso, Vector3.new(1.6, 0.7, 0.7), CFrame.new(x, 0, 0.85) * CFrame.Angles(0, 0, math.rad(90)), primary, Enum.Material.Metal, Enum.PartType.Cylinder)
+			piece(
+				folder,
+				torso,
+				Vector3.new(1.6, 0.7, 0.7),
+				CFrame.new(x, 0, 0.85) * CFrame.Angles(0, 0, math.rad(90)),
+				primary,
+				Enum.Material.Metal,
+				Enum.PartType.Cylinder
+			)
 		end
-		piece(folder, torso, Vector3.new(0.3, 0.3, 0.3), CFrame.new(0, 0.9, 0.85), secondary, Enum.Material.Neon, Enum.PartType.Ball)
+		piece(
+			folder,
+			torso,
+			Vector3.new(0.3, 0.3, 0.3),
+			CFrame.new(0, 0.9, 0.85),
+			secondary,
+			Enum.Material.Neon,
+			Enum.PartType.Ball
+		)
 	elseif style == "Planter" then
 		piece(folder, torso, Vector3.new(1.5, 0.9, 0.7), CFrame.new(0, -0.3, 0.85), primary, Enum.Material.Wood)
 		for i, offset in { Vector3.new(-0.4, 0.4, 0.85), Vector3.new(0.35, 0.55, 0.8), Vector3.new(0, 0.75, 0.95) } do
 			local leaf = Color3.fromRGB(70, 150 + i * 15, 80)
-			piece(folder, torso, Vector3.new(0.55, 0.55, 0.55), CFrame.new(offset), leaf, Enum.Material.Grass, Enum.PartType.Ball)
+			piece(
+				folder,
+				torso,
+				Vector3.new(0.55, 0.55, 0.55),
+				CFrame.new(offset),
+				leaf,
+				Enum.Material.Grass,
+				Enum.PartType.Ball
+			)
 		end
-		piece(folder, torso, Vector3.new(0.3, 0.3, 0.3), CFrame.new(0.1, 1.05, 0.9), secondary, Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+		piece(
+			folder,
+			torso,
+			Vector3.new(0.3, 0.3, 0.3),
+			CFrame.new(0.1, 1.05, 0.9),
+			secondary,
+			Enum.Material.SmoothPlastic,
+			Enum.PartType.Ball
+		)
 	elseif style == "Cube" then
-		piece(folder, torso, Vector3.new(1, 1, 1), CFrame.new(0, 0.5, 1.4) * CFrame.Angles(math.rad(45), math.rad(45), 0), primary, Enum.Material.Neon)
-		piece(folder, torso, Vector3.new(1.2, 1.2, 1.2), CFrame.new(0, 0.5, 1.4) * CFrame.Angles(math.rad(45), math.rad(45), 0), secondary, Enum.Material.ForceField)
+		piece(
+			folder,
+			torso,
+			Vector3.new(1, 1, 1),
+			CFrame.new(0, 0.5, 1.4) * CFrame.Angles(math.rad(45), math.rad(45), 0),
+			primary,
+			Enum.Material.Neon
+		)
+		piece(
+			folder,
+			torso,
+			Vector3.new(1.2, 1.2, 1.2),
+			CFrame.new(0, 0.5, 1.4) * CFrame.Angles(math.rad(45), math.rad(45), 0),
+			secondary,
+			Enum.Material.ForceField
+		)
 	elseif style == "Frame" then
 		for _, x in { -0.6, 0.6 } do
 			piece(folder, torso, Vector3.new(0.15, 2.6, 0.15), CFrame.new(x, 0.2, 0.75), primary)
 		end
 		piece(folder, torso, Vector3.new(1.4, 1.2, 0.6), CFrame.new(0, -0.1, 0.95), secondary)
-		piece(folder, torso, Vector3.new(0.6, 1.0, 1.0), CFrame.new(0, 1.0, 0.9) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(200, 180, 140), Enum.Material.Fabric, Enum.PartType.Cylinder)
+		piece(
+			folder,
+			torso,
+			Vector3.new(0.6, 1.0, 1.0),
+			CFrame.new(0, 1.0, 0.9) * CFrame.Angles(0, 0, math.rad(90)),
+			Color3.fromRGB(200, 180, 140),
+			Enum.Material.Fabric,
+			Enum.PartType.Cylinder
+		)
 	elseif style == "Wings" then
 		for _, side in { -1, 1 } do
-			local wing = piece(folder, torso, Vector3.new(0.12, 2.2, 1.4), CFrame.new(side * 0.9, 0.5, 0.9) * CFrame.Angles(0, side * math.rad(35), side * math.rad(-25)), primary)
+			local wing = piece(
+				folder,
+				torso,
+				Vector3.new(0.12, 2.2, 1.4),
+				CFrame.new(side * 0.9, 0.5, 0.9) * CFrame.Angles(0, side * math.rad(35), side * math.rad(-25)),
+				primary
+			)
 			wing.Shape = Enum.PartType.Block
-			piece(folder, torso, Vector3.new(0.14, 0.25, 1.5), CFrame.new(side * 1.05, 1.35, 1.0) * CFrame.Angles(0, side * math.rad(35), side * math.rad(-25)), secondary, Enum.Material.Neon)
+			piece(
+				folder,
+				torso,
+				Vector3.new(0.14, 0.25, 1.5),
+				CFrame.new(side * 1.05, 1.35, 1.0) * CFrame.Angles(0, side * math.rad(35), side * math.rad(-25)),
+				secondary,
+				Enum.Material.Neon
+			)
 		end
 	elseif style == "Beacon" then
 		piece(folder, torso, Vector3.new(1.2, 1.2, 0.6), CFrame.new(0, -0.1, 0.8), primary)
-		piece(folder, torso, Vector3.new(0.12, 2.4, 0.12), CFrame.new(0.4, 1.3, 0.8), Color3.fromRGB(80, 80, 90), Enum.Material.Metal)
-		local tip = piece(folder, torso, Vector3.new(0.35, 0.35, 0.35), CFrame.new(0.4, 2.55, 0.8), secondary, Enum.Material.Neon, Enum.PartType.Ball)
+		piece(
+			folder,
+			torso,
+			Vector3.new(0.12, 2.4, 0.12),
+			CFrame.new(0.4, 1.3, 0.8),
+			Color3.fromRGB(80, 80, 90),
+			Enum.Material.Metal
+		)
+		local tip = piece(
+			folder,
+			torso,
+			Vector3.new(0.35, 0.35, 0.35),
+			CFrame.new(0.4, 2.55, 0.8),
+			secondary,
+			Enum.Material.Neon,
+			Enum.PartType.Ball
+		)
 		local light = Instance.new("PointLight")
 		light.Color = secondary
 		light.Range = 8
 		light.Brightness = 1.2
 		light.Parent = tip
 	elseif style == "Crystal" then
-		local crystal = piece(folder, torso, Vector3.new(0.9, 1.6, 0.9), CFrame.new(0, 0.6, 1.3) * CFrame.Angles(0, math.rad(45), math.rad(12)), primary, Enum.Material.Neon)
+		local crystal = piece(
+			folder,
+			torso,
+			Vector3.new(0.9, 1.6, 0.9),
+			CFrame.new(0, 0.6, 1.3) * CFrame.Angles(0, math.rad(45), math.rad(12)),
+			primary,
+			Enum.Material.Neon
+		)
 		local attachment = Instance.new("Attachment")
 		attachment.Parent = crystal
 		local motes = Instance.new("ParticleEmitter")
@@ -233,7 +342,14 @@ local function buildPack(folder: Folder, character: Model, item: Cosmetics.Item)
 		motes.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(1, 0) })
 		motes.Parent = attachment
 	elseif style == "Banner" then
-		piece(folder, torso, Vector3.new(0.14, 4.2, 0.14), CFrame.new(-0.6, 1.4, 0.75), Color3.fromRGB(90, 70, 50), Enum.Material.Wood)
+		piece(
+			folder,
+			torso,
+			Vector3.new(0.14, 4.2, 0.14),
+			CFrame.new(-0.6, 1.4, 0.75),
+			Color3.fromRGB(90, 70, 50),
+			Enum.Material.Wood
+		)
 		piece(folder, torso, Vector3.new(0.06, 1.3, 1.6), CFrame.new(-0.6, 2.7, 1.55), primary, Enum.Material.Fabric)
 		piece(folder, torso, Vector3.new(0.07, 0.3, 1.6), CFrame.new(-0.6, 2.3, 1.55), secondary, Enum.Material.Fabric)
 	end
@@ -352,7 +468,10 @@ function CosmeticService.Apply(player: Player)
 
 	local landing = get("Landing")
 	character:SetAttribute("LandingFx", if landing then landing.Style else "Dust")
-	character:SetAttribute("LandingColor", if landing and landing.Colors and landing.Colors[1] then landing.Colors[1] else nil)
+	character:SetAttribute(
+		"LandingColor",
+		if landing and landing.Colors and landing.Colors[1] then landing.Colors[1] else nil
+	)
 	local victory = get("Victory")
 	character:SetAttribute("Victory", if victory then victory.Style else "FistPump")
 	local title = get("Title")

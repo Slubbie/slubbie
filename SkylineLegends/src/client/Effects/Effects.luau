@@ -49,8 +49,10 @@ local function burst(position: Vector3, options: { [string]: any })
 	local e = Instance.new("ParticleEmitter")
 	e.Texture = options.Texture or SMOKE
 	e.Color = ColorSequence.new(options.Color or rgb(220, 215, 205))
-	e.Size = options.Size or NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(1, 2) })
-	e.Transparency = options.Transparency or NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 1) })
+	e.Size = options.Size
+		or NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(1, 2) })
+	e.Transparency = options.Transparency
+		or NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 1) })
 	e.Speed = options.Speed or NumberRange.new(6, 12)
 	e.Lifetime = options.Lifetime or NumberRange.new(0.35, 0.7)
 	e.SpreadAngle = options.Spread or Vector2.new(80, 10)
@@ -136,7 +138,12 @@ function Effects.Landing(feet: Vector3, impact: number, style: string?, color: C
 		})
 	elseif kind == "Prism" then
 		for i = 0, 2 do
-			ring(feet + Vector3.new(0, 0.1 + i * 0.15, 0), Color3.fromHSV((os.clock() * 0.3 + i * 0.33) % 1, 0.6, 1), 2.5 + i * 1.6, 0.4 + i * 0.08)
+			ring(
+				feet + Vector3.new(0, 0.1 + i * 0.15, 0),
+				Color3.fromHSV((os.clock() * 0.3 + i * 0.33) % 1, 0.6, 1),
+				2.5 + i * 1.6,
+				0.4 + i * 0.08
+			)
 		end
 	elseif kind == "Snow" then
 		burst(feet, {
@@ -161,7 +168,9 @@ local function updateTrails()
 		local folder = character and character:FindFirstChild("SkylineCosmetics")
 		local root = character and character:FindFirstChild("HumanoidRootPart")
 		if folder and root and root:IsA("BasePart") then
-			local speed = if target == player then Controller.Info.Speed else Vector3.new(root.AssemblyLinearVelocity.X, 0, root.AssemblyLinearVelocity.Z).Magnitude
+			local speed = if target == player
+				then Controller.Info.Speed
+				else Vector3.new(root.AssemblyLinearVelocity.X, 0, root.AssemblyLinearVelocity.Z).Magnitude
 			local visible = mode == "All" or (mode == "Mine" and target == player)
 			local on = visible and speed > 22
 			local trail = folder:FindFirstChild("SkylineTrail")
@@ -195,7 +204,11 @@ local function makeSpeedLines()
 		e.Color = ColorSequence.new(rgb(255, 255, 255))
 		e.LightEmission = 0.6
 		e.LightInfluence = 0
-		e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.55), NumberSequenceKeypoint.new(1, 1) })
+		e.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.3, 0.55),
+			NumberSequenceKeypoint.new(1, 1),
+		})
 		e.Size = NumberSequence.new(0.09)
 		e.Squash = NumberSequence.new(-2.8)
 		e.Orientation = Enum.ParticleOrientation.VelocityParallel
@@ -338,12 +351,23 @@ local function watchRemote(character: Model)
 		if previous == "Air" and (state == "Ground" or state == "Slide" or state == "Roll" or state == "Stumble") then
 			local root = character:FindFirstChild("HumanoidRootPart")
 			local camera = workspace.CurrentCamera
-			if root and root:IsA("BasePart") and camera and (camera.CFrame.Position - root.Position).Magnitude < 150 then
+			if
+				root
+				and root:IsA("BasePart")
+				and camera
+				and (camera.CFrame.Position - root.Position).Magnitude < 150
+			then
 				local impact = math.max(-(lastVy[character] or 0), 0)
 				if impact > 35 then
 					local style = character:GetAttribute("LandingFx")
 					local color = character:GetAttribute("LandingColor")
-					Effects.Landing(root.Position - Vector3.new(0, 3, 0), impact, if type(style) == "string" then style else nil, if typeof(color) == "Color3" then color else nil, nil)
+					Effects.Landing(
+						root.Position - Vector3.new(0, 3, 0),
+						impact,
+						if type(style) == "string" then style else nil,
+						if typeof(color) == "Color3" then color else nil,
+						nil
+					)
 				end
 			end
 		end
@@ -404,7 +428,10 @@ function Effects.Start()
 				Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 2.6) }),
 			})
 		elseif action == "WallJump" or action == "WallKick" then
-			burst(root.Position, { Color = rgb(215, 210, 200), Count = 8, Speed = NumberRange.new(3, 7), Spread = Vector2.new(60, 60) })
+			burst(
+				root.Position,
+				{ Color = rgb(215, 210, 200), Count = 8, Speed = NumberRange.new(3, 7), Spread = Vector2.new(60, 60) }
+			)
 		elseif action == "Bounce" or action == "Launch" then
 			ring(feet + Vector3.new(0, 0.3, 0), rgb(150, 255, 200), 4, 0.4)
 		end

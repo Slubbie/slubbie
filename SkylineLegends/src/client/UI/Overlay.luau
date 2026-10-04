@@ -76,12 +76,28 @@ local function openModal(width: number, title: string, subtitle: string?, color:
 	constraint.MaxSize = Vector2.new(width, 720)
 	constraint.Parent = card
 	Kit.Padding(card, 18)
-	local header = Kit.Label(card, title, 24, { Font = Kit.Fonts.Black, TextColor3 = color or C.Accent, Size = UDim2.new(1, -40, 0, 30) })
+	local header = Kit.Label(
+		card,
+		title,
+		24,
+		{ Font = Kit.Fonts.Black, TextColor3 = color or C.Accent, Size = UDim2.new(1, -40, 0, 30) }
+	)
 	header.TextTruncate = Enum.TextTruncate.AtEnd
 	if subtitle then
-		Kit.Label(card, subtitle, 14, { Position = UDim2.fromOffset(0, 30), Size = UDim2.new(1, 0, 0, 20), TextColor3 = C.Muted })
+		Kit.Label(
+			card,
+			subtitle,
+			14,
+			{ Position = UDim2.fromOffset(0, 30), Size = UDim2.new(1, 0, 0, 20), TextColor3 = C.Muted }
+		)
 	end
-	local close = Kit.Button(card, "✕", Overlay.CloseModal, "Ghost", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 0), Size = UDim2.fromOffset(36, 36) })
+	local close = Kit.Button(
+		card,
+		"✕",
+		Overlay.CloseModal,
+		"Ghost",
+		{ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 0), Size = UDim2.fromOffset(36, 36) }
+	)
 	close.Name = "Close"
 	local body = Kit.Scroll(card, { Position = UDim2.fromOffset(0, 58), Size = UDim2.new(1, 0, 1, -58) })
 	Kit.List(body, false, 10)
@@ -114,7 +130,14 @@ local ICONS = {
 }
 
 local function toast(payload: any)
-	local color = payload.Color or (if payload.Kind == "Warning" then C.Bad elseif payload.Kind == "Quest" then C.Accent elseif payload.Kind == "Achievement" then rgb(210, 180, 255) else C.Signal)
+	local color = payload.Color
+		or (
+			if payload.Kind == "Warning"
+				then C.Bad
+				elseif payload.Kind == "Quest" then C.Accent
+				elseif payload.Kind == "Achievement" then rgb(210, 180, 255)
+				else C.Signal
+		)
 	local card = Kit.Panel(toastStack, {
 		Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -123,7 +146,12 @@ local function toast(payload: any)
 	})
 	Kit.Padding(card, 10, 12)
 	Kit.List(card, false, 2)
-	Kit.Label(card, ("%s  %s"):format(ICONS[payload.Kind] or "•", tostring(payload.Title or "")), 15, { Font = Kit.Fonts.Bold, TextColor3 = color, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y })
+	Kit.Label(card, ("%s  %s"):format(ICONS[payload.Kind] or "•", tostring(payload.Title or "")), 15, {
+		Font = Kit.Fonts.Bold,
+		TextColor3 = color,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+	})
 	if payload.Text and payload.Text ~= "" then
 		Kit.Paragraph(card, tostring(payload.Text), 13, C.Muted)
 	end
@@ -275,11 +303,15 @@ function Overlay.CoursePreview(courseId: string)
 	local name = config:GetAttribute("Name") or courseId
 	local difficulty = config:GetAttribute("Difficulty") or 1
 	local kind = config:GetAttribute("Kind") or "Course"
-	local body = openModal(560, name, ("%s · %s · %s"):format(
-		tostring(config:GetAttribute("District")),
-		if kind == "Room" then "Challenge Room" elseif kind == "Relay" then "Relay" else "Course",
-		Courses.DifficultyNames[difficulty] or ("Difficulty " .. difficulty)
-	))
+	local body = openModal(
+		560,
+		name,
+		("%s · %s · %s"):format(
+			tostring(config:GetAttribute("District")),
+			if kind == "Room" then "Challenge Room" elseif kind == "Relay" then "Relay" else "Course",
+			Courses.DifficultyNames[difficulty] or ("Difficulty " .. difficulty)
+		)
+	)
 	if course then
 		Kit.Paragraph(body, course.Blurb, 15, C.Text)
 		Kit.Paragraph(body, "Focus: " .. table.concat(course.Focus, " · "), 13, C.Muted)
@@ -294,22 +326,35 @@ function Overlay.CoursePreview(courseId: string)
 		end
 		local distinctions = {}
 		for _, def in Courses.Distinctions do
-			table.insert(distinctions, (if record.Distinctions and record.Distinctions[def.Id] then "✓ " else "· ") .. def.Name)
+			table.insert(
+				distinctions,
+				(if record.Distinctions and record.Distinctions[def.Id] then "✓ " else "· ") .. def.Name
+			)
 		end
-		Kit.Paragraph(body, ("Best %s · Ranked %s · %d runs · ★ %d/%d tokens"):format(
-			Format.Time(record.Best),
-			Format.Time(record.RankedBest),
-			record.Completions or 0,
-			tokens,
-			config:GetAttribute("Tokens") or 0
-		), 14, C.Text)
+		Kit.Paragraph(
+			body,
+			("Best %s · Ranked %s · %d runs · ★ %d/%d tokens"):format(
+				Format.Time(record.Best),
+				Format.Time(record.RankedBest),
+				record.Completions or 0,
+				tokens,
+				config:GetAttribute("Tokens") or 0
+			),
+			14,
+			C.Text
+		)
 		Kit.Paragraph(body, table.concat(distinctions, "   "), 13, C.Muted)
 	else
 		Kit.Paragraph(body, "Not finished yet. Accessible route first, then hunt for the faster lines.", 14, C.Muted)
 	end
 
 	local status = Kit.Paragraph(body, "Loading records…", 13, C.Faint)
-	local boards = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = body })
+	local boards = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Parent = body,
+	})
 	Kit.List(boards, false, 4)
 
 	-- Mode selection.
@@ -318,14 +363,25 @@ function Overlay.CoursePreview(courseId: string)
 	local assists: { [string]: boolean } = {}
 	local modeRow = Kit.Row(body, 40, 8)
 	local modeText = Kit.Paragraph(body, "", 13, C.Muted)
-	local assistBox = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Visible = false, Parent = body })
+	local assistBox = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		Parent = body,
+	})
 	Kit.List(assistBox, false, 4)
 	for _, assist in MoveStats.Assists do
 		local row = Kit.Row(assistBox, 36, 8)
 		Kit.Toggle(row, false, function(on)
 			assists[assist.Id] = on or nil
 		end)
-		Kit.Label(row, ("%s: %s"):format(assist.Name, assist.Text), 13, { Size = UDim2.new(1, -100, 1, 0), TextColor3 = C.Muted })
+		Kit.Label(
+			row,
+			("%s: %s"):format(assist.Name, assist.Text),
+			13,
+			{ Size = UDim2.new(1, -100, 1, 0), TextColor3 = C.Muted }
+		)
 	end
 	local modeButtons: { [string]: TextButton } = {}
 	local function selectMode(m: string)
@@ -336,7 +392,9 @@ function Overlay.CoursePreview(courseId: string)
 		end
 		modeText.Text = if m == "Casual"
 			then "Your own movement and upgrades. Medals, rewards and personal bests."
-			elseif m == "Practice" then ("Assists allowed, [%s] sets a practice checkpoint. No medals."):format(Input.Glyph("Mark"))
+			elseif m == "Practice" then ("Assists allowed, [%s] sets a practice checkpoint. No medals."):format(
+				Input.Glyph("Mark")
+			)
 			else "Standard attributes and the course's full kit for everyone. Leaderboards and ghosts."
 		assistBox.Visible = m == "Practice"
 	end
@@ -405,7 +463,12 @@ function Overlay.CoursePreview(courseId: string)
 			startButton.Visible = false
 		end
 		if preview.MissingFast and #preview.MissingFast > 0 then
-			Kit.Paragraph(boards, "Fast route needs: " .. abilityNames(preview.MissingFast) .. " (Ranked lends the full kit)", 13, C.Warn)
+			Kit.Paragraph(
+				boards,
+				"Fast route needs: " .. abilityNames(preview.MissingFast) .. " (Ranked lends the full kit)",
+				13,
+				C.Warn
+			)
 		end
 		if preview.MissingExpert and #preview.MissingExpert > 0 then
 			Kit.Paragraph(boards, "Expert route needs: " .. abilityNames(preview.MissingExpert), 13, C.Warn)
@@ -430,8 +493,18 @@ function Overlay.Results(result: any, run: any)
 	local medal = result.Medal or 0
 	local title = if result.Partial then "Leg complete" elseif medal > 0 then Kit.MedalText(medal) else "Finished"
 	local color = if medal > 0 then C.Medal[medal] else C.Text
-	local body = openModal(560, title, ("%s · %s"):format(tostring(result.Name or result.CourseId), tostring(result.Mode)), color)
-	Kit.Label(body, Format.Time(result.Seconds), 48, { Font = Kit.Fonts.Mono, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 60) })
+	local body = openModal(
+		560,
+		title,
+		("%s · %s"):format(tostring(result.Name or result.CourseId), tostring(result.Mode)),
+		color
+	)
+	Kit.Label(
+		body,
+		Format.Time(result.Seconds),
+		48,
+		{ Font = Kit.Fonts.Mono, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 60) }
+	)
 	if result.PreviousBest then
 		local delta = result.Seconds - result.PreviousBest
 		Kit.Label(body, (if result.NewBest then "NEW PERSONAL BEST  " else "Best ") .. Format.Delta(delta), 16, {
@@ -440,13 +513,27 @@ function Overlay.Results(result: any, run: any)
 			Font = Kit.Fonts.Bold,
 		})
 	elseif result.FirstCompletion then
-		Kit.Label(body, "FIRST COMPLETION", 16, { TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C.Accent, Font = Kit.Fonts.Black })
+		Kit.Label(
+			body,
+			"FIRST COMPLETION",
+			16,
+			{ TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C.Accent, Font = Kit.Fonts.Black }
+		)
 	end
 	if result.Medals and not result.Partial and result.Mode ~= "Practice" then
 		medalRow(body, result.Medals, { Medal = medal })
 		local nextMedal, limit = Medals.Next(result.Seconds, result.Medals)
 		if nextMedal and limit then
-			Kit.Paragraph(body, ("Next: %s at %s — %s faster."):format(Kit.MedalText(nextMedal), Format.Time(limit), Format.Time(result.Seconds - limit)), 14, C.Text)
+			Kit.Paragraph(
+				body,
+				("Next: %s at %s — %s faster."):format(
+					Kit.MedalText(nextMedal),
+					Format.Time(limit),
+					Format.Time(result.Seconds - limit)
+				),
+				14,
+				C.Text
+			)
 		end
 	end
 	-- Distinctions.
@@ -455,17 +542,25 @@ function Overlay.Results(result: any, run: any)
 		for _, def in Courses.Distinctions do
 			local earned = result.Distinctions and result.Distinctions[def.Id]
 			local fresh = table.find(result.NewDistinctions or {}, def.Id) ~= nil
-			table.insert(list, ("%s %s%s"):format(if earned then "✓" else "✗", def.Name, if fresh then " (new!)" else ""))
+			table.insert(
+				list,
+				("%s %s%s"):format(if earned then "✓" else "✗", def.Name, if fresh then " (new!)" else "")
+			)
 		end
 		Kit.Paragraph(body, table.concat(list, "    "), 14, C.Text)
-		Kit.Paragraph(body, ("Tokens ★ %d/%d · Falls %d · Retries %d · Flow %d / %d"):format(
-			result.Tokens or 0,
-			result.TokenTotal or 0,
-			result.Falls or 0,
-			result.Retries or 0,
-			result.Flow or 0,
-			result.FlowTarget or 0
-		), 13, C.Muted)
+		Kit.Paragraph(
+			body,
+			("Tokens ★ %d/%d · Falls %d · Retries %d · Flow %d / %d"):format(
+				result.Tokens or 0,
+				result.TokenTotal or 0,
+				result.Falls or 0,
+				result.Retries or 0,
+				result.Flow or 0,
+				result.FlowTarget or 0
+			),
+			13,
+			C.Muted
+		)
 	end
 	-- Splits.
 	if result.Splits and #result.Splits > 0 then
@@ -512,7 +607,13 @@ function Overlay.Dialogue(npcId: string, response: any)
 	local index = 1
 	local text = Kit.Paragraph(body, "", 17, C.Text)
 	local continue = Kit.Button(body, "Next ›", nil, "Secondary", { Size = UDim2.fromOffset(120, 38) })
-	local after = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Visible = false, Parent = body })
+	local after = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		Parent = body,
+	})
 	Kit.List(after, false, 10)
 
 	local function showAfter()
@@ -523,8 +624,16 @@ function Overlay.Dialogue(npcId: string, response: any)
 		end
 		for _, offer in response.Offers or {} do
 			local card = Kit.Card(after)
-			local tag = if offer.Type == "Main" then "STORY" elseif offer.Type == "Expert" then "EXPERT TRIAL" else "SIDE QUEST"
-			Kit.Label(card, tag .. " · " .. offer.Name, 16, { Font = Kit.Fonts.Bold, TextColor3 = if offer.Type == "Main" then C.Accent else C.Signal })
+			local tag = if offer.Type == "Main"
+				then "STORY"
+				elseif offer.Type == "Expert" then "EXPERT TRIAL"
+				else "SIDE QUEST"
+			Kit.Label(
+				card,
+				tag .. " · " .. offer.Name,
+				16,
+				{ Font = Kit.Fonts.Bold, TextColor3 = if offer.Type == "Main" then C.Accent else C.Signal }
+			)
 			for _, line in offer.Intro or {} do
 				Kit.Paragraph(card, "“" .. line .. "”", 14, C.Text)
 			end
@@ -552,7 +661,14 @@ function Overlay.Dialogue(npcId: string, response: any)
 		end
 		local service = response.Service
 		if service then
-			local pages = { Shop = "Shop", Races = "Races", Crew = "Crew", Tower = "Tower", Achievements = "Achievements", Mastery = "Mastery" }
+			local pages = {
+				Shop = "Shop",
+				Races = "Races",
+				Crew = "Crew",
+				Tower = "Tower",
+				Achievements = "Achievements",
+				Mastery = "Mastery",
+			}
 			if service == "Endless" then
 				Kit.Button(after, "Enter the Dreamline", function()
 					Overlay.CloseModal()
@@ -621,10 +737,25 @@ function Overlay.Confirm(title: string, text: string, options: { { Text: string,
 end
 
 local function towerCleared(data: any)
-	local body = openModal(480, ("Floor %d cleared"):format(data.Floor), ("Highest floor: %d / 25"):format(data.Highest or data.Floor), C.Signal)
-	Kit.Label(body, Format.Time(data.Seconds), 40, { Font = Kit.Fonts.Mono, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 50) })
+	local body = openModal(
+		480,
+		("Floor %d cleared"):format(data.Floor),
+		("Highest floor: %d / 25"):format(data.Highest or data.Floor),
+		C.Signal
+	)
+	Kit.Label(
+		body,
+		Format.Time(data.Seconds),
+		40,
+		{ Font = Kit.Fonts.Mono, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 50) }
+	)
 	if data.PreviousBest then
-		Kit.Label(body, "Best " .. Format.Time(data.Best) .. "  (" .. Format.Delta(data.Seconds - data.PreviousBest) .. ")", 15, { TextXAlignment = Enum.TextXAlignment.Center })
+		Kit.Label(
+			body,
+			"Best " .. Format.Time(data.Best) .. "  (" .. Format.Delta(data.Seconds - data.PreviousBest) .. ")",
+			15,
+			{ TextXAlignment = Enum.TextXAlignment.Center }
+		)
 	end
 	Kit.Label(body, Kit.Rewards(data), 15, { TextColor3 = C.Accent, TextXAlignment = Enum.TextXAlignment.Center })
 	local row = Kit.Row(body, 48, 10)
@@ -651,8 +782,18 @@ end
 
 local function relayResults(data: any)
 	local medal = data.Medal or 0
-	local body = openModal(500, if medal > 0 then "Relay · " .. Kit.MedalText(medal) else "Relay complete", ("Team of %d"):format(data.TeamSize or 1), if medal > 0 then C.Medal[medal] else C.Text)
-	Kit.Label(body, Format.Time(data.Total), 40, { Font = Kit.Fonts.Mono, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 50) })
+	local body = openModal(
+		500,
+		if medal > 0 then "Relay · " .. Kit.MedalText(medal) else "Relay complete",
+		("Team of %d"):format(data.TeamSize or 1),
+		if medal > 0 then C.Medal[medal] else C.Text
+	)
+	Kit.Label(
+		body,
+		Format.Time(data.Total),
+		40,
+		{ Font = Kit.Fonts.Mono, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 50) }
+	)
 	for _, leg in data.Legs or {} do
 		Kit.Label(body, ("Leg %d · %s · %s"):format(leg.Index, leg.Name, Format.Time(leg.Time)), 15)
 	end
@@ -664,9 +805,24 @@ local function endlessEnded(data: any)
 	if type(data) ~= "table" then
 		return
 	end
-	local body = openModal(460, if data.Record then "New Dreamline record!" else "Run over", tostring(data.Reason), rgb(255, 160, 240))
-	Kit.Label(body, ("%d gates"):format(data.Cleared or 0), 40, { Font = Kit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 50) })
-	Kit.Label(body, ("Record %d · %s"):format(data.Best or 0, Format.Duration(data.Seconds or 0)), 15, { TextXAlignment = Enum.TextXAlignment.Center })
+	local body = openModal(
+		460,
+		if data.Record then "New Dreamline record!" else "Run over",
+		tostring(data.Reason),
+		rgb(255, 160, 240)
+	)
+	Kit.Label(
+		body,
+		("%d gates"):format(data.Cleared or 0),
+		40,
+		{ Font = Kit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 50) }
+	)
+	Kit.Label(
+		body,
+		("Record %d · %s"):format(data.Best or 0, Format.Duration(data.Seconds or 0)),
+		15,
+		{ TextXAlignment = Enum.TextXAlignment.Center }
+	)
 	Kit.Label(body, Kit.Rewards(data), 15, { TextColor3 = C.Accent, TextXAlignment = Enum.TextXAlignment.Center })
 	local row = Kit.Row(body, 48, 10)
 	Kit.Button(row, "Run again", function()
@@ -744,7 +900,11 @@ function Overlay.Start()
 		elseif kind == "EndlessEnded" then
 			endlessEnded(data)
 		elseif kind == "RaceReward" and type(data) == "table" then
-			Overlay.Banner(("Place %d of %d"):format(data.Place, data.Field), Kit.Rewards(data), if data.Place == 1 then C.Accent else C.Text)
+			Overlay.Banner(
+				("Place %d of %d"):format(data.Place, data.Field),
+				Kit.Rewards(data),
+				if data.Place == 1 then C.Accent else C.Text
+			)
 		elseif kind == "RelayHandoff" and type(data) == "table" then
 			Overlay.Banner(("Leg %d!"):format(data.Leg), "The baton is passed", rgb(255, 120, 220))
 		end
@@ -753,51 +913,65 @@ function Overlay.Start()
 		if type(data) ~= "table" then
 			return
 		end
-		Overlay.Confirm("Invite", ("%s invites you to %s."):format(tostring(data.Name), if data.Kind == "Race" then "a race" elseif data.Kind == "Relay" then "their relay team" else "run together"), {
+		Overlay.Confirm(
+			"Invite",
+			("%s invites you to %s."):format(
+				tostring(data.Name),
+				if data.Kind == "Race"
+					then "a race"
+					elseif data.Kind == "Relay" then "their relay team"
+					else "run together"
+			),
 			{
-				Text = "Accept",
-				Callback = function()
-					task.spawn(function()
-						local ok, success, info = pcall(Net.Invoke, "Social.Respond", data.From, true)
-						if ok and success and type(info) == "table" and typeof(info.Teleport) == "CFrame" then
-							Controller.Teleport(info.Teleport)
-						elseif ok and not success then
-							Overlay.Banner("Couldn't join", tostring(info))
-						end
-					end)
-				end,
-			},
-			{
-				Text = "Decline",
-				Callback = function()
-					task.spawn(pcall, Net.Invoke, "Social.Respond", data.From, false)
-				end,
-			},
-		})
+				{
+					Text = "Accept",
+					Callback = function()
+						task.spawn(function()
+							local ok, success, info = pcall(Net.Invoke, "Social.Respond", data.From, true)
+							if ok and success and type(info) == "table" and typeof(info.Teleport) == "CFrame" then
+								Controller.Teleport(info.Teleport)
+							elseif ok and not success then
+								Overlay.Banner("Couldn't join", tostring(info))
+							end
+						end)
+					end,
+				},
+				{
+					Text = "Decline",
+					Callback = function()
+						task.spawn(pcall, Net.Invoke, "Social.Respond", data.From, false)
+					end,
+				},
+			}
+		)
 	end)
 	Net.Listen("Crew.Invite", function(data)
 		if type(data) ~= "table" then
 			return
 		end
-		Overlay.Confirm("Crew invite", ("%s invites you to join [%s] %s."):format(tostring(data.From), tostring(data.Tag), tostring(data.Name)), {
+		Overlay.Confirm(
+			"Crew invite",
+			("%s invites you to join [%s] %s."):format(tostring(data.From), tostring(data.Tag), tostring(data.Name)),
 			{
-				Text = "Join",
-				Callback = function()
-					task.spawn(function()
-						local ok, success, info = pcall(Net.Invoke, "Crew.Respond", data.CrewId, true)
-						if ok and not success then
-							Overlay.Banner("Couldn't join", tostring(info))
-						end
-					end)
-				end,
-			},
-			{
-				Text = "No thanks",
-				Callback = function()
-					task.spawn(pcall, Net.Invoke, "Crew.Respond", data.CrewId, false)
-				end,
-			},
-		})
+				{
+					Text = "Join",
+					Callback = function()
+						task.spawn(function()
+							local ok, success, info = pcall(Net.Invoke, "Crew.Respond", data.CrewId, true)
+							if ok and not success then
+								Overlay.Banner("Couldn't join", tostring(info))
+							end
+						end)
+					end,
+				},
+				{
+					Text = "No thanks",
+					Callback = function()
+						task.spawn(pcall, Net.Invoke, "Crew.Respond", data.CrewId, false)
+					end,
+				},
+			}
+		)
 	end)
 	RunService.RenderStepped:Connect(updateCountdown)
 end

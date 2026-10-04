@@ -26,7 +26,12 @@ local function settingRow(parent: Instance, def: SettingsConfig.SettingDef)
 	Kit.Padding(row, 6, 12)
 	Kit.Label(row, def.Name, 15, { Font = Kit.Fonts.Bold, Size = UDim2.new(0.5, 0, 0, 22) })
 	if def.Hint then
-		Kit.Label(row, def.Hint, 12, { Position = UDim2.fromOffset(0, 24), Size = UDim2.new(0.55, 0, 0, 28), TextColor3 = C.Muted, TextYAlignment = Enum.TextYAlignment.Top })
+		Kit.Label(row, def.Hint, 12, {
+			Position = UDim2.fromOffset(0, 24),
+			Size = UDim2.new(0.55, 0, 0, 28),
+			TextColor3 = C.Muted,
+			TextYAlignment = Enum.TextYAlignment.Top,
+		})
 	end
 	local control: GuiObject
 	local value = Settings.Get(def.Id)
@@ -35,14 +40,22 @@ local function settingRow(parent: Instance, def: SettingsConfig.SettingDef)
 			Settings.Set(def.Id, on)
 		end)
 	elseif def.Kind == "Slider" then
-		control = Kit.Slider(row, def.Min or 0, def.Max or 1, def.Step or 0.05, if type(value) == "number" then value else def.Default, function(v)
-			Settings.Set(def.Id, v)
-		end, function(v)
-			if def.Max and def.Max > 10 then
-				return tostring(math.floor(v + 0.5))
+		control = Kit.Slider(
+			row,
+			def.Min or 0,
+			def.Max or 1,
+			def.Step or 0.05,
+			if type(value) == "number" then value else def.Default,
+			function(v)
+				Settings.Set(def.Id, v)
+			end,
+			function(v)
+				if def.Max and def.Max > 10 then
+					return tostring(math.floor(v + 0.5))
+				end
+				return ("%d%%"):format(math.floor(v * 100 + 0.5))
 			end
-			return ("%d%%"):format(math.floor(v * 100 + 0.5))
-		end)
+		)
 	else
 		control = Kit.Choice(row, def.Choices or {}, tostring(value), function(choice)
 			Settings.Set(def.Id, choice)
@@ -61,11 +74,19 @@ end
 
 local function bindingRows(parent: Instance)
 	Kit.Label(parent, "Key bindings", 18, { Font = Kit.Fonts.Black, TextColor3 = C.Accent })
-	Kit.Paragraph(parent, "Click a binding, then press the key or button you want. A key can only do one thing, so it moves from any other action.", 13, C.Muted)
+	Kit.Paragraph(
+		parent,
+		"Click a binding, then press the key or button you want. A key can only do one thing, so it moves from any other action.",
+		13,
+		C.Muted
+	)
 	local bindings = Input.Bindings()
 	for _, action in SettingsConfig.Actions do
 		local entry = bindings[action.Id] or { Keyboard = {}, Gamepad = {} }
-		local row = Kit.Panel(parent, { Size = UDim2.new(1, -8, 0, 46), BackgroundColor3 = C.PanelLight, BackgroundTransparency = 0.35 })
+		local row = Kit.Panel(
+			parent,
+			{ Size = UDim2.new(1, -8, 0, 46), BackgroundColor3 = C.PanelLight, BackgroundTransparency = 0.35 }
+		)
 		Kit.Padding(row, 5, 12)
 		Kit.Label(row, action.Name, 14, { Size = UDim2.new(0.45, 0, 1, 0) })
 		for index, device in { "Keyboard", "Gamepad" } do
@@ -94,10 +115,16 @@ UserInputService.InputBegan:Connect(function(input)
 	if capture.Device == "Keyboard" then
 		if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode ~= Enum.KeyCode.Escape then
 			name = input.KeyCode.Name
-		elseif input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 then
+		elseif
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.MouseButton2
+		then
 			name = input.UserInputType.Name
 		end
-	elseif input.UserInputType == Enum.UserInputType.Gamepad1 and (string.find(input.KeyCode.Name, "Button") or string.find(input.KeyCode.Name, "DPad")) then
+	elseif
+		input.UserInputType == Enum.UserInputType.Gamepad1
+		and (string.find(input.KeyCode.Name, "Button") or string.find(input.KeyCode.Name, "DPad"))
+	then
 		name = input.KeyCode.Name
 	end
 	if name then
@@ -130,18 +157,26 @@ return {
 			end
 		end
 		for _, name in SettingsConfig.Sections do
-			Kit.Button(tabs, name, function()
-				section = name
-				for _, child in tabs:GetChildren() do
-					if child:IsA("TextButton") then
-						child.BackgroundColor3 = if child.Text == section then C.Accent:Lerp(C.PanelLight, 0.5) else C.PanelLight
+			Kit.Button(
+				tabs,
+				name,
+				function()
+					section = name
+					for _, child in tabs:GetChildren() do
+						if child:IsA("TextButton") then
+							child.BackgroundColor3 = if child.Text == section
+								then C.Accent:Lerp(C.PanelLight, 0.5)
+								else C.PanelLight
+						end
 					end
-				end
-				render()
-			end, "Secondary", {
-				Size = UDim2.fromOffset(130, 36),
-				BackgroundColor3 = if name == section then C.Accent:Lerp(C.PanelLight, 0.5) else C.PanelLight,
-			})
+					render()
+				end,
+				"Secondary",
+				{
+					Size = UDim2.fromOffset(130, 36),
+					BackgroundColor3 = if name == section then C.Accent:Lerp(C.PanelLight, 0.5) else C.PanelLight,
+				}
+			)
 		end
 		render()
 	end,

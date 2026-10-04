@@ -142,7 +142,12 @@ local function platform(ctx: Ctx, c: CFrame, length: number, width: number?, rol
 	if theme.Platform then
 		theme.Platform(ctx.B, topCenter, w, length, role)
 	else
-		ctx.B:Box(topCenter * CFrame.new(0, -PLATFORM_THICKNESS / 2, 0), Vector3.new(w, PLATFORM_THICKNESS, length), theme.Surface, theme.SurfaceMaterial)
+		ctx.B:Box(
+			topCenter * CFrame.new(0, -PLATFORM_THICKNESS / 2, 0),
+			Vector3.new(w, PLATFORM_THICKNESS, length),
+			theme.Surface,
+			theme.SurfaceMaterial
+		)
 	end
 	if theme.Body and role ~= "Floating" and role ~= "Recovery" and role ~= "Mover" then
 		theme.Body(ctx.B, topCenter * CFrame.new(0, -PLATFORM_THICKNESS, 0), w, length, theme.BodyDepth)
@@ -188,15 +193,30 @@ local function climbSurface(ctx: Ctx, face: CFrame, width: number, height: numbe
 	if kind == "Ladder" then
 		surface.Transparency = 0.6
 		for _, x in { -width / 2 + 0.3, width / 2 - 0.3 } do
-			B:Detail(face * CFrame.new(x, height / 2, -0.9), Vector3.new(0.35, height, 0.35), Color3.fromRGB(70, 72, 80), Enum.Material.Metal)
+			B:Detail(
+				face * CFrame.new(x, height / 2, -0.9),
+				Vector3.new(0.35, height, 0.35),
+				Color3.fromRGB(70, 72, 80),
+				Enum.Material.Metal
+			)
 		end
 		for y = 1, math.floor(height) - 1, 2 do
-			B:Detail(face * CFrame.new(0, y, -0.9), Vector3.new(width - 0.6, 0.22, 0.22), Color3.fromRGB(90, 92, 100), Enum.Material.Metal)
+			B:Detail(
+				face * CFrame.new(0, y, -0.9),
+				Vector3.new(width - 0.6, 0.22, 0.22),
+				Color3.fromRGB(90, 92, 100),
+				Enum.Material.Metal
+			)
 		end
 	elseif kind == "Vines" then
 		for i = 1, math.max(2, math.floor(width / 1.5)) do
 			local x = -width / 2 + (i - 0.5) * (width / math.max(2, math.floor(width / 1.5)))
-			B:Detail(face * CFrame.new(x, height / 2, -0.75), Vector3.new(0.3, height, 0.3), Color3.fromRGB(80, 120, 60), Enum.Material.Grass)
+			B:Detail(
+				face * CFrame.new(x, height / 2, -0.75),
+				Vector3.new(0.3, height, 0.3),
+				Color3.fromRGB(80, 120, 60),
+				Enum.Material.Grass
+			)
 		end
 		for _ = 1, math.floor(height / 3) do
 			B:Detail(
@@ -210,10 +230,20 @@ local function climbSurface(ctx: Ctx, face: CFrame, width: number, height: numbe
 		surface.Transparency = 0.35
 		surface.Material = Enum.Material.DiamondPlate
 		for y = 0, math.floor(height), 2 do
-			B:Detail(face * CFrame.new(0, y, -0.7), Vector3.new(width, 0.15, 0.15), Color3.fromRGB(150, 155, 160), Enum.Material.Metal)
+			B:Detail(
+				face * CFrame.new(0, y, -0.7),
+				Vector3.new(width, 0.15, 0.15),
+				Color3.fromRGB(150, 155, 160),
+				Enum.Material.Metal
+			)
 		end
 		for x = -width / 2, width / 2, 2 do
-			B:Detail(face * CFrame.new(x, height / 2, -0.7), Vector3.new(0.15, height, 0.15), Color3.fromRGB(150, 155, 160), Enum.Material.Metal)
+			B:Detail(
+				face * CFrame.new(x, height / 2, -0.7),
+				Vector3.new(0.15, height, 0.15),
+				Color3.fromRGB(150, 155, 160),
+				Enum.Material.Metal
+			)
 		end
 	end
 	B:Icon(surface, "#", Color3.fromRGB(150, 230, 140), Vector3.new(0, height / 2 + 1, 0))
@@ -238,7 +268,12 @@ local function recovery(ctx: Ctx, startC: CFrame, gap: number, landY: number)
 		Enum.Material.Fabric,
 		{ Name = "RecoveryPad" }
 	)
-	local mat = ctx.B:Detail(top * CFrame.new(0, 0.05, 0), Vector3.new(ctx.Width - 1, 0.1, gap - 1), Color3.fromRGB(110, 170, 220), Enum.Material.Fabric)
+	local mat = ctx.B:Detail(
+		top * CFrame.new(0, 0.05, 0),
+		Vector3.new(ctx.Width - 1, 0.1, gap - 1),
+		Color3.fromRGB(110, 170, 220),
+		Enum.Material.Fabric
+	)
 	ctx.B:Icon(mat, "↺", Color3.fromRGB(150, 210, 255), Vector3.new(0, 2, 0))
 	-- Ladder up the front face of the landing platform.
 	local face = startC * CFrame.new(0, y, -gap + 0.05) * CFrame.Angles(0, math.rad(180), 0)
@@ -264,13 +299,20 @@ local function chevrons(ctx: Ctx, wall: BasePart, face: Enum.NormalId, vertical:
 end
 
 local function lowBeam(ctx: Ctx, cframe: CFrame, width: number)
-	local beam = ctx.B:Box(cframe, Vector3.new(width, 2, 1.4), Color3.fromRGB(240, 196, 40), Enum.Material.SmoothPlastic, {
-		Name = "SlideBeam",
-		Tag = Tags.LowClearance,
-		Group = Tags.Groups.LowClearance,
-	})
+	local beam =
+		ctx.B:Box(cframe, Vector3.new(width, 2, 1.4), Color3.fromRGB(240, 196, 40), Enum.Material.SmoothPlastic, {
+			Name = "SlideBeam",
+			Tag = Tags.LowClearance,
+			Group = Tags.Groups.LowClearance,
+		})
 	for i = -2, 2 do
-		ctx.B:Detail(cframe * CFrame.new(i * (width / 5), 0, -0.71), Vector3.new(width / 10, 2, 0.05), Color3.fromRGB(30, 30, 30), Enum.Material.SmoothPlastic, { CanCollide = false })
+		ctx.B:Detail(
+			cframe * CFrame.new(i * (width / 5), 0, -0.71),
+			Vector3.new(width / 10, 2, 0.05),
+			Color3.fromRGB(30, 30, 30),
+			Enum.Material.SmoothPlastic,
+			{ CanCollide = false }
+		)
 	end
 	ctx.B:Icon(beam, "▼", Color3.fromRGB(255, 220, 80), Vector3.new(0, 2.2, 0))
 	return beam
@@ -292,7 +334,11 @@ S.Gap = function(ctx, c, seg)
 	local speed = if seg.Walk then M.WalkSpeed else M.SprintSpeed
 	local gap = math.max(fraction * Reach.JumpDistance(dy, speed), 3)
 	local landing = seg.L or 14
-	token(ctx, (c * CFrame.new(0, Reach.JumpApex() * 0.7 + 2 + math.max(dy, 0) * 0.5, -gap / 2)).Position, if fraction > 0.75 then 3 else 2)
+	token(
+		ctx,
+		(c * CFrame.new(0, Reach.JumpApex() * 0.7 + 2 + math.max(dy, 0) * 0.5, -gap / 2)).Position,
+		if fraction > 0.75 then 3 else 2
+	)
 	recovery(ctx, c, gap, dy)
 	addPar(ctx, gap / speed + 0.1 + landing / M.SprintSpeed)
 	return platform(ctx, c * CFrame.new(0, dy, -gap), landing)
@@ -314,7 +360,12 @@ S.Drop = function(ctx, c, seg)
 	-- A short gap, then a padded landing well below.
 	local landC = c * CFrame.new(0, -height, -3)
 	local after = platform(ctx, landC, 18, nil, "Landing")
-	local pad = ctx.B:Detail(landC * CFrame.new(0, 0.06, -6), Vector3.new(ctx.Width - 2, 0.12, 8), ctx.Theme.Accent, Enum.Material.Fabric)
+	local pad = ctx.B:Detail(
+		landC * CFrame.new(0, 0.06, -6),
+		Vector3.new(ctx.Width - 2, 0.12, 8),
+		ctx.Theme.Accent,
+		Enum.Material.Fabric
+	)
 	ctx.B:Text(pad, Enum.NormalId.Top, "ROLL", { Color = Color3.new(1, 1, 1), PixelsPerStud = 8 })
 	ctx.B:Icon(pad, "@", ctx.Theme.Signal, Vector3.new(0, 1.5, 0))
 	token(ctx, (landC * CFrame.new(0, height * 0.5, -3)).Position, 1)
@@ -328,7 +379,13 @@ S.Vault = function(ctx, c, seg)
 	local after = platform(ctx, c, length, nil, "Course")
 	for i = 1, count do
 		local z = 8 + (i - 1) * 10
-		local wall = ctx.B:Box(c * CFrame.new(0, 1.5, -z), Vector3.new(ctx.Width, 3, 1.6), ctx.Theme.Trim, ctx.Theme.WallMaterial, { Name = "VaultWall" })
+		local wall = ctx.B:Box(
+			c * CFrame.new(0, 1.5, -z),
+			Vector3.new(ctx.Width, 3, 1.6),
+			ctx.Theme.Trim,
+			ctx.Theme.WallMaterial,
+			{ Name = "VaultWall" }
+		)
 		ctx.B:Icon(wall, "^", ctx.Theme.Signal, Vector3.new(0, 2.5, 0))
 	end
 	require_(ctx, "Vault")
@@ -357,18 +414,40 @@ S.Tunnel = function(ctx, c, seg)
 	local after = platform(ctx, entry, length, nil, "Course")
 	local center = entry * CFrame.new(0, 0, -length / 2)
 	-- Low ceiling (crouch or slide), solid sides and roof.
-	ctx.B:Box(center * CFrame.new(0, 3.3, 0), Vector3.new(ctx.Width, 1.4, length), Color3.fromRGB(240, 196, 40), Enum.Material.SmoothPlastic, {
-		Name = "TunnelCeiling",
-		Tag = Tags.LowClearance,
-		Group = Tags.Groups.LowClearance,
-	})
-	ctx.B:Box(center * CFrame.new(0, 5.5, 0), Vector3.new(ctx.Width + 2, 3, length), ctx.Theme.Wall, ctx.Theme.WallMaterial)
+	ctx.B:Box(
+		center * CFrame.new(0, 3.3, 0),
+		Vector3.new(ctx.Width, 1.4, length),
+		Color3.fromRGB(240, 196, 40),
+		Enum.Material.SmoothPlastic,
+		{
+			Name = "TunnelCeiling",
+			Tag = Tags.LowClearance,
+			Group = Tags.Groups.LowClearance,
+		}
+	)
+	ctx.B:Box(
+		center * CFrame.new(0, 5.5, 0),
+		Vector3.new(ctx.Width + 2, 3, length),
+		ctx.Theme.Wall,
+		ctx.Theme.WallMaterial
+	)
 	for _, side in { -1, 1 } do
-		ctx.B:Box(center * CFrame.new(side * (ctx.Width / 2 + 0.5), 2.5, 0), Vector3.new(1, 5, length), ctx.Theme.Wall, ctx.Theme.WallMaterial)
+		ctx.B:Box(
+			center * CFrame.new(side * (ctx.Width / 2 + 0.5), 2.5, 0),
+			Vector3.new(1, 5, length),
+			ctx.Theme.Wall,
+			ctx.Theme.WallMaterial
+		)
 	end
-	local sign = ctx.B:Detail(entry * CFrame.new(0, 7.6, 0.2), Vector3.new(4, 1.2, 0.2), Color3.fromRGB(240, 196, 40), Enum.Material.SmoothPlastic)
+	local sign = ctx.B:Detail(
+		entry * CFrame.new(0, 7.6, 0.2),
+		Vector3.new(4, 1.2, 0.2),
+		Color3.fromRGB(240, 196, 40),
+		Enum.Material.SmoothPlastic
+	)
 	ctx.B:Text(sign, Enum.NormalId.Back, "CROUCH", { Color = Color3.fromRGB(30, 30, 30) })
-	local light = ctx.B:Detail(center * CFrame.new(0, 2.5, 0), Vector3.new(0.4, 0.2, 0.4), ctx.Theme.Signal, Enum.Material.Neon)
+	local light =
+		ctx.B:Detail(center * CFrame.new(0, 2.5, 0), Vector3.new(0.4, 0.2, 0.4), ctx.Theme.Signal, Enum.Material.Neon)
 	ctx.B:Light(light, ctx.Theme.Signal, 14, 0.8)
 	require_(ctx, "Slide")
 	addPar(ctx, 4 / M.SprintSpeed + length / 16)
@@ -413,7 +492,13 @@ S.Shimmy = function(ctx, c, seg)
 	B:Box(wallCenter, Vector3.new(length + 8, 14, 2), theme.Wall, theme.WallMaterial, { Name = "ShimmyWall" })
 	signalStrip(ctx, c * CFrame.new(side * (length / 2 + 1), lipTop - 0.15, -2.15), Vector3.new(length + 8, 0.3, 0.1))
 	-- An overhang above the lip stops you climbing up until the far end.
-	B:Box(c * CFrame.new(side * (length / 2 - 2), lipTop + 2.4, -3.6), Vector3.new(length + 2, 1.2, 4), theme.Trim, theme.WallMaterial, { Name = "Overhang", Attrs = { NoLedge = true } })
+	B:Box(
+		c * CFrame.new(side * (length / 2 - 2), lipTop + 2.4, -3.6),
+		Vector3.new(length + 2, 1.2, 4),
+		theme.Trim,
+		theme.WallMaterial,
+		{ Name = "Overhang", Attrs = { NoLedge = true } }
+	)
 	-- Exit platform at the far end, flush with the lip.
 	local exitC = c * CFrame.new(side * (length + 2), lipTop, -2.2)
 	local after = platform(ctx, exitC, 12, nil, "Course")
@@ -454,7 +539,12 @@ S.WallRun = function(ctx, c, seg)
 	)
 	wall.Name = "RunWall"
 	chevrons(ctx, wall, if side > 0 then Enum.NormalId.Left else Enum.NormalId.Right)
-	B:Detail(c * CFrame.new(side * 3.95, 4, -gap / 2), Vector3.new(0.1, 0.4, wallLength), ctx.Theme.Signal, Enum.Material.Neon)
+	B:Detail(
+		c * CFrame.new(side * 3.95, 4, -gap / 2),
+		Vector3.new(0.1, 0.4, wallLength),
+		ctx.Theme.Signal,
+		Enum.Material.Neon
+	)
 	token(ctx, (c * CFrame.new(side * 2.6, 3.5, -gap * 0.55)).Position, 2)
 	track(ctx, wall.Position)
 	recovery(ctx, c, gap, landY)
@@ -491,7 +581,12 @@ S.Shaft = function(ctx, c, seg)
 	for _, side in { -1, 1 } do
 		local wall = wallStyle(ctx, c * CFrame.new(side * 5, height / 2 + 2, -8), Vector3.new(2, height + 4, 12))
 		wall.Name = "ShaftWall"
-		B:Text(wall, if side > 0 then Enum.NormalId.Left else Enum.NormalId.Right, "<>", { Color = ctx.Theme.Signal, PixelsPerStud = 6 })
+		B:Text(
+			wall,
+			if side > 0 then Enum.NormalId.Left else Enum.NormalId.Right,
+			"<>",
+			{ Color = ctx.Theme.Signal, PixelsPerStud = 6 }
+		)
 		track(ctx, wall.Position + Vector3.new(0, height / 2, 0))
 	end
 	block(ctx, floor, 0, height, 14)
@@ -537,9 +632,19 @@ S.Zip = function(ctx, c, seg)
 	local a = (c * CFrame.new(0, cableHeight, -3)).Position
 	local b = (c * CFrame.new(0, cableHeight - drop + 1.5, -length)).Position
 	-- Posts at both ends.
-	B:Box(c * CFrame.new(1.6, cableHeight / 2 + 0.5, -3), Vector3.new(0.8, cableHeight + 1, 0.8), Color3.fromRGB(80, 80, 90), Enum.Material.Metal)
+	B:Box(
+		c * CFrame.new(1.6, cableHeight / 2 + 0.5, -3),
+		Vector3.new(0.8, cableHeight + 1, 0.8),
+		Color3.fromRGB(80, 80, 90),
+		Enum.Material.Metal
+	)
 	local endC = c * CFrame.new(0, -drop, -(length - 6))
-	B:Box(endC * CFrame.new(1.6, (cableHeight + 1.5) / 2 + 0.5, -6), Vector3.new(0.8, cableHeight + 2.5, 0.8), Color3.fromRGB(80, 80, 90), Enum.Material.Metal)
+	B:Box(
+		endC * CFrame.new(1.6, (cableHeight + 1.5) / 2 + 0.5, -6),
+		Vector3.new(0.8, cableHeight + 2.5, 0.8),
+		Color3.fromRGB(80, 80, 90),
+		Enum.Material.Metal
+	)
 	local cable = B:Rod(a, b, 0.25, Color3.fromRGB(40, 40, 45), Enum.Material.Metal, {
 		Name = "ZiplineCable",
 		CanCollide = false,
@@ -548,7 +653,13 @@ S.Zip = function(ctx, c, seg)
 	})
 	B:Icon(cable, "~", ctx.Theme.Signal, Vector3.new(0, 1.5, 0))
 	-- A step up to reach the cable comfortably.
-	B:Box(c * CFrame.new(0, 0.6, -1.5), Vector3.new(4, 1.2, 3), ctx.Theme.Trim, ctx.Theme.SurfaceMaterial, { Name = "ZipStep" })
+	B:Box(
+		c * CFrame.new(0, 0.6, -1.5),
+		Vector3.new(4, 1.2, 3),
+		ctx.Theme.Trim,
+		ctx.Theme.SurfaceMaterial,
+		{ Name = "ZipStep" }
+	)
 	track(ctx, a)
 	track(ctx, b)
 	token(ctx, (a:Lerp(b, 0.55)) - Vector3.new(0, 3.5, 0), 1)
@@ -566,9 +677,20 @@ S.Rope = function(ctx, c, seg)
 	local gap = first + (count - 1) * spacing + 12
 	local pivotY = 15
 	-- Overhead support beam with end posts.
-	B:Box(c * CFrame.new(0, pivotY + 0.6, -gap / 2), Vector3.new(1.2, 1.2, gap + 2), theme.Trim, theme.WallMaterial, { Name = "RopeBeam" })
+	B:Box(
+		c * CFrame.new(0, pivotY + 0.6, -gap / 2),
+		Vector3.new(1.2, 1.2, gap + 2),
+		theme.Trim,
+		theme.WallMaterial,
+		{ Name = "RopeBeam" }
+	)
 	for _, z in { -1, -(gap + 1) } do
-		B:Box(c * CFrame.new(ctx.Width / 2 - 1, pivotY / 2 - 3, z), Vector3.new(1.2, pivotY + 6, 1.2), theme.Trim, theme.WallMaterial)
+		B:Box(
+			c * CFrame.new(ctx.Width / 2 - 1, pivotY / 2 - 3, z),
+			Vector3.new(1.2, pivotY + 6, 1.2),
+			theme.Trim,
+			theme.WallMaterial
+		)
 	end
 	for i = 0, count - 1 do
 		local pivot = (c * CFrame.new(0, pivotY, -(first + i * spacing))).Position
@@ -597,11 +719,17 @@ local function anchorPart(ctx: Ctx, position: Vector3, pull: boolean)
 		ctx.Theme.AnchorMount(B, position)
 	end
 	if pull then
-		local part = B:Box(CFrame.new(position) * CFrame.Angles(math.rad(45), 0, math.rad(45)), Vector3.new(2.2, 2.2, 2.2), Color3.fromRGB(255, 150, 50), Enum.Material.Neon, {
-			Name = "PullAnchor",
-			Tag = Tags.PullAnchor,
-			CanCollide = false,
-		})
+		local part = B:Box(
+			CFrame.new(position) * CFrame.Angles(math.rad(45), 0, math.rad(45)),
+			Vector3.new(2.2, 2.2, 2.2),
+			Color3.fromRGB(255, 150, 50),
+			Enum.Material.Neon,
+			{
+				Name = "PullAnchor",
+				Tag = Tags.PullAnchor,
+				CanCollide = false,
+			}
+		)
 		B:Icon(part, "◆", Color3.fromRGB(255, 170, 70), Vector3.new(0, 2.6, 0))
 		B:Light(part, Color3.fromRGB(255, 150, 50), 12, 0.8)
 	else
@@ -610,7 +738,14 @@ local function anchorPart(ctx: Ctx, position: Vector3, pull: boolean)
 			Tag = Tags.GrappleAnchor,
 			CanCollide = false,
 		})
-		B:Cylinder(CFrame.new(position) * CFrame.Angles(0, 0, math.rad(90)), 0.4, 4.2, Color3.fromRGB(220, 250, 255), Enum.Material.Neon, { Decor = true, CanCollide = false })
+		B:Cylinder(
+			CFrame.new(position) * CFrame.Angles(0, 0, math.rad(90)),
+			0.4,
+			4.2,
+			Color3.fromRGB(220, 250, 255),
+			Enum.Material.Neon,
+			{ Decor = true, CanCollide = false }
+		)
 		B:Icon(part, "◎", Color3.fromRGB(120, 235, 255), Vector3.new(0, 2.8, 0))
 		B:Light(part, Color3.fromRGB(90, 230, 255), 12, 0.8)
 	end
@@ -673,11 +808,18 @@ S.Bounce = function(ctx, c, seg)
 	local B = ctx.B
 	local approach = platform(ctx, c, 10, nil, "Course")
 	local padCF = fwd(c, 5) * CFrame.new(0, 0.25, 0)
-	local pad = B:Cylinder(padCF * CFrame.Angles(0, 0, math.rad(90)), 0.5, 6, Color3.fromRGB(120, 255, 170), Enum.Material.Neon, {
-		Name = "BouncePad",
-		Tag = Tags.BouncePad,
-		Attrs = { Power = Reach.LaunchSpeedFor(height + 2) },
-	})
+	local pad = B:Cylinder(
+		padCF * CFrame.Angles(0, 0, math.rad(90)),
+		0.5,
+		6,
+		Color3.fromRGB(120, 255, 170),
+		Enum.Material.Neon,
+		{
+			Name = "BouncePad",
+			Tag = Tags.BouncePad,
+			Attrs = { Power = Reach.LaunchSpeedFor(height + 2) },
+		}
+	)
 	B:Icon(pad, "⇈", Color3.fromRGB(150, 255, 190), Vector3.new(0, 2, 0))
 	block(ctx, approach, 1, height, 14)
 	local topC = approach * CFrame.new(0, height, -1)
@@ -692,21 +834,28 @@ S.Vent = function(ctx, c, seg)
 	local B = ctx.B
 	local approach = platform(ctx, c, 10, nil, "Course")
 	local ventCF = fwd(c, 5)
-	B:Box(ventCF * CFrame.new(0, 0.15, 0), Vector3.new(5, 0.3, 5), Color3.fromRGB(60, 62, 68), Enum.Material.DiamondPlate, { Name = "VentGrate" })
-	local zone = B:Box(ventCF * CFrame.new(0, 2.5, 0), Vector3.new(5, 5, 5), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, {
-		Name = "LaunchVent",
-		Transparency = 1,
-		CanCollide = false,
-		CanQuery = false,
-		Tag = Tags.LaunchVent,
-		Attrs = {
-			Power = Reach.LaunchSpeedFor(height + 2),
-			Period = period,
-			OnFraction = 0.38,
-			Phase = (ctx.B:Rand(0, 1)),
-			Warn = 0.8,
-		},
-	})
+	B:Box(
+		ventCF * CFrame.new(0, 0.15, 0),
+		Vector3.new(5, 0.3, 5),
+		Color3.fromRGB(60, 62, 68),
+		Enum.Material.DiamondPlate,
+		{ Name = "VentGrate" }
+	)
+	local zone =
+		B:Box(ventCF * CFrame.new(0, 2.5, 0), Vector3.new(5, 5, 5), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, {
+			Name = "LaunchVent",
+			Transparency = 1,
+			CanCollide = false,
+			CanQuery = false,
+			Tag = Tags.LaunchVent,
+			Attrs = {
+				Power = Reach.LaunchSpeedFor(height + 2),
+				Period = period,
+				OnFraction = 0.38,
+				Phase = (ctx.B:Rand(0, 1)),
+				Warn = 0.8,
+			},
+		})
 	local attachment = Instance.new("Attachment")
 	attachment.Position = Vector3.new(0, -2.3, 0)
 	attachment.Parent = zone
@@ -734,7 +883,8 @@ S.Movers = function(ctx, c, seg)
 				Attrs = {
 					Kind = "Shuttle",
 					Origin = start,
-					Offset = (cursor * CFrame.new(0, 0, -(gap - 4.5))).Position - (cursor * CFrame.new(0, 0, -4.5)).Position,
+					Offset = (cursor * CFrame.new(0, 0, -(gap - 4.5))).Position
+						- (cursor * CFrame.new(0, 0, -4.5)).Position,
 					Period = 6,
 					Phase = phase,
 					Hold = 0.35,
@@ -750,17 +900,45 @@ S.Movers = function(ctx, c, seg)
 			local pivot = (cursor * CFrame.new(0, 16, -gap / 2)).Position
 			local rest = cursor * CFrame.new(0, -1, -gap / 2)
 			local axis = cursor.RightVector
-			B:Box(CFrame.new(pivot), Vector3.new(3, 1, 3), Color3.fromRGB(70, 70, 76), Enum.Material.Metal, { Name = "Pivot" })
-			B:Box(CFrame.new((pivot + rest.Position) / 2), Vector3.new(0.4, 16.5, 0.4), Color3.fromRGB(60, 60, 64), Enum.Material.Metal, {
-				Name = "SwingChain",
-				CanCollide = false,
-				Tag = Tags.Mover,
-				Attrs = { Kind = "PendulumRod", Pivot = pivot, Axis = axis, Amplitude = math.rad(24), Period = 4.2, Phase = phase, Origin = CFrame.new((pivot + rest.Position) / 2) },
-			})
+			B:Box(
+				CFrame.new(pivot),
+				Vector3.new(3, 1, 3),
+				Color3.fromRGB(70, 70, 76),
+				Enum.Material.Metal,
+				{ Name = "Pivot" }
+			)
+			B:Box(
+				CFrame.new((pivot + rest.Position) / 2),
+				Vector3.new(0.4, 16.5, 0.4),
+				Color3.fromRGB(60, 60, 64),
+				Enum.Material.Metal,
+				{
+					Name = "SwingChain",
+					CanCollide = false,
+					Tag = Tags.Mover,
+					Attrs = {
+						Kind = "PendulumRod",
+						Pivot = pivot,
+						Axis = axis,
+						Amplitude = math.rad(24),
+						Period = 4.2,
+						Phase = phase,
+						Origin = CFrame.new((pivot + rest.Position) / 2),
+					},
+				}
+			)
 			local cargo = B:Box(rest, Vector3.new(9, 2, 9), Color3.fromRGB(196, 120, 60), Enum.Material.WoodPlanks, {
 				Name = "SwingCargo",
 				Tag = Tags.Mover,
-				Attrs = { Kind = "Pendulum", Pivot = pivot, Axis = axis, Amplitude = math.rad(24), Period = 4.2, Phase = phase, Origin = rest },
+				Attrs = {
+					Kind = "Pendulum",
+					Pivot = pivot,
+					Axis = axis,
+					Amplitude = math.rad(24),
+					Period = 4.2,
+					Phase = phase,
+					Origin = rest,
+				},
 			})
 			B:Icon(cargo, "≈", ctx.Theme.Signal, Vector3.new(0, 2.5, 0))
 			track(ctx, pivot)
@@ -771,14 +949,33 @@ S.Movers = function(ctx, c, seg)
 			local gap = 30
 			local center = (cursor * CFrame.new(0, -0.5, -gap / 2)).Position
 			for k = 0, 1 do
-				local part = B:Box(CFrame.new(center + Vector3.new(9, 0, 0)), Vector3.new(7, 1, 7), ctx.Theme.Accent, Enum.Material.Marble, {
-					Name = "OrbitPlatform",
-					Tag = Tags.Mover,
-					Attrs = { Kind = "Orbit", Center = center, Radius = 10, Period = 9, Phase = phase + k * 0.5, Origin = CFrame.new(center) },
-				})
+				local part = B:Box(
+					CFrame.new(center + Vector3.new(9, 0, 0)),
+					Vector3.new(7, 1, 7),
+					ctx.Theme.Accent,
+					Enum.Material.Marble,
+					{
+						Name = "OrbitPlatform",
+						Tag = Tags.Mover,
+						Attrs = {
+							Kind = "Orbit",
+							Center = center,
+							Radius = 10,
+							Period = 9,
+							Phase = phase + k * 0.5,
+							Origin = CFrame.new(center),
+						},
+					}
+				)
 				B:Icon(part, "○", ctx.Theme.Signal, Vector3.new(0, 2, 0))
 			end
-			local core = B:Ball(center + Vector3.new(0, -4, 0), 3, ctx.Theme.Signal, Enum.Material.Neon, { Decor = true, CanCollide = false })
+			local core = B:Ball(
+				center + Vector3.new(0, -4, 0),
+				3,
+				ctx.Theme.Signal,
+				Enum.Material.Neon,
+				{ Decor = true, CanCollide = false }
+			)
 			B:Light(core, ctx.Theme.Signal, 20, 1)
 			track(ctx, center + Vector3.new(14, 0, 14))
 			track(ctx, center - Vector3.new(14, 0, 14))
@@ -790,12 +987,24 @@ S.Movers = function(ctx, c, seg)
 			local part = B:Box(start, Vector3.new(8, 1, 8), ctx.Theme.Accent, Enum.Material.DiamondPlate, {
 				Name = "Elevator",
 				Tag = Tags.Mover,
-				Attrs = { Kind = "Shuttle", Origin = start, Offset = Vector3.new(0, rise, 0), Period = 7, Phase = phase, Hold = 0.4 },
+				Attrs = {
+					Kind = "Shuttle",
+					Origin = start,
+					Offset = Vector3.new(0, rise, 0),
+					Period = 7,
+					Phase = phase,
+					Hold = 0.4,
+				},
 			})
 			B:Icon(part, "↕", ctx.Theme.Signal, Vector3.new(0, 2, 0))
 			-- Guide rails.
 			for _, x in { -4.6, 4.6 } do
-				B:Detail(cursor * CFrame.new(x, rise / 2, -5), Vector3.new(0.4, rise + 4, 0.4), Color3.fromRGB(90, 90, 96), Enum.Material.Metal)
+				B:Detail(
+					cursor * CFrame.new(x, rise / 2, -5),
+					Vector3.new(0.4, rise + 4, 0.4),
+					Color3.fromRGB(90, 90, 96),
+					Enum.Material.Metal
+				)
 			end
 			local topC = cursor * CFrame.new(0, rise, -9)
 			block(ctx, cursor, 9, rise, 12)
@@ -813,13 +1022,19 @@ S.Collapse = function(ctx, c, seg)
 	local count = math.max(2, math.floor(length / plank))
 	for i = 0, count - 1 do
 		local cf = c * CFrame.new(0, -0.6, -(i + 0.5) * plank)
-		local part = B:Box(cf, Vector3.new(ctx.Width - 2, 1.2, plank - 0.25), ctx.Theme.Beam, Enum.Material.WoodPlanks, {
-			Name = "CollapsePlank",
-			Tag = Tags.Collapse,
-			Attrs = { Delay = 0.45, Respawn = 3.5, Origin = cf },
-		})
+		local part =
+			B:Box(cf, Vector3.new(ctx.Width - 2, 1.2, plank - 0.25), ctx.Theme.Beam, Enum.Material.WoodPlanks, {
+				Name = "CollapsePlank",
+				Tag = Tags.Collapse,
+				Attrs = { Delay = 0.45, Respawn = 3.5, Origin = cf },
+			})
 		-- Cracks make it read as fragile.
-		B:Detail(cf * CFrame.new(B:Rand(-2, 2), 0.61, 0), Vector3.new(0.15, 0.04, plank * 0.8), Color3.fromRGB(40, 30, 25), Enum.Material.SmoothPlastic)
+		B:Detail(
+			cf * CFrame.new(B:Rand(-2, 2), 0.61, 0),
+			Vector3.new(0.15, 0.04, plank * 0.8),
+			Color3.fromRGB(40, 30, 25),
+			Enum.Material.SmoothPlastic
+		)
 		if i % 3 == 0 then
 			B:Icon(part, "!", Color3.fromRGB(255, 190, 90), Vector3.new(0, 2, 0))
 		end
@@ -839,25 +1054,42 @@ S.Retract = function(ctx, c, seg)
 	for i = 0, count - 1 do
 		local side = if i % 2 == 0 then 1 else -1
 		local cf = c * CFrame.new(0, -0.6, -(i + 0.5) * section)
-		local part = B:Box(cf, Vector3.new(ctx.Width, 1.2, section - 0.3), Color3.fromRGB(120, 125, 135), Enum.Material.DiamondPlate, {
-			Name = "RetractBridge",
-			Tag = Tags.Timed,
-			Attrs = {
-				Kind = "Retract",
-				Origin = cf,
-				Offset = c.RightVector * side * (ctx.Width + 1),
-				Period = 5,
-				OnFraction = 0.6,
-				Phase = i * 0.09,
-				Warn = 0.8,
-			},
-		})
+		local part = B:Box(
+			cf,
+			Vector3.new(ctx.Width, 1.2, section - 0.3),
+			Color3.fromRGB(120, 125, 135),
+			Enum.Material.DiamondPlate,
+			{
+				Name = "RetractBridge",
+				Tag = Tags.Timed,
+				Attrs = {
+					Kind = "Retract",
+					Origin = cf,
+					Offset = c.RightVector * side * (ctx.Width + 1),
+					Period = 5,
+					OnFraction = 0.6,
+					Phase = i * 0.09,
+					Warn = 0.8,
+				},
+			}
+		)
 		-- Housing the bridge slides into, with warning lamps.
-		local housing = B:Box(c * CFrame.new(side * (ctx.Width + 1.5), -0.6, -(i + 0.5) * section), Vector3.new(ctx.Width, 2.4, section), Color3.fromRGB(70, 72, 80), Enum.Material.Metal)
-		local lamp = B:Detail(housing.CFrame * CFrame.new(-side * (ctx.Width / 2), 1.4, 0), Vector3.new(0.6, 0.6, 0.6), Color3.fromRGB(255, 170, 40), Enum.Material.Neon, {
-			Tag = Tags.Timed,
-			Attrs = { Kind = "Lamp", Period = 5, OnFraction = 0.6, Phase = i * 0.09, Warn = 0.8 },
-		})
+		local housing = B:Box(
+			c * CFrame.new(side * (ctx.Width + 1.5), -0.6, -(i + 0.5) * section),
+			Vector3.new(ctx.Width, 2.4, section),
+			Color3.fromRGB(70, 72, 80),
+			Enum.Material.Metal
+		)
+		local lamp = B:Detail(
+			housing.CFrame * CFrame.new(-side * (ctx.Width / 2), 1.4, 0),
+			Vector3.new(0.6, 0.6, 0.6),
+			Color3.fromRGB(255, 170, 40),
+			Enum.Material.Neon,
+			{
+				Tag = Tags.Timed,
+				Attrs = { Kind = "Lamp", Period = 5, OnFraction = 0.6, Phase = i * 0.09, Warn = 0.8 },
+			}
+		)
 		lamp.Name = "WarnLamp"
 		B:Icon(part, "⇄", Color3.fromRGB(255, 190, 90), Vector3.new(0, 2, 0))
 		track(ctx, housing.Position)
@@ -873,7 +1105,13 @@ S.Spinner = function(ctx, c, seg)
 	if mode == "Platform" then
 		local gap = 32
 		local center = c * CFrame.new(0, -0.6, -gap / 2)
-		local hub = B:Column((center * CFrame.new(0, -12, 0)).Position, 11.4, 3, Color3.fromRGB(80, 82, 90), Enum.Material.Metal)
+		local hub = B:Column(
+			(center * CFrame.new(0, -12, 0)).Position,
+			11.4,
+			3,
+			Color3.fromRGB(80, 82, 90),
+			Enum.Material.Metal
+		)
 		hub.Name = "SpinnerHub"
 		local bar = B:Box(center, Vector3.new(4, 1.2, 30), ctx.Theme.Accent, Enum.Material.DiamondPlate, {
 			Name = "SpinnerBeam",
@@ -890,13 +1128,26 @@ S.Spinner = function(ctx, c, seg)
 	-- Sweeper: a round floor with a rotating bar to jump over.
 	local radius = 13
 	local center = c * CFrame.new(0, 0, -radius - 1)
-	B:Cylinder(center * CFrame.new(0, -1, 0) * CFrame.Angles(0, 0, math.rad(90)), 2, radius * 2, ctx.Theme.Surface, ctx.Theme.SurfaceMaterial, { Name = "SweeperFloor" })
-	local sweeper = B:Box(center * CFrame.new(0, 1.3, 0), Vector3.new(1.2, 1.4, radius * 2 - 1), Color3.fromRGB(240, 80, 60), Enum.Material.Neon, {
-		Name = "Sweeper",
-		CanCollide = false,
-		Tag = Tags.Mover,
-		Attrs = { Kind = "Spin", Origin = center * CFrame.new(0, 1.3, 0), Speed = 75, Sweeper = true },
-	})
+	B:Cylinder(
+		center * CFrame.new(0, -1, 0) * CFrame.Angles(0, 0, math.rad(90)),
+		2,
+		radius * 2,
+		ctx.Theme.Surface,
+		ctx.Theme.SurfaceMaterial,
+		{ Name = "SweeperFloor" }
+	)
+	local sweeper = B:Box(
+		center * CFrame.new(0, 1.3, 0),
+		Vector3.new(1.2, 1.4, radius * 2 - 1),
+		Color3.fromRGB(240, 80, 60),
+		Enum.Material.Neon,
+		{
+			Name = "Sweeper",
+			CanCollide = false,
+			Tag = Tags.Mover,
+			Attrs = { Kind = "Spin", Origin = center * CFrame.new(0, 1.3, 0), Speed = 75, Sweeper = true },
+		}
+	)
 	B:Icon(sweeper, "⚠", Color3.fromRGB(255, 120, 90), Vector3.new(0, 2, 0))
 	B:Column((center * CFrame.new(0, 0, 0)).Position, 2.2, 1.6, Color3.fromRGB(70, 70, 76), Enum.Material.Metal)
 	track(ctx, center.Position + Vector3.new(radius, 0, radius))
@@ -913,23 +1164,43 @@ S.Doors = function(ctx, c, seg)
 	local after = platform(ctx, c, length, nil, "Course")
 	local center = fwd(c, length / 2)
 	for _, side in { -1, 1 } do
-		B:Box(center * CFrame.new(side * (ctx.Width / 2 + 0.6), 5, 0), Vector3.new(1.2, 10, length), theme.Wall, theme.WallMaterial)
+		B:Box(
+			center * CFrame.new(side * (ctx.Width / 2 + 0.6), 5, 0),
+			Vector3.new(1.2, 10, length),
+			theme.Wall,
+			theme.WallMaterial
+		)
 	end
 	B:Box(center * CFrame.new(0, 10.6, 0), Vector3.new(ctx.Width + 2.4, 1.2, length), theme.Wall, theme.WallMaterial)
 	for i = 1, count do
 		local z = 6 + (i - 1) * spacing
 		local closed = c * CFrame.new(0, 4.6, -z)
 		local phase = -(i - 1) * 0.16
-		local door = B:Box(closed, Vector3.new(ctx.Width, 9.2, 1.2), Color3.fromRGB(150, 60, 50), Enum.Material.DiamondPlate, {
-			Name = "TimedDoor",
-			Tag = Tags.Timed,
-			Attrs = { Kind = "Door", Origin = closed, Offset = Vector3.new(0, 9, 0), Period = 4.4, OnFraction = 0.5, Phase = phase, Warn = 0.7 },
-		})
+		local door =
+			B:Box(closed, Vector3.new(ctx.Width, 9.2, 1.2), Color3.fromRGB(150, 60, 50), Enum.Material.DiamondPlate, {
+				Name = "TimedDoor",
+				Tag = Tags.Timed,
+				Attrs = {
+					Kind = "Door",
+					Origin = closed,
+					Offset = Vector3.new(0, 9, 0),
+					Period = 4.4,
+					OnFraction = 0.5,
+					Phase = phase,
+					Warn = 0.7,
+				},
+			})
 		B:Icon(door, "▮", Color3.fromRGB(255, 150, 120), Vector3.new(0, 5.4, 0))
-		local lamp = B:Detail(c * CFrame.new(0, 10, -(z - 0.8)), Vector3.new(2, 0.5, 0.3), Color3.fromRGB(80, 255, 120), Enum.Material.Neon, {
-			Tag = Tags.Timed,
-			Attrs = { Kind = "Lamp", Period = 4.4, OnFraction = 0.5, Phase = phase, Warn = 0.7, Traffic = true },
-		})
+		local lamp = B:Detail(
+			c * CFrame.new(0, 10, -(z - 0.8)),
+			Vector3.new(2, 0.5, 0.3),
+			Color3.fromRGB(80, 255, 120),
+			Enum.Material.Neon,
+			{
+				Tag = Tags.Timed,
+				Attrs = { Kind = "Lamp", Period = 4.4, OnFraction = 0.5, Phase = phase, Warn = 0.7, Traffic = true },
+			}
+		)
 		lamp.Name = "DoorLamp"
 	end
 	addPar(ctx, length / M.SprintSpeed + 1.6)
@@ -948,7 +1219,13 @@ S.Switch = function(ctx, c, seg)
 		Attrs = { SwitchId = id, Duration = seg.Duration or 5.5 },
 	})
 	B:Icon(plate, "⊙", Color3.fromRGB(120, 220, 255), Vector3.new(0, 2, 0))
-	B:Box(c * CFrame.new(0, 1, -12), Vector3.new(ctx.Width, 2.4, 1.4), ctx.Theme.Trim, ctx.Theme.WallMaterial, { Name = "VaultWall" })
+	B:Box(
+		c * CFrame.new(0, 1, -12),
+		Vector3.new(ctx.Width, 2.4, 1.4),
+		ctx.Theme.Trim,
+		ctx.Theme.WallMaterial,
+		{ Name = "VaultWall" }
+	)
 	local gateCF = c * CFrame.new(0, 5, -(length - 1))
 	local gate = B:Box(gateCF, Vector3.new(ctx.Width, 10, 1), Color3.fromRGB(80, 200, 255), Enum.Material.ForceField, {
 		Name = "SwitchGate",
@@ -957,7 +1234,12 @@ S.Switch = function(ctx, c, seg)
 	})
 	B:Text(gate, Enum.NormalId.Back, "STEP ON THE PLATE", { Color = Color3.new(1, 1, 1), PixelsPerStud = 8 })
 	for _, side in { -1, 1 } do
-		B:Box(c * CFrame.new(side * (ctx.Width / 2 + 0.5), 5, -(length - 1)), Vector3.new(1, 10, 1.4), ctx.Theme.Wall, ctx.Theme.WallMaterial)
+		B:Box(
+			c * CFrame.new(side * (ctx.Width / 2 + 0.5), 5, -(length - 1)),
+			Vector3.new(1, 10, 1.4),
+			ctx.Theme.Wall,
+			ctx.Theme.WallMaterial
+		)
 	end
 	addPar(ctx, length / M.SprintSpeed + 0.4)
 	return after
@@ -974,7 +1256,13 @@ S.Lasers = function(ctx, c, seg)
 	for i = 1, count do
 		local z = 5 + (i - 1) * spacing
 		for _, side in { -1, 1 } do
-			B:Box(c * CFrame.new(side * (ctx.Width / 2 + 0.4), 3.5, -z), Vector3.new(0.8, 7, 0.8), Color3.fromRGB(40, 40, 46), Enum.Material.Metal, { Name = "LaserPost" })
+			B:Box(
+				c * CFrame.new(side * (ctx.Width / 2 + 0.4), 3.5, -z),
+				Vector3.new(0.8, 7, 0.8),
+				Color3.fromRGB(40, 40, 46),
+				Enum.Material.Metal,
+				{ Name = "LaserPost" }
+			)
 		end
 		local function beam(y: number, attrs: { [string]: any }?)
 			local cf = c * CFrame.new(0, y, -z)
@@ -996,7 +1284,10 @@ S.Lasers = function(ctx, c, seg)
 		end
 		if pattern == "Sweep" then
 			local cf = c * CFrame.new(0, 0.9, -z)
-			beam(0.9, { Kind = "LaserSweep", Origin = cf, Offset = Vector3.new(0, 4.6, 0), Period = 3.2, Phase = i * 0.21 })
+			beam(
+				0.9,
+				{ Kind = "LaserSweep", Origin = cf, Offset = Vector3.new(0, 4.6, 0), Period = 3.2, Phase = i * 0.21 }
+			)
 		elseif pattern == "Grid" then
 			-- Fixed: low beams to jump, high beams to slide under.
 			if i % 2 == 1 then
@@ -1025,18 +1316,36 @@ S.Conveyor = function(ctx, c, seg)
 	local speed = 14
 	local B = ctx.B
 	local center = c * CFrame.new(0, -0.6, -length / 2)
-	local belt = B:Box(center, Vector3.new(ctx.Width - 1, 1.2, length), Color3.fromRGB(45, 46, 50), Enum.Material.Rubber, {
-		Name = "Conveyor",
-		Tag = Tags.Conveyor,
-		Attrs = { Speed = speed * dir },
-	})
+	local belt =
+		B:Box(center, Vector3.new(ctx.Width - 1, 1.2, length), Color3.fromRGB(45, 46, 50), Enum.Material.Rubber, {
+			Name = "Conveyor",
+			Tag = Tags.Conveyor,
+			Attrs = { Speed = speed * dir },
+		})
 	belt.AssemblyLinearVelocity = c.LookVector * speed * dir
-	B:Text(belt, Enum.NormalId.Top, if dir > 0 then "▲  ▲  ▲  ▲" else "▼  ▼  ▼  ▼", { Color = Color3.fromRGB(240, 196, 40), PixelsPerStud = 4 })
+	B:Text(
+		belt,
+		Enum.NormalId.Top,
+		if dir > 0 then "▲  ▲  ▲  ▲" else "▼  ▼  ▼  ▼",
+		{ Color = Color3.fromRGB(240, 196, 40), PixelsPerStud = 4 }
+	)
 	for _, z in { 0, length } do
-		B:Cylinder(c * CFrame.new(0, -0.6, -z), ctx.Width - 1, 1.4, Color3.fromRGB(90, 90, 96), Enum.Material.Metal, { Decor = true })
+		B:Cylinder(
+			c * CFrame.new(0, -0.6, -z),
+			ctx.Width - 1,
+			1.4,
+			Color3.fromRGB(90, 90, 96),
+			Enum.Material.Metal,
+			{ Decor = true }
+		)
 	end
 	for _, side in { -1, 1 } do
-		B:Box(center * CFrame.new(side * (ctx.Width / 2), 0.2, 0), Vector3.new(1, 1.6, length), Color3.fromRGB(240, 180, 40), Enum.Material.Metal)
+		B:Box(
+			center * CFrame.new(side * (ctx.Width / 2), 0.2, 0),
+			Vector3.new(1, 1.6, length),
+			Color3.fromRGB(240, 180, 40),
+			Enum.Material.Metal
+		)
 	end
 	track(ctx, center.Position)
 	addPar(ctx, length / math.max(M.SprintSpeed + speed * dir * 0.7, 10) + 12 / M.SprintSpeed)
@@ -1049,14 +1358,26 @@ S.Wind = function(ctx, c, seg)
 	local side = if B:Rand(0, 1) > 0.5 then 1 else -1
 	local width = 6
 	local after = platform(ctx, c, length, width, "Course")
-	local zone = B:Box(fwd(c, length / 2) * CFrame.new(0, 6, 0), Vector3.new(width + 14, 14, length), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, {
-		Name = "WindZone",
-		Transparency = 1,
-		CanCollide = false,
-		CanQuery = false,
-		Tag = Tags.WindZone,
-		Attrs = { Force = c.RightVector * side * 70, Period = 4.2, OnFraction = 0.42, Phase = B:Rand(0, 1), Warn = 0.9 },
-	})
+	local zone = B:Box(
+		fwd(c, length / 2) * CFrame.new(0, 6, 0),
+		Vector3.new(width + 14, 14, length),
+		Color3.new(1, 1, 1),
+		Enum.Material.SmoothPlastic,
+		{
+			Name = "WindZone",
+			Transparency = 1,
+			CanCollide = false,
+			CanQuery = false,
+			Tag = Tags.WindZone,
+			Attrs = {
+				Force = c.RightVector * side * 70,
+				Period = 4.2,
+				OnFraction = 0.42,
+				Phase = B:Rand(0, 1),
+				Warn = 0.9,
+			},
+		}
+	)
 	local attachment = Instance.new("Attachment")
 	attachment.Position = Vector3.new(-side * (width / 2 + 6), 0, 0)
 	attachment.Parent = zone
@@ -1075,10 +1396,16 @@ S.Ice = function(ctx, c, seg)
 	local endC = c * CFrame.new(0, -slope, -length)
 	local mid = (a + endC.Position) / 2
 	local look = CFrame.lookAt(mid, endC.Position)
-	B:Box(look * CFrame.new(0, -1, 0), Vector3.new(ctx.Width, 2, (endC.Position - a).Magnitude + 0.5), Color3.fromRGB(170, 215, 240), Enum.Material.Ice, {
-		Name = "IceSlope",
-		Tag = Tags.Ice,
-	})
+	B:Box(
+		look * CFrame.new(0, -1, 0),
+		Vector3.new(ctx.Width, 2, (endC.Position - a).Magnitude + 0.5),
+		Color3.fromRGB(170, 215, 240),
+		Enum.Material.Ice,
+		{
+			Name = "IceSlope",
+			Tag = Tags.Ice,
+		}
+	)
 	track(ctx, a)
 	track(ctx, endC.Position)
 	addPar(ctx, length / (M.SprintSpeed + 6) + 12 / M.SprintSpeed)
@@ -1094,20 +1421,32 @@ S.LowGrav = function(ctx, c, seg)
 	stats.Gravity *= scale
 	local hop = Reach.JumpDistance(0, M.SprintSpeed, stats) * 0.62
 	local zoneCenter = fwd(c, length / 2 + 4)
-	local zone = B:Box(zoneCenter * CFrame.new(0, 10, 0), Vector3.new(ctx.Width + 12, 30, length + 10), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, {
-		Name = "GravityZone",
-		Transparency = 1,
-		CanCollide = false,
-		CanQuery = false,
-		Tag = Tags.GravityZone,
-		Attrs = { Scale = scale },
-	})
+	local zone = B:Box(
+		zoneCenter * CFrame.new(0, 10, 0),
+		Vector3.new(ctx.Width + 12, 30, length + 10),
+		Color3.new(1, 1, 1),
+		Enum.Material.SmoothPlastic,
+		{
+			Name = "GravityZone",
+			Transparency = 1,
+			CanCollide = false,
+			CanQuery = false,
+			Tag = Tags.GravityZone,
+			Attrs = { Scale = scale },
+		}
+	)
 	local attachment = Instance.new("Attachment")
 	attachment.Parent = zone
 	B:Emitter(attachment, "Motes", theme.Signal)
 	-- Glass chamber walls.
 	for _, side in { -1, 1 } do
-		B:Box(zoneCenter * CFrame.new(side * (ctx.Width / 2 + 6), 10, 0), Vector3.new(1, 30, length + 10), theme.Signal, Enum.Material.Glass, { Transparency = 0.7 })
+		B:Box(
+			zoneCenter * CFrame.new(side * (ctx.Width / 2 + 6), 10, 0),
+			Vector3.new(1, 30, length + 10),
+			theme.Signal,
+			Enum.Material.Glass,
+			{ Transparency = 0.7 }
+		)
 	end
 	local cursor = c
 	local travelled = 0
@@ -1140,7 +1479,14 @@ S.Current = function(ctx, c, seg)
 	attachment.Position = Vector3.new(0, -(height + 10) / 2, 0)
 	attachment.Parent = zone
 	B:Emitter(attachment, "Updraft", ctx.Theme.Signal)
-	B:Cylinder(fwd(c, 13) * CFrame.new(0, -0.2, 0) * CFrame.Angles(0, 0, math.rad(90)), 0.4, 8, ctx.Theme.Signal, Enum.Material.Neon, { Decor = true })
+	B:Cylinder(
+		fwd(c, 13) * CFrame.new(0, -0.2, 0) * CFrame.Angles(0, 0, math.rad(90)),
+		0.4,
+		8,
+		ctx.Theme.Signal,
+		Enum.Material.Neon,
+		{ Decor = true }
+	)
 	B:Icon(zone, "⇧", ctx.Theme.Signal, Vector3.new(0, -height / 2, 0))
 	block(ctx, approach, 10, height, 14)
 	local topC = approach * CFrame.new(0, height, -10)
@@ -1162,7 +1508,13 @@ S.Holo = function(ctx, c, seg)
 			Attrs = { Kind = "Blink", Period = 3.8, OnFraction = 0.62, Phase = -(i - 1) * 0.2, Warn = 0.8 },
 		})
 		B:Icon(holo, "◇", ctx.Theme.Signal, Vector3.new(0, 2, 0))
-		local base = B:Detail(cf * CFrame.new(0, -0.7, 0), Vector3.new(7.2, 0.3, 7.2), Color3.fromRGB(40, 44, 60), Enum.Material.Metal, { CanCollide = false })
+		local base = B:Detail(
+			cf * CFrame.new(0, -0.7, 0),
+			Vector3.new(7.2, 0.3, 7.2),
+			Color3.fromRGB(40, 44, 60),
+			Enum.Material.Metal,
+			{ CanCollide = false }
+		)
 		base.Transparency = 0.6
 		cursor = fwd(cursor, gap + 7)
 		track(ctx, cf.Position)
@@ -1220,15 +1572,30 @@ local function gateArch(ctx: Ctx, c: CFrame, color: Color3, label: string, check
 	local B = ctx.B
 	local w = ctx.Width
 	for _, side in { -1, 1 } do
-		B:Box(c * CFrame.new(side * (w / 2 + 0.4), 4.5, 0), Vector3.new(0.8, 9, 0.8), ctx.Theme.Trim, Enum.Material.Metal)
+		B:Box(
+			c * CFrame.new(side * (w / 2 + 0.4), 4.5, 0),
+			Vector3.new(0.8, 9, 0.8),
+			ctx.Theme.Trim,
+			Enum.Material.Metal
+		)
 	end
 	local top = B:Box(c * CFrame.new(0, 9.3, 0), Vector3.new(w + 1.6, 1.2, 0.8), color, Enum.Material.Neon)
 	if checkered then
 		for i = 0, 7 do
-			B:Detail(c * CFrame.new(-w / 2 + (i + 0.5) * (w / 8), 10.3, 0), Vector3.new(w / 8, 0.8, 0.85), if i % 2 == 0 then Color3.new(0.05, 0.05, 0.05) else Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
+			B:Detail(
+				c * CFrame.new(-w / 2 + (i + 0.5) * (w / 8), 10.3, 0),
+				Vector3.new(w / 8, 0.8, 0.85),
+				if i % 2 == 0 then Color3.new(0.05, 0.05, 0.05) else Color3.new(1, 1, 1),
+				Enum.Material.SmoothPlastic
+			)
 		end
 	end
-	local sign = B:Detail(c * CFrame.new(0, 11.4, 0), Vector3.new(w * 0.7, 1.4, 0.2), Color3.fromRGB(25, 28, 36), Enum.Material.SmoothPlastic)
+	local sign = B:Detail(
+		c * CFrame.new(0, 11.4, 0),
+		Vector3.new(w * 0.7, 1.4, 0.2),
+		Color3.fromRGB(25, 28, 36),
+		Enum.Material.SmoothPlastic
+	)
 	B:Text(sign, Enum.NormalId.Back, label, { Color = color })
 	B:Text(sign, Enum.NormalId.Front, label, { Color = color })
 	B:Light(top, color, 14, 0.7)
@@ -1244,8 +1611,18 @@ S.CP = function(ctx, c, seg)
 	local volumeSize = Vector3.new(ctx.Width + 4, 12, length)
 	ctx.B:Volume(volumeCF, volumeSize, Tags.CourseCheckpoint, { CourseId = ctx.Id, Index = index })
 	local exchange = seg.Exchange == true
-	gateArch(ctx, fwd(c, 2), if exchange then Color3.fromRGB(255, 120, 220) else ctx.Theme.Signal, if exchange then "EXCHANGE" else ("CHECKPOINT %d"):format(index))
-	local pad = ctx.B:Detail(center * CFrame.new(0, 0.05, 0), Vector3.new(ctx.Width - 2, 0.1, 6), ctx.Theme.Signal, Enum.Material.Neon)
+	gateArch(
+		ctx,
+		fwd(c, 2),
+		if exchange then Color3.fromRGB(255, 120, 220) else ctx.Theme.Signal,
+		if exchange then "EXCHANGE" else ("CHECKPOINT %d"):format(index)
+	)
+	local pad = ctx.B:Detail(
+		center * CFrame.new(0, 0.05, 0),
+		Vector3.new(ctx.Width - 2, 0.1, 6),
+		ctx.Theme.Signal,
+		Enum.Material.Neon
+	)
 	pad.Transparency = 0.4
 	table.insert(ctx.Checkpoints, {
 		Spawn = center * CFrame.new(0, 3.5, 0),
@@ -1293,10 +1670,25 @@ S.Split = function(ctx, c, seg)
 		local sign = LANES[name]
 		local laneStart = fwd(fork, 0) * CFrame.new(sign * LANE_SPACING, 0, 0)
 		-- Route marker at the start of each lane.
-		local post = B:Detail(laneStart * CFrame.new(ctx.Width / 2 - 0.6, 2.5, 1.5), Vector3.new(0.4, 5, 0.4), ctx.Theme.Trim, Enum.Material.Metal)
-		local plate = B:Detail(post.CFrame * CFrame.new(-1.6, 2.6, 0), Vector3.new(3.2, 1.6, 0.15), Color3.fromRGB(25, 28, 36), Enum.Material.SmoothPlastic)
+		local post = B:Detail(
+			laneStart * CFrame.new(ctx.Width / 2 - 0.6, 2.5, 1.5),
+			Vector3.new(0.4, 5, 0.4),
+			ctx.Theme.Trim,
+			Enum.Material.Metal
+		)
+		local plate = B:Detail(
+			post.CFrame * CFrame.new(-1.6, 2.6, 0),
+			Vector3.new(3.2, 1.6, 0.15),
+			Color3.fromRGB(25, 28, 36),
+			Enum.Material.SmoothPlastic
+		)
 		local label = if name == "A" then "● STEADY" elseif name == "F" then "▲ FAST" else "★ EXPERT"
-		B:Text(plate, Enum.NormalId.Back, label, { Color = if name == "E" then Color3.fromRGB(255, 210, 90) elseif name == "F" then Color3.fromRGB(120, 220, 255) else Color3.fromRGB(150, 255, 160) })
+		B:Text(plate, Enum.NormalId.Back, label, {
+			Color = if name == "E"
+				then Color3.fromRGB(255, 210, 90)
+				elseif name == "F" then Color3.fromRGB(120, 220, 255)
+				else Color3.fromRGB(150, 255, 160),
+		})
 		-- Bridge from fork to lane start for side lanes.
 		ctx.Lane = name
 		ctx.LaneSign = sign
@@ -1357,7 +1749,7 @@ S.Split = function(ctx, c, seg)
 		end
 		ctx.Lane = nil
 		p = fork:PointToObjectSpace(cursor.Position)
-		local remaining = maxForward - (-p.Z)
+		local remaining = maxForward - -p.Z
 		if remaining > 0.5 then
 			cursor = platform(ctx, cursor, remaining)
 			extraPar += remaining / M.SprintSpeed
@@ -1395,7 +1787,15 @@ end
 
 -- Build -------------------------------------------------------------------------------------------
 
-local function newContext(B: Kit.Builder, theme: Theme, id: string, difficulty: number, width: number, origin: CFrame, folder: Folder): Ctx
+local function newContext(
+	B: Kit.Builder,
+	theme: Theme,
+	id: string,
+	difficulty: number,
+	width: number,
+	origin: CFrame,
+	folder: Folder
+): Ctx
 	return {
 		B = B,
 		Theme = theme,
@@ -1420,7 +1820,14 @@ local function newContext(B: Kit.Builder, theme: Theme, id: string, difficulty: 
 	}
 end
 
-function CourseBuilder.NewContext(B: Kit.Builder, theme: Theme, id: string, difficulty: number, origin: CFrame, folder: Folder)
+function CourseBuilder.NewContext(
+	B: Kit.Builder,
+	theme: Theme,
+	id: string,
+	difficulty: number,
+	origin: CFrame,
+	folder: Folder
+)
 	return newContext(B, theme, id, difficulty, 10, origin, folder)
 end
 
@@ -1528,12 +1935,13 @@ function CourseBuilder.Build(B: Kit.Builder, course: any, theme: Theme, origin: 
 		local cursor = platform(ctx, origin, 18, ctx.Width + 4, "Start")
 		local spawn = origin * CFrame.new(0, 3.5, -10)
 		gateArch(ctx, origin * CFrame.new(0, 0, -4), theme.Signal, string.upper(course.Name))
-		local startPad = B:Box(origin * CFrame.new(0, 0.1, -10), Vector3.new(6, 0.2, 6), theme.Signal, Enum.Material.Neon, {
-			Name = "StartPad",
-			CanCollide = false,
-			Tag = Tags.CourseStart,
-			Attrs = { CourseId = course.Id, Spawn = spawn },
-		})
+		local startPad =
+			B:Box(origin * CFrame.new(0, 0.1, -10), Vector3.new(6, 0.2, 6), theme.Signal, Enum.Material.Neon, {
+				Name = "StartPad",
+				CanCollide = false,
+				Tag = Tags.CourseStart,
+				Attrs = { CourseId = course.Id, Spawn = spawn },
+			})
 		startPad.Transparency = 0.3
 		addPar(ctx, -0.3) -- countdown starts you on the pad
 
@@ -1548,13 +1956,20 @@ function CourseBuilder.Build(B: Kit.Builder, course: any, theme: Theme, origin: 
 		local tokenCount = math.clamp(4 + math.floor(#ctx.TokenSpots / 4), 5, 8)
 		local tokens = pickTokens(ctx.TokenSpots, tokenCount)
 		for index, position in tokens do
-			local coin = B:Cylinder(CFrame.new(position) * CFrame.Angles(0, 0, 0), 0.3, 2.2, Color3.fromRGB(255, 205, 70), Enum.Material.Neon, {
-				Name = "Token",
-				CanCollide = false,
-				CanQuery = false,
-				Tag = Tags.CourseToken,
-				Attrs = { CourseId = course.Id, Index = index },
-			})
+			local coin = B:Cylinder(
+				CFrame.new(position) * CFrame.Angles(0, 0, 0),
+				0.3,
+				2.2,
+				Color3.fromRGB(255, 205, 70),
+				Enum.Material.Neon,
+				{
+					Name = "Token",
+					CanCollide = false,
+					CanQuery = false,
+					Tag = Tags.CourseToken,
+					Attrs = { CourseId = course.Id, Index = index },
+				}
+			)
 			coin.CastShadow = false
 		end
 

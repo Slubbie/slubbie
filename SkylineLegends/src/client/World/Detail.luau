@@ -16,7 +16,14 @@ local Controller = require(script.Parent.Parent.Movement.Controller)
 
 local Detail = {}
 
-type Entry = { Root: Instance, Center: Vector3, Core: Instance?, Decor: Instance?, CoreShown: boolean, DecorShown: boolean }
+type Entry = {
+	Root: Instance,
+	Center: Vector3,
+	Core: Instance?,
+	Decor: Instance?,
+	CoreShown: boolean,
+	DecorShown: boolean,
+}
 
 local entries: { Entry } = {}
 local stash = Instance.new("Folder")

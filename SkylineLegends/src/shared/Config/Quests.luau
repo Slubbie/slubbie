@@ -63,15 +63,25 @@ local Q: { Quest } = {
 		},
 		Outro = { "Tam says you've got good instincts. Don't let it go to your head." },
 		Steps = {
-			{ Kind = "Talk", Npc = "tam", Text = "Meet Coach Tam in the Training Yard", Say = {
-				"New recruit! Excellent! I'm Tam.",
-				"Every lesson station in the yard teaches one technique. Step on the pad and follow the card.",
-				"Do them in any order. When you've cleared six, come find Orla.",
-			} },
+			{
+				Kind = "Talk",
+				Npc = "tam",
+				Text = "Meet Coach Tam in the Training Yard",
+				Say = {
+					"New recruit! Excellent! I'm Tam.",
+					"Every lesson station in the yard teaches one technique. Step on the pad and follow the card.",
+					"Do them in any order. When you've cleared six, come find Orla.",
+				},
+			},
 			{ Kind = "Lessons", Count = 6, Text = "Clear 6 Training Yard lessons" },
-			{ Kind = "Talk", Npc = "orla", Text = "Report back to Orla", Say = {
-				"Six lessons. Not bad for your first hour.",
-			} },
+			{
+				Kind = "Talk",
+				Npc = "orla",
+				Text = "Report back to Orla",
+				Say = {
+					"Six lessons. Not bad for your first hour.",
+				},
+			},
 		},
 		Rewards = { XP = 300, Credits = 150, Items = { "outfit_recruit" } },
 	},
@@ -121,10 +131,15 @@ local Q: { Quest } = {
 		Outro = { "Okafor likes you. That's rare." },
 		Steps = {
 			{ Kind = "Reach", Point = "tin_plaza", Text = "Travel to Tinroof Terraces through the lift gates" },
-			{ Kind = "Talk", Npc = "okafor", Text = "Introduce yourself to Mrs. Okafor", Say = {
-				"The Guild finally remembered us! Good.",
-				"We've managed. But managing isn't living. Gran Petra needs help first, she always does.",
-			} },
+			{
+				Kind = "Talk",
+				Npc = "okafor",
+				Text = "Introduce yourself to Mrs. Okafor",
+				Say = {
+					"The Guild finally remembered us! Good.",
+					"We've managed. But managing isn't living. Gran Petra needs help first, she always does.",
+				},
+			},
 		},
 		Rewards = { XP = 250, Credits = 120 },
 	},
@@ -223,9 +238,14 @@ local Q: { Quest } = {
 		Outro = { "Sadie says you'll do. From her that's a medal." },
 		Steps = {
 			{ Kind = "Reach", Point = "iron_plaza", Text = "Travel to the Ironworks Quarter" },
-			{ Kind = "Talk", Npc = "sadie", Text = "Find Engineer Sadie Kowalski", Say = {
-				"A runner. Good. The relays I need are on top of things nobody can climb.",
-			} },
+			{
+				Kind = "Talk",
+				Npc = "sadie",
+				Text = "Find Engineer Sadie Kowalski",
+				Say = {
+					"A runner. Good. The relays I need are on top of things nobody can climb.",
+				},
+			},
 		},
 		Rewards = { XP = 400, Credits = 200 },
 	},
@@ -321,9 +341,14 @@ local Q: { Quest } = {
 		Outro = { "Wren's excited. That's either very good or very dangerous." },
 		Steps = {
 			{ Kind = "Reach", Point = "ver_plaza", Text = "Travel to Verdant Hollow" },
-			{ Kind = "Talk", Npc = "wren", Text = "Meet Dr. Wren Alder", Say = {
-				"A Guild runner! Wonderful! The observatory's survey pages blew all over the Hollow...",
-			} },
+			{
+				Kind = "Talk",
+				Npc = "wren",
+				Text = "Meet Dr. Wren Alder",
+				Say = {
+					"A Guild runner! Wonderful! The observatory's survey pages blew all over the Hollow...",
+				},
+			},
 		},
 		Rewards = { XP = 600, Credits = 280 },
 	},
@@ -424,9 +449,14 @@ local Q: { Quest } = {
 		Outro = { "Vex respects you now. Don't expect them to say it." },
 		Steps = {
 			{ Kind = "Reach", Point = "gil_plaza", Text = "Travel to the Gilded Exchange" },
-			{ Kind = "Talk", Npc = "vex", Text = "Find Vex", Say = {
-				"Orla's new pet. Fine. Show me Ticker Tape at silver, AND slide, vault and wall run in one line while you're at it.",
-			} },
+			{
+				Kind = "Talk",
+				Npc = "vex",
+				Text = "Find Vex",
+				Say = {
+					"Orla's new pet. Fine. Show me Ticker Tape at silver, AND slide, vault and wall run in one line while you're at it.",
+				},
+			},
 			{ Kind = "Course", Course = "gil_ticker", Medal = 2, Text = "Earn silver or better on Ticker Tape" },
 			{
 				Kind = "Chain",
@@ -509,9 +539,14 @@ local Q: { Quest } = {
 		Outro = { "Sigrun doesn't trust easily. Earn it." },
 		Steps = {
 			{ Kind = "Reach", Point = "fro_plaza", Text = "Travel to Frostreach" },
-			{ Kind = "Talk", Npc = "sigrun", Text = "Speak with Elder Sigrun", Say = {
-				"The village is cut off from its own houses by the storms. Help us first. Then we help you.",
-			} },
+			{
+				Kind = "Talk",
+				Npc = "sigrun",
+				Text = "Speak with Elder Sigrun",
+				Say = {
+					"The village is cut off from its own houses by the storms. Help us first. Then we help you.",
+				},
+			},
 		},
 		Rewards = { XP = 1500, Credits = 650 },
 	},
@@ -606,10 +641,15 @@ local Q: { Quest } = {
 		Outro = { "A guardian, and a cartographer who's been missing for a decade. Find out what happened." },
 		Steps = {
 			{ Kind = "Reach", Point = "cit_plaza", Text = "Travel to the Aether Citadel" },
-			{ Kind = "Talk", Npc = "warden", Text = "Approach the Warden", Say = {
-				"RUNNER. THE CITADEL HAS BEEN SEALED FOR 3,652 DAYS.",
-				"SPEAK WITH THE CARTOGRAPHER. SHE HAS MAPPED WHAT REMAINS.",
-			} },
+			{
+				Kind = "Talk",
+				Npc = "warden",
+				Text = "Approach the Warden",
+				Say = {
+					"RUNNER. THE CITADEL HAS BEEN SEALED FOR 3,652 DAYS.",
+					"SPEAK WITH THE CARTOGRAPHER. SHE HAS MAPPED WHAT REMAINS.",
+				},
+			},
 			{ Kind = "Talk", Npc = "ilse", Text = "Find Ilse Marrow" },
 		},
 		Rewards = { XP = 2400, Credits = 950 },
@@ -841,7 +881,12 @@ local Q: { Quest } = {
 		Intro = { "My lines are for laundry. But if you must run on them, don't fall off. It upsets the sheets." },
 		Outro = { "Not one sheet out of place. Fine. You may run on my lines." },
 		Steps = {
-			{ Kind = "Course", Course = "tin_clothesline", NoFalls = true, Text = "Complete Clothesline Express with no falls" },
+			{
+				Kind = "Course",
+				Course = "tin_clothesline",
+				NoFalls = true,
+				Text = "Complete Clothesline Express with no falls",
+			},
 		},
 		Rewards = { XP = 500, Credits = 280, Items = { "outfit_laundry" } },
 	},
@@ -857,7 +902,13 @@ local Q: { Quest } = {
 		Intro = { "The relay's back, so we're having a party! These flowers wilt in the sun, dear. Quick as you can." },
 		Outro = { "Still fresh! Have some cake. Have two." },
 		Steps = {
-			{ Kind = "Timed", From = "tin_seedlings", To = "tin_party", Time = 45, Text = "Carry the flowers to the party within 45s" },
+			{
+				Kind = "Timed",
+				From = "tin_seedlings",
+				To = "tin_party",
+				Time = 45,
+				Text = "Carry the flowers to the party within 45s",
+			},
 		},
 		Rewards = { XP = 600, Credits = 320 },
 	},
@@ -873,7 +924,12 @@ local Q: { Quest } = {
 		Intro = { "There's a FAST way through the scrapyard. I'm not telling you where. Find it!" },
 		Outro = { "HA! You found my line! Don't tell Sadie." },
 		Steps = {
-			{ Kind = "Course", Course = "iron_scrapyard", Shortcut = true, Text = "Complete Scrapyard Scramble using the expert shortcut" },
+			{
+				Kind = "Course",
+				Course = "iron_scrapyard",
+				Shortcut = true,
+				Text = "Complete Scrapyard Scramble using the expert shortcut",
+			},
 		},
 		Rewards = { XP = 900, Credits = 420, Items = { "gloves_work" } },
 	},
@@ -891,7 +947,14 @@ local Q: { Quest } = {
 		Steps = {
 			{
 				Kind = "Collect",
-				Points = { "iron_scrap_1", "iron_scrap_2", "iron_scrap_3", "iron_scrap_4", "iron_scrap_5", "iron_scrap_6" },
+				Points = {
+					"iron_scrap_1",
+					"iron_scrap_2",
+					"iron_scrap_3",
+					"iron_scrap_4",
+					"iron_scrap_5",
+					"iron_scrap_6",
+				},
 				Text = "Collect all six machine parts",
 			},
 			{ Kind = "Talk", Npc = "rook", Text = "Hand the parts to Rook" },
@@ -923,7 +986,9 @@ local Q: { Quest } = {
 		Requires = { Quests = { "c3_arrival" } },
 		Intro = { "The Hollow hides things from those who only look ahead. Find three of its secrets." },
 		Outro = { "You look up, down and behind. Good." },
-		Steps = { { Kind = "Discover", Count = 3, District = "Verdant", Text = "Make 3 discoveries in Verdant Hollow" } },
+		Steps = {
+			{ Kind = "Discover", Count = 3, District = "Verdant", Text = "Make 3 discoveries in Verdant Hollow" },
+		},
 		Rewards = { XP = 1000, Credits = 450, Items = { "gloves_vine" } },
 	},
 	{
@@ -959,7 +1024,15 @@ local Q: { Quest } = {
 		Requires = { Quests = { "c3_starfall" } },
 		Intro = { "The grapple! For science, I need twenty swings worth of data." },
 		Outro = { "Marvellous data. Absolutely marvellous." },
-		Steps = { { Kind = "Technique", Action = "Grapple", Count = 20, District = "Verdant", Text = "Grapple 20 times in Verdant Hollow" } },
+		Steps = {
+			{
+				Kind = "Technique",
+				Action = "Grapple",
+				Count = 20,
+				District = "Verdant",
+				Text = "Grapple 20 times in Verdant Hollow",
+			},
+		},
 		Rewards = { XP = 1000, Credits = 450 },
 	},
 	{
@@ -1005,9 +1078,19 @@ local Q: { Quest } = {
 		Summary = "Get from the plaza to the Exchange roof before the closing bell.",
 		Start = "Talk to Analyst Pria Shah in the Exchange.",
 		Requires = { Quests = { "c4_terminals" } },
-		Intro = { "The closing bell rings in fifty seconds. If you're on the roof when it does, the data feed is ours." },
+		Intro = {
+			"The closing bell rings in fifty seconds. If you're on the roof when it does, the data feed is ours.",
+		},
 		Outro = { "Right on the bell! Perfect data." },
-		Steps = { { Kind = "Timed", From = "gil_plaza", To = "gil_roof", Time = 50, Text = "Reach the Exchange roof within 50s" } },
+		Steps = {
+			{
+				Kind = "Timed",
+				From = "gil_plaza",
+				To = "gil_roof",
+				Time = 50,
+				Text = "Reach the Exchange roof within 50s",
+			},
+		},
 		Rewards = { XP = 1500, Credits = 650 },
 	},
 	{
@@ -1106,7 +1189,9 @@ local Q: { Quest } = {
 		Requires = { Quests = { "c6_maps" } },
 		Intro = { "I've tried Ascension a hundred times. Never once without falling. Show me it can be done." },
 		Outro = { "Clean. Absolutely clean. I'm going to need to sit down." },
-		Steps = { { Kind = "Course", Course = "cit_ascension", NoFalls = true, Text = "Complete Ascension with no falls" } },
+		Steps = {
+			{ Kind = "Course", Course = "cit_ascension", NoFalls = true, Text = "Complete Ascension with no falls" },
+		},
 		Rewards = { XP = 3200, Credits = 1300, Prestige = 1 },
 	},
 
@@ -1138,7 +1223,15 @@ local Q: { Quest } = {
 		Requires = { Quests = { "c1_bell" } },
 		Intro = { "Gold. No falls. Comet could do it." },
 		Outro = { "Okay you're faster than Comet. Don't tell her." },
-		Steps = { { Kind = "Course", Course = "tin_alley_cats", Medal = 3, NoFalls = true, Text = "Gold on Alley Cats, no falls" } },
+		Steps = {
+			{
+				Kind = "Course",
+				Course = "tin_alley_cats",
+				Medal = 3,
+				NoFalls = true,
+				Text = "Gold on Alley Cats, no falls",
+			},
+		},
 		Rewards = { XP = 1200, Credits = 700, Prestige = 2 },
 	},
 	{
@@ -1166,7 +1259,15 @@ local Q: { Quest } = {
 		Requires = { Quests = { "c2_titan" } },
 		Intro = { "Learn the timers. Then run Piston Alley like they're not there." },
 		Outro = { "You've got a metronome for a heart." },
-		Steps = { { Kind = "Course", Course = "iron_pistons", Medal = 3, NoFalls = true, Text = "Gold on Piston Alley, no falls" } },
+		Steps = {
+			{
+				Kind = "Course",
+				Course = "iron_pistons",
+				Medal = 3,
+				NoFalls = true,
+				Text = "Gold on Piston Alley, no falls",
+			},
+		},
 		Rewards = { XP = 2000, Credits = 900, Prestige = 2 },
 	},
 	{
@@ -1195,7 +1296,13 @@ local Q: { Quest } = {
 		Intro = { "There's a line up the observatory I've only ever seen in old footage. Gold, through the shortcut." },
 		Outro = { "That's the line! I have to write this down!" },
 		Steps = {
-			{ Kind = "Course", Course = "ver_observatory", Medal = 3, Shortcut = true, Text = "Gold on Starfall Observatory via the expert shortcut" },
+			{
+				Kind = "Course",
+				Course = "ver_observatory",
+				Medal = 3,
+				Shortcut = true,
+				Text = "Gold on Starfall Observatory via the expert shortcut",
+			},
 		},
 		Rewards = { XP = 2400, Credits = 1000, Prestige = 2 },
 	},
@@ -1224,7 +1331,15 @@ local Q: { Quest } = {
 		Requires = { Quests = { "c4_signal" } },
 		Intro = { "SECURITY TEST REQUESTED. GOLD STANDARD. ZERO INCIDENTS." },
 		Outro = { "NO INTRUSION DETECTED. WAIT. THAT IS BAD. CONGRATULATIONS." },
-		Steps = { { Kind = "Course", Course = "gil_grid", Medal = 3, NoFalls = true, Text = "Gold on Security Grid, no falls" } },
+		Steps = {
+			{
+				Kind = "Course",
+				Course = "gil_grid",
+				Medal = 3,
+				NoFalls = true,
+				Text = "Gold on Security Grid, no falls",
+			},
+		},
 		Rewards = { XP = 2800, Credits = 1100, Prestige = 2 },
 	},
 	{
@@ -1252,7 +1367,15 @@ local Q: { Quest } = {
 		Requires = { Quests = { "c5_mast" } },
 		Intro = { "Gold on Avalanche without falling once? Ha! I'd pay to see it." },
 		Outro = { "Okay. I'm paying. That was incredible." },
-		Steps = { { Kind = "Course", Course = "fro_avalanche", Medal = 3, NoFalls = true, Text = "Gold on Avalanche, no falls" } },
+		Steps = {
+			{
+				Kind = "Course",
+				Course = "fro_avalanche",
+				Medal = 3,
+				NoFalls = true,
+				Text = "Gold on Avalanche, no falls",
+			},
+		},
 		Rewards = { XP = 3200, Credits = 1250, Prestige = 2 },
 	},
 	{
@@ -1281,7 +1404,13 @@ local Q: { Quest } = {
 		Intro = { "There's one thing left. Platinum on the Legend, without ever breaking flow." },
 		Outro = { "I've run these roofs for forty years. I have never seen anything like that." },
 		Steps = {
-			{ Kind = "Course", Course = "cit_legend", Medal = 4, Flow = true, Text = "Platinum on Skyline Legend with the In the Flow distinction" },
+			{
+				Kind = "Course",
+				Course = "cit_legend",
+				Medal = 4,
+				Flow = true,
+				Text = "Platinum on Skyline Legend with the In the Flow distinction",
+			},
 		},
 		Rewards = { XP = 6000, Credits = 3000, Prestige = 5 },
 	},
@@ -1322,8 +1451,24 @@ Quests.Daily = {
 	{ Id = "d_rope", Tier = 2, Kind = "Technique", Action = "RopeSwing", Count = 10, Text = "Swing on 10 ropes" },
 	{ Id = "d_discover", Tier = 2, Kind = "Discover", Count = 2, Text = "Make 2 discoveries" },
 	{ Id = "d_contracts", Tier = 2, Kind = "Contracts", Count = 2, Text = "Complete 2 contracts" },
-	{ Id = "d_double", Tier = 2, Kind = "Technique", Action = "DoubleJump", Count = 25, Text = "Double jump 25 times", Needs = "DoubleJump" },
-	{ Id = "d_grapple", Tier = 2, Kind = "Technique", Action = "Grapple", Count = 20, Text = "Grapple 20 times", Needs = "Grapple" },
+	{
+		Id = "d_double",
+		Tier = 2,
+		Kind = "Technique",
+		Action = "DoubleJump",
+		Count = 25,
+		Text = "Double jump 25 times",
+		Needs = "DoubleJump",
+	},
+	{
+		Id = "d_grapple",
+		Tier = 2,
+		Kind = "Technique",
+		Action = "Grapple",
+		Count = 20,
+		Text = "Grapple 20 times",
+		Needs = "Grapple",
+	},
 	{ Id = "d_flow", Tier = 3, Kind = "Flow", Tier2 = 3, Text = "Reach Surge flow" },
 	{ Id = "d_gold", Tier = 3, Kind = "Medal", Medal = 3, Count = 1, Text = "Earn gold or better on any course" },
 	{ Id = "d_nofall", Tier = 3, Kind = "NoFall", Count = 2, Text = "Finish 2 courses without falling" },

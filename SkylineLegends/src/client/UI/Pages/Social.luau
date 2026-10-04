@@ -32,7 +32,12 @@ local function invitePicker(parent: Instance, kind: string)
 			if not entry.You then
 				any = true
 				local row = Kit.Row(box, 36, 8)
-				Kit.Label(row, ("%s%s  Lv %d"):format(if entry.Friend then "★ " else "", entry.Name, entry.Level or 1), 14, { Size = UDim2.new(1, -130, 1, 0) })
+				Kit.Label(
+					row,
+					("%s%s  Lv %d"):format(if entry.Friend then "★ " else "", entry.Name, entry.Level or 1),
+					14,
+					{ Size = UDim2.new(1, -130, 1, 0) }
+				)
 				Kit.Button(row, "Invite", function()
 					Net.Send("Social.Invite", entry.UserId, kind)
 				end, "Secondary", { Size = UDim2.fromOffset(110, 32) })
@@ -48,14 +53,37 @@ end
 
 local function lobbyCard(parent: Instance, data: any, isRelay: boolean)
 	local card = Kit.Card(parent)
-	Kit.Label(card, ("%s · %s"):format(if isRelay then "RELAY TEAM" else "YOUR RACE", tostring(data.CourseName)), 17, { Font = Kit.Fonts.Black, TextColor3 = Color3.fromRGB(255, 120, 220) })
-	Kit.Paragraph(card, ("%d / %d runners · %s"):format(#(data.Members or {}), data.Max or 8, if data.State == "Running" then "running now" else "in the lobby"), 13, C.Muted)
+	Kit.Label(
+		card,
+		("%s · %s"):format(if isRelay then "RELAY TEAM" else "YOUR RACE", tostring(data.CourseName)),
+		17,
+		{ Font = Kit.Fonts.Black, TextColor3 = Color3.fromRGB(255, 120, 220) }
+	)
+	Kit.Paragraph(
+		card,
+		("%d / %d runners · %s"):format(
+			#(data.Members or {}),
+			data.Max or 8,
+			if data.State == "Running" then "running now" else "in the lobby"
+		),
+		13,
+		C.Muted
+	)
 	local mine = false
 	for _, member in data.Members or {} do
 		if member.UserId == player.UserId then
 			mine = member.Ready
 		end
-		Kit.Label(card, ("%s %s%s"):format(if member.Ready then "✓" else "…", member.Name, if member.Host then " (host)" else ""), 14, { TextColor3 = if member.Ready then C.Good else C.Text })
+		Kit.Label(
+			card,
+			("%s %s%s"):format(
+				if member.Ready then "✓" else "…",
+				member.Name,
+				if member.Host then " (host)" else ""
+			),
+			14,
+			{ TextColor3 = if member.Ready then C.Good else C.Text }
+		)
 	end
 	if not isRelay and data.Results and #data.Results > 0 then
 		Kit.Label(card, "Last race", 14, { Font = Kit.Fonts.Bold, TextColor3 = C.Accent })
@@ -71,7 +99,12 @@ local function lobbyCard(parent: Instance, data: any, isRelay: boolean)
 		Kit.Button(row, "Leave", function()
 			Net.Send(if isRelay then "Relay.Leave" else "Race.Leave")
 		end, "Ghost", { Size = UDim2.fromOffset(100, 38) })
-		Kit.Paragraph(card, "Everyone readies up and the countdown starts. Races use standard attributes and the course's full kit.", 12, C.Faint)
+		Kit.Paragraph(
+			card,
+			"Everyone readies up and the countdown starts. Races use standard attributes and the course's full kit.",
+			12,
+			C.Faint
+		)
 		invitePicker(card, if isRelay then "Relay" else "Race")
 	end
 end
@@ -87,7 +120,12 @@ local function buildRaces(container: Frame)
 		lobbyCard(scroll, Modes.Relay, true)
 	end
 	Kit.Label(scroll, "Open in this server", 18, { Font = Kit.Fonts.Black, TextColor3 = C.Accent })
-	local openList = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = scroll })
+	local openList = Kit.new("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Parent = scroll,
+	})
 	Kit.List(openList, false, 6)
 	local status = Kit.Paragraph(openList, "Checking the board…", 13, C.Faint)
 	local message = Kit.Paragraph(scroll, "", 13, C.Bad)
@@ -102,7 +140,12 @@ local function buildRaces(container: Frame)
 			if entry.State == "Lobby" and not (Modes.Race and Modes.Race.Id == entry.Id) then
 				count += 1
 				local row = Kit.Row(openList, 40, 8)
-				Kit.Label(row, ("Race · %s · %d/%d"):format(entry.CourseName, #entry.Members, entry.Max), 14, { Size = UDim2.new(1, -130, 1, 0) })
+				Kit.Label(
+					row,
+					("Race · %s · %d/%d"):format(entry.CourseName, #entry.Members, entry.Max),
+					14,
+					{ Size = UDim2.new(1, -130, 1, 0) }
+				)
 				Kit.Button(row, "Join", function()
 					task.spawn(function()
 						local ok, info = Modes.JoinRace(entry.Id)
@@ -117,7 +160,12 @@ local function buildRaces(container: Frame)
 			if entry.State == "Lobby" and not (Modes.Relay and Modes.Relay.Id == entry.Id) then
 				count += 1
 				local row = Kit.Row(openList, 40, 8)
-				Kit.Label(row, ("Relay · %s · %d/%d"):format(entry.CourseName, #entry.Members, entry.Max), 14, { Size = UDim2.new(1, -130, 1, 0) })
+				Kit.Label(
+					row,
+					("Relay · %s · %d/%d"):format(entry.CourseName, #entry.Members, entry.Max),
+					14,
+					{ Size = UDim2.new(1, -130, 1, 0) }
+				)
 				Kit.Button(row, "Join team", function()
 					task.spawn(function()
 						local ok, info = Modes.JoinRelay(entry.Id)
@@ -138,7 +186,10 @@ local function buildRaces(container: Frame)
 	local any = false
 	for _, course in Courses.List do
 		local record = profile and profile.Courses and profile.Courses[course.Id]
-		if (course.Kind == "Course" or course.Kind == "Relay") and record and (record.Completions or 0) > 0 or course.District == "Hub" and course.Kind ~= "Room" then
+		if
+			(course.Kind == "Course" or course.Kind == "Relay") and record and (record.Completions or 0) > 0
+			or course.District == "Hub" and course.Kind ~= "Room"
+		then
 			any = true
 			local row = Kit.Row(scroll, 40, 8)
 			Kit.Label(row, ("%s · %s"):format(course.Name, course.District), 14, { Size = UDim2.new(1, -170, 1, 0) })
@@ -176,22 +227,57 @@ local function buildCrew(container: Frame)
 		end
 		status.Text = ""
 		if ok and type(crew) == "table" then
-			Kit.Label(scroll, ("[%s] %s"):format(crew.Tag, crew.Name), 24, { Font = Kit.Fonts.Black, TextColor3 = C.Good })
+			Kit.Label(
+				scroll,
+				("[%s] %s"):format(crew.Tag, crew.Name),
+				24,
+				{ Font = Kit.Fonts.Black, TextColor3 = C.Good }
+			)
 			local goal = Kit.Card(scroll)
-			Kit.Label(goal, ("Weekly crew goal · resets in %s"):format(Format.Duration(crew.ResetIn or 0)), 15, { Font = Kit.Fonts.Bold })
+			Kit.Label(
+				goal,
+				("Weekly crew goal · resets in %s"):format(Format.Duration(crew.ResetIn or 0)),
+				15,
+				{ Font = Kit.Fonts.Bold }
+			)
 			local top = crew.Tiers[#crew.Tiers]
 			local bar = Kit.Bar(goal, C.Good)
 			bar.Set((crew.Points or 0) / top)
 			local tiers = {}
 			for index, needed in crew.Tiers do
-				table.insert(tiers, ("%s %d pts: %s"):format(if (crew.Points or 0) >= needed then "✓" else "·", needed, Kit.Rewards(crew.Rewards[index])))
+				table.insert(
+					tiers,
+					("%s %d pts: %s"):format(
+						if (crew.Points or 0) >= needed then "✓" else "·",
+						needed,
+						Kit.Rewards(crew.Rewards[index])
+					)
+				)
 			end
-			Kit.Paragraph(goal, ("%d points this week (%d all time)\n%s"):format(crew.Points or 0, crew.Total or 0, table.concat(tiers, "\n")), 13, C.Muted)
+			Kit.Paragraph(
+				goal,
+				("%d points this week (%d all time)\n%s"):format(
+					crew.Points or 0,
+					crew.Total or 0,
+					table.concat(tiers, "\n")
+				),
+				13,
+				C.Muted
+			)
 			Kit.Paragraph(goal, "Every course, race, relay and Spire floor a member finishes adds points.", 12, C.Faint)
 			Kit.Label(scroll, "Members", 17, { Font = Kit.Fonts.Black, TextColor3 = C.Accent })
 			for _, member in crew.Members do
 				local row = Kit.Row(scroll, 36, 8)
-				Kit.Label(row, ("%s %s%s"):format(if member.Online then "●" else "○", member.Name, if member.Owner then " (leader)" else ""), 14, { Size = UDim2.new(1, -120, 1, 0), TextColor3 = if member.Online then C.Good else C.Muted })
+				Kit.Label(
+					row,
+					("%s %s%s"):format(
+						if member.Online then "●" else "○",
+						member.Name,
+						if member.Owner then " (leader)" else ""
+					),
+					14,
+					{ Size = UDim2.new(1, -120, 1, 0), TextColor3 = if member.Online then C.Good else C.Muted }
+				)
 				if crew.IsOwner and not member.Owner then
 					Kit.Button(row, "Remove", function()
 						Net.Send("Crew.Kick", member.UserId)
@@ -207,7 +293,12 @@ local function buildCrew(container: Frame)
 					for _, entry in list do
 						if not entry.You and not entry.Crew then
 							local row = Kit.Row(invite, 36, 8)
-							Kit.Label(row, ("%s  Lv %d"):format(entry.Name, entry.Level or 1), 14, { Size = UDim2.new(1, -120, 1, 0) })
+							Kit.Label(
+								row,
+								("%s  Lv %d"):format(entry.Name, entry.Level or 1),
+								14,
+								{ Size = UDim2.new(1, -120, 1, 0) }
+							)
 							Kit.Button(row, "Invite", function()
 								Net.Send("Crew.Invite", entry.UserId)
 							end, "Secondary", { Size = UDim2.fromOffset(100, 32) })
@@ -221,7 +312,12 @@ local function buildCrew(container: Frame)
 			return
 		end
 		-- No crew: create one.
-		Kit.Paragraph(scroll, "Crews are small groups of runners who share a tag on their nametags and a weekly crew goal. Create one, or accept an invite from someone in your server.", 14, C.Text)
+		Kit.Paragraph(
+			scroll,
+			"Crews are small groups of runners who share a tag on their nametags and a weekly crew goal. Create one, or accept an invite from someone in your server.",
+			14,
+			C.Text
+		)
 		local form = Kit.Card(scroll)
 		Kit.Label(form, "Found a crew", 16, { Font = Kit.Fonts.Bold })
 		local function field(placeholder: string, max: number): TextBox
@@ -291,16 +387,36 @@ local function buildPlayers(container: Frame)
 			local card = Kit.Panel(scroll, { Size = UDim2.new(1, -8, 0, 70), BackgroundColor3 = C.PanelLight })
 			Kit.Padding(card, 8, 12)
 			local tag = if entry.Crew then ("[%s] "):format(entry.Crew) else ""
-			Kit.Label(card, ("%s%s%s  ·  Lv %d %s"):format(if entry.Friend then "★ " else "", tag, entry.Name, entry.Level or 1, entry.Rank or ""), 16, {
-				Font = Kit.Fonts.Bold,
-				Size = UDim2.new(1, -250, 0, 24),
-				TextColor3 = if entry.You then C.Accent else C.Text,
-			})
-			Kit.Label(card, ("%s%s · %s"):format(if entry.Title then ("“" .. entry.Title .. "” · ") else "", entry.District or "", entry.Activity or ""), 13, {
-				Position = UDim2.fromOffset(0, 26),
-				Size = UDim2.new(1, -250, 0, 20),
-				TextColor3 = C.Muted,
-			})
+			Kit.Label(
+				card,
+				("%s%s%s  ·  Lv %d %s"):format(
+					if entry.Friend then "★ " else "",
+					tag,
+					entry.Name,
+					entry.Level or 1,
+					entry.Rank or ""
+				),
+				16,
+				{
+					Font = Kit.Fonts.Bold,
+					Size = UDim2.new(1, -250, 0, 24),
+					TextColor3 = if entry.You then C.Accent else C.Text,
+				}
+			)
+			Kit.Label(
+				card,
+				("%s%s · %s"):format(
+					if entry.Title then ("“" .. entry.Title .. "” · ") else "",
+					entry.District or "",
+					entry.Activity or ""
+				),
+				13,
+				{
+					Position = UDim2.fromOffset(0, 26),
+					Size = UDim2.new(1, -250, 0, 20),
+					TextColor3 = C.Muted,
+				}
+			)
 			if not entry.You then
 				local actions = Kit.Row(card, 36, 6)
 				actions.AnchorPoint = Vector2.new(1, 0.5)
@@ -321,7 +437,14 @@ end
 
 return {
 	Pages = {
-		{ Id = "Races", Title = "Races & Relays", Icon = "⚐", Order = 10, Sections = { "Courses" }, Build = buildRaces },
+		{
+			Id = "Races",
+			Title = "Races & Relays",
+			Icon = "⚐",
+			Order = 10,
+			Sections = { "Courses" },
+			Build = buildRaces,
+		},
 		{ Id = "Crew", Title = "Crew", Icon = "∞", Order = 11, Sections = { "Crew" }, Build = buildCrew },
 		{ Id = "Players", Title = "Players", Icon = "☺", Order = 12, Build = buildPlayers },
 	},

@@ -129,7 +129,8 @@ local function unregister(instance: Instance)
 	end
 end
 
-local MANAGED = { Tags.Mover, Tags.Timed, Tags.Collapse, Tags.Switch, Tags.SwitchGate, Tags.Water, Tags.WindZone, Tags.LaunchVent }
+local MANAGED =
+	{ Tags.Mover, Tags.Timed, Tags.Collapse, Tags.Switch, Tags.SwitchGate, Tags.Water, Tags.WindZone, Tags.LaunchVent }
 
 -- Behaviour ---------------------------------------------------------------------------------------
 
@@ -166,9 +167,11 @@ local function stepMover(entry: Entry, t: number): CFrame?
 		local angle = Schedule.Fraction(t, attr(part, "Period", 9), attr(part, "Phase", 0)) * math.pi * 2
 		local radius = attr(part, "Radius", 10)
 		local center = vector(part, "Center")
-		return CFrame.new(center + Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)) * entry.Origin.Rotation
+		return CFrame.new(center + Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius))
+			* entry.Origin.Rotation
 	elseif kind == "Pendulum" or kind == "PendulumRod" then
-		local angle = Schedule.Pendulum(t, attr(part, "Period", 4), attr(part, "Amplitude", 0.4), attr(part, "Phase", 0))
+		local angle =
+			Schedule.Pendulum(t, attr(part, "Period", 4), attr(part, "Amplitude", 0.4), attr(part, "Phase", 0))
 		local pivot = vector(part, "Pivot")
 		local axis = vector(part, "Axis")
 		if axis.Magnitude < 0.5 then
@@ -280,7 +283,9 @@ local function stepCollapse(entry: Entry, t: number, floor: BasePart?): CFrame?
 			return nil
 		end
 		local strength = 0.08 + 0.12 * (1 - (fallAt - clock) / attr(part, "Delay", 0.45))
-		return entry.Origin * CFrame.new(math.sin(t * 71) * strength, 0, math.cos(t * 53) * strength) * CFrame.Angles(0, 0, math.sin(t * 40) * strength * 0.2)
+		return entry.Origin
+			* CFrame.new(math.sin(t * 71) * strength, 0, math.cos(t * 53) * strength)
+			* CFrame.Angles(0, 0, math.sin(t * 40) * strength * 0.2)
 	end
 	local fallen = clock - fallAt
 	if fallen < 0.01 + attr(part, "Respawn", 3.5) then
@@ -315,7 +320,13 @@ end
 local function stepSwitch(entry: Entry, t: number, root: BasePart?, floor: BasePart?)
 	local part = entry.Part
 	local id = attr(part, "SwitchId", "")
-	if root and (floor == part or MathUtil.InBox(part.CFrame * CFrame.new(0, 2.5, 0), part.Size + Vector3.new(0.5, 5, 0.5), root.Position)) then
+	if
+		root
+		and (
+			floor == part
+			or MathUtil.InBox(part.CFrame * CFrame.new(0, 2.5, 0), part.Size + Vector3.new(0.5, 5, 0.5), root.Position)
+		)
+	then
 		pressSwitch(entry, t)
 	end
 	local remaining = (switchUntil[id] or 0) - t
@@ -367,7 +378,13 @@ local function stepCycleFx(entry: Entry, t: number)
 		return
 	end
 	local part = entry.Part
-	local on, warning = Schedule.Cycle(t, attr(part, "Period", 4), attr(part, "OnFraction", 0.4), attr(part, "Phase", 0), attr(part, "Warn", 0.8))
+	local on, warning = Schedule.Cycle(
+		t,
+		attr(part, "Period", 4),
+		attr(part, "OnFraction", 0.4),
+		attr(part, "Phase", 0),
+		attr(part, "Warn", 0.8)
+	)
 	local scale = if on then 1 elseif warning then 0.25 else 0.04
 	for _, item in emitters do
 		item.Emitter.Rate = item.Rate * scale

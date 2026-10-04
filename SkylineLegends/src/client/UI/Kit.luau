@@ -116,7 +116,12 @@ function Kit.Padding(parent: Instance, all: number, horizontal: number?): UIPadd
 	})
 end
 
-function Kit.List(parent: Instance, horizontal: boolean?, spacing: number?, align: Enum.HorizontalAlignment?): UIListLayout
+function Kit.List(
+	parent: Instance,
+	horizontal: boolean?,
+	spacing: number?,
+	align: Enum.HorizontalAlignment?
+): UIListLayout
 	return Kit.new("UIListLayout", {
 		FillDirection = if horizontal then Enum.FillDirection.Horizontal else Enum.FillDirection.Vertical,
 		Padding = UDim.new(0, spacing or 6),
@@ -198,7 +203,13 @@ end
 
 export type ButtonStyle = "Primary" | "Secondary" | "Ghost" | "Danger"
 
-function Kit.Button(parent: Instance?, text: string, onClick: (() -> ())?, style: ButtonStyle?, props: { [string]: any }?): TextButton
+function Kit.Button(
+	parent: Instance?,
+	text: string,
+	onClick: (() -> ())?,
+	style: ButtonStyle?,
+	props: { [string]: any }?
+): TextButton
 	local kind = style or "Secondary"
 	local base = if kind == "Primary"
 		then Kit.Colors.Accent
@@ -224,7 +235,11 @@ function Kit.Button(parent: Instance?, text: string, onClick: (() -> ())?, style
 	Kit.Corner(button, 8)
 	local stroke = Kit.Stroke(button, Kit.Colors.Text, 1.5, 1)
 	local function hover(on: boolean)
-		TweenService:Create(button, TweenInfo.new(0.12), { BackgroundColor3 = if on then base:Lerp(Color3.new(1, 1, 1), 0.15) else base }):Play()
+		TweenService:Create(
+			button,
+			TweenInfo.new(0.12),
+			{ BackgroundColor3 = if on then base:Lerp(Color3.new(1, 1, 1), 0.15) else base }
+		):Play()
 		stroke.Transparency = if on then 0.2 else 1
 	end
 	button.MouseEnter:Connect(function()
@@ -311,7 +326,13 @@ end
 -- Remove everything except layout helpers.
 function Kit.Clear(container: Instance)
 	for _, child in container:GetChildren() do
-		if not child:IsA("UIListLayout") and not child:IsA("UIGridLayout") and not child:IsA("UIPadding") and not child:IsA("UICorner") and not child:IsA("UIStroke") then
+		if
+			not child:IsA("UIListLayout")
+			and not child:IsA("UIGridLayout")
+			and not child:IsA("UIPadding")
+			and not child:IsA("UICorner")
+			and not child:IsA("UIStroke")
+		then
 			child:Destroy()
 		end
 	end
@@ -356,7 +377,9 @@ function Kit.Toggle(parent: Instance?, value: boolean, onChange: (boolean) -> ()
 	local button = Kit.Button(nil, "", nil, "Secondary", { Size = UDim2.fromOffset(90, 34) })
 	local function render()
 		button.Text = if state then "ON" else "OFF"
-		button.BackgroundColor3 = if state then Kit.Colors.Good:Lerp(Kit.Colors.PanelLight, 0.35) else Kit.Colors.PanelLight
+		button.BackgroundColor3 = if state
+			then Kit.Colors.Good:Lerp(Kit.Colors.PanelLight, 0.35)
+			else Kit.Colors.PanelLight
 	end
 	button.Activated:Connect(function()
 		state = not state
@@ -394,7 +417,15 @@ function Kit.Choice(parent: Instance?, choices: { string }, value: string, onCha
 end
 
 -- A slider with - and + buttons (works with mouse, touch and gamepad).
-function Kit.Slider(parent: Instance?, min: number, max: number, step: number, value: number, onChange: (number) -> (), format: ((number) -> string)?): Frame
+function Kit.Slider(
+	parent: Instance?,
+	min: number,
+	max: number,
+	step: number,
+	value: number,
+	onChange: (number) -> (),
+	format: ((number) -> string)?
+): Frame
 	local current = value
 	local frame = Kit.new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(260, 34) })
 	Kit.List(frame, true, 6)
@@ -411,7 +442,12 @@ function Kit.Slider(parent: Instance?, min: number, max: number, step: number, v
 	local fill = Kit.new("Frame", { BackgroundColor3 = Kit.Colors.Signal, BorderSizePixel = 0, Parent = track })
 	Kit.Corner(fill, 5)
 	local plus = Kit.Button(frame, "+", nil, "Secondary", { Size = UDim2.fromOffset(34, 34), LayoutOrder = 3 })
-	local label = Kit.Label(frame, "", 14, { Size = UDim2.fromOffset(46, 34), LayoutOrder = 4, TextXAlignment = Enum.TextXAlignment.Right })
+	local label = Kit.Label(
+		frame,
+		"",
+		14,
+		{ Size = UDim2.fromOffset(46, 34), LayoutOrder = 4, TextXAlignment = Enum.TextXAlignment.Right }
+	)
 	local function render()
 		local alpha = (current - min) / math.max(max - min, 1e-6)
 		fill.Size = UDim2.fromScale(alpha, 1)
@@ -432,7 +468,10 @@ function Kit.Slider(parent: Instance?, min: number, max: number, step: number, v
 		set(current + step)
 	end)
 	track.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
 			local alpha = (input.Position.X - track.AbsolutePosition.X) / math.max(track.AbsoluteSize.X, 1)
 			set(min + (max - min) * math.clamp(alpha, 0, 1))
 		end
@@ -474,6 +513,5 @@ function Kit.Rewards(rewards: { [string]: any }?): string
 	end
 	return table.concat(parts, "   ")
 end
-
 
 return Kit

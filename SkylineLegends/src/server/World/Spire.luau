@@ -65,11 +65,28 @@ function Spire.Build(world: Instance): { [string]: any }
 	local metas = {}
 
 	-- Lobby at hub level.
-	B:Box(facing * CFrame.new(0, -1, 0), Vector3.new(70, 2, 70), rgb(70, 74, 90), Enum.Material.Slate, { Name = "SpireLobby" })
+	B:Box(
+		facing * CFrame.new(0, -1, 0),
+		Vector3.new(70, 2, 70),
+		rgb(70, 74, 90),
+		Enum.Material.Slate,
+		{ Name = "SpireLobby" }
+	)
 	B:Box(facing * CFrame.new(0, -40, 0), Vector3.new(66, 76, 66), rgb(110, 116, 140), Enum.Material.Concrete)
-	local lift = B:Box(facing * CFrame.new(0, 6, 20), Vector3.new(10, 12, 2), rgb(80, 200, 255), Enum.Material.ForceField, { Name = "SpireLift", CanCollide = false })
+	local lift = B:Box(
+		facing * CFrame.new(0, 6, 20),
+		Vector3.new(10, 12, 2),
+		rgb(80, 200, 255),
+		Enum.Material.ForceField,
+		{ Name = "SpireLift", CanCollide = false }
+	)
 	B:Prompt(lift, "Ride", "Spire Lift", { Name = "SpirePrompt", Distance = 14, Attrs = { Board = "Tower" } })
-	local liftSign = B:Detail(facing * CFrame.new(0, 14, 20), Vector3.new(14, 2.2, 0.3), rgb(25, 28, 36), Enum.Material.SmoothPlastic)
+	local liftSign = B:Detail(
+		facing * CFrame.new(0, 14, 20),
+		Vector3.new(14, 2.2, 0.3),
+		rgb(25, 28, 36),
+		Enum.Material.SmoothPlastic
+	)
 	B:Text(liftSign, Enum.NormalId.Back, "THE SPIRE · 25 FLOORS", { Color = rgb(80, 200, 255) })
 
 	local floorY = base.Y + 30
@@ -104,18 +121,58 @@ function Spire.Build(world: Instance): { [string]: any }
 		local center = start * CFrame.new((min.X + max.X) / 2, floorBottom + height / 2, (min.Z + max.Z) / 2)
 		local sizeX = math.max(max.X - min.X, 40) + 12
 		local sizeZ = (max.Z - min.Z) + 14
-		B:Box(center * CFrame.new(0, -height / 2 - 1, 0), Vector3.new(sizeX, 2, sizeZ), rgb(60, 64, 80), Enum.Material.Slate, { Name = "FloorSlab" })
+		B:Box(
+			center * CFrame.new(0, -height / 2 - 1, 0),
+			Vector3.new(sizeX, 2, sizeZ),
+			rgb(60, 64, 80),
+			Enum.Material.Slate,
+			{ Name = "FloorSlab" }
+		)
 		for _, s in { -1, 1 } do
-			B:Box(center * CFrame.new(s * sizeX / 2, 0, 0), Vector3.new(1, height, sizeZ), rgb(150, 200, 230), Enum.Material.Glass, { Transparency = 0.55, Name = "SpireGlass" })
-			B:Box(center * CFrame.new(0, 0, s * sizeZ / 2), Vector3.new(sizeX, height, 1), rgb(150, 200, 230), Enum.Material.Glass, { Transparency = 0.55, Name = "SpireGlass" })
+			B:Box(
+				center * CFrame.new(s * sizeX / 2, 0, 0),
+				Vector3.new(1, height, sizeZ),
+				rgb(150, 200, 230),
+				Enum.Material.Glass,
+				{ Transparency = 0.55, Name = "SpireGlass" }
+			)
+			B:Box(
+				center * CFrame.new(0, 0, s * sizeZ / 2),
+				Vector3.new(sizeX, height, 1),
+				rgb(150, 200, 230),
+				Enum.Material.Glass,
+				{ Transparency = 0.55, Name = "SpireGlass" }
+			)
 			for _, t in { -1, 1 } do
-				B:Detail(center * CFrame.new(s * sizeX / 2, 0, t * sizeZ / 2), Vector3.new(2, height, 2), rgb(60, 64, 80), Enum.Material.Metal, { CanCollide = true })
+				B:Detail(
+					center * CFrame.new(s * sizeX / 2, 0, t * sizeZ / 2),
+					Vector3.new(2, height, 2),
+					rgb(60, 64, 80),
+					Enum.Material.Metal,
+					{ CanCollide = true }
+				)
 			end
 		end
-		B:Box(center * CFrame.new(0, height / 2 + 1, 0), Vector3.new(sizeX + 2, 2, sizeZ + 2), rgb(60, 64, 80), Enum.Material.Slate, { Name = "FloorCeiling" })
-		local band = B:Detail(center * CFrame.new(0, height / 2 - 0.6, sizeZ / 2 + 0.6), Vector3.new(sizeX, 1, 0.2), if floor % 5 == 0 then rgb(255, 196, 92) else rgb(80, 200, 255), Enum.Material.Neon)
+		B:Box(
+			center * CFrame.new(0, height / 2 + 1, 0),
+			Vector3.new(sizeX + 2, 2, sizeZ + 2),
+			rgb(60, 64, 80),
+			Enum.Material.Slate,
+			{ Name = "FloorCeiling" }
+		)
+		local band = B:Detail(
+			center * CFrame.new(0, height / 2 - 0.6, sizeZ / 2 + 0.6),
+			Vector3.new(sizeX, 1, 0.2),
+			if floor % 5 == 0 then rgb(255, 196, 92) else rgb(80, 200, 255),
+			Enum.Material.Neon
+		)
 		B:Light(band, rgb(200, 230, 255), 50, 1, "Spot", Enum.NormalId.Bottom)
-		local label = B:Detail(start * CFrame.new(-7, 7, -6), Vector3.new(0.3, 3, 6), rgb(25, 28, 36), Enum.Material.SmoothPlastic)
+		local label = B:Detail(
+			start * CFrame.new(-7, 7, -6),
+			Vector3.new(0.3, 3, 6),
+			rgb(25, 28, 36),
+			Enum.Material.SmoothPlastic
+		)
 		B:Text(label, Enum.NormalId.Right, "FLOOR " .. floor, { Color = rgb(80, 200, 255) })
 		B:Text(label, Enum.NormalId.Left, "FLOOR " .. floor, { Color = rgb(80, 200, 255) })
 		B:FarBox(center, Vector3.new(sizeX, height, sizeZ), rgb(150, 200, 230), Enum.Material.Glass)
@@ -124,10 +181,27 @@ function Spire.Build(world: Instance): { [string]: any }
 
 	-- The roof: a ladder out of the last floor's ceiling, and the secret above it all.
 	local roofCF = facing * CFrame.new(0, floorY - base.Y, 0)
-	B:Box(roofCF * CFrame.new(0, -1, 0), Vector3.new(40, 2, 40), rgb(60, 64, 80), Enum.Material.Slate, { Name = "SpireRoof" })
-	local beacon = B:Ball(roofCF.Position + Vector3.new(0, 12, 0), 5, rgb(255, 196, 92), Enum.Material.Neon, { Name = "SpireBeacon", CanCollide = false })
+	B:Box(
+		roofCF * CFrame.new(0, -1, 0),
+		Vector3.new(40, 2, 40),
+		rgb(60, 64, 80),
+		Enum.Material.Slate,
+		{ Name = "SpireRoof" }
+	)
+	local beacon = B:Ball(
+		roofCF.Position + Vector3.new(0, 12, 0),
+		5,
+		rgb(255, 196, 92),
+		Enum.Material.Neon,
+		{ Name = "SpireBeacon", CanCollide = false }
+	)
 	B:Light(beacon, rgb(255, 196, 92), 60, 2)
-	B:FarBox(CFrame.new(roofCF.Position + Vector3.new(0, 12, 0)), Vector3.new(5, 5, 5), rgb(255, 196, 92), Enum.Material.Neon)
+	B:FarBox(
+		CFrame.new(roofCF.Position + Vector3.new(0, 12, 0)),
+		Vector3.new(5, 5, 5),
+		rgb(255, 196, 92),
+		Enum.Material.Neon
+	)
 	B:Volume(roofCF * CFrame.new(0, 4, 0), Vector3.new(40, 8, 40), Tags.Discovery, {
 		Id = "secret_spire",
 		Kind = "Secret",

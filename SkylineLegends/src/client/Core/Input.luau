@@ -26,7 +26,8 @@ Input.Rebound = Signal.new() -- ()
 -- False while menus are open: gameplay actions are ignored.
 Input.GameplayEnabled = true
 
-local GAMEPLAY = { Jump = true, Sprint = true, Crouch = true, Dash = true, Grapple = true, Retry = true, Emote = true, Mark = true }
+local GAMEPLAY =
+	{ Jump = true, Sprint = true, Crouch = true, Dash = true, Grapple = true, Retry = true, Emote = true, Mark = true }
 
 type ActionState = { Held: boolean, PressedAt: number, ReleasedAt: number, Sources: { [string]: boolean } }
 local actions: { [string]: ActionState } = {}
@@ -164,8 +165,16 @@ local function applyBindings(saved: any)
 	for _, def in SettingsConfig.Actions do
 		local custom = type(saved) == "table" and saved[def.Id] or nil
 		bindings[def.Id] = {
-			Keyboard = if custom and custom.Keyboard and #custom.Keyboard > 0 then table.clone(custom.Keyboard) else table.clone(def.Keyboard),
-			Gamepad = if custom and custom.Gamepad and #custom.Gamepad > 0 then table.clone(custom.Gamepad) else table.clone(def.Gamepad),
+			Keyboard = if custom
+					and custom.Keyboard
+					and #custom.Keyboard > 0
+				then table.clone(custom.Keyboard)
+				else table.clone(def.Keyboard),
+			Gamepad = if custom
+					and custom.Gamepad
+					and #custom.Gamepad > 0
+				then table.clone(custom.Gamepad)
+				else table.clone(def.Gamepad),
 		}
 	end
 	rebuild()

@@ -314,7 +314,12 @@ local function finish(player: Player, run: Run, clientSeconds: any, clientFlow: 
 	local practice = run.Mode == "Practice"
 	local medal = if practice or partial then 0 else Medals.For(seconds, meta.Medals)
 	local record = recordFor(profile, run.CourseId)
-	local previous = { Medal = record.Medal or 0, Best = record.Best, RankedBest = record.RankedBest, Completions = record.Completions or 0 }
+	local previous = {
+		Medal = record.Medal or 0,
+		Best = record.Best,
+		RankedBest = record.RankedBest,
+		Completions = record.Completions or 0,
+	}
 
 	-- Rewards (modes with their own payouts skip these).
 	local lines, xp, credits, prestige = {}, 0, 0, 0
@@ -367,7 +372,8 @@ local function finish(player: Player, run: Run, clientSeconds: any, clientFlow: 
 		DataService.Push(player, "Courses")
 	end
 	if newBest or newRankedBest then
-		pendingGhost[player] = { CourseId = run.CourseId, Seconds = seconds, Ranked = newRankedBest, Expires = os.clock() + 60 }
+		pendingGhost[player] =
+			{ CourseId = run.CourseId, Seconds = seconds, Ranked = newRankedBest, Expires = os.clock() + 60 }
 	end
 	if xp > 0 or credits > 0 or prestige > 0 then
 		ProgressionService.Grant(player, { XP = xp, Credits = credits, Prestige = prestige }, nil, true)
@@ -543,7 +549,11 @@ local function onRestart(player: Player, kind: any, position: any)
 		return
 	end
 	if kind == "Practice" then
-		if run.Mode == "Practice" and typeof(position) == "Vector3" and MovementGuard.VisitedRecently(player, position, 12) then
+		if
+			run.Mode == "Practice"
+			and typeof(position) == "Vector3"
+			and MovementGuard.VisitedRecently(player, position, 12)
+		then
 			MovementGuard.AllowTeleport(player, position, 15)
 		end
 		return
