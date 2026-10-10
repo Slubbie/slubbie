@@ -6,6 +6,8 @@ A momentum movement game for Roblox (R6 only): grapple-swing between floating sk
 
 See **[docs/DESIGN.md](docs/DESIGN.md)** for the full design.
 
+> **Also in this repo:** [**Catch a Comet!**](catch-a-comet/README.md) ☄️, a separate multiplayer comet-catching and creature-collecting game with its own Rojo project in [`catch-a-comet/`](catch-a-comet/).
+
 ## Controls
 
 | Action | PC | Gamepad | Mobile |
